@@ -2,6 +2,7 @@
 
 use \Cthulhu\Parser\Lexer\Lexer;
 use \Cthulhu\Parser\Lexer\TokenType;
+use \Cthulhu\Parser\Lexer\Point;
 
 class LexerTest extends \PHPUnit\Framework\TestCase {
   private function tok(string $str, string $type, ?string $lexeme = null) {
@@ -37,5 +38,15 @@ class LexerTest extends \PHPUnit\Framework\TestCase {
   public function test_unknown_character() {
     $this->expectExceptionMessage('unknown character');
     Lexer::from_string('#')->next();
+  }
+
+  public function test_whitespace_handling()  {
+    $lex = Lexer::from_string(" hello\n\tworld");
+    $tok1 = $lex->next();
+    $tok2 = $lex->next();
+    $tok3 = $lex->next();
+    $this->assertEquals($tok1->span->from, new Point(1, 2, 1));
+    $this->assertEquals($tok2->span->from, new Point(2, 2, 8));
+    $this->assertEquals($tok3, null);
   }
 }

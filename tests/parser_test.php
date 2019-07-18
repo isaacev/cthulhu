@@ -82,6 +82,13 @@ function let($name, $expr) {
   ];
 }
 
+function root($stmts) {
+  return [
+    'type' => 'Root',
+    'statements' => $stmts
+  ];
+}
+
 class ParserTest extends \PHPUnit\Framework\TestCase {
   private function expr(string $str, $json) {
     $ast = \Cthulhu\Parser\Parser::from_string($str)->parse_expr();
@@ -90,6 +97,11 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
   private function stmt(string $str, $json) {
     $ast = \Cthulhu\Parser\Parser::from_string($str)->parse_stmt();
+    $this->assertEquals($ast->jsonSerialize(), $json);
+  }
+
+  private function prog(string $str, $json) {
+    $ast = \Cthulhu\Parser\Parser::from_string($str)->parse();
     $this->assertEquals($ast->jsonSerialize(), $json);
   }
 
@@ -179,6 +191,40 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         ]
       )
     );
+
+    $this->expr('fn (a: Int, b: Int): Void { c; d; }',
+      fn(
+        [
+          param('a', nameNote('Int')),
+          param('b', nameNote('Int'))
+        ],
+        nameNote('Void'),
+        [
+          exprStmt(ident('c')),
+          exprStmt(ident('d'))
+        ]
+      )
+    );
+  }
+
+  public function test_fn_expr_arg_error() {
+    $this->expectExceptionMessage('unexpected end of file, wanted )');
+    $this->expr('fn (', null);
+  }
+
+  public function test_fn_expr_annotation_eof_error() {
+    $this->expectExceptionMessage('unexpected end of file');
+    $this->expr('fn (a:', null);
+  }
+
+  public function test_fn_expr_annotation_token_error() {
+    $this->expectExceptionMessage('unexpected { at (1:7)');
+    $this->expr('fn (a:{', null);
+  }
+
+  public function test_fn_expr_body_error() {
+    $this->expectExceptionMessage('unexpected end of file, wanted }');
+    $this->expr('fn (): a {', null);
   }
 
   public function test_call_expr() {
@@ -216,9 +262,26 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
     );
   }
 
+  public function test_call_expr_error() {
+    $this->expectExceptionMessage('unexpected end of file, wanted )');
+    $this->expr('abc(', null);
+  }
+
+  public function test_prefix_expr_error() {
+    $this->expectExceptionMessage('unexpected ) at (1:1)');
+    $this->expr(')', null);
+  }
+
   public function test_let_stmt() {
     $this->stmt('let a = b;',
       let('a', ident('b'))
     );
+  }
+
+  public function test_parse() {
+    $this->prog('let a = b; let c = d;', root([
+      let('a', ident('b')),
+      let('c', ident('d'))
+    ]));
   }
 }
