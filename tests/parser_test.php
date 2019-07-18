@@ -43,6 +43,29 @@ function exprStmt($expr) {
   ];
 }
 
+function nameNote($name) {
+  return [
+    'type' => 'NameAnnotation',
+    'name' => $name
+  ];
+}
+
+function param($name, $note) {
+  return [
+    'name' => $name,
+    'annotation' => $note
+  ];
+}
+
+function fn($params, $ret, $body) {
+  return [
+    'type' => 'FnExpression',
+    'parameters' => $params,
+    'return_annotation' => $ret,
+    'body' => $body
+  ];
+}
+
 function let($name, $expr) {
   return [
     'type' => 'LetStatement',
@@ -128,6 +151,21 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         [
           exprStmt(ident('b'))
         ],
+        [
+          exprStmt(ident('c'))
+        ]
+      )
+    );
+  }
+
+  public function test_fn_expr() {
+    $this->expr('fn (a: Int, b: Int): Void { c; }',
+      fn(
+        [
+          param('a', nameNote('Int')),
+          param('b', nameNote('Int'))
+        ],
+        nameNote('Void'),
         [
           exprStmt(ident('c'))
         ]

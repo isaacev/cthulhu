@@ -30,6 +30,8 @@ class LexerTest extends \PHPUnit\Framework\TestCase {
     $this->tok('/',    TokenType::SLASH);
     $this->tok(';',    TokenType::SEMICOLON);
     $this->tok('=',    TokenType::EQUALS);
+    $this->tok(':',    TokenType::COLON);
+    $this->tok(',',    TokenType::COMMA);
   }
 
   public function test_unknown_character() {

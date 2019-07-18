@@ -20,4 +20,6 @@ abstract class TokenType {
   const SLASH         = '/';
   const SEMICOLON     = ';';
   const EQUALS        = '=';
+  const COLON         = ':';
+  const COMMA         = ',';
 }

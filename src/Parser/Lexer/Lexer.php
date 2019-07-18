@@ -61,6 +61,10 @@ class Lexer {
         return $this->next_single_char(TokenType::SEMICOLON, $next);
       case $next->is('='):
         return $this->next_single_char(TokenType::EQUALS, $next);
+      case $next->is(':'):
+        return $this->next_single_char(TokenType::COLON, $next);
+      case $next->is(','):
+        return $this->next_single_char(TokenType::COMMA, $next);
       default:
         throw new \Exception("unknown character '$next->char' at $next->point");
     }
