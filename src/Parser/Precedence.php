@@ -6,4 +6,5 @@ abstract class Precedence {
   const LOWEST  = 0;
   const SUM     = 10;
   const PRODUCT = 20;
+  const ACCESS  = 30;
 }

@@ -66,6 +66,14 @@ function fn($params, $ret, $body) {
   ];
 }
 
+function call($callee, $args) {
+  return [
+    'type' => 'CallExpression',
+    'callee' => $callee,
+    'arguments' => $args
+  ];
+}
+
 function let($name, $expr) {
   return [
     'type' => 'LetStatement',
@@ -168,6 +176,41 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         nameNote('Void'),
         [
           exprStmt(ident('c'))
+        ]
+      )
+    );
+  }
+
+  public function test_call_expr() {
+    $this->expr('abc(d, e)',
+      call(
+        ident('abc'),
+        [
+          ident('d'),
+          ident('e'),
+        ]
+      )
+    );
+
+    $this->expr('a * bc(d + e, f)',
+      binary('*',
+        ident('a'),
+        call(
+          ident('bc'),
+          [
+            binary('+', ident('d'), ident('e')),
+            ident('f')
+          ]
+        )
+      )
+    );
+
+    $this->expr('(a * bc)(d + e, f)',
+      call(
+        binary('*', ident('a'), ident('bc')),
+        [
+          binary('+', ident('d'), ident('e')),
+          ident('f')
         ]
       )
     );

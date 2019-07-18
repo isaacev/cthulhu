@@ -51,6 +51,8 @@ class Parser {
       case TokenType::STAR:
       case TokenType::SLASH:
         return Precedence::PRODUCT;
+      case TokenType::PAREN_LEFT:
+        return Precedence::ACCESS;
       default:
         return Precedence::LOWEST;
     }
@@ -135,6 +137,28 @@ class Parser {
     }
   }
 
+  private function parse_call_expr(AST\Expression $callee, Token $paren_left): AST\CallExpression {
+    $args = [];
+    while (true) {
+      $peek = $this->lexer->peek();
+      if ($peek === null || $peek->type === TokenType::PAREN_RIGHT) {
+        break;
+      }
+
+      $args[] = $this->parse_expr();
+
+      $peek = $this->lexer->peek();
+      if ($peek === null || $peek->type !== TokenType::COMMA) {
+        break;
+      } else {
+        $this->require_next_token(TokenType::COMMA);
+      }
+    }
+
+    $paren_right = $this->require_next_token(TokenType::PAREN_RIGHT);
+    return new AST\CallExpression($callee, $args);
+  }
+
   private function parse_postfix_expr(AST\Expression $left, Token $next): AST\Expression {
     switch ($next->type) {
       case TokenType::PLUS:
@@ -143,6 +167,8 @@ class Parser {
       case TokenType::SLASH:
         $right = $this->parse_expr($this->infix_token_precedence($next));
         return new AST\BinaryOperator($next->type, $left, $right);
+      case TokenType::PAREN_LEFT:
+        return $this->parse_call_expr($left, $next);
       default:
         // @codeCoverageIgnoreStart
         throw new \Exception("binary operator disagreement: $next->type");
