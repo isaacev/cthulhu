@@ -33,7 +33,7 @@ class Parser {
 
     switch ($peek->type) {
       case TokenType::IDENT:
-        return new AST\NameAnnotation($this->require_next_token(TokenType::IDENT)->lexeme);
+        return new AST\NamedAnnotation($this->require_next_token(TokenType::IDENT)->lexeme);
       default:
         throw new Errors\UnexpectedToken($peek);
     }

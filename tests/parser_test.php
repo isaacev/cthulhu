@@ -45,7 +45,7 @@ function exprStmt($expr) {
 
 function nameNote($name) {
   return [
-    'type' => 'NameAnnotation',
+    'type' => 'NamedAnnotation',
     'name' => $name
   ];
 }

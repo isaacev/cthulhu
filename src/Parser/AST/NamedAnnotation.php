@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Parser\AST;
 
-class NameAnnotation extends Annotation {
+class NamedAnnotation extends Annotation {
   public $name;
 
   function __construct(string $name) {
@@ -11,7 +11,7 @@ class NameAnnotation extends Annotation {
 
   public function jsonSerialize() {
     return [
-      'type' => 'NameAnnotation',
+      'type' => 'NamedAnnotation',
       'name' => $this->name
     ];
   }
