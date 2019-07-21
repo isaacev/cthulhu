@@ -27,7 +27,7 @@ class Scanner {
     return $this->buffer;
   }
 
-  public function next() {
+  public function next(): ?Character {
     if ($this->buffer !== null) {
       $buf = $this->buffer;
       $this->buffer = null;
