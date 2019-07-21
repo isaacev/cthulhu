@@ -14,6 +14,16 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
     $this->assertEquals($expected->jsonSerialize(), $found->jsonSerialize());
   }
 
+  public function test_builtin_type_relations() {
+    // Builtin types do accept themselves
+    $this->assertTrue((new Types\StrType())->accepts(new Types\StrType()));
+    $this->assertTrue((new Types\NumType())->accepts(new Types\NumType()));
+
+    // Builtin types do not accept other types
+    $this->assertFalse((new Types\StrType())->accepts(new Types\NumType()));
+    $this->assertFalse((new Types\NumType())->accepts(new Types\StrType()));
+  }
+
   public function test_number_literal_expression() {
     $this->expr(num(123), new Types\NumType());
   }
