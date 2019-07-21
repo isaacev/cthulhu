@@ -6,19 +6,22 @@ use \Cthulhu\Parser\Lexer\TokenType;
 require_once 'ast.php';
 
 class ParserTest extends \PHPUnit\Framework\TestCase {
-  private function expr(string $str, $json) {
-    $ast = \Cthulhu\Parser\Parser::from_string($str)->parse_expr();
-    $this->assertEquals($ast->jsonSerialize(), $json);
+  private function expr(string $str, ?AST\Expression $expected) {
+    $found = \Cthulhu\Parser\Parser::from_string($str)->parse_expr();
+    $this->assertEquals($found, $expected);
+    $this->assertEquals($found->jsonSerialize(), $expected->jsonSerialize());
   }
 
-  private function stmt(string $str, $json) {
-    $ast = \Cthulhu\Parser\Parser::from_string($str)->parse_stmt();
-    $this->assertEquals($ast->jsonSerialize(), $json);
+  private function stmt(string $str, ?AST\Statement $expected) {
+    $found = \Cthulhu\Parser\Parser::from_string($str)->parse_stmt();
+    $this->assertEquals($found, $expected);
+    $this->assertEquals($found->jsonSerialize(), $expected->jsonSerialize());
   }
 
-  private function prog(string $str, $json) {
-    $ast = \Cthulhu\Parser\Parser::from_string($str)->parse();
-    $this->assertEquals($ast->jsonSerialize(), $json);
+  private function prog(string $str, ?AST\Root $expected) {
+    $found = \Cthulhu\Parser\Parser::from_string($str)->parse();
+    $this->assertEquals($found, $expected);
+    $this->assertEquals($found->jsonSerialize(), $expected->jsonSerialize());
   }
 
   public function test_str_literal_expression() {
@@ -81,9 +84,9 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
   public function test_if_expr() {
     $this->expr('if a { b; }',
       ifelse(ident('a'),
-        [
+        block([
           exprStmt(ident('b'))
-        ],
+        ]),
         null
       )
     );
@@ -92,12 +95,12 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
   public function test_if_else_expr() {
     $this->expr('if a { b; } else { c; }',
       ifelse(ident('a'),
-        [
+        block([
           exprStmt(ident('b'))
-        ],
-        [
+        ]),
+        block([
           exprStmt(ident('c'))
-        ]
+        ])
       )
     );
   }
@@ -110,9 +113,9 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
           param('b', nameNote('Int'))
         ],
         nameNote('Void'),
-        [
+        block([
           exprStmt(ident('c'))
-        ]
+        ])
       )
     );
 
@@ -123,10 +126,10 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
           param('b', nameNote('Int'))
         ],
         nameNote('Void'),
-        [
+        block([
           exprStmt(ident('c')),
           exprStmt(ident('d'))
-        ]
+        ])
       )
     );
   }
@@ -203,9 +206,11 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
   }
 
   public function test_parse() {
-    $this->prog('let a = b; let c = d;', root([
-      let('a', ident('b')),
-      let('c', ident('d'))
-    ]));
+    $this->prog('let a = b; let c = d;', root(
+      block([
+        let('a', ident('b')),
+        let('c', ident('d'))
+      ])
+    ));
   }
 }

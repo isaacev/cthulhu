@@ -1,58 +1,37 @@
 <?php
 
+use \Cthulhu\Parser\AST;
+
 function str($value) {
-  return [
-    'type' => 'StrLiteralExpression',
-    'value' => $value,
-    'raw' => '"' . $value . '"',
-  ];
+  return new AST\StrLiteralExpression($value, '"' . $value . '"');
 }
 
 function num($value) {
-  return [
-    'type' => 'NumLiteralExpression',
-    'value' => $value,
-    'raw' => "$value"
-  ];
+  return new AST\NumLiteralExpression($value, "$value");
 }
 
 function ident($name) {
-  return [
-    'type' => 'Identifier',
-    'name' => $name
-  ];
+  return new AST\Identifier($name);
 }
 
 function binary($op, $left, $right) {
-  return [
-    'type' => 'BinaryOperator',
-    'operator' => $op,
-    'left' => $left,
-    'right' => $right
-  ];
+  return new AST\BinaryOperator($op, $left, $right);
+}
+
+function block($stmts) {
+  return new AST\Block($stmts);
 }
 
 function ifelse($cond, $if_clause, $else_clause) {
-  return [
-    'type' => 'IfExpression',
-    'condition' => $cond,
-    'if_clause' => $if_clause,
-    'else_clause' => $else_clause
-  ];
+  return new AST\IfExpression($cond, $if_clause, $else_clause);
 }
 
 function exprStmt($expr) {
-  return [
-    'type' => 'ExpressionStatement',
-    'expression' => $expr
-  ];
+  return new AST\ExpressionStatement($expr);
 }
 
 function nameNote($name) {
-  return [
-    'type' => 'NamedAnnotation',
-    'name' => $name
-  ];
+  return new AST\NamedAnnotation($name);
 }
 
 function param($name, $note) {
@@ -63,33 +42,17 @@ function param($name, $note) {
 }
 
 function fn($params, $ret, $body) {
-  return [
-    'type' => 'FnExpression',
-    'parameters' => $params,
-    'return_annotation' => $ret,
-    'body' => $body
-  ];
+  return new AST\FnExpression($params, $ret, $body);
 }
 
 function call($callee, $args) {
-  return [
-    'type' => 'CallExpression',
-    'callee' => $callee,
-    'arguments' => $args
-  ];
+  return new AST\CallExpression($callee, $args);
 }
 
 function let($name, $expr) {
-  return [
-    'type' => 'LetStatement',
-    'name' => $name,
-    'expression' => $expr
-  ];
+  return new AST\LetStatement($name, $expr);
 }
 
 function root($stmts) {
-  return [
-    'type' => 'Root',
-    'statements' => $stmts
-  ];
+  return new AST\Root($stmts);
 }
