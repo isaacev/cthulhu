@@ -21,6 +21,14 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
     $this->assertEquals($ast->jsonSerialize(), $json);
   }
 
+  public function test_str_literal_expression() {
+    $this->expr('"hello world"', str('hello world'));
+  }
+
+  public function test_num_literal_expression() {
+    $this->expr('123', num(123));
+  }
+
   public function test_identifier_expression() {
     $this->expr('a', ident('a'));
     $this->expr('abc', ident('abc'));

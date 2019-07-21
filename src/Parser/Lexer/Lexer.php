@@ -35,6 +35,10 @@ class Lexer {
     }
 
     switch (true) {
+      case $next->is_digit():
+        return $this->next_num($next);
+      case $next->is('"'):
+        return $this->next_str($next);
       case $next->is_letter():
         return $this->next_word($next);
       case $next->is('{'):
@@ -68,6 +72,52 @@ class Lexer {
       default:
         throw new \Exception("unknown character '$next->char' at $next->point");
     }
+  }
+
+  private function next_num(Character $start): Token {
+    $lexeme = $start->char;
+    $from = $start->point;
+    $to = $start->point;
+
+    while (true) {
+      $peek = $this->scanner->peek();
+      if ($peek === null || $peek->is_digit() === false) {
+        break;
+      }
+
+      $next = $this->scanner->next();
+      $lexeme .= $next->char;
+      $to = $next->point;
+    }
+
+    $span = new Span($from, $to);
+    return new Token(TokenType::LITERAL_NUM, $span, $lexeme);
+  }
+
+  private function next_str(Character $start): Token {
+    $lexeme = $start->char;
+    $from = $start->point;
+
+    while ($peek = $this->scanner->peek()) {
+      if ($peek->is('"') || $peek->is(PHP_EOL)) {
+        break;
+      }
+
+      $next = $this->scanner->next();
+      $lexeme .= $next->char;
+    }
+
+    $last = $this->scanner->next();
+    if ($last === null) {
+      throw new \Exception("unexpected end of file, unclosed string");
+    } else if ($last->is('"') === false) {
+      throw new \Exception("unclosed string on line $from->line");
+    }
+
+    $lexeme .= $last->char;
+    $to = $last->point;
+    $span = new Span($from, $to);
+    return new Token(TokenType::LITERAL_STR, $span, $lexeme);
   }
 
   private function next_word(Character $start): Token {

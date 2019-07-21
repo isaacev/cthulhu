@@ -31,4 +31,8 @@ class Character {
   public function is_letter(): bool {
     return $this->is_between('a', 'z') || $this->is_between('A', 'Z');
   }
+
+  public function is_digit(): bool {
+    return $this->is_between('0', '9');
+  }
 }

@@ -117,6 +117,16 @@ class Parser {
     return new AST\FnExpression($params, $return_note, $body);
   }
 
+  private function parse_str_expr(Token $str_token): AST\StrLiteralExpression {
+    $value = substr($str_token->lexeme, 1, -1);
+    return new AST\StrLiteralExpression($value, $str_token->lexeme);
+  }
+
+  private function parse_num_expr(Token $num_token): AST\NumLiteralExpression {
+    $value = intval($num_token->lexeme, 10);
+    return new AST\NumLiteralExpression($value, $num_token->lexeme);
+  }
+
   private function parse_prefix_expr(): AST\Expression {
     $next = $this->lexer->next();
     if ($next === null) {
@@ -130,6 +140,10 @@ class Parser {
         return $this->parse_fn_expr($next);
       case TokenType::PAREN_LEFT:
         return $this->parse_expr_group($next);
+      case TokenType::LITERAL_STR:
+        return $this->parse_str_expr($next);
+      case TokenType::LITERAL_NUM:
+        return $this->parse_num_expr($next);
       case TokenType::IDENT:
         return new AST\Identifier($next->lexeme);
       default:

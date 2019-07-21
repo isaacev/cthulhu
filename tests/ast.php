@@ -1,5 +1,21 @@
 <?php
 
+function str($value) {
+  return [
+    'type' => 'StrLiteralExpression',
+    'value' => $value,
+    'raw' => '"' . $value . '"',
+  ];
+}
+
+function num($value) {
+  return [
+    'type' => 'NumLiteralExpression',
+    'value' => $value,
+    'raw' => "$value"
+  ];
+}
+
 function ident($name) {
   return [
     'type' => 'Identifier',

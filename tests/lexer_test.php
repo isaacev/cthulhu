@@ -14,6 +14,8 @@ class LexerTest extends \PHPUnit\Framework\TestCase {
   }
 
   public function test_tokens() {
+    $this->tok('123',  TokenType::LITERAL_NUM, '123');
+    $this->tok('"a "', TokenType::LITERAL_STR, '"a "');
     $this->tok('abc',  TokenType::IDENT, 'abc');
     $this->tok('let',  TokenType::KEYWORD_LET);
     $this->tok('if',   TokenType::KEYWORD_IF);
@@ -38,6 +40,16 @@ class LexerTest extends \PHPUnit\Framework\TestCase {
   public function test_unknown_character() {
     $this->expectExceptionMessage('unknown character');
     Lexer::from_string('#')->next();
+  }
+
+  public function test_string_unclosed_by_newline() {
+    $this->expectExceptionMessage('unclosed string');
+    Lexer::from_string("\"hello\nworld\"")->next();
+  }
+
+  public function test_string_unclosed_by_eof() {
+    $this->expectExceptionMessage('unclosed string');
+    Lexer::from_string('"hello')->next();
   }
 
   public function test_whitespace_handling()  {
