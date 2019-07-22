@@ -28,6 +28,8 @@ class Checker {
         return new StrType();
       case $expr instanceof AST\Identifier:
         return Checker::check_identifier_expr($expr, $binding);
+      case $expr instanceof AST\BinaryOperator:
+        return Checker::check_binary_expr($expr, $binding);
       default:
         // @codeCoverageIgnoreStart
         throw new \Exception('cannot check expression: ' . get_class($expr));
@@ -41,6 +43,40 @@ class Checker {
       throw new Errors\UndeclaredVariable($expr->name);
     } else {
       return $resolved;
+    }
+  }
+
+  public static function check_binary_expr(AST\BinaryOperator $expr, ?Binding $binding): Type {
+    $left = Checker::check_expr($expr->left, $binding);
+    $right = Checker::check_expr($expr->right, $binding);
+
+    switch ($expr->operator) {
+      case '+':
+      case '-':
+      case '*':
+      case '/':
+        if (($left instanceof NumType) === false) {
+          throw new Errors\TypeMismatch(new NumType(), $left);
+        } else if (($right instanceof NumType) === false) {
+          throw new Errors\TypeMismatch(new NumType(), $right);
+        } else {
+          return new NumType();
+        }
+      case '<':
+      case '<=':
+      case '>':
+      case '>=':
+        if (($left instanceof NumType) === false) {
+          throw new Errors\TypeMismatch(new NumType(), $left);
+        } else if (($right instanceof NumType) === false) {
+          throw new Errors\TypeMismatch(new NumType(), $right);
+        } else {
+          return new BoolType();
+        }
+      default:
+        // @codeCoverageIgnoreStart
+        throw new \Exception("unknown operator: '$expr->operator'");
+        // @codeCoverageIgnoreEnd
     }
   }
 }

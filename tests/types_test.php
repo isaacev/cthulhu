@@ -43,6 +43,37 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
     $this->expr(ident('a'), new Types\StrType(), $binding);
   }
 
+  public function test_binary_expression() {
+    $this->expr(binary('+', num(0), num(1)), new Types\NumType(), null);
+    $this->expr(binary('-', num(0), num(1)), new Types\NumType(), null);
+    $this->expr(binary('*', num(0), num(1)), new Types\NumType(), null);
+    $this->expr(binary('/', num(0), num(1)), new Types\NumType(), null);
+    $this->expr(binary('>', num(0), num(1)), new Types\BoolType(), null);
+    $this->expr(binary('>=', num(0), num(1)), new Types\BoolType(), null);
+    $this->expr(binary('<', num(0), num(1)), new Types\BoolType(), null);
+    $this->expr(binary('<=', num(0), num(1)), new Types\BoolType(), null);
+  }
+
+  public function test_bad_numeric_binary_expr_left_side() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expr(binary('+', str('abc'), num(0)), new Types\NumType(), null);
+  }
+
+  public function test_bad_numeric_binary_expr_right_side() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expr(binary('+', num(0), str('abc')), new Types\NumType(), null);
+  }
+
+  public function test_bad_relation_binary_expr_left_side() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expr(binary('>', str('abc'), num(0)), new Types\BoolType(), null);
+  }
+
+  public function test_bad_relation_binary_expr_right_side() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expr(binary('>', num(0), str('abc')), new Types\BoolType(), null);
+  }
+
   public function test_undeclared_identifier_expression() {
     $binding = new Binding(null, 'b', new Types\StrType());
     $this->expectException(Types\Errors\UndeclaredVariable::class);
