@@ -53,6 +53,11 @@ class Parser {
         return Precedence::PRODUCT;
       case TokenType::PAREN_LEFT:
         return Precedence::ACCESS;
+      case TokenType::LESS_THAN:
+      case TokenType::LESS_THAN_EQ:
+      case TokenType::GREATER_THAN:
+      case TokenType::GREATER_THAN_EQ:
+        return Precedence::RELATION;
       default:
         return Precedence::LOWEST;
     }
@@ -179,6 +184,10 @@ class Parser {
       case TokenType::DASH:
       case TokenType::STAR:
       case TokenType::SLASH:
+      case TokenType::LESS_THAN:
+      case TokenType::LESS_THAN_EQ:
+      case TokenType::GREATER_THAN:
+      case TokenType::GREATER_THAN_EQ:
         $right = $this->parse_expr($this->infix_token_precedence($next));
         return new AST\BinaryOperator($next->type, $left, $right);
       case TokenType::PAREN_LEFT:

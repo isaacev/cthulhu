@@ -3,8 +3,9 @@
 namespace Cthulhu\Parser;
 
 abstract class Precedence {
-  const LOWEST  = 0;
-  const SUM     = 10;
-  const PRODUCT = 20;
-  const ACCESS  = 30;
+  const LOWEST   = 0;
+  const RELATION = 10;
+  const SUM      = 20;
+  const PRODUCT  = 30;
+  const ACCESS   = 40;
 }

@@ -69,6 +69,10 @@ class Lexer {
         return $this->next_single_char(TokenType::COLON, $next);
       case $next->is(','):
         return $this->next_single_char(TokenType::COMMA, $next);
+      case $next->is('<'):
+        return $this->next_starts_with_less_than($next);
+      case $next->is('>'):
+        return $this->next_starts_with_greater_than($next);
       default:
         throw new \Exception("unknown character '$next->char' at $next->point");
     }
@@ -148,6 +152,28 @@ class Lexer {
   private function next_single_char(string $type, Character $start): Token {
     $span = new Span($start->point, $start->point);
     return new Token($type, $span);
+  }
+
+  private function next_starts_with_less_than(Character $start): Token {
+    $peek = $this->scanner->peek();
+    if ($peek && $peek->is('=')) {
+      $span = new Span($start->point, $this->scanner->next()->point);
+      return new Token(TokenType::LESS_THAN_EQ, $span);
+    } else {
+      $span = new Span($start->point, $start->point);
+      return new Token(TokenType::LESS_THAN, $span);
+    }
+  }
+
+  private function next_starts_with_greater_than(Character $start): Token {
+    $peek = $this->scanner->peek();
+    if ($peek && $peek->is('=')) {
+      $span = new Span($start->point, $this->scanner->next()->point);
+      return new Token(TokenType::GREATER_THAN_EQ, $span);
+    } else {
+      $span = new Span($start->point, $start->point);
+      return new Token(TokenType::GREATER_THAN, $span);
+    }
   }
 
   public static function from_string(string $text): Lexer {

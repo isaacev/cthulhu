@@ -42,6 +42,10 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
     $this->expr('a - b', binary('-', ident('a'), ident('b')));
     $this->expr('a * b', binary('*', ident('a'), ident('b')));
     $this->expr('a / b', binary('/', ident('a'), ident('b')));
+    $this->expr('a > b', binary('>', ident('a'), ident('b')));
+    $this->expr('a >= b', binary('>=', ident('a'), ident('b')));
+    $this->expr('a < b', binary('<', ident('a'), ident('b')));
+    $this->expr('a <= b', binary('<=', ident('a'), ident('b')));
   }
 
   public function test_binary_expression_precedence() {
@@ -62,6 +66,13 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
           ident('b')
         ),
         ident('c')
+      )
+    );
+
+    $this->expr('a > b + c',
+      binary('>',
+        ident('a'),
+        binary('+', ident('b'), ident('c'))
       )
     );
   }
