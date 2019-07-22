@@ -15,7 +15,17 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
 
   private function stmt($stmt, $expected, $binding) {
     $found = Checker::check_stmt($stmt, $binding);
-    $this->assertEquals($expected, $found->to_table());
+    $table = $found ? $found->to_table() : [];
+    $this->assertEquals($expected, $table);
+  }
+
+  private function stmts($stmts, $expected) {
+    $binding = null;
+    foreach ($stmts as $stmt) {
+      $binding = Checker::check_stmt($stmt, $binding);
+    }
+    $table = $binding ? $binding->to_table() : [];
+    $this->assertEquals($expected, $table);
   }
 
   public function test_builtin_type_relations() {
@@ -88,6 +98,10 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
     );
   }
 
+  public function test_expr_stmt() {
+    $this->stmt(exprStmt(num(123)), [ ], null);
+  }
+
   public function test_redeclared_variable() {
     $binding = new Binding(null, 'a', new Types\StrType());
     $this->expr(ident('a'), new Types\StrType(), $binding);
@@ -99,5 +113,20 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
     $binding1 = new Binding($binding0, 'b', new Types\NumType());
     $binding2 = new Binding($binding1, 'c', new Types\NumType());
     $this->expr(ident('a'), new Types\StrType(), $binding2);
+  }
+
+  public function test_statement_bindings() {
+    $this->stmts([
+      let('a', num(1)),
+      let('b', num(0)),
+      let('c', ident('b')),
+      let('b', str('hello')),
+      let('d', ident('b')),
+    ], [
+      'a' => new Types\NumType(),
+      'b' => new Types\StrType(),
+      'c' => new Types\NumType(),
+      'd' => new Types\StrType()
+    ]);
   }
 }
