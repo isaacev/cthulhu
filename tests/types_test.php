@@ -22,10 +22,12 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
     // Builtin types do accept themselves
     $this->assertTrue((new Types\StrType())->accepts(new Types\StrType()));
     $this->assertTrue((new Types\NumType())->accepts(new Types\NumType()));
+    $this->assertTrue((new Types\BoolType())->accepts(new Types\BoolType()));
 
     // Builtin types do not accept other types
     $this->assertFalse((new Types\StrType())->accepts(new Types\NumType()));
     $this->assertFalse((new Types\NumType())->accepts(new Types\StrType()));
+    $this->assertFalse((new Types\BoolType())->accepts(new Types\StrType()));
   }
 
   public function test_number_literal_expression() {
