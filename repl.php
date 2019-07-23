@@ -24,11 +24,23 @@ while (true) {
 
   if (preg_match('/^\?/', $line)) {
     $name = trim(substr($line, 1));
-    $resolved = $binding ? $binding->resolve($name) : null;
-    if ($resolved === null) {
-      echo "unknown symbol: $name\n";
+    if ($name === '') {
+      $table = $binding ? $binding->to_table() : [];
+      $max_name_length = max(array_map('strlen', array_keys($table)));
+      if ($max_name_length > 0) {
+        foreach ($table as $name => $type) {
+          echo sprintf("%-${max_name_length}s : %s\n", $name, $type);
+        }
+      } else {
+        echo "no symbol bindings\n";
+      }
     } else {
-      echo "$name: $resolved\n";
+      $resolved = $binding ? $binding->resolve($name) : null;
+      if ($resolved === null) {
+        echo "unknown symbol: $name\n";
+      } else {
+        echo "$name: $resolved\n";
+      }
     }
     continue;
   }
