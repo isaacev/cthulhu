@@ -5,6 +5,14 @@ namespace Cthulhu\Types;
 use Cthulhu\Parser\AST;
 
 class Checker {
+  public static function check_block(AST\Block $block, ?Binding $binding): Context {
+    $context = new Context($binding, new VoidType());
+    foreach ($block->statements as $stmt) {
+      $context = Checker::check_stmt($stmt, $context->binding);
+    }
+    return $context;
+  }
+
   public static function check_stmt(AST\Statement $stmt, ?Binding $binding): Context {
     switch (true) {
       case $stmt instanceof AST\LetStatement:
@@ -40,6 +48,8 @@ class Checker {
         return Checker::check_identifier_expr($expr, $binding);
       case $expr instanceof AST\BinaryOperator:
         return Checker::check_binary_expr($expr, $binding);
+      case $expr instanceof AST\IfExpression:
+        return Checker::check_if_expr($expr, $binding);
       default:
         // @codeCoverageIgnoreStart
         throw new \Exception('cannot check expression: ' . get_class($expr));
@@ -87,6 +97,31 @@ class Checker {
         // @codeCoverageIgnoreStart
         throw new \Exception("unknown operator: '$expr->operator'");
         // @codeCoverageIgnoreEnd
+    }
+  }
+
+  public static function check_if_expr(AST\IfExpression $expr, ?Binding $binding): Type {
+    $condition_type = Checker::check_expr($expr->condition, $binding);
+    if (($condition_type instanceof BoolType) === false) {
+      throw new Errors\TypeMismatch(new BoolType(), $condition_type);
+    }
+
+    $if_clause_type = Checker::check_block($expr->if_clause, $binding)->return_type;
+
+    if ($expr->else_clause === null) {
+      if ($if_clause_type instanceof VoidType) {
+        return $if_clause_type;
+      }
+
+      throw new Errors\TypeMismatch(new VoidType(), $if_clause_type);
+    }
+
+    $else_clause_type = Checker::check_block($expr->else_clause, $binding)->return_type;
+
+    if ($if_clause_type->accepts($else_clause_type)) {
+      return $if_clause_type;
+    } else {
+      throw new Errors\TypeMismatch($if_clause_type, $else_clause_type);
     }
   }
 }

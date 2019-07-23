@@ -94,6 +94,110 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
     $this->expr(ident('a'), new Types\StrType(), $binding);
   }
 
+  public function test_if_expr() {
+    $this->expr(
+      ifelse(
+        ident('a'),
+        block([
+          let('b', num(123))
+        ]),
+        null
+      ),
+      new Types\VoidType(),
+      new Binding(null, 'a', new Types\BoolType())
+    );
+
+    $this->expr(
+      ifelse(
+        ident('a'),
+        block([
+          let('b', num(123)),
+        ]),
+        block([
+          let('c', num(456)),
+        ])
+      ),
+      new Types\VoidType(),
+      new Binding(null, 'a', new Types\BoolType())
+    );
+
+    $this->expr(
+      ifelse(
+        ident('a'),
+        block([
+          exprStmt(num(123))
+        ]),
+        block([
+          exprStmt(num(456))
+        ])
+      ),
+      new Types\NumType(),
+      new Binding(null, 'a', new Types\BoolType())
+    );
+
+    $this->expr(
+      ifelse(
+        ident('a'),
+        block([
+          exprStmt(ident('a'))
+        ]),
+        block([
+          exprStmt(ident('a'))
+        ])
+      ),
+      new Types\BoolType(),
+      new Binding(null, 'a', new Types\BoolType())
+    );
+  }
+
+  public function test_if_expr_non_bool_condition() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expectExceptionMessage('wanted Bool but found Num');
+    $this->expr(
+      ifelse(
+        num(123),
+        block([]),
+        null
+      ),
+      new Types\VoidType(),
+      null
+    );
+  }
+
+  public function test_if_expr_missing_else_non_void() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expectExceptionMessage('wanted Void but found Num');
+    $this->expr(
+      ifelse(
+        ident('a'),
+        block([
+          exprStmt(num(123))
+        ]),
+        null
+      ),
+      new Types\VoidType(),
+      new Binding(null, 'a', new Types\BoolType())
+    );
+  }
+
+  public function test_if_expr_mismatched_clause_types() {
+    $this->expectException(Types\Errors\TypeMismatch::class);
+    $this->expectExceptionMessage('wanted Void but found Str');
+    $this->expr(
+      ifelse(
+        ident('a'),
+        block([
+          let('a', (num(123))),
+        ]),
+        block([
+          exprStmt(str('abc'))
+        ])
+      ),
+      new Types\VoidType(),
+      new Binding(null, 'a', new Types\BoolType())
+    );
+  }
+
   public function test_let_stmt() {
     $this->stmt(
       let('a', num(123)),
