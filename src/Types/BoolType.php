@@ -11,6 +11,10 @@ class BoolType extends Type {
     }
   }
 
+  public function __toString(): string {
+    return 'Bool';
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'BoolType'

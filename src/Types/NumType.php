@@ -11,6 +11,10 @@ class NumType extends Type {
     }
   }
 
+  public function __toString(): string {
+    return 'Num';
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'NumType'
