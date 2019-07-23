@@ -7,7 +7,7 @@ class Point {
   public $column;
   public $offset;
 
-  function __construct(int $line, int $column, int $offset) {
+  function __construct(int $line = 1, int $column = 1, int $offset = 0) {
     $this->line = $line;
     $this->column = $column;
     $this->offset = $offset;
@@ -23,9 +23,5 @@ class Point {
 
   public function __toString() {
     return "($this->line:$this->column)";
-  }
-
-  public static function first(): Point {
-    return new Point(1, 1, 0);
   }
 }

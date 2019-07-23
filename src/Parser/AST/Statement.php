@@ -2,6 +2,6 @@
 
 namespace Cthulhu\Parser\AST;
 
-abstract class Statement implements \JsonSerializable {
+abstract class Statement extends Node {
   // TODO
 }

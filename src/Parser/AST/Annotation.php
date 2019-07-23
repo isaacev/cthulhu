@@ -2,6 +2,6 @@
 
 namespace Cthulhu\Parser\AST;
 
-abstract class Annotation implements \JsonSerializable {
+abstract class Annotation extends Node {
   // TODO
 }

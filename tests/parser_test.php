@@ -8,20 +8,17 @@ require_once 'ast.php';
 class ParserTest extends \PHPUnit\Framework\TestCase {
   private function expr(string $str, ?AST\Expression $expected) {
     $found = \Cthulhu\Parser\Parser::from_string($str)->parse_expr();
-    $this->assertEquals($found, $expected);
-    $this->assertEquals($found->jsonSerialize(), $expected->jsonSerialize());
+    $this->assertEquals($expected->jsonSerialize(), $found->jsonSerialize());
   }
 
   private function stmt(string $str, ?AST\Statement $expected) {
     $found = \Cthulhu\Parser\Parser::from_string($str)->parse_stmt();
-    $this->assertEquals($found, $expected);
-    $this->assertEquals($found->jsonSerialize(), $expected->jsonSerialize());
+    $this->assertEquals($expected->jsonSerialize(), $found->jsonSerialize());
   }
 
   private function prog(string $str, ?AST\Root $expected) {
     $found = \Cthulhu\Parser\Parser::from_string($str)->parse();
-    $this->assertEquals($found, $expected);
-    $this->assertEquals($found->jsonSerialize(), $expected->jsonSerialize());
+    $this->assertEquals($expected->jsonSerialize(), $found->jsonSerialize());
   }
 
   public function test_str_literal_expression() {

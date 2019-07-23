@@ -2,6 +2,8 @@
 
 namespace Cthulhu\Parser\AST;
 
+use Cthulhu\Parser\Lexer\Point;
+
 class CallExpression extends Expression {
   public $callee;
   public $arguments;
@@ -9,6 +11,13 @@ class CallExpression extends Expression {
   function __construct(Expression $callee, array $arguments) {
     $this->callee = $callee;
     $this->arguments = $arguments;
+  }
+
+  /**
+   * @codeCoverageIgnore
+   */
+  public function from(): Point {
+    return $this->callee->from();
   }
 
   public function jsonSerialize() {

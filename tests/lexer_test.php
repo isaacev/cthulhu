@@ -7,9 +7,9 @@ use \Cthulhu\Parser\Lexer\Point;
 class LexerTest extends \PHPUnit\Framework\TestCase {
   private function tok(string $str, string $type, ?string $lexeme = null) {
     $tok = Lexer::from_string($str)->next();
-    $this->assertEquals($tok->type, $type);
+    $this->assertEquals($type, $tok->type);
     if ($lexeme !== null) {
-      $this->assertEquals($tok->lexeme, $lexeme);
+      $this->assertEquals($lexeme, $tok->lexeme);
     }
   }
 
@@ -61,8 +61,8 @@ class LexerTest extends \PHPUnit\Framework\TestCase {
     $tok1 = $lex->next();
     $tok2 = $lex->next();
     $tok3 = $lex->next();
-    $this->assertEquals($tok1->span->from, new Point(1, 2, 1));
-    $this->assertEquals($tok2->span->from, new Point(2, 2, 8));
-    $this->assertEquals($tok3, null);
+    $this->assertEquals(new Point(1, 2, 1), $tok1->span->from);
+    $this->assertEquals(new Point(2, 2, 8), $tok2->span->from);
+    $this->assertEquals(null, $tok3);
   }
 }

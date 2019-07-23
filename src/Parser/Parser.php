@@ -33,7 +33,8 @@ class Parser {
 
     switch ($peek->type) {
       case TokenType::IDENT:
-        return new AST\NamedAnnotation($this->require_next_token(TokenType::IDENT)->lexeme);
+        $ident = $this->require_next_token(TokenType::IDENT);
+        return new AST\NamedAnnotation($ident->span->from, $ident->lexeme);
       default:
         throw new Errors\UnexpectedToken($peek);
     }
@@ -85,7 +86,7 @@ class Parser {
       $else_clause = null;
     }
 
-    return new AST\IfExpression($condition, $if_clause, $else_clause);
+    return new AST\IfExpression($if_keyword->span->from, $condition, $if_clause, $else_clause);
   }
 
   private function parse_fn_expr(Token $fn_keyword): AST\FnExpression {
@@ -119,17 +120,17 @@ class Parser {
     $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
     $body = $this->parse_stmts(TokenType::BRACE_RIGHT);
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
-    return new AST\FnExpression($params, $return_note, $body);
+    return new AST\FnExpression($fn_keyword->span->from, $params, $return_note, $body);
   }
 
   private function parse_str_expr(Token $str_token): AST\StrLiteralExpression {
     $value = substr($str_token->lexeme, 1, -1);
-    return new AST\StrLiteralExpression($value, $str_token->lexeme);
+    return new AST\StrLiteralExpression($str_token->span->from, $value, $str_token->lexeme);
   }
 
   private function parse_num_expr(Token $num_token): AST\NumLiteralExpression {
     $value = intval($num_token->lexeme, 10);
-    return new AST\NumLiteralExpression($value, $num_token->lexeme);
+    return new AST\NumLiteralExpression($num_token->span->from, $value, $num_token->lexeme);
   }
 
   private function parse_prefix_expr(): AST\Expression {
@@ -150,7 +151,7 @@ class Parser {
       case TokenType::LITERAL_NUM:
         return $this->parse_num_expr($next);
       case TokenType::IDENT:
-        return new AST\Identifier($next->lexeme);
+        return new AST\Identifier($next->span->from, $next->lexeme);
       default:
         throw new Errors\UnexpectedToken($next);
     }
@@ -215,7 +216,7 @@ class Parser {
     $equals = $this->require_next_token(TokenType::EQUALS);
     $expr = $this->parse_expr();
     $semicolon = $this->require_next_token(TokenType::SEMICOLON);
-    return new AST\LetStatement($name, $expr);
+    return new AST\LetStatement($let_keyword->span->from, $name, $expr);
   }
 
   private function parse_expr_stmt(): AST\ExpressionStatement {

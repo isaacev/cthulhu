@@ -11,7 +11,7 @@ class Scanner {
   function __construct($text) {
     $this->text = $text;
     $this->chars = preg_split('//u', $this->text, -1, PREG_SPLIT_NO_EMPTY);
-    $this->point = Point::first();
+    $this->point = new Point();
     $this->buffer = null;
   }
 
