@@ -5,7 +5,7 @@ namespace Cthulhu\Types;
 use Cthulhu\Parser\AST;
 
 class Checker {
-  public static function check_stmt(AST\Statement $stmt, ?Binding $binding): ?Binding {
+  public static function check_stmt(AST\Statement $stmt, ?Binding $binding): Context {
     switch (true) {
       case $stmt instanceof AST\LetStatement:
         return Checker::check_let_stmt($stmt, $binding);
@@ -18,13 +18,16 @@ class Checker {
     }
   }
 
-  private static function check_let_stmt(AST\LetStatement $stmt, ?Binding $binding): Binding {
-    return new Binding($binding, $stmt->name, Checker::check_expr($stmt->expression, $binding));
+  private static function check_let_stmt(AST\LetStatement $stmt, ?Binding $binding): Context {
+    $expr_type = Checker::check_expr($stmt->expression, $binding);
+    $binding = new Binding($binding, $stmt->name, $expr_type);
+    $return_type = new VoidType();
+    return new Context($binding, $return_type);
   }
 
-  private static function check_expr_stmt(AST\ExpressionStatement $stmt, ?Binding $binding): ?Binding {
-    Checker::check_expr($stmt->expression, $binding);
-    return $binding;
+  private static function check_expr_stmt(AST\ExpressionStatement $stmt, ?Binding $binding): Context {
+    $return_type = Checker::check_expr($stmt->expression, $binding);
+    return new Context($binding, $return_type);
   }
 
   public static function check_expr(AST\Expression $expr, ?Binding $binding): Type {

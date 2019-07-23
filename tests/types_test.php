@@ -14,7 +14,7 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
   }
 
   private function stmt($stmt, $expected, $binding) {
-    $found = Checker::check_stmt($stmt, $binding);
+    $found = Checker::check_stmt($stmt, $binding)->binding;
     $table = $found ? $found->to_table() : [];
     $this->assertEquals($expected, $table);
   }
@@ -22,7 +22,7 @@ class TypesTest extends \PHPUnit\Framework\TestCase {
   private function stmts($stmts, $expected) {
     $binding = null;
     foreach ($stmts as $stmt) {
-      $binding = Checker::check_stmt($stmt, $binding);
+      $binding = Checker::check_stmt($stmt, $binding)->binding;
     }
     $table = $binding ? $binding->to_table() : [];
     $this->assertEquals($expected, $table);
