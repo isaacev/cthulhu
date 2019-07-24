@@ -3,16 +3,20 @@
 namespace Cthulhu\Parser\AST;
 
 class Root implements \JsonSerializable {
-  public $statements;
+  public $stmts;
 
-  function __construct(Block $statements) {
-    $this->statements = $statements;
+  function __construct(array $stmts) {
+    $this->stmts = $stmts;
   }
 
   public function jsonSerialize() {
+    $stmts_json = array_map(function ($stmt) {
+      return $stmt->jsonSerialize();
+    }, $this->stmts);
+
     return [
       'type' => 'Root',
-      'statements' => $this->statements->jsonSerialize()
+      'stmts' => $stmts_json
     ];
   }
 }

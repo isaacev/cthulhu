@@ -6,36 +6,36 @@ use \Cthulhu\Parser\Lexer\Span;
 
 function str($value) {
   $span = new Span(new Point(), new Point());
-  return new AST\StrLiteralExpression($span, $value, '"' . $value . '"');
+  return new AST\StrExpr($span, $value, '"' . $value . '"');
 }
 
 function num($value) {
   $span = new Span(new Point(), new Point());
-  return new AST\NumLiteralExpression($span, $value, "$value");
+  return new AST\NumExpr($span, $value, "$value");
 }
 
 function ident($name) {
   $span = new Span(new Point(), new Point());
-  return new AST\Identifier($span, $name);
+  return new AST\IdentExpr($span, $name);
 }
 
 function binary($op, $left, $right) {
   $span = new Span(new Point(), new Point());
-  return new AST\BinaryOperator($span, $op, $left, $right);
+  return new AST\BinaryExpr($span, $op, $left, $right);
 }
 
 function block($stmts) {
-  return new AST\Block($stmts);
+  return $stmts;
 }
 
 function ifelse($cond, $if_clause, $else_clause) {
   $span = new Span(new Point(), new Point());
-  return new AST\IfExpression($span, $cond, $if_clause, $else_clause);
+  return new AST\IfExpr($span, $cond, $if_clause, $else_clause);
 }
 
 function exprStmt($expr) {
   $span = new Span(new Point(), new Point());
-  return new AST\ExpressionStatement($span, $expr);
+  return new AST\ExprStmt($span, $expr);
 }
 
 function nameNote($name) {
@@ -52,17 +52,17 @@ function param($name, $note) {
 
 function fn($params, $ret, $body) {
   $span = new Span(new Point(), new Point());
-  return new AST\FnExpression($span, $params, $ret, $body);
+  return new AST\FuncExpr($span, $params, $ret, $body);
 }
 
 function call($callee, $args) {
   $span = new Span(new Point(), new Point());
-  return new AST\CallExpression($span, $callee, $args);
+  return new AST\CallExpr($span, $callee, $args);
 }
 
 function let($name, $expr) {
   $span = new Span(new Point(), new Point());
-  return new AST\LetStatement($span, $name, $expr);
+  return new AST\LetStmt($span, $name, $expr);
 }
 
 function root($stmts) {

@@ -4,31 +4,35 @@ namespace Cthulhu\Parser\AST;
 
 use Cthulhu\Parser\Lexer\Span;
 
-class FnExpression extends Expression {
-  public $parameters;
+class FuncExpr extends Expr {
+  public $params;
   public $return_annotation;
   public $body;
 
-  function __construct(Span $span, array $parameters, Annotation $return_annotation, Block $body) {
+  function __construct(Span $span, array $params, Annotation $return_annotation, array $body) {
     parent::__construct($span);
-    $this->parameters = $parameters;
+    $this->params = $params;
     $this->return_annotation = $return_annotation;
     $this->body = $body;
   }
 
   public function jsonSerialize() {
-    $params = array_map(function ($param) {
+    $params_json = array_map(function ($param) {
       return [
         'name' => $param['name'],
         'annotation' => $param['annotation']->jsonSerialize()
       ];
-    }, $this->parameters);
+    }, $this->params);
+
+    $body_json = array_map(function ($stmt) {
+      return $stmt->jsonSerialize();
+    }, $this->body);
 
     return [
-      'type' => 'FnExpression',
-      'parameters' => $params,
+      'type' => 'FuncExpr',
+      'params' => $params_json,
       'return_annotation' => $this->return_annotation->jsonSerialize(),
-      'body' => $this->body->jsonSerialize(),
+      'body' => $body_json,
     ];
   }
 }

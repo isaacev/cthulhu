@@ -6,12 +6,12 @@ use \Cthulhu\Parser\Lexer\TokenType;
 require_once 'ast.php';
 
 class ParserTest extends \PHPUnit\Framework\TestCase {
-  private function expr(string $str, ?AST\Expression $expected) {
+  private function expr(string $str, ?AST\Expr $expected) {
     $found = \Cthulhu\Parser\Parser::from_string($str)->parse_expr();
     $this->assertEquals($expected->jsonSerialize(), $found->jsonSerialize());
   }
 
-  private function stmt(string $str, ?AST\Statement $expected) {
+  private function stmt(string $str, ?AST\Stmt $expected) {
     $found = \Cthulhu\Parser\Parser::from_string($str)->parse_stmt();
     $this->assertEquals($expected->jsonSerialize(), $found->jsonSerialize());
   }

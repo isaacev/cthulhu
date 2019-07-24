@@ -4,7 +4,7 @@ namespace Cthulhu\Parser\AST;
 
 use Cthulhu\Parser\Lexer\Span;
 
-class StrLiteralExpression extends Expression {
+class StrExpr extends Expr {
   public $value;
   public $raw;
 
@@ -16,7 +16,7 @@ class StrLiteralExpression extends Expression {
 
   public function jsonSerialize() {
     return [
-      'type' => 'StrLiteralExpression',
+      'type' => 'StrExpr',
       'value' => $this->value,
       'raw' => $this->raw
     ];

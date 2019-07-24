@@ -64,13 +64,13 @@ class Parser {
     }
   }
 
-  private function parse_expr_group(Token $left_paren): AST\Expression {
+  private function parse_expr_group(Token $left_paren): AST\Expr {
     $expr = $this->parse_expr();
     $this->require_next_token(TokenType::PAREN_RIGHT);
     return $expr;
   }
 
-  private function parse_if_expr(Token $if_keyword): AST\IfExpression {
+  private function parse_if_expr(Token $if_keyword): AST\IfExpr {
     $condition = $this->parse_expr();
     $if_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
     $if_clause = $this->parse_stmts(TokenType::BRACE_RIGHT);
@@ -87,10 +87,10 @@ class Parser {
     }
 
     $span = $if_keyword->span->extended_to(($else_clause ? $else_right_brace : $if_right_brace)->span);
-    return new AST\IfExpression($span, $condition, $if_clause, $else_clause);
+    return new AST\IfExpr($span, $condition, $if_clause, $else_clause);
   }
 
-  private function parse_fn_expr(Token $fn_keyword): AST\FnExpression {
+  private function parse_fn_expr(Token $fn_keyword): AST\FuncExpr {
     $left_paren = $this->require_next_token(TokenType::PAREN_LEFT);
     $params = [];
     while (true) {
@@ -122,22 +122,22 @@ class Parser {
     $body = $this->parse_stmts(TokenType::BRACE_RIGHT);
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $span = $fn_keyword->span->extended_to($right_brace->span);
-    return new AST\FnExpression($span, $params, $return_note, $body);
+    return new AST\FuncExpr($span, $params, $return_note, $body);
   }
 
-  private function parse_str_expr(Token $str_token): AST\StrLiteralExpression {
+  private function parse_str_expr(Token $str_token): AST\StrExpr {
     $value = substr($str_token->lexeme, 1, -1);
     $span = $str_token->span;
-    return new AST\StrLiteralExpression($span, $value, $str_token->lexeme);
+    return new AST\StrExpr($span, $value, $str_token->lexeme);
   }
 
-  private function parse_num_expr(Token $num_token): AST\NumLiteralExpression {
+  private function parse_num_expr(Token $num_token): AST\NumExpr {
     $value = intval($num_token->lexeme, 10);
     $span = $num_token->span;
-    return new AST\NumLiteralExpression($span, $value, $num_token->lexeme);
+    return new AST\NumExpr($span, $value, $num_token->lexeme);
   }
 
-  private function parse_prefix_expr(): AST\Expression {
+  private function parse_prefix_expr(): AST\Expr {
     $next = $this->lexer->next();
     if ($next === null) {
       throw new Errors\UnexpectedEndOfFile();
@@ -155,13 +155,13 @@ class Parser {
       case TokenType::LITERAL_NUM:
         return $this->parse_num_expr($next);
       case TokenType::IDENT:
-        return new AST\Identifier($next->span, $next->lexeme);
+        return new AST\IdentExpr($next->span, $next->lexeme);
       default:
         throw new Errors\UnexpectedToken($next);
     }
   }
 
-  private function parse_call_expr(AST\Expression $callee, Token $paren_left): AST\CallExpression {
+  private function parse_call_expr(AST\Expr $callee, Token $paren_left): AST\CallExpr {
     $args = [];
     while (true) {
       $peek = $this->lexer->peek();
@@ -181,10 +181,10 @@ class Parser {
 
     $paren_right = $this->require_next_token(TokenType::PAREN_RIGHT);
     $span = $callee->span->extended_to($paren_right->span);
-    return new AST\CallExpression($span, $callee, $args);
+    return new AST\CallExpr($span, $callee, $args);
   }
 
-  private function parse_postfix_expr(AST\Expression $left, Token $next): AST\Expression {
+  private function parse_postfix_expr(AST\Expr $left, Token $next): AST\Expr {
     switch ($next->type) {
       case TokenType::PLUS:
       case TokenType::DASH:
@@ -196,7 +196,7 @@ class Parser {
       case TokenType::GREATER_THAN_EQ:
         $right = $this->parse_expr($this->infix_token_precedence($next));
         $span = $left->span->extended_to($right->span);
-        return new AST\BinaryOperator($span, $next->type, $left, $right);
+        return new AST\BinaryExpr($span, $next->type, $left, $right);
       case TokenType::PAREN_LEFT:
         return $this->parse_call_expr($left, $next);
       default:
@@ -206,7 +206,7 @@ class Parser {
     }
   }
 
-  public function parse_expr(int $threshold = Precedence::LOWEST): AST\Expression {
+  public function parse_expr(int $threshold = Precedence::LOWEST): AST\Expr {
     $left = $this->parse_prefix_expr();
 
     while ($threshold < $this->infix_token_precedence($this->lexer->peek())) {
@@ -216,24 +216,24 @@ class Parser {
     return $left;
   }
 
-  private function parse_let_stmt(): AST\LetStatement {
+  private function parse_let_stmt(): AST\LetStmt {
     $let_keyword = $this->require_next_token(TokenType::KEYWORD_LET);
     $name = $this->require_next_token(TokenType::IDENT)->lexeme;
     $equals = $this->require_next_token(TokenType::EQUALS);
     $expr = $this->parse_expr();
     $semicolon = $this->require_next_token(TokenType::SEMICOLON);
     $span = $let_keyword->span->extended_to($semicolon->span);
-    return new AST\LetStatement($span, $name, $expr);
+    return new AST\LetStmt($span, $name, $expr);
   }
 
-  private function parse_expr_stmt(): AST\ExpressionStatement {
+  private function parse_expr_stmt(): AST\ExprStmt {
     $expr = $this->parse_expr();
     $semicolon = $this->require_next_token(TokenType::SEMICOLON);
     $span = $expr->span->extended_to($semicolon->span);
-    return new AST\ExpressionStatement($span, $expr);
+    return new AST\ExprStmt($span, $expr);
   }
 
-  public function parse_stmt(): AST\Statement {
+  public function parse_stmt(): AST\Stmt {
     switch ($this->lexer->peek()->type) {
       case TokenType::KEYWORD_LET:
         return $this->parse_let_stmt();
@@ -242,7 +242,7 @@ class Parser {
     }
   }
 
-  private function parse_stmts(?string $terminal = null): AST\Block {
+  private function parse_stmts(?string $terminal = null): array {
     $stmts = [];
     while (true) {
       $peek = $this->lexer->peek();
@@ -257,7 +257,7 @@ class Parser {
       $stmts[] = $this->parse_stmt();
     }
 
-    return new AST\Block($stmts);
+    return $stmts;
   }
 
   public function parse(): AST\Root {

@@ -4,25 +4,25 @@ namespace Cthulhu\Parser\AST;
 
 use Cthulhu\Parser\Lexer\Span;
 
-class CallExpression extends Expression {
+class CallExpr extends Expr {
   public $callee;
-  public $arguments;
+  public $args;
 
-  function __construct(Span $span, Expression $callee, array $arguments) {
+  function __construct(Span $span, Expr $callee, array $args) {
     parent::__construct($span);
     $this->callee = $callee;
-    $this->arguments = $arguments;
+    $this->args = $args;
   }
 
   public function jsonSerialize() {
     $args = array_map(function ($arg) {
       return $arg->jsonSerialize();
-    }, $this->arguments);
+    }, $this->args);
 
     return [
-      'type' => 'CallExpression',
+      'type' => 'CallExpr',
       'callee' => $this->callee->jsonSerialize(),
-      'arguments' => $args
+      'args' => $args
     ];
   }
 }

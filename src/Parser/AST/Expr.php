@@ -2,6 +2,6 @@
 
 namespace Cthulhu\Parser\AST;
 
-abstract class Expression extends Node {
+abstract class Expr extends Node {
   // TODO
 }

@@ -4,12 +4,12 @@ namespace Cthulhu\Parser\AST;
 
 use Cthulhu\Parser\Lexer\Span;
 
-class BinaryOperator extends Expression {
+class BinaryExpr extends Expr {
   public $operator;
   public $left;
   public $right;
 
-  function __construct(Span $span, string $operator, Expression $left, Expression $right) {
+  function __construct(Span $span, string $operator, Expr $left, Expr $right) {
     parent::__construct($span);
     $this->operator = $operator;
     $this->left = $left;
@@ -18,7 +18,7 @@ class BinaryOperator extends Expression {
 
   public function jsonSerialize() {
     return [
-      "type" => "BinaryOperator",
+      "type" => "BinaryExpr",
       "operator" => $this->operator,
       "left" => $this->left->jsonSerialize(),
       "right" => $this->right->jsonSerialize()
