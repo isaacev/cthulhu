@@ -2,22 +2,14 @@
 
 namespace Cthulhu\Parser\AST;
 
-use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 
 class NamedAnnotation extends Annotation {
-  public $from;
   public $name;
 
-  function __construct(Point $from, string $name) {
-    $this->from = $from;
+  function __construct(Span $span, string $name) {
+    parent::__construct($span);
     $this->name = $name;
-  }
-
-  /**
-   * @codeCoverageIgnore
-   */
-  public function from(): Point {
-    return $this->from;
   }
 
   public function jsonSerialize() {

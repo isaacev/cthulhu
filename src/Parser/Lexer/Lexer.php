@@ -115,7 +115,7 @@ class Lexer {
     if ($last === null) {
       throw new \Exception("unexpected end of file, unclosed string");
     } else if ($last->is('"') === false) {
-      throw new \Exception("unclosed string on line $from->line");
+      throw new \Exception("unclosed string at offset $from");
     }
 
     $lexeme .= $last->char;

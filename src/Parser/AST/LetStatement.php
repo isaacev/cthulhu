@@ -2,24 +2,16 @@
 
 namespace Cthulhu\Parser\AST;
 
-use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 
 class LetStatement extends Statement {
-  public $from;
   public $name;
   public $expression;
 
-  function __construct(Point $from, string $name, Expression $expression) {
-    $this->from = $from;
+  function __construct(Span $span, string $name, Expression $expression) {
+    parent::__construct($span);
     $this->name = $name;
     $this->expression = $expression;
-  }
-
-  /**
-   * @codeCoverageIgnore
-   */
-  public function from(): Point {
-    return $this->from;
   }
 
   public function jsonSerialize() {

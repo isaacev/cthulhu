@@ -2,22 +2,16 @@
 
 namespace Cthulhu\Parser\AST;
 
-use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 
 class CallExpression extends Expression {
   public $callee;
   public $arguments;
 
-  function __construct(Expression $callee, array $arguments) {
+  function __construct(Span $span, Expression $callee, array $arguments) {
+    parent::__construct($span);
     $this->callee = $callee;
     $this->arguments = $arguments;
-  }
-
-  /**
-   * @codeCoverageIgnore
-   */
-  public function from(): Point {
-    return $this->callee->from();
   }
 
   public function jsonSerialize() {

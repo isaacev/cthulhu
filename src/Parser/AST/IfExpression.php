@@ -2,26 +2,18 @@
 
 namespace Cthulhu\Parser\AST;
 
-use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 
 class IfExpression extends Expression {
-  public $from;
   public $condition;
   public $if_clause;
   public $else_clause;
 
-  function __construct(Point $from, Expression $condition, Block $if_clause, ?Block $else_clause) {
-    $this->from = $from;
+  function __construct(Span $span, Expression $condition, Block $if_clause, ?Block $else_clause) {
+    parent::__construct($span);
     $this->condition = $condition;
     $this->if_clause = $if_clause;
     $this->else_clause = $else_clause;
-  }
-
-  /**
-   * @codeCoverageIgnore
-   */
-  public function from(): Point {
-    return $this->from;
   }
 
   public function jsonSerialize() {

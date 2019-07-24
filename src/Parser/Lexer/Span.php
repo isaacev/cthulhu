@@ -11,7 +11,7 @@ class Span {
     $this->to = $to;
   }
 
-  public function __toString() {
-    return "$this->from";
+  public function extended_to(Span $other): Span {
+    return new Span($this->from, $other->to);
   }
 }

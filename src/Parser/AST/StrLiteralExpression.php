@@ -2,24 +2,16 @@
 
 namespace Cthulhu\Parser\AST;
 
-use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 
 class StrLiteralExpression extends Expression {
-  public $from;
   public $value;
   public $raw;
 
-  function __construct(Point $from, string $value, string $raw) {
-    $this->from = $from;
+  function __construct(Span $span, string $value, string $raw) {
+    parent::__construct($span);
     $this->value = $value;
     $this->raw = $raw;
-  }
-
-  /**
-   * @codeCoverageIgnore
-   */
-  public function from(): Point {
-    return $this->from;
   }
 
   public function jsonSerialize() {

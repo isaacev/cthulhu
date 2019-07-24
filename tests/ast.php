@@ -2,21 +2,26 @@
 
 use \Cthulhu\Parser\AST;
 use \Cthulhu\Parser\Lexer\Point;
+use \Cthulhu\Parser\Lexer\Span;
 
 function str($value) {
-  return new AST\StrLiteralExpression(new Point(), $value, '"' . $value . '"');
+  $span = new Span(new Point(), new Point());
+  return new AST\StrLiteralExpression($span, $value, '"' . $value . '"');
 }
 
 function num($value) {
-  return new AST\NumLiteralExpression(new Point(), $value, "$value");
+  $span = new Span(new Point(), new Point());
+  return new AST\NumLiteralExpression($span, $value, "$value");
 }
 
 function ident($name) {
-  return new AST\Identifier(new Point(), $name);
+  $span = new Span(new Point(), new Point());
+  return new AST\Identifier($span, $name);
 }
 
 function binary($op, $left, $right) {
-  return new AST\BinaryOperator($op, $left, $right);
+  $span = new Span(new Point(), new Point());
+  return new AST\BinaryOperator($span, $op, $left, $right);
 }
 
 function block($stmts) {
@@ -24,15 +29,18 @@ function block($stmts) {
 }
 
 function ifelse($cond, $if_clause, $else_clause) {
-  return new AST\IfExpression(new Point(), $cond, $if_clause, $else_clause);
+  $span = new Span(new Point(), new Point());
+  return new AST\IfExpression($span, $cond, $if_clause, $else_clause);
 }
 
 function exprStmt($expr) {
-  return new AST\ExpressionStatement($expr);
+  $span = new Span(new Point(), new Point());
+  return new AST\ExpressionStatement($span, $expr);
 }
 
 function nameNote($name) {
-  return new AST\NamedAnnotation(new Point(), $name);
+  $span = new Span(new Point(), new Point());
+  return new AST\NamedAnnotation($span, $name);
 }
 
 function param($name, $note) {
@@ -43,15 +51,18 @@ function param($name, $note) {
 }
 
 function fn($params, $ret, $body) {
-  return new AST\FnExpression(new Point(), $params, $ret, $body);
+  $span = new Span(new Point(), new Point());
+  return new AST\FnExpression($span, $params, $ret, $body);
 }
 
 function call($callee, $args) {
-  return new AST\CallExpression($callee, $args);
+  $span = new Span(new Point(), new Point());
+  return new AST\CallExpression($span, $callee, $args);
 }
 
 function let($name, $expr) {
-  return new AST\LetStatement(new Point(), $name, $expr);
+  $span = new Span(new Point(), new Point());
+  return new AST\LetStatement($span, $name, $expr);
 }
 
 function root($stmts) {

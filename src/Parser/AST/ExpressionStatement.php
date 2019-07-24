@@ -2,20 +2,14 @@
 
 namespace Cthulhu\Parser\AST;
 
-use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 
 class ExpressionStatement extends Statement {
   public $expression;
 
-  function __construct(Expression $expression) {
+  function __construct(Span $span, Expression $expression) {
+    parent::__construct($span);
     $this->expression = $expression;
-  }
-
-  /**
-   * @codeCoverageIgnore
-   */
-  public function from(): Point {
-    return $this->expression->from();
   }
 
   public function jsonSerialize() {
