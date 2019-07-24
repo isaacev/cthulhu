@@ -10,6 +10,7 @@ const PROMPT = [
   SINGLELINE => '> ',
 ];
 
+$global_buffer = '';
 $mode = SINGLELINE;
 $tmp_buffer = '';
 $binding = null;
@@ -18,6 +19,11 @@ while (true) {
   $line = readline(PROMPT[$mode]);
   if ($line === 'quit') {
     exit(0);
+  }
+
+  if ($line === 'output') {
+    echo $global_buffer;
+    continue;
   }
 
   readline_add_history($line);
@@ -66,7 +72,7 @@ while (true) {
 function digest($text, $binding) {
   try {
     $root = \Cthulhu\Parser\Parser::from_string($text)->parse();
-    $context = \Cthulhu\Types\Checker::check_block($root->statements, $binding);
+    $context = \Cthulhu\Types\Checker::check_stmts($root->stmts, $binding);
   } catch (\Cthulhu\Errors\SyntaxError $ex) {
     $msg = $ex->getMessage();
     echo "SYNTAX ERROR: $msg\n";
@@ -77,6 +83,10 @@ function digest($text, $binding) {
     return $binding;
   }
 
+  global $global_buffer;
+  $global_buffer .= "$text\n";
+  $generated = \Cthulhu\Codegen\Codegen::generate($root);
   echo "$context->return_type\n";
+  echo "$generated\n";
   return $context->binding;
 }
