@@ -45,7 +45,7 @@ while (true) {
       if ($resolved === null) {
         echo "unknown symbol: $name\n";
       } else {
-        echo "$name: $resolved\n";
+        echo "$name : $resolved\n";
       }
     }
     continue;
