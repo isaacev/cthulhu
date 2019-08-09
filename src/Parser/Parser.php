@@ -6,6 +6,7 @@ use Cthulhu\Parser\Lexer\Lexer;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Parser\Errors;
+use Cthulhu\AST;
 
 class Parser {
   private $lexer;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\Parser\AST;
+namespace Cthulhu\AST;
 
 abstract class Annotation extends Node {
   // TODO

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\Parser\AST;
+namespace Cthulhu\AST;
 
 use Cthulhu\Parser\Lexer\Point;
 use Cthulhu\Parser\Lexer\Span;

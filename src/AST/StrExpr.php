@@ -1,14 +1,14 @@
 <?php
 
-namespace Cthulhu\Parser\AST;
+namespace Cthulhu\AST;
 
 use Cthulhu\Parser\Lexer\Span;
 
-class NumExpr extends Expr {
+class StrExpr extends Expr {
   public $value;
   public $raw;
 
-  function __construct(Span $span, int $value, string $raw) {
+  function __construct(Span $span, string $value, string $raw) {
     parent::__construct($span);
     $this->value = $value;
     $this->raw = $raw;
@@ -16,7 +16,7 @@ class NumExpr extends Expr {
 
   public function jsonSerialize() {
     return [
-      'type' => 'NumExpr',
+      'type' => 'StrExpr',
       'value' => $this->value,
       'raw' => $this->raw
     ];

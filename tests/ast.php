@@ -1,6 +1,6 @@
 <?php
 
-use \Cthulhu\Parser\AST;
+use \Cthulhu\AST;
 use \Cthulhu\Parser\Lexer\Point;
 use \Cthulhu\Parser\Lexer\Span;
 

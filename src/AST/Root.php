@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\Parser\AST;
+namespace Cthulhu\AST;
 
 class Root implements \JsonSerializable {
   public $stmts;

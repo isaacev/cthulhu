@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Codegen;
 
-use Cthulhu\Parser\AST;
+use Cthulhu\AST;
 
 class Codegen {
   public static function generate(AST\Root $root): string {

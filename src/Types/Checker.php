@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Types;
 
-use Cthulhu\Parser\AST;
+use Cthulhu\AST;
 
 class Checker {
   public static function check_stmts(array $stmts, ?Binding $binding): Context {

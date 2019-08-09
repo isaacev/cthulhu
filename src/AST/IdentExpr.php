@@ -1,10 +1,10 @@
 <?php
 
-namespace Cthulhu\Parser\AST;
+namespace Cthulhu\AST;
 
 use Cthulhu\Parser\Lexer\Span;
 
-class NamedAnnotation extends Annotation {
+class IdentExpr extends Expr {
   public $name;
 
   function __construct(Span $span, string $name) {
@@ -14,7 +14,7 @@ class NamedAnnotation extends Annotation {
 
   public function jsonSerialize() {
     return [
-      'type' => 'NamedAnnotation',
+      'type' => 'IdentExpr',
       'name' => $this->name
     ];
   }
