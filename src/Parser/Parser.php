@@ -74,21 +74,25 @@ class Parser {
   private function parse_if_expr(Token $if_keyword): AST\IfExpr {
     $condition = $this->parse_expr();
     $if_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $if_clause = $this->parse_stmts(TokenType::BRACE_RIGHT);
+    $if_stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
     $if_right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
+    $if_block_span = $if_left_brace->span->extended_to($if_right_brace->span);
+    $if_block = new AST\BlockNode($if_block_span, $if_stmts);
 
     $peek = $this->lexer->peek();
     if ($peek !== null && $peek->type === TokenType::KEYWORD_ELSE) {
       $else_keyword = $this->require_next_token(TokenType::KEYWORD_ELSE);
       $else_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-      $else_clause = $this->parse_stmts(TokenType::BRACE_RIGHT);
+      $else_stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
       $else_right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
+      $else_block_span = $else_left_brace->span->extended_to($else_right_brace->span);
+      $else_block = new AST\BlockNode($else_block_span, $else_stmts);
     } else {
-      $else_clause = null;
+      $else_block = null;
     }
 
-    $span = $if_keyword->span->extended_to(($else_clause ? $else_right_brace : $if_right_brace)->span);
-    return new AST\IfExpr($span, $condition, $if_clause, $else_clause);
+    $span = $if_keyword->span->extended_to(($else_block ? $else_right_brace : $if_right_brace)->span);
+    return new AST\IfExpr($span, $condition, $if_block, $else_block);
   }
 
   private function parse_fn_expr(Token $fn_keyword): AST\FuncExpr {
