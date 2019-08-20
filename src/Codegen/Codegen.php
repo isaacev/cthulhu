@@ -153,8 +153,12 @@ class Codegen {
     } else {
       $block = $this->block($expr->block);
     }
+    $free_variables = [];
+    foreach ($func_scope->free_variables as $var) {
+      $free_variables[] = new PHP\VarExpr($var);
+    }
     $this->pop_scope();
-    return new PHP\FuncExpr($params, $block);
+    return new PHP\FuncExpr($params, $free_variables, $block);
   }
 
   private function if_expr(IR\IfExpr $expr): PHP\Expr {

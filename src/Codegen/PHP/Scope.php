@@ -19,6 +19,10 @@ abstract class Scope {
     return $uid;
   }
 
+  public function has_local_variable(Symbol $symbol): bool {
+    return array_key_exists($symbol->id, $this->symbol_to_uid);
+  }
+
   public function new_temporary(): string {
     return $this->generate_uid();
   }
