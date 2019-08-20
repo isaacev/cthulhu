@@ -28,7 +28,7 @@ class FuncExpr extends Expr {
           ->comma()
           ->space())
         ->paren_right())
-      ->indented_block($this->block);
+      ->then($this->block);
   }
 
   public function jsonSerialize() {

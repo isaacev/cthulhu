@@ -158,23 +158,6 @@ class Builder implements Buildable {
       ->each($stmts, (new Builder)->newline_then_indent());
   }
 
-  public function indented_block(PHP\BlockNode $block): self {
-    $is_empty = (new Builder)
-      ->comment('empty');
-
-    $not_empty = (new Builder)
-      ->stmts($block->stmts);
-
-    return $this
-      ->brace_left()
-      ->increase_indentation()
-      ->newline_then_indent()
-      ->choose($block->is_empty(), $is_empty, $not_empty)
-      ->decrease_indentation()
-      ->newline_then_indent()
-      ->brace_right();
-  }
-
   /**
    * Builder composition
    */

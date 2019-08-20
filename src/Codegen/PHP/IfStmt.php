@@ -17,7 +17,7 @@ class IfStmt extends Stmt {
 
   public function build(): Builder {
     $else_block = $this->else_block
-      ? (new Builder)->keyword('else')->indented_block($this->else_block)
+      ? (new Builder)->keyword('else')->then($this->else_block)
       : (new Builder);
 
     return (new Builder)
@@ -25,7 +25,7 @@ class IfStmt extends Stmt {
       ->paren_left()
       ->expr($this->cond)
       ->paren_right()
-      ->indented_block($this->if_block)
+      ->then($this->if_block)
       ->then($else_block);
   }
 

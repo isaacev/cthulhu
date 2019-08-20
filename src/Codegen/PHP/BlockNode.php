@@ -16,8 +16,20 @@ class BlockNode extends Node {
   }
 
   public function build(): Builder {
+    $is_empty = (new Builder)
+      ->comment('empty');
+
+    $not_empty = (new Builder)
+      ->stmts($this->stmts);
+
     return (new Builder)
-      ->indented_block($this);
+      ->brace_left()
+      ->increase_indentation()
+      ->newline_then_indent()
+      ->choose($this->is_empty(), $is_empty, $not_empty)
+      ->decrease_indentation()
+      ->newline_then_indent()
+      ->brace_right();
   }
 
   public function jsonSerialize() {
