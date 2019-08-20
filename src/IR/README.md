@@ -28,6 +28,14 @@ that is used to track these relationships is the `Binding` API.
 > references across files even if the references have been aliased and are using
 > different variable names in the source code.
 
+### Translating scope semantics to PHP
+
+While the semantics of global scope and function scope can be easily translated
+into PHP, block scope cannot. To get around the fact that PHP does not have
+block scope, the language finds any variables with the same names in nearby
+block scopes and renames those variables to avoid conflicts when they are
+rewritten in the same PHP scope.
+
 ### Variable declaration
 
 During the source code analysis phase, any time a variable is **declared**, a
