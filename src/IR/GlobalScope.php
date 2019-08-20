@@ -29,7 +29,7 @@ class GlobalScope implements Scope {
   }
 
   public function new_binding(string $name, Type $type): Symbol {
-    $symbol = new Symbol($type);
+    $symbol = new Symbol($type, $this);
     $binding = new Binding2($this->latest_binding, $symbol, $name);
     $this->latest_binding = $binding;
     return $symbol;
