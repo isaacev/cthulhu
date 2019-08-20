@@ -2,6 +2,8 @@
 
 namespace Cthulhu\IR;
 
+use Cthulhu\Types\Type;
+
 class CallExpr extends Expr {
   public $callee;
   public $args;
@@ -11,13 +13,13 @@ class CallExpr extends Expr {
     $this->args = $args;
   }
 
+  public function type(): Type {
+    return $this->callee->type()->returns;
+  }
+
   public function jsonSerialize() {
     return [
-      'type' => 'CallExpr',
-      'callee' => $this->callee->jsonSerialize(),
-      'args' => array_map(function ($arg) {
-        return $arg->jsonSerialize();
-      }, $this->args)
+      'type' => 'CallExpr'
     ];
   }
 }

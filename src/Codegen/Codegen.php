@@ -127,6 +127,8 @@ class Codegen {
         return $this->func_expr($expr);
       case $expr instanceof IR\IfExpr:
         return $this->if_expr($expr);
+      case $expr instanceof IR\CallExpr:
+        return $this->call_expr($expr);
       case $expr instanceof IR\BinaryExpr:
         return $this->binary_expr($expr);
       case $expr instanceof IR\VariableExpr:
@@ -170,6 +172,12 @@ class Codegen {
     $stmt = new PHP\IfStmt($cond, $if_block, $else_block);
     $block->push_stmt($stmt);
     return new PHP\VarExpr($var);
+  }
+
+  private function call_expr(IR\CallExpr $expr): PHP\Expr {
+    $callee = $this->expr($expr->callee);
+    $args = array_map(function ($arg) { return $this->expr($arg); }, $expr->args);
+    return new PHP\CallExpr($callee, $args);
   }
 
   private function binary_expr(IR\BinaryExpr $expr): PHP\BinaryExpr {

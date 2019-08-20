@@ -126,7 +126,15 @@ class Analyzer {
   }
 
   private static function call_expr(IR\Scope $scope, AST\CallExpr $expr): IR\CallExpr {
-    // TODO
+    $callee = self::expr($scope, $expr->callee);
+    if (($callee->type() instanceof Types\FuncType) === false) {
+      throw new Types\Errors\TypeMismatch('function', $callee->type());
+    }
+    $args = [];
+    foreach ($expr->args as $arg) {
+      $args[] = self::expr($scope, $arg);
+    }
+    return new IR\CallExpr($callee, $args);
   }
 
   private static function binary_expr(IR\Scope $scope, AST\BinaryExpr $expr): IR\BinaryExpr {
