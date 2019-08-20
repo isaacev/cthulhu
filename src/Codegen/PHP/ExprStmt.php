@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Codegen\PHP;
 
-use Cthulhu\Codegen\Writer;
+use Cthulhu\Codegen\Builder;
 
 class ExprStmt extends Stmt {
   public $expr;
@@ -11,9 +11,10 @@ class ExprStmt extends Stmt {
     $this->expr = $expr;
   }
 
-  public function write(Writer $writer): Writer {
-    return $writer->node($this->expr)
-                  ->semicolon();
+  public function build(): Builder {
+    return (new Builder)
+      ->expr($this->expr)
+      ->semicolon();
   }
 
   public function jsonSerialize() {

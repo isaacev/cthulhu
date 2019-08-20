@@ -2,7 +2,11 @@
 
 namespace Cthulhu\Codegen\PHP;
 
-use Cthulhu\Codegen\Writer;
+use Cthulhu\Codegen\Builder;
+
+const PREC_COMP = 10;
+const PREC_ADD = 20;
+const PREC_MULT = 30;
 
 class BinaryExpr extends Expr {
   public $operator;
@@ -15,10 +19,29 @@ class BinaryExpr extends Expr {
     $this->right = $right;
   }
 
-  public function write(Writer $writer): Writer {
-    return $writer->node($this->left)
-                  ->operator($this->operator)
-                  ->node($this->right);
+  public function precedence(): int {
+    switch ($this->operator) {
+      case '<':
+      case '>':
+      case '<=':
+      case '>=':
+        return PREC_COMP;
+      case '+':
+      case '-':
+        return PREC_ADD;
+      case '*':
+      case '/':
+        return PREC_MULT;
+      default:
+        return PHP_INT_MAX;
+    }
+  }
+
+  public function build(): Builder {
+    return (new Builder)
+      ->expr($this->left, $this->precedence())
+      ->operator($this->operator)
+      ->expr($this->right, $this->precedence());
   }
 
   public function jsonSerialize() {

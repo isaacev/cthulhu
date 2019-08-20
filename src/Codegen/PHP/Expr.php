@@ -3,5 +3,5 @@
 namespace Cthulhu\Codegen\PHP;
 
 abstract class Expr extends Node {
-  // TODO
+  public abstract function precedence(): int;
 }

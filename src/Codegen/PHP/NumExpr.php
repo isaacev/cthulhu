@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Codegen\PHP;
 
-use Cthulhu\Codegen\Writer;
+use Cthulhu\Codegen\Builder;
 
 class NumExpr extends Expr {
   public $value;
@@ -11,8 +11,13 @@ class NumExpr extends Expr {
     $this->value = $value;
   }
 
-  public function write(Writer $writer): Writer {
-    return $writer->num($this->value);
+  public function precedence(): int {
+    return PHP_INT_MAX;
+  }
+
+  public function build(): Builder {
+    return (new Builder)
+      ->int_literal($this->value);
   }
 
   public function jsonSerialize() {

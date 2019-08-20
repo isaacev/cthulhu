@@ -2,13 +2,14 @@
 
 namespace Cthulhu\Codegen\PHP;
 
+use Cthulhu\Codegen\Buildable;
 use Cthulhu\Codegen\Builder;
 
-class StrExpr extends Expr {
-  public $value;
+class VarExpr extends Expr {
+  public $name;
 
-  function __construct(string $value) {
-    $this->value = $value;
+  function __construct(string $name) {
+    $this->name = $name;
   }
 
   public function precedence(): int {
@@ -17,13 +18,13 @@ class StrExpr extends Expr {
 
   public function build(): Builder {
     return (new Builder)
-      ->string_literal($this->value);
+      ->variable($this->name);
   }
 
   public function jsonSerialize() {
     return [
-      'type' => 'StrExpr',
-      'value' => $this->value
+      'type' => 'VarExpr',
+      'name' => $this->name
     ];
   }
 }

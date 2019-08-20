@@ -2,35 +2,37 @@
 
 namespace Cthulhu\Codegen\PHP;
 
-use Cthulhu\Codegen\Writer;
+use Cthulhu\Codegen\Builder;
 
 class IfStmt extends Stmt {
   public $cond;
-  public $if_stmts;
-  public $else_stmts;
+  public $if_block;
+  public $else_block;
 
-  function __constructor(PHP\Expr $cond, array $if_stmts, ?array $else_stmts) {
+  function __construct(Expr $cond, BlockNode $if_block, ?BlockNode $else_block) {
     $this->cond = $cond;
-    $this->if_stmts = $if_stmts;
-    $this->else_stmts = $else_stmts;
+    $this->if_block = $if_block;
+    $this->else_block = $else_block;
   }
 
-  public function write(Writer $writer): Writer {
-    return $writer->keyword('if')
-                  ->paren_left()
-                  ->node($this->cond)
-                  ->paren_right()
-                  ->brace_left()
-                  // TODO
-                  ->brace_right();
+  public function build(): Builder {
+    $else_block = $this->else_block
+      ? (new Builder)->keyword('else')->indented_block($this->else_block)
+      : (new Builder);
+
+    return (new Builder)
+      ->keyword('if')
+      ->paren_left()
+      ->expr($this->cond)
+      ->paren_right()
+      ->indented_block($this->if_block)
+      ->then($else_block);
   }
 
   public function jsonSerialize() {
     return [
       'type' => 'IfStmt',
-      'cond' => $this->cond->jsonSerialize(),
-      'if_stmts' => array_map(function ($stmt) { return $stmt->jsonSerialize(); }, $this->if_stmts),
-      'else_stmts' => $this->else_stmts ? array_map(function ($stmt) { return $stmt->jsonSerialize(); }, $this->else_stmts) : null
+      'cond' => $this->cond->jsonSerialize()
     ];
   }
 }

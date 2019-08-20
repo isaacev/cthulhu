@@ -2,8 +2,8 @@
 
 namespace Cthulhu\Codegen\PHP;
 
-use Cthulhu\Codegen\Writer;
+use Cthulhu\Codegen\Buildable;
 
-abstract class Node implements \JsonSerializable {
-  public abstract function write(Writer $writer): Writer;
+abstract class Node implements \JsonSerializable, Buildable {
+  // TODO
 }
