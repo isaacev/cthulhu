@@ -12,10 +12,6 @@ class VarExpr extends Expr {
     $this->name = $name;
   }
 
-  public function precedence(): int {
-    return PHP_INT_MAX;
-  }
-
   public function build(): Builder {
     return (new Builder)
       ->variable($this->name);

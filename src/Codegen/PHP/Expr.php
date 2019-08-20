@@ -3,5 +3,7 @@
 namespace Cthulhu\Codegen\PHP;
 
 abstract class Expr extends Node {
-  public abstract function precedence(): int;
+  public function precedence(): int {
+    return PHP_INT_MAX;
+  }
 }

@@ -11,10 +11,6 @@ class StrExpr extends Expr {
     $this->value = $value;
   }
 
-  public function precedence(): int {
-    return PHP_INT_MAX;
-  }
-
   public function build(): Builder {
     return (new Builder)
       ->string_literal($this->value);
