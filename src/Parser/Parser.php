@@ -124,10 +124,12 @@ class Parser {
     $colon = $this->require_next_token(TokenType::COLON);
     $return_note = $this->parse_annotation();
     $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $body = $this->parse_stmts(TokenType::BRACE_RIGHT);
+    $block_stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
+    $block_span = $left_brace->span->extended_to($right_brace->span);
+    $block = new AST\BlockNode($block_span, $block_stmts);
     $span = $fn_keyword->span->extended_to($right_brace->span);
-    return new AST\FuncExpr($span, $params, $return_note, $body);
+    return new AST\FuncExpr($span, $params, $return_note, $block);
   }
 
   private function parse_str_expr(Token $str_token): AST\StrExpr {

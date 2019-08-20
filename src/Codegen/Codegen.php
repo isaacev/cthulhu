@@ -22,6 +22,10 @@ class Codegen {
     return $this->pending_scopes[count($this->pending_scopes) - 1];
   }
 
+  private function push_scope(PHP\Scope $scope): void {
+    array_push($this->pending_scopes, $scope);
+  }
+
   private function pop_scope(): PHP\Scope {
     return array_pop($this->pending_scopes);
   }
@@ -48,6 +52,29 @@ class Codegen {
       if ($i === $len - 1) {
         if ($stmt instanceof IR\ExprStmt) {
           $pending_block->push_stmt(new PHP\AssignStmt($var, $this->expr($stmt->expr)));
+        } else {
+          throw new \Exception('last statement in block was expected to be IR\ExprStmt, found ' . get_class($stmt));
+        }
+      } else {
+        $pending_block->push_stmt($this->stmt($stmt));
+      }
+    }
+    array_pop($this->pending_blocks);
+    return new PHP\BlockNode($pending_block->stmts);
+  }
+
+  private function block_with_return(IR\BlockNode $block): PHP\BlockNode {
+    if ($block->length() === 0) {
+      throw new \Exception('cannot return from empty block');
+    }
+
+    $pending_block = new PendingBlock($block->scope);
+    array_push($this->pending_blocks, $pending_block);
+    for ($i = 0, $len = $block->length(); $i < $len; $i++) {
+      $stmt = $block->stmts[$i];
+      if ($i === $len - 1) {
+        if ($stmt instanceof IR\ExprStmt) {
+          $pending_block->push_stmt(new PHP\ReturnStmt($this->expr($stmt->expr)));
         } else {
           throw new \Exception('last statement in block was expected to be IR\ExprStmt, found ' . get_class($stmt));
         }
@@ -96,6 +123,8 @@ class Codegen {
 
   private function expr(IR\Expr $expr): PHP\Expr {
     switch (true) {
+      case $expr instanceof IR\FuncExpr:
+        return $this->func_expr($expr);
       case $expr instanceof IR\IfExpr:
         return $this->if_expr($expr);
       case $expr instanceof IR\BinaryExpr:
@@ -109,6 +138,23 @@ class Codegen {
       default:
         throw new \Exception('cannot codegen expr ' . get_class($expr));
     }
+  }
+
+  private function func_expr(IR\FuncExpr $expr): PHP\Expr {
+    $func_scope = new PHP\FuncScope($this->current_scope());
+    $params = [];
+    foreach ($expr->params as $param) {
+      $var = $func_scope->new_variable($param->symbol, $param->name);
+      $params[] = new PHP\VarExpr($var);
+    }
+    $this->push_scope($func_scope);
+    if ($expr->type()->returns_something()) {
+      $block = $this->block_with_return($expr->block);
+    } else {
+      $block = $this->block($expr->block);
+    }
+    $this->pop_scope();
+    return new PHP\FuncExpr($params, $block);
   }
 
   private function if_expr(IR\IfExpr $expr): PHP\Expr {

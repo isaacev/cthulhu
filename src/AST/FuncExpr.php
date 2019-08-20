@@ -7,13 +7,13 @@ use Cthulhu\Parser\Lexer\Span;
 class FuncExpr extends Expr {
   public $params;
   public $return_annotation;
-  public $body;
+  public $block;
 
-  function __construct(Span $span, array $params, Annotation $return_annotation, array $body) {
+  function __construct(Span $span, array $params, Annotation $return_annotation, BlockNode $block) {
     parent::__construct($span);
     $this->params = $params;
     $this->return_annotation = $return_annotation;
-    $this->body = $body;
+    $this->block = $block;
   }
 
   public function jsonSerialize() {
@@ -24,15 +24,11 @@ class FuncExpr extends Expr {
       ];
     }, $this->params);
 
-    $body_json = array_map(function ($stmt) {
-      return $stmt->jsonSerialize();
-    }, $this->body);
-
     return [
       'type' => 'FuncExpr',
       'params' => $params_json,
       'return_annotation' => $this->return_annotation->jsonSerialize(),
-      'body' => $body_json,
+      'block' => $block->jsonSerialize(),
     ];
   }
 }

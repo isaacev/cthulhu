@@ -82,7 +82,19 @@ class Analyzer {
   }
 
   private static function func_expr(IR\Scope $scope, AST\FuncExpr $expr): IR\FuncExpr {
-    // TODO
+    $func_scope = new IR\FuncScope($scope);
+    $params = array_map(function ($pair) use ($func_scope) {
+      $name = $pair['name'];
+      $type = self::annotation_to_type($pair['annotation']);
+      $symbol = $func_scope->new_binding($name, $type);
+      return new IR\ParamNode($name, $symbol);
+    }, $expr->params);
+    $return_type = self::annotation_to_type($expr->return_annotation);
+    $block = self::block_node($func_scope, $expr->block);
+    if ($return_type->accepts($block->type()) === false) {
+      throw new Types\Errors\TypeMismatch($return_type, $block->type());
+    }
+    return new IR\FuncExpr($params, $return_type, $block);
   }
 
   private static function if_expr(IR\Scope $scope, AST\IfExpr $expr): IR\IfExpr {

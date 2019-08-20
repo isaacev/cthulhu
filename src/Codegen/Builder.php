@@ -110,6 +110,10 @@ class Builder implements Buildable {
   /**
    * Whitespace and indentation
    */
+  public function space(): self {
+    return $this->push_str(' ');
+  }
+
   public function newline(): self {
     return $this->push_str("\n");
   }
