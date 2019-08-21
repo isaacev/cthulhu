@@ -69,6 +69,8 @@ class Lexer {
         return $this->next_single_char(TokenType::COLON, $next);
       case $next->is(','):
         return $this->next_single_char(TokenType::COMMA, $next);
+      case $next->is('.'):
+        return $this->next_single_char(TokenType::DOT, $next);
       case $next->is('<'):
         return $this->next_starts_with_less_than($next);
       case $next->is('>'):

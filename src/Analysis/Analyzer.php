@@ -68,6 +68,8 @@ class Analyzer {
         return self::if_expr($scope, $expr);
       case $expr instanceof AST\CallExpr:
         return self::call_expr($scope, $expr);
+      case $expr instanceof AST\MemberExpr:
+        return self::member_expr($scope, $expr);
       case $expr instanceof AST\BinaryExpr:
         return self::binary_expr($scope, $expr);
       case $expr instanceof AST\IdentExpr:
@@ -135,6 +137,13 @@ class Analyzer {
       $args[] = self::expr($scope, $arg);
     }
     return new IR\CallExpr($callee, $args);
+  }
+
+  private static function member_expr(IR\Scope $scope, AST\MemberExpr $expr): IR\MemberExpr {
+    $object = self::expr($scope, $expr->object);
+    $property = $expr->property->name;
+    $type = $object->type()->member($property);
+    return new IR\MemberExpr($type, $object, $property);
   }
 
   private static function binary_expr(IR\Scope $scope, AST\BinaryExpr $expr): IR\BinaryExpr {

@@ -60,6 +60,8 @@ class Parser {
       case TokenType::GREATER_THAN:
       case TokenType::GREATER_THAN_EQ:
         return Precedence::RELATION;
+      case TokenType::DOT:
+        return Precedence::ACCESS;
       default:
         return Precedence::LOWEST;
     }
@@ -168,6 +170,12 @@ class Parser {
     }
   }
 
+  private function parse_member_expr(AST\Expr $object, Token $dot): AST\MemberExpr {
+    $ident = $this->require_next_token(TokenType::IDENT);
+    $property = new AST\IdentExpr($ident->span, $ident->lexeme);
+    return new AST\MemberExpr($object, $property);
+  }
+
   private function parse_call_expr(AST\Expr $callee, Token $paren_left): AST\CallExpr {
     $args = [];
     while (true) {
@@ -204,6 +212,8 @@ class Parser {
         $right = $this->parse_expr($this->infix_token_precedence($next));
         $span = $left->span->extended_to($right->span);
         return new AST\BinaryExpr($span, $next->type, $left, $right);
+      case TokenType::DOT:
+        return $this->parse_member_expr($left, $next);
       case TokenType::PAREN_LEFT:
         return $this->parse_call_expr($left, $next);
       default:

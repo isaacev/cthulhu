@@ -24,6 +24,7 @@ abstract class TokenType {
   const EQUALS              = '=';
   const COLON               = ':';
   const COMMA               = ',';
+  const DOT                 = '.';
   const LESS_THAN           = '<';
   const LESS_THAN_EQ        = '<=';
   const GREATER_THAN        = '>';
