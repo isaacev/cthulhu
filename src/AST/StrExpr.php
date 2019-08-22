@@ -14,6 +14,12 @@ class StrExpr extends Expr {
     $this->raw = $raw;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('StrExpr', $visitor_table)) {
+      $visitor_table['StrExpr']($this);
+    }
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'StrExpr',

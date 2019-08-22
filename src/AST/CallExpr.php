@@ -14,6 +14,17 @@ class CallExpr extends Expr {
     $this->args = $args;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('CallExpr', $visitor_table)) {
+      $visitor_table['CallExpr']($this);
+    }
+
+    $this->callee->visit($visitor_table);
+    foreach ($this->args as $arg) {
+      $arg->visit($visitor_table);
+    }
+  }
+
   public function jsonSerialize() {
     $args = array_map(function ($arg) {
       return $arg->jsonSerialize();

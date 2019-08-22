@@ -14,6 +14,14 @@ class MemberExpr extends Expr {
     $this->property = $property;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('MemberExpr', $visitor_table)) {
+      $visitor_table['MemberExpr']($this);
+    }
+
+    $this->object->visit($visitor_table);
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'MemberExpr',

@@ -12,6 +12,8 @@ abstract class Node implements \JsonSerializable {
     $this->span = $span;
   }
 
+  abstract public function visit(array $visitor_table): void;
+
   // @codeCoverageIgnoreStart
   public function from(): Point {
     return $this->span->from;

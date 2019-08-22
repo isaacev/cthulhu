@@ -12,6 +12,16 @@ class BlockNode extends Node {
     $this->stmts = $stmts;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('BlockNode', $visitor_table)) {
+      $visitor_table['BlockNode']($this);
+    }
+
+    foreach ($this->stmts as $stmt) {
+      $stmt->visit($visitor_table);
+    }
+  }
+
   public function jsonSerialize() {
     return array_map(function ($stmt) {
       return $stmt->jsonSerialize();

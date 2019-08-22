@@ -16,6 +16,18 @@ class IfExpr extends Expr {
     $this->else_clause = $else_clause;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('IfExpr', $visitor_table)) {
+      $visitor_table['IfExpr']($this);
+    }
+
+    $this->condition->visit($visitor_table);
+    $this->if_clause->visit($visitor_table);
+    if ($this->else_clause) {
+      $this->else_clause->visit($visitor_table);
+    }
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'IfExpr',

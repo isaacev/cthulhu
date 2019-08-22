@@ -12,6 +12,14 @@ class ExprStmt extends Stmt {
     $this->expr = $expr;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('ExprStmt', $visitor_table)) {
+      $visitor_table['ExprStmt']($this);
+    }
+
+    $this->expr->visit($visitor_table);
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'ExprStmt',

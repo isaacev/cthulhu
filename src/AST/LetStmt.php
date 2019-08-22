@@ -14,6 +14,15 @@ class LetStmt extends Stmt {
     $this->expr = $expr;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('LetStmt', $visitor_table)) {
+      $visitor_table['LetStmt']($this);
+    }
+
+    $this->name->visit($visitor_table);
+    $this->expr->visit($visitor_table);
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'LetStmt',

@@ -16,6 +16,15 @@ class BinaryExpr extends Expr {
     $this->right = $right;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('BinaryExpr', $visitor_table)) {
+      $visitor_table['BinaryExpr']($this);
+    }
+
+    $this->left->visit($visitor_table);
+    $this->right->visit($visitor_table);
+  }
+
   public function jsonSerialize() {
     return [
       "type" => "BinaryExpr",

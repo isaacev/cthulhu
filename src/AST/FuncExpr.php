@@ -16,6 +16,14 @@ class FuncExpr extends Expr {
     $this->block = $block;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('FuncExpr', $visitor_table)) {
+      $visitor_table['FuncExpr']($this);
+    }
+
+    $this->block->visit($visitor_table);
+  }
+
   public function jsonSerialize() {
     $params_json = array_map(function ($param) {
       return [

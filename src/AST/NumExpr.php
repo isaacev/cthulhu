@@ -14,6 +14,12 @@ class NumExpr extends Expr {
     $this->raw = $raw;
   }
 
+  public function visit(array $visitor_table): void {
+    if (array_key_exists('NumExpr', $visitor_table)) {
+      $visitor_table['NumExpr']($this);
+    }
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'NumExpr',
