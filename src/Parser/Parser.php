@@ -172,8 +172,9 @@ class Parser {
 
   private function parse_member_expr(AST\Expr $object, Token $dot): AST\MemberExpr {
     $ident = $this->require_next_token(TokenType::IDENT);
-    $property = new AST\IdentExpr($ident->span, $ident->lexeme);
-    return new AST\MemberExpr($object, $property);
+    $property = $ident->lexeme;
+    $span = $object->span->extended_to($ident->span);
+    return new AST\MemberExpr($span, $object, $property);
   }
 
   private function parse_call_expr(AST\Expr $callee, Token $paren_left): AST\CallExpr {

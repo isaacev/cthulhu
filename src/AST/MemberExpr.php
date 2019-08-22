@@ -2,12 +2,14 @@
 
 namespace Cthulhu\AST;
 
+use Cthulhu\Parser\Lexer\Span;
+
 class MemberExpr extends Expr {
   public $object;
   public $property;
 
-  function __construct(Expr $object, IdentExpr $property) {
-    parent::__construct($object->span->extended_to($property->span));
+  function __construct(Span $span, Expr $object, string $property) {
+    parent::__construct($span);
     $this->object = $object;
     $this->property = $property;
   }
@@ -16,7 +18,7 @@ class MemberExpr extends Expr {
     return [
       'type' => 'MemberExpr',
       'object' => $this->object->jsonSerialize(),
-      'property' => $this->property->jsonSerialize()
+      'property' => $this->property
     ];
   }
 }
