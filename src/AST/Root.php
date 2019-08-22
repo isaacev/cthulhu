@@ -3,20 +3,16 @@
 namespace Cthulhu\AST;
 
 class Root implements \JsonSerializable {
-  public $stmts;
+  public $block;
 
-  function __construct(array $stmts) {
-    $this->stmts = $stmts;
+  function __construct(BlockNode $block) {
+    $this->block = $block;
   }
 
   public function jsonSerialize() {
-    $stmts_json = array_map(function ($stmt) {
-      return $stmt->jsonSerialize();
-    }, $this->stmts);
-
     return [
       'type' => 'Root',
-      'stmts' => $stmts_json
+      'stmts' => $this->block->jsonSerialize()
     ];
   }
 }

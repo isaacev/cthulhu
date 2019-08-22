@@ -3,6 +3,8 @@
 namespace Cthulhu\Parser;
 
 use Cthulhu\Parser\Lexer\Lexer;
+use Cthulhu\Parser\Lexer\Point;
+use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Parser\Errors;
@@ -279,7 +281,14 @@ class Parser {
   }
 
   public function parse(): AST\Root {
-    return new AST\Root($this->parse_stmts());
+    $stmts = $this->parse_stmts();
+    if (count($stmts) > 0) {
+      $span = $stmts[0]->span->extended_to($stmts[count($stmts) - 1]->span);
+    } else {
+      $span = new Span(new Point(), new Point());
+    }
+    $block = new AST\BlockNode($span, $stmts);
+    return new AST\Root($block);
   }
 
   public static function from_string(string $text): Parser {
