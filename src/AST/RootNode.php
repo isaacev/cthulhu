@@ -2,7 +2,7 @@
 
 namespace Cthulhu\AST;
 
-class Root implements \JsonSerializable {
+class RootNode extends Node {
   public $block;
 
   function __construct(BlockNode $block) {
@@ -11,7 +11,7 @@ class Root implements \JsonSerializable {
 
   public function jsonSerialize() {
     return [
-      'type' => 'Root',
+      'type' => 'RootNode',
       'stmts' => $this->block->jsonSerialize()
     ];
   }

@@ -66,5 +66,5 @@ function let($name, $expr) {
 }
 
 function root($stmts) {
-  return new AST\Root($stmts);
+  return new AST\RootNode($stmts);
 }

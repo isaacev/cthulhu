@@ -13,18 +13,13 @@ use Cthulhu\Types;
  * allows for easier generation of PHP code.
  */
 class Analyzer {
-  public static function analyze(AST\Root $root): IR\RootNode {
+  public static function analyze(AST\RootNode $root): IR\RootNode {
     return self::root_node($root);
   }
 
-  private static function root_node(AST\Root $root): IR\RootNode {
+  private static function root_node(AST\RootNode $root): IR\RootNode {
     $global_scope = new IR\GlobalScope(null);
-    $block_scope = new IR\BlockScope($global_scope);
-    $stmts = [];
-    foreach ($root->stmts as $stmt) {
-      $stmts[] = self::stmt($block_scope, $stmt);
-    }
-    $block = new IR\BlockNode($block_scope, $stmts);
+    $block = self::block_node($global_scope, $root->block);
     return new IR\RootNode($global_scope, $block);
   }
 

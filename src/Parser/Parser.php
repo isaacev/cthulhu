@@ -280,7 +280,7 @@ class Parser {
     return $stmts;
   }
 
-  public function parse(): AST\Root {
+  public function parse(): AST\RootNode {
     $stmts = $this->parse_stmts();
     if (count($stmts) > 0) {
       $span = $stmts[0]->span->extended_to($stmts[count($stmts) - 1]->span);
@@ -288,7 +288,7 @@ class Parser {
       $span = new Span(new Point(), new Point());
     }
     $block = new AST\BlockNode($span, $stmts);
-    return new AST\Root($block);
+    return new AST\RootNode($block);
   }
 
   public static function from_string(string $text): Parser {
