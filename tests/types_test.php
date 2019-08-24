@@ -6,6 +6,9 @@ use \Cthulhu\Types\Checker;
 
 require_once 'ast.php';
 
+/**
+ * @group types
+ */
 class TypesTest extends \PHPUnit\Framework\TestCase {
   private function expr($expr, $expected, $binding) {
     $found = Checker::check_expr($expr, $binding);

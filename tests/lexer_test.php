@@ -4,6 +4,9 @@ use \Cthulhu\Parser\Lexer\Lexer;
 use \Cthulhu\Parser\Lexer\TokenType;
 use \Cthulhu\Parser\Lexer\Point;
 
+/**
+ * @group lexer
+ */
 class LexerTest extends \PHPUnit\Framework\TestCase {
   private function tok(string $str, string $type, ?string $lexeme = null) {
     $tok = Lexer::from_string($str)->next();
@@ -34,6 +37,7 @@ class LexerTest extends \PHPUnit\Framework\TestCase {
     $this->tok(';',    TokenType::SEMICOLON);
     $this->tok('=',    TokenType::EQUALS);
     $this->tok(':',    TokenType::COLON);
+    $this->tok('::',   TokenType::DOUBLE_COLON);
     $this->tok(',',    TokenType::COMMA);
     $this->tok('.',    TokenType::DOT);
     $this->tok('<',    TokenType::LESS_THAN);

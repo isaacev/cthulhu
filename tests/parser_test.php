@@ -5,6 +5,9 @@ use \Cthulhu\Parser\Lexer\TokenType;
 
 require_once 'ast.php';
 
+/**
+ * @group parser
+ */
 class ParserTest extends \PHPUnit\Framework\TestCase {
   private function expr(string $str, ?AST\Expr $expected) {
     $found = \Cthulhu\Parser\Parser::from_string($str)->parse_expr();
