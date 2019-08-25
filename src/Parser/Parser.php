@@ -62,7 +62,7 @@ class Parser {
       case TokenType::GREATER_THAN:
       case TokenType::GREATER_THAN_EQ:
         return Precedence::RELATION;
-      case TokenType::DOT:
+      case TokenType::DOUBLE_COLON:
         return Precedence::ACCESS;
       default:
         return Precedence::LOWEST;
@@ -148,6 +148,20 @@ class Parser {
     return new AST\NumExpr($span, $value, $num_token->lexeme);
   }
 
+  private function parse_path_expr(Token $ident_token): AST\PathExpr {
+    $segments = [ new AST\IdentNode($ident_token->span, $ident_token->lexeme) ];
+    while (true) {
+      $peek = $this->lexer->peek();
+      if ($peek === null || $peek->type !== TokenType::DOUBLE_COLON) {
+        break;
+      }
+      $this->require_next_token(TokenType::DOUBLE_COLON);
+      $ident_token = $this->require_next_token(TokenType::IDENT);
+      $segments[] = new AST\IdentNode($ident_token->span, $ident_token->lexeme);
+    }
+    return new AST\PathExpr($segments);
+  }
+
   private function parse_prefix_expr(): AST\Expr {
     $next = $this->lexer->next();
     if ($next === null) {
@@ -166,7 +180,7 @@ class Parser {
       case TokenType::LITERAL_NUM:
         return $this->parse_num_expr($next);
       case TokenType::IDENT:
-        return new AST\IdentExpr($next->span, $next->lexeme);
+        return $this->parse_path_expr($next);
       default:
         throw new Errors\UnexpectedToken($next);
     }
@@ -215,8 +229,8 @@ class Parser {
         $right = $this->parse_expr($this->infix_token_precedence($next));
         $span = $left->span->extended_to($right->span);
         return new AST\BinaryExpr($span, $next->type, $left, $right);
-      case TokenType::DOT:
-        return $this->parse_member_expr($left, $next);
+      case TokenType::DOUBLE_COLON:
+        return $this->parse_module_access_expr($left, $next);
       case TokenType::PAREN_LEFT:
         return $this->parse_call_expr($left, $next);
       default:
@@ -234,6 +248,20 @@ class Parser {
     }
 
     return $left;
+  }
+
+  private function parse_mod_stmt(): AST\ModuleStmt {
+    $mod_keyword = $this->require_next_token(TokenType::KEYWORD_MOD);
+    $ident_token = $this->require_next_token(TokenType::IDENT);
+    $ident = new AST\IdentNode($ident_token->span, $ident_token->lexeme);
+    $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
+    $stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
+    $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
+    $block_span = $left_brace->span->extended_to($right_brace->span);
+    $block = new AST\BlockNode($block_span, $stmts);
+    $semicolon = $this->require_next_token(TokenType::SEMICOLON);
+    $span = $mod_keyword->span->extended_to($semicolon->span);
+    return new AST\ModuleStmt($span, $ident, $block);
   }
 
   private function parse_let_stmt(): AST\LetStmt {
@@ -255,6 +283,8 @@ class Parser {
 
   public function parse_stmt(): AST\Stmt {
     switch ($this->lexer->peek()->type) {
+      case TokenType::KEYWORD_MOD:
+        return $this->parse_mod_stmt();
       case TokenType::KEYWORD_LET:
         return $this->parse_let_stmt();
       default:

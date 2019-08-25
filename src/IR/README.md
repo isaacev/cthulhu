@@ -8,7 +8,7 @@ and variable bindings.
 
 There are 3 different kinds of scope:
 
-- Global scope
+- Module scope
 - Function scope
 - Block scope
 
@@ -30,7 +30,7 @@ that is used to track these relationships is the `Binding` API.
 
 ### Translating scope semantics to PHP
 
-While the semantics of global scope and function scope can be easily translated
+While the semantics of module scope and function scope can be easily translated
 into PHP, block scope cannot. To get around the fact that PHP does not have
 block scope, the language finds any variables with the same names in nearby
 block scopes and renames those variables to avoid conflicts when they are

@@ -4,7 +4,7 @@ namespace Cthulhu\IR;
 
 use Cthulhu\Types\Type;
 
-class FuncScope implements Scope {
+class FuncScope implements MutableScope {
   public $parent;
   public $latest_binding = null;
 

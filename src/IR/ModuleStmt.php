@@ -4,22 +4,25 @@ namespace Cthulhu\IR;
 
 use Cthulhu\Types;
 
-class RootNode extends Node {
+class ModuleStmt extends Stmt {
+  public $name;
   public $scope;
   public $block;
 
-  function __construct(GlobalScope $scope, BlockNode $block) {
+  function __construct(string $name, ModuleScope $scope, BlockNode $block) {
+    $this->name = $name;
     $this->scope = $scope;
     $this->block = $block;
   }
 
   public function type(): Types\Type {
-    return $this->block->type();
+    return new Types\VoidType();
   }
 
   public function jsonSerialize() {
     return [
-      'type' => 'RootNode',
+      'type' => 'ModuleStmt',
+      'name' => $this->name,
       'block' => $this->block->jsonSerialize()
     ];
   }

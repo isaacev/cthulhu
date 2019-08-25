@@ -5,11 +5,11 @@ namespace Cthulhu\IR;
 use Cthulhu\Types\Errors\UndeclaredVariable;
 use Cthulhu\Types\Type;
 
-class BlockScope implements Scope {
+class BlockScope implements MutableScope {
   private $parent;
   private $latest_binding = null;
 
-  function __construct(Scope $parent) {
+  function __construct(?Scope $parent = null) {
     $this->parent = $parent;
   }
 
@@ -27,7 +27,11 @@ class BlockScope implements Scope {
       : null;
 
     if ($lookup === null) {
-      return $this->parent->get_binding($name);
+      if ($this->parent) {
+        return $this->parent->get_binding($name);
+      } else {
+        throw new UndeclaredVariable($name);
+      }
     }
 
     return $lookup;

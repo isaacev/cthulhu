@@ -13,95 +13,148 @@ use Cthulhu\Types;
  * allows for easier generation of PHP code.
  */
 class Analyzer {
-  public static function analyze(AST\RootNode $root): IR\RootNode {
-    return self::root_node($root);
+  private $scopes;
+  private $module_scopes;
+
+  function __construct() {
+    $this->scopes = [];
+    $this->module_scopes = [];
   }
 
-  private static function root_node(AST\RootNode $root): IR\RootNode {
-    $global_scope = new IR\GlobalScope(null);
-    $block = self::block_node($global_scope, $root->block);
-    return new IR\RootNode($global_scope, $block);
+  private function push_scope(IR\Scope $scope): IR\Scope {
+    array_push($this->scopes, $scope);
+    if ($scope instanceof IR\ModuleScope) {
+      array_push($this->module_scopes, $scope);
+    }
+    return $scope;
   }
 
-  private static function block_node(IR\Scope $scope, AST\BlockNode $block): IR\BlockNode {
-    $block_scope = new IR\BlockScope($scope);
+  private function peek_scope(): IR\Scope {
+    return $this->scopes[count($this->scopes) - 1];
+  }
+
+  private function peek_module_scope(): IR\ModuleScope {
+    return $this->module_scopes[count($this->module_scopes) - 1];
+  }
+
+  private function pop_scope(): IR\Scope {
+    $scope = array_pop($this->scopes);
+    if ($scope instanceof IR\ModuleScope) {
+      array_pop($this->module_scopes);
+    }
+    return $scope;
+  }
+
+  public function analyze(AST\RootNode $root_node): IR\SourceModule {
+    $block_scope = new IR\BlockScope();
+    $module_scope = $this->push_scope(new IR\ModuleScope('(root)', $block_scope));
+    $block = $this->block_node($root_node->block, $block_scope);
+    $this->pop_scope(); // popping module scope
+    return new IR\SourceModule($module_scope, $block);
+  }
+
+  private function block_node(AST\BlockNode $block, ?IR\BlockScope $block_scope = null): IR\BlockNode {
+    if ($block_scope === null) {
+      $block_scope = $this->push_scope(new IR\BlockScope($this->peek_scope()));
+    } else {
+      $this->push_scope($block_scope);
+    }
+
     $stmts = [];
     foreach ($block->stmts as $stmt) {
-      $stmts[] = self::stmt($block_scope, $stmt);
+      $stmts[] = $this->stmt($stmt);
     }
+    $this->pop_scope(); // popping the block scope
     return new IR\BlockNode($block_scope, $stmts);
   }
 
-  private static function stmt(IR\Scope $scope, AST\Stmt $stmt): IR\Stmt {
+  private function stmt(AST\Stmt $stmt): IR\Stmt {
     switch (true) {
+      case $stmt instanceof AST\ModuleStmt:
+        return $this->module_stmt($stmt);
       case $stmt instanceof AST\LetStmt:
-        return self::let_stmt($scope, $stmt);
+        return $this->let_stmt($stmt);
       case $stmt instanceof AST\ExprStmt:
-        return self::expr_stmt($scope, $stmt);
+        return $this->expr_stmt($stmt);
       default:
         throw new \Exception('unknown statement: ' . get_class($stmt));
     }
   }
 
-  private static function let_stmt(IR\Scope $scope, AST\LetStmt $stmt): IR\AssignStmt {
+  private function module_stmt(AST\ModuleStmt $stmt): IR\ModuleStmt {
+    $parent_module = $this->peek_module_scope();
+    if (($parent_module instanceof IR\ModuleScope) === false) {
+      throw new \Exception('module declaration cannot be inside an expression');
+    }
+    $name = $stmt->name->ident;
+    $block_scope = new IR\BlockScope();
+    $submodule_scope = $this->push_scope(new IR\ModuleScope($name, $block_scope));
+    $block = $this->block_node($stmt->block, $block_scope);
+    $parent_module->add_submodule($name, $submodule_scope);
+    $this->pop_scope(); // popping submodule scope
+    return new IR\ModuleStmt($name, $submodule_scope, $block);
+  }
+
+  private function let_stmt(AST\LetStmt $stmt): IR\AssignStmt {
     $name = $stmt->name;
-    $expr = self::expr($scope, $stmt->expr);
-    $symbol = $scope->new_binding($name, $expr->type());
+    $expr = $this->expr($stmt->expr);
+    $symbol = $this->peek_scope()->new_binding($name, $expr->type());
     return new IR\AssignStmt($name, $symbol, $expr);
   }
 
-  private static function expr_stmt(IR\Scope $scope, AST\ExprStmt $stmt): IR\ExprStmt {
-    $expr = self::expr($scope, $stmt->expr);
+  private function expr_stmt(AST\ExprStmt $stmt): IR\ExprStmt {
+    $expr = $this->expr($stmt->expr);
     return new IR\ExprStmt($expr);
   }
 
-  private static function expr(IR\Scope $scope, AST\Expr $expr): IR\Expr {
+  private function expr(AST\Expr $expr): IR\Expr {
     switch (true) {
       case $expr instanceof AST\FuncExpr:
-        return self::func_expr($scope, $expr);
+        return $this->func_expr($expr);
       case $expr instanceof AST\IfExpr:
-        return self::if_expr($scope, $expr);
+        return $this->if_expr($expr);
       case $expr instanceof AST\CallExpr:
-        return self::call_expr($scope, $expr);
+        return $this->call_expr($expr);
       case $expr instanceof AST\MemberExpr:
-        return self::member_expr($scope, $expr);
+        return $this->member_expr($expr);
       case $expr instanceof AST\BinaryExpr:
-        return self::binary_expr($scope, $expr);
-      case $expr instanceof AST\IdentExpr:
-        return self::ident_expr($scope, $expr);
+        return $this->binary_expr($expr);
+      case $expr instanceof AST\PathExpr:
+        return $this->path_expr($expr);
       case $expr instanceof AST\StrExpr:
-        return self::str_expr($scope, $expr);
+        return $this->str_expr($expr);
       case $expr instanceof AST\NumExpr:
-        return self::num_expr($scope, $expr);
+        return $this->num_expr($expr);
       default:
         throw new \Exception('unknown expression: ' . get_class($expr));
     }
   }
 
-  private static function func_expr(IR\Scope $scope, AST\FuncExpr $expr): IR\FuncExpr {
-    $func_scope = new IR\FuncScope($scope);
+  private function func_expr(AST\FuncExpr $expr): IR\FuncExpr {
+    $func_scope = $this->push_scope(new IR\FuncScope($this->peek_scope()));
     $params = array_map(function ($pair) use ($func_scope) {
       $name = $pair['name'];
-      $type = self::annotation_to_type($pair['annotation']);
+      $type = $this->annotation_to_type($pair['annotation']);
       $symbol = $func_scope->new_binding($name, $type);
       return new IR\ParamNode($name, $symbol);
     }, $expr->params);
-    $return_type = self::annotation_to_type($expr->return_annotation);
-    $block = self::block_node($func_scope, $expr->block);
+    $return_type = $this->annotation_to_type($expr->return_annotation);
+    $block = $this->block_node($expr->block);
+    $this->pop_scope(); // popping the function scope
     if ($return_type->accepts($block->type()) === false) {
       throw new Types\Errors\TypeMismatch($return_type, $block->type());
     }
     return new IR\FuncExpr($params, $return_type, $block);
   }
 
-  private static function if_expr(IR\Scope $scope, AST\IfExpr $expr): IR\IfExpr {
-    $condition = self::expr($scope, $expr->condition);
+  private function if_expr(AST\IfExpr $expr): IR\IfExpr {
+    $condition = $this->expr($expr->condition);
     if (($condition->type() instanceof Types\BoolType) === false) {
       throw new Types\Errors\TypeMismatch(new Types\BoolType(), $condition->type());
     }
 
-    $if_block = self::block_node($scope, $expr->if_clause);
-    $else_block = $expr->else_clause ? self::block_node($scope, $expr->else_clause) : null;
+    $if_block = $this->block_node($expr->if_clause);
+    $else_block = $expr->else_clause ? $this->block_node($expr->else_clause) : null;
 
     if ($expr->else_clause === null) {
       // If there isn't an else-clause, require that
@@ -122,47 +175,60 @@ class Analyzer {
     throw new Types\Errors\TypeMismatch($if_block->type(), $else_block->type());
   }
 
-  private static function call_expr(IR\Scope $scope, AST\CallExpr $expr): IR\CallExpr {
-    $callee = self::expr($scope, $expr->callee);
+  private function call_expr(AST\CallExpr $expr): IR\CallExpr {
+    $callee = $this->expr($expr->callee);
     if (($callee->type() instanceof Types\FuncType) === false) {
       throw new Types\Errors\TypeMismatch('function', $callee->type());
     }
     $args = [];
     foreach ($expr->args as $arg) {
-      $args[] = self::expr($scope, $arg);
+      $args[] = $this->expr($arg);
     }
     return new IR\CallExpr($callee, $args);
   }
 
-  private static function member_expr(IR\Scope $scope, AST\MemberExpr $expr): IR\MemberExpr {
-    $object = self::expr($scope, $expr->object);
+  private function member_expr(AST\MemberExpr $expr): IR\MemberExpr {
+    $object = $this->expr($expr->object);
     $property = $expr->property->name;
     $type = $object->type()->member($property);
     return new IR\MemberExpr($type, $object, $property);
   }
 
-  private static function binary_expr(IR\Scope $scope, AST\BinaryExpr $expr): IR\BinaryExpr {
-    $left = self::expr($scope, $expr->left);
-    $right = self::expr($scope, $expr->right);
+  private function binary_expr(AST\BinaryExpr $expr): IR\BinaryExpr {
+    $left = $this->expr($expr->left);
+    $right = $this->expr($expr->right);
     $type = $left->type()->binary_operator($expr->operator, $right->type());
     return new IR\BinaryExpr($type, $expr->operator, $left, $right);
   }
 
-  private static function ident_expr(IR\Scope $scope, AST\IdentExpr $expr): IR\VariableExpr {
-    $name = $expr->name;
-    $symbol = $scope->get_binding($name);
-    return new IR\VariableExpr($name, $symbol);
+  private function path_expr(AST\PathExpr $expr): IR\VariableExpr {
+    if ($expr->length() === 1) {
+      $name = $expr->nth(0)->ident;
+      $symbol = $this->peek_scope()->get_binding($name);
+      return new IR\VariableExpr($name, $symbol);
+    }
+
+    $module_scope = $this->peek_module_scope();
+    for ($n = 0, $l = $expr->length(); $n < $l; $n++) {
+      $name = $expr->nth($n)->ident;
+      if ($n < $l - 1) {
+        $module_scope = $module_scope->get_submodule($name);
+      } else {
+        $symbol = $module_scope->get_binding($name);
+        return new IR\VariableExpr($name, $symbol);
+      }
+    }
   }
 
-  private static function str_expr(IR\Scope $scope, AST\StrExpr $expr): IR\StrExpr {
+  private function str_expr(AST\StrExpr $expr): IR\StrExpr {
     return new IR\StrExpr($expr->value);
   }
 
-  private static function num_expr(IR\Scope $scope, AST\NumExpr $expr): IR\NumExpr {
+  private function num_expr(AST\NumExpr $expr): IR\NumExpr {
     return new IR\NumExpr($expr->value);
   }
 
-  private static function annotation_to_type(AST\Annotation $annotation): Types\Type {
+  private function annotation_to_type(AST\Annotation $annotation): Types\Type {
     if ($annotation instanceof AST\NamedAnnotation) {
       switch ($annotation->name) {
         case 'Void':
