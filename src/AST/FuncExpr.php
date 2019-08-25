@@ -36,7 +36,7 @@ class FuncExpr extends Expr {
       'type' => 'FuncExpr',
       'params' => $params_json,
       'return_annotation' => $this->return_annotation->jsonSerialize(),
-      'block' => $block->jsonSerialize(),
+      'block' => $this->block->jsonSerialize(),
     ];
   }
 }
