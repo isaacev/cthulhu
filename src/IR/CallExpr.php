@@ -19,7 +19,11 @@ class CallExpr extends Expr {
 
   public function jsonSerialize() {
     return [
-      'type' => 'CallExpr'
+      'type' => 'CallExpr',
+      'callee' => $this->callee->jsonSerialize(),
+      'arguments' => array_map(function ($a) {
+        return $a->jsonSerialize();
+      }, $this->args)
     ];
   }
 }
