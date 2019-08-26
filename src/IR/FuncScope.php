@@ -20,7 +20,7 @@ class FuncScope implements MutableScope {
     return $lookup || $this->parent->has_binding($name);
   }
 
-  public function get_binding(string $name): Symbol {
+  public function get_binding(string $name): Binding {
     $lookup = $this->latest_binding
       ? $this->latest_binding->lookup($name)
       : null;
@@ -32,10 +32,18 @@ class FuncScope implements MutableScope {
     return $lookup;
   }
 
-  public function new_binding(string $name, Type $type): Symbol {
-    $symbol = new Symbol($type, $this);
-    $binding = new Binding($this->latest_binding, $symbol, $name);
+  public function new_binding(string $name, Type $type): IdentifierNode {
+    $ident = new IdentifierNode($name, new Symbol($this));
+    $binding = new Binding($this->latest_binding, $ident, $type);
     $this->latest_binding = $binding;
-    return $symbol;
+    return $ident;
+  }
+
+  public function chain(): array {
+    if ($this->parent) {
+      return array_merge([ $this ], $this->parent->chain());
+    } else {
+      return [ $this ];
+    }
   }
 }

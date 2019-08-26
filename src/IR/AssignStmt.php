@@ -5,13 +5,11 @@ namespace Cthulhu\IR;
 use Cthulhu\Types;
 
 class AssignStmt extends Stmt {
-  public $name;
-  public $symbol;
+  public $identifier;
   public $expr;
 
-  function __construct(string $name, Symbol $symbol, Expr $expr) {
-    $this->name = $name;
-    $this->symbol = $symbol;
+  function __construct(IdentifierNode $ident, Expr $expr) {
+    $this->identifier = $ident;
     $this->expr = $expr;
   }
 
@@ -22,8 +20,7 @@ class AssignStmt extends Stmt {
   public function jsonSerialize() {
     return [
       'type' => 'AssignStmt',
-      'name' => $this->name,
-      'symbol' => $this->symbol->jsonSerialize(),
+      'identifier' => $this->identifier->jsonSerialize(),
       'expr' => $this->expr->jsonSerialize()
     ];
   }

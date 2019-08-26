@@ -5,12 +5,12 @@ namespace Cthulhu\IR;
 use Cthulhu\Types;
 
 class ModuleStmt extends Stmt {
-  public $name;
+  public $identifier;
   public $scope;
   public $block;
 
-  function __construct(string $name, ModuleScope $scope, BlockNode $block) {
-    $this->name = $name;
+  function __construct(IdentifierNode $ident, ModuleScope $scope, BlockNode $block) {
+    $this->identifier = $ident;
     $this->scope = $scope;
     $this->block = $block;
   }
@@ -22,7 +22,8 @@ class ModuleStmt extends Stmt {
   public function jsonSerialize() {
     return [
       'type' => 'ModuleStmt',
-      'name' => $this->name,
+      'identifier' => $this->identifier,
+      'scope' => $this->scope->jsonSerialize(),
       'block' => $this->block->jsonSerialize()
     ];
   }

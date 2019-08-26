@@ -46,10 +46,21 @@ class Analyzer {
   }
 
   public function analyze(AST\RootNode $root_node): IR\SourceModule {
+    // Build module scope with appropriate pointers to other scopes
+    $parent_scope = null;
     $block_scope = new IR\BlockScope();
-    $module_scope = $this->push_scope(new IR\ModuleScope('(root)', $block_scope));
+    $module_scope = new IR\ModuleScope($parent_scope, null, $block_scope);
+
+    // Add module scope to pending scope stack
+    $this->push_scope($module_scope);
+
+    // Analyze statements inside the module
     $block = $this->block_node($root_node->block, $block_scope);
-    $this->pop_scope(); // popping module scope
+
+    // Remove module scope from pending scope stack
+    $this->pop_scope();
+
+    // Build IR node representing entire module
     return new IR\SourceModule($module_scope, $block);
   }
 
@@ -82,24 +93,29 @@ class Analyzer {
   }
 
   private function module_stmt(AST\ModuleStmt $stmt): IR\ModuleStmt {
-    $parent_module = $this->peek_module_scope();
-    if (($parent_module instanceof IR\ModuleScope) === false) {
-      throw new \Exception('module declaration cannot be inside an expression');
-    }
-    $name = $stmt->name->ident;
+    // Build submodule scope with appropriate pointers to other scopes
+    $parent_scope = $this->peek_module_scope();
     $block_scope = new IR\BlockScope();
-    $submodule_scope = $this->push_scope(new IR\ModuleScope($name, $block_scope));
+    $submodule_scope = new IR\ModuleScope($parent_scope, $stmt->name->ident, $block_scope);
+    $parent_scope->add_submodule($submodule_scope);
+
+    // Add module scope to pending scope stack for lookup while analyzing inner statements
+    $this->push_scope($submodule_scope);
+
+    // Analyze statements inside the module
     $block = $this->block_node($stmt->block, $block_scope);
-    $parent_module->add_submodule($name, $submodule_scope);
-    $this->pop_scope(); // popping submodule scope
-    return new IR\ModuleStmt($name, $submodule_scope, $block);
+
+    // Remove module scope from pending scope stack
+    $this->pop_scope();
+
+    // Build IR node representing the module definition
+    return new IR\ModuleStmt($submodule_scope->identifier, $submodule_scope, $block);
   }
 
   private function let_stmt(AST\LetStmt $stmt): IR\AssignStmt {
-    $name = $stmt->name;
     $expr = $this->expr($stmt->expr);
-    $symbol = $this->peek_scope()->new_binding($name, $expr->type());
-    return new IR\AssignStmt($name, $symbol, $expr);
+    $ident = $this->peek_scope()->new_binding($stmt->name, $expr->type());
+    return new IR\AssignStmt($ident, $expr);
   }
 
   private function expr_stmt(AST\ExprStmt $stmt): IR\ExprStmt {
@@ -133,10 +149,10 @@ class Analyzer {
   private function func_expr(AST\FuncExpr $expr): IR\FuncExpr {
     $func_scope = $this->push_scope(new IR\FuncScope($this->peek_scope()));
     $params = array_map(function ($pair) use ($func_scope) {
-      $name = $pair['name'];
+      $ident = new IR\IdentifierNode($pair['name']);
       $type = $this->annotation_to_type($pair['annotation']);
-      $symbol = $func_scope->new_binding($name, $type);
-      return new IR\ParamNode($name, $symbol);
+      $symbol = $func_scope->new_binding($ident, $type);
+      return new IR\ParamNode($ident, $symbol);
     }, $expr->params);
     $return_type = $this->annotation_to_type($expr->return_annotation);
     $block = $this->block_node($expr->block);
@@ -188,10 +204,11 @@ class Analyzer {
   }
 
   private function member_expr(AST\MemberExpr $expr): IR\MemberExpr {
-    $object = $this->expr($expr->object);
-    $property = $expr->property->name;
-    $type = $object->type()->member($property);
-    return new IR\MemberExpr($type, $object, $property);
+    // TODO
+    // $object = $this->expr($expr->object);
+    // $property = $expr->property->name;
+    // $type = $object->type()->member($property);
+    // return new IR\MemberExpr($type, $object, $property);
   }
 
   private function binary_expr(AST\BinaryExpr $expr): IR\BinaryExpr {
@@ -201,21 +218,24 @@ class Analyzer {
     return new IR\BinaryExpr($type, $expr->operator, $left, $right);
   }
 
-  private function path_expr(AST\PathExpr $expr): IR\VariableExpr {
+  private function path_expr(AST\PathExpr $expr): IR\PathExpr {
     if ($expr->length() === 1) {
-      $name = $expr->nth(0)->ident;
-      $symbol = $this->peek_scope()->get_binding($name);
-      return new IR\VariableExpr($name, $symbol);
+      $binding = $this->peek_scope()->get_binding($expr->nth(0)->ident);
+      return new IR\PathExpr([ $binding->identifier ], $binding->type);
     }
 
+    $segments = [];
     $module_scope = $this->peek_module_scope();
-    for ($n = 0, $l = $expr->length(); $n < $l; $n++) {
-      $name = $expr->nth($n)->ident;
-      if ($n < $l - 1) {
-        $module_scope = $module_scope->get_submodule($name);
+    for ($n = 0, $len = $expr->length(); $n < $len; $n++) {
+      if ($n < $len - 1) {
+        // Segment isn't the last segment so treat as a submodule reference
+        $module_scope = $module_scope->get_submodule($expr->nth($n)->ident);
+        $segments[] = $module_scope->identifier;
       } else {
-        $symbol = $module_scope->get_binding($name);
-        return new IR\VariableExpr($name, $symbol);
+        // Segment is last segment so treat as a variable reference
+        $binding = $module_scope->get_binding($expr->nth($n)->ident);
+        $segments[] = $binding->identifier;
+        return new IR\PathExpr($segments, $binding->type);
       }
     }
   }

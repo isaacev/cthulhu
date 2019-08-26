@@ -5,17 +5,17 @@ namespace Cthulhu\Codegen\PHP;
 use Cthulhu\Codegen\Builder;
 
 class AssignStmt extends Stmt {
-  public $name;
+  public $assignee;
   public $expr;
 
-  function __construct(string $name, Expr $expr) {
-    $this->name = $name;
+  function __construct(Variable $assignee, Expr $expr) {
+    $this->assignee = $assignee;
     $this->expr = $expr;
   }
 
   public function build(): Builder {
     return (new Builder)
-      ->variable($this->name)
+      ->then($this->assignee)
       ->equals()
       ->expr($this->expr)
       ->semicolon();
@@ -24,7 +24,7 @@ class AssignStmt extends Stmt {
   public function jsonSerialize() {
     return [
       'type' => 'AssignStmt',
-      'name' => $this->name,
+      'assignee' => $this->assignee->jsonSerialize(),
       'expr' => $this->expr->jsonSerialize()
     ];
   }

@@ -5,11 +5,11 @@ namespace Cthulhu\IR;
 use Cthulhu\Types\Type;
 
 class ParamNode extends Node {
-  public $name;
+  public $identifier;
   public $symbol;
 
-  function __construct(string $name, Symbol $symbol) {
-    $this->name = $name;
+  function __construct(IdentifierNode $ident, Symbol $symbol) {
+    $this->identifier = $ident;
     $this->symbol = $symbol;
   }
 
@@ -20,7 +20,7 @@ class ParamNode extends Node {
   public function jsonSerialize() {
     return [
       'type' => 'ParamNode',
-      'name' => $this->name,
+      'identifier' => $this->identifier,
       'symbol' => $this->symbol->jsonSerialize()
     ];
   }

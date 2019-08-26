@@ -78,11 +78,23 @@ class Builder implements Buildable {
     return $this->push_str('=');
   }
 
+  public function backslash(): self {
+    return $this->push_str('\\');
+  }
+
   /**
    * Variables, keywords, and other literals
    */
   public function variable(string $name): self {
     return $this->push_str('$' . $name);
+  }
+
+  public function identifier(string $ident): self {
+    return $this->push_str($ident);
+  }
+
+  public function reference(array $segments): self {
+    return $this->push_str(implode('\\', $segments));
   }
 
   public function keyword(string $keyword): self {

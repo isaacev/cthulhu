@@ -3,22 +3,23 @@
 namespace Cthulhu\IR;
 
 class SourceModule implements Module {
-  public $module_scope;
+  public $scope;
   public $block;
 
-  function __construct(ModuleScope $module_scope, BlockNode $block) {
-    $this->module_scope = $module_scope;
+  function __construct(ModuleScope $scope, BlockNode $block) {
+    $this->scope = $scope;
     $this->block = $block;
   }
 
   public function scope(): ModuleScope {
-    return $this->module_scope;
+    return $this->scope;
   }
 
   public function jsonSerialize() {
     return [
       'module' => 'source',
-      'block' => $this->block
+      'scope' => $this->scope->jsonSerialize(),
+      'block' => $this->block->jsonSerialize()
     ];
   }
 }

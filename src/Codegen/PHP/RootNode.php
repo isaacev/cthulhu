@@ -14,7 +14,8 @@ class RootNode extends Node {
   public function build(): Builder {
     return (new Builder)
       ->opening_php_tag()
-      ->stmts($this->block->stmts);
+      ->keyword('namespace')
+      ->then($this->block);
   }
 
   public function jsonSerialize() {
