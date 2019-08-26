@@ -78,7 +78,7 @@ class Parser {
   private function parse_if_expr(Token $if_keyword): AST\IfExpr {
     $condition = $this->parse_expr();
     $if_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $if_stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
+    $if_stmts = $this->parse_stmts([$this, 'parse_stmt'], TokenType::BRACE_RIGHT);
     $if_right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $if_block_span = $if_left_brace->span->extended_to($if_right_brace->span);
     $if_block = new AST\BlockNode($if_block_span, $if_stmts);
@@ -87,7 +87,7 @@ class Parser {
     if ($peek !== null && $peek->type === TokenType::KEYWORD_ELSE) {
       $else_keyword = $this->require_next_token(TokenType::KEYWORD_ELSE);
       $else_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-      $else_stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
+      $else_stmts = $this->parse_stmts([$this, 'parse_stmt'], TokenType::BRACE_RIGHT);
       $else_right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
       $else_block_span = $else_left_brace->span->extended_to($else_right_brace->span);
       $else_block = new AST\BlockNode($else_block_span, $else_stmts);
@@ -128,7 +128,7 @@ class Parser {
     $colon = $this->require_next_token(TokenType::COLON);
     $return_note = $this->parse_annotation();
     $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $block_stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
+    $block_stmts = $this->parse_stmts([$this, 'parse_stmt'], TokenType::BRACE_RIGHT);
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $block_span = $left_brace->span->extended_to($right_brace->span);
     $block = new AST\BlockNode($block_span, $block_stmts);
@@ -250,12 +250,23 @@ class Parser {
     return $left;
   }
 
+  private function parse_fn_or_mod_stmt(): AST\Stmt {
+    switch ($this->lexer->peek()->type) {
+      case TokenType::KEYWORD_MOD:
+        return $this->parse_mod_stmt();
+      case TokenType::KEYWORD_LET:
+        return $this->parse_let_fn_stmt();
+      default:
+        throw new \Exception('only module or function statements in module');
+    }
+  }
+
   private function parse_mod_stmt(): AST\ModuleStmt {
     $mod_keyword = $this->require_next_token(TokenType::KEYWORD_MOD);
     $ident_token = $this->require_next_token(TokenType::IDENT);
     $ident = new AST\IdentNode($ident_token->span, $ident_token->lexeme);
     $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $stmts = $this->parse_stmts(TokenType::BRACE_RIGHT);
+    $stmts = $this->parse_stmts([$this, 'parse_fn_or_mod_stmt'], TokenType::BRACE_RIGHT);
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $block_span = $left_brace->span->extended_to($right_brace->span);
     $block = new AST\BlockNode($block_span, $stmts);
@@ -274,6 +285,15 @@ class Parser {
     return new AST\LetStmt($span, $name, $expr);
   }
 
+  private function parse_let_fn_stmt(): AST\LetStmt {
+    $let_stmt = $this->parse_let_stmt();
+    if (($let_stmt->expr instanceof AST\FuncExpr) === false) {
+      throw new \Exception('cannot declare ' . get_class($let_stmt->expr) . ' outside of function');
+    } else {
+      return $let_stmt;
+    }
+  }
+
   private function parse_expr_stmt(): AST\ExprStmt {
     $expr = $this->parse_expr();
     $semicolon = $this->require_next_token(TokenType::SEMICOLON);
@@ -283,8 +303,6 @@ class Parser {
 
   public function parse_stmt(): AST\Stmt {
     switch ($this->lexer->peek()->type) {
-      case TokenType::KEYWORD_MOD:
-        return $this->parse_mod_stmt();
       case TokenType::KEYWORD_LET:
         return $this->parse_let_stmt();
       default:
@@ -292,7 +310,7 @@ class Parser {
     }
   }
 
-  private function parse_stmts(?string $terminal = null): array {
+  private function parse_stmts(callable $stmt, ?string $terminal = null): array {
     $stmts = [];
     while (true) {
       $peek = $this->lexer->peek();
@@ -304,14 +322,14 @@ class Parser {
         break;
       }
 
-      $stmts[] = $this->parse_stmt();
+      $stmts[] = $stmt();
     }
 
     return $stmts;
   }
 
   public function parse(): AST\RootNode {
-    $stmts = $this->parse_stmts();
+    $stmts = $this->parse_stmts([$this, 'parse_fn_or_mod_stmt']);
     if (count($stmts) > 0) {
       $span = $stmts[0]->span->extended_to($stmts[count($stmts) - 1]->span);
     } else {
