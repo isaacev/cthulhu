@@ -8,7 +8,7 @@ class IdentifierNode extends Node {
   public $name;
   public $symbol;
 
-  function __construct(string $name, Symbol $symbol) {
+  function __construct(string $name, Symbol2 $symbol) {
     $this->name = $name;
     $this->symbol = $symbol;
   }

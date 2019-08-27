@@ -16,9 +16,10 @@ class Analyzer {
   private $scopes;
   private $module_scopes;
 
-  function __construct() {
+  function __construct(array $module_table) {
     $this->scopes = [];
     $this->module_scopes = [];
+    $this->module_table = $module_table;
   }
 
   private function push_scope(IR\Scope $scope): IR\Scope {
@@ -81,6 +82,8 @@ class Analyzer {
 
   private function stmt(AST\Stmt $stmt): IR\Stmt {
     switch (true) {
+      case $stmt instanceof AST\UseStmt:
+        return $this->use_stmt($stmt);
       case $stmt instanceof AST\ModuleStmt:
         return $this->module_stmt($stmt);
       case $stmt instanceof AST\LetStmt:
@@ -90,6 +93,10 @@ class Analyzer {
       default:
         throw new \Exception('unknown statement: ' . get_class($stmt));
     }
+  }
+
+  private function use_stmt(AST\UseStmt $stmt): IR\UseStmt {
+    // TODO
   }
 
   private function module_stmt(AST\ModuleStmt $stmt): IR\ModuleStmt {

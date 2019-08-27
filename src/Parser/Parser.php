@@ -78,7 +78,7 @@ class Parser {
   private function parse_if_expr(Token $if_keyword): AST\IfExpr {
     $condition = $this->parse_expr();
     $if_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $if_stmts = $this->parse_stmts([$this, 'parse_stmt'], TokenType::BRACE_RIGHT);
+    $if_stmts = $this->parse_block_stmts();
     $if_right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $if_block_span = $if_left_brace->span->extended_to($if_right_brace->span);
     $if_block = new AST\BlockNode($if_block_span, $if_stmts);
@@ -87,7 +87,7 @@ class Parser {
     if ($peek !== null && $peek->type === TokenType::KEYWORD_ELSE) {
       $else_keyword = $this->require_next_token(TokenType::KEYWORD_ELSE);
       $else_left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-      $else_stmts = $this->parse_stmts([$this, 'parse_stmt'], TokenType::BRACE_RIGHT);
+      $else_stmts = $this->parse_block_stmts();
       $else_right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
       $else_block_span = $else_left_brace->span->extended_to($else_right_brace->span);
       $else_block = new AST\BlockNode($else_block_span, $else_stmts);
@@ -128,7 +128,7 @@ class Parser {
     $colon = $this->require_next_token(TokenType::COLON);
     $return_note = $this->parse_annotation();
     $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $block_stmts = $this->parse_stmts([$this, 'parse_stmt'], TokenType::BRACE_RIGHT);
+    $block_stmts = $this->parse_block_stmts();
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $block_span = $left_brace->span->extended_to($right_brace->span);
     $block = new AST\BlockNode($block_span, $block_stmts);
@@ -250,29 +250,32 @@ class Parser {
     return $left;
   }
 
-  private function parse_fn_or_mod_stmt(): AST\Stmt {
-    switch ($this->lexer->peek()->type) {
-      case TokenType::KEYWORD_MOD:
-        return $this->parse_mod_stmt();
-      case TokenType::KEYWORD_LET:
-        return $this->parse_let_fn_stmt();
-      default:
-        throw new \Exception('only module or function statements in module');
-    }
-  }
-
   private function parse_mod_stmt(): AST\ModuleStmt {
     $mod_keyword = $this->require_next_token(TokenType::KEYWORD_MOD);
     $ident_token = $this->require_next_token(TokenType::IDENT);
     $ident = new AST\IdentNode($ident_token->span, $ident_token->lexeme);
     $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
-    $stmts = $this->parse_stmts([$this, 'parse_fn_or_mod_stmt'], TokenType::BRACE_RIGHT);
+    $stmts = $this->parse_module_stmts(TokenType::BRACE_RIGHT);
     $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
     $block_span = $left_brace->span->extended_to($right_brace->span);
     $block = new AST\BlockNode($block_span, $stmts);
     $semicolon = $this->require_next_token(TokenType::SEMICOLON);
     $span = $mod_keyword->span->extended_to($semicolon->span);
     return new AST\ModuleStmt($span, $ident, $block);
+  }
+
+  private function parse_use_stmt(): AST\UseStmt {
+    $use_keyword = $this->require_next_token(TokenType::KEYWORD_USE);
+    $ident = $this->require_next_token(TokenType::IDENT);
+    $semicolon = $this->require_next_token(TokenType::SEMICOLON);
+    $segments = [ new AST\IdentNode($ident->span, $ident->lexeme) ];
+    $span = $use_keyword->span->extended_to($semicolon->span);
+    return new AST\UseStmt($span, $segments);
+  }
+
+  private function parse_fn_params(): array {
+    // TODO
+    return [];
   }
 
   private function parse_let_stmt(): AST\LetStmt {
@@ -285,15 +288,6 @@ class Parser {
     return new AST\LetStmt($span, $name, $expr);
   }
 
-  private function parse_let_fn_stmt(): AST\LetStmt {
-    $let_stmt = $this->parse_let_stmt();
-    if (($let_stmt->expr instanceof AST\FuncExpr) === false) {
-      throw new \Exception('cannot declare ' . get_class($let_stmt->expr) . ' outside of function');
-    } else {
-      return $let_stmt;
-    }
-  }
-
   private function parse_expr_stmt(): AST\ExprStmt {
     $expr = $this->parse_expr();
     $semicolon = $this->require_next_token(TokenType::SEMICOLON);
@@ -301,7 +295,7 @@ class Parser {
     return new AST\ExprStmt($span, $expr);
   }
 
-  public function parse_stmt(): AST\Stmt {
+  private function stmt(): AST\Stmt {
     switch ($this->lexer->peek()->type) {
       case TokenType::KEYWORD_LET:
         return $this->parse_let_stmt();
@@ -310,33 +304,71 @@ class Parser {
     }
   }
 
-  private function parse_stmts(callable $stmt, ?string $terminal = null): array {
+  private function stmts(): array {
     $stmts = [];
     while (true) {
       $peek = $this->lexer->peek();
       if ($peek == null) {
         break;
-      }
-
-      if ($terminal !== null && $peek->type === $terminal) {
+      } else if ($peek->type === TokenType::BRACE_RIGHT) {
         break;
       }
-
-      $stmts[] = $stmt();
+      $stmts[] = $this->stmt();
     }
-
     return $stmts;
   }
 
-  public function parse(): AST\RootNode {
-    $stmts = $this->parse_stmts([$this, 'parse_fn_or_mod_stmt']);
-    if (count($stmts) > 0) {
-      $span = $stmts[0]->span->extended_to($stmts[count($stmts) - 1]->span);
-    } else {
-      $span = new Span(new Point(), new Point());
+  private function block(): AST\BlockNode {
+    $left_brace = $this->require_next_token(TokenType::BRACE_LEFT);
+    $stmts = $this->stmts();
+    $right_brace = $this->require_next_token(TokenType::BRACE_RIGHT);
+    $span = $left_brace->span->extended_to($right_brace->span);
+    return new AST\BlockNode($span, $stmts);
+  }
+
+  private function fn_item(): AST\FnItem {
+    $fn = $this->require_next_token(TokenType::KEYWORD_FN);
+    $name_token = $this->require_next_token(TokenType::IDENT);
+    $name = new AST\IdentNode($name_token->span, $name_token->lexeme);
+    $this->require_next_token(TokenType::PAREN_LEFT);
+    $params = $this->parse_fn_params();
+    $this->require_next_token(TokenType::PAREN_RIGHT);
+    $this->require_next_token(TokenType::THIN_ARROW);
+    $returns = $this->annotation();
+    $body = $this->block();
+    $span = $fn->span->extended_to($body->span);
+    return new AST\FnItem($span, $name, $params, $returns, $body);
+  }
+
+  private function item(): AST\Stmt {
+    switch ($this->lexer->peek()->type) {
+      case TokenType::KEYWORD_USE:
+        return $this->use_item();
+      case TokenType::KEYWORD_MOD:
+        return $this->mod_item();
+      case TokenType::KEYWORD_FN:
+        return $this->fn_item();
+      default:
+        throw new Errors\UnexpectedToken($peek);
     }
-    $block = new AST\BlockNode($span, $stmts);
-    return new AST\RootNode($block);
+  }
+
+  private function items(?string $terminal = null): array {
+    $stmts = [];
+    while (true) {
+      $peek = $this->lexer->peek();
+      if ($peek == null) {
+        break;
+      } else if ($terminal !== null && $peek->type === $terminal) {
+        break;
+      }
+      $stmts[] = $this->item();
+    }
+    return $stmts;
+  }
+
+  public function parse(): AST\File {
+    return new AST\File($this->items());
   }
 
   public static function from_string(string $text): Parser {

@@ -1,0 +1,5 @@
+use IO;
+
+fn main () -> Void {
+  IO::println("hello world");
+}

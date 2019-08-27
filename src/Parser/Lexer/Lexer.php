@@ -56,7 +56,7 @@ class Lexer {
       case $next->is('+'):
         return $this->next_single_char(TokenType::PLUS, $next);
       case $next->is('-'):
-        return $this->next_single_char(TokenType::DASH, $next);
+        return $this->next_single_or_double_char(TokenType::DASH, '>', TokenType::THIN_ARROW, $next);
       case $next->is('*'):
         return $this->next_single_char(TokenType::STAR, $next);
       case $next->is('/'):
@@ -147,6 +147,7 @@ class Lexer {
       case 'if':   return new Token(TokenType::KEYWORD_IF, $span);
       case 'else': return new Token(TokenType::KEYWORD_ELSE, $span);
       case 'fn':   return new Token(TokenType::KEYWORD_FN, $span);
+      case 'use':  return new Token(TokenType::KEYWORD_USE, $span);
       case 'mod':  return new Token(TokenType::KEYWORD_MOD, $span);
       default:     return new Token(TokenType::IDENT, $span, $lexeme);
     }
@@ -155,6 +156,17 @@ class Lexer {
   private function next_single_char(string $type, Character $start): Token {
     $span = new Span($start->point, $start->point);
     return new Token($type, $span);
+  }
+
+  private function next_single_or_double_char(string $single_type, string $second, string $double_type, Character $start): Token {
+    $peek = $this->scanner->peek();
+    if ($peek && $peek->is($second)) {
+      $span = new Span($start->point, $this->scanner->next()->point);
+      return new Token($double_type, $span);
+    } else {
+      $span = new Span($start->point, $start->point);
+      return new Token($single_type, $span);
+    }
   }
 
   private function next_starts_with_colon(Character $start): Token {

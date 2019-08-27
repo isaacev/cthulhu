@@ -3,8 +3,13 @@
 namespace Cthulhu\AST;
 
 use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Parser\Lexer\Token;
 
 class IdentNode extends Node {
+  public static function from_token(Token $token): IdentNode {
+    return new IdentNode($token->span, $token->lexeme);
+  }
+
   public $ident;
 
   function __construct(Span $span, string $ident) {

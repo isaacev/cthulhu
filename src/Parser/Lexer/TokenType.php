@@ -10,6 +10,7 @@ abstract class TokenType {
   const KEYWORD_IF          = 'If';
   const KEYWORD_ELSE        = 'Else';
   const KEYWORD_FN          = 'Fn';
+  const KEYWORD_USE         = 'Use';
   const KEYWORD_MOD         = 'Mod';
   const BRACE_LEFT          = '{';
   const BRACE_RIGHT         = '}';
@@ -19,6 +20,7 @@ abstract class TokenType {
   const PAREN_RIGHT         = ')';
   const PLUS                = '+';
   const DASH                = '-';
+  const THIN_ARROW          = '->';
   const STAR                = '*';
   const SLASH               = '/';
   const SEMICOLON           = ';';
