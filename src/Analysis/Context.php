@@ -4,14 +4,23 @@ namespace Cthulhu\Analysis;
 
 use Cthulhu\IR;
 use Cthulhu\Types;
+use Cthulhu\Kernel\Kernel;
 
 class Context {
+  public $used_builtins;
+  private $builtin_cache;
   private $module_scopes;
 
-  function __construct() {
-    $this->module_scopes = [
-      new IR\ModuleScope3(null, 'main')
+  function __construct(string $filename) {
+    $this->used_builtins = [];
+    $this->builtin_cache = [
+      'IO' => Kernel::IO()
     ];
+
+    $this->module_scopes = [
+      new IR\ModuleScope3(null, $filename)
+    ];
+
     $this->block_scopes = [
       // empty
     ];
@@ -35,9 +44,8 @@ class Context {
   function resolve_module_scope(string $name): IR\ModuleScope3 {
     switch ($name) {
       case 'IO':
-        return IR\ModuleScope3::from_array('IO', [
-          'println' => new Types\FnType([ new Types\StrType() ], new Types\VoidType())
-        ]);
+        $this->used_builtins[] = $this->builtin_cache['IO'];
+        return $this->builtin_cache['IO']->scope;
       default:
           throw new \Exception('no known module named ' . $name);
     }

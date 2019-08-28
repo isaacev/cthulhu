@@ -7,13 +7,13 @@ use Cthulhu\IR;
 use Cthulhu\Types;
 
 class Analyzer2 {
-  public static function file(AST\File $file): IR\SourceModule2 {
-    $ctx = new Context();
+  public static function file(string $filename, AST\File $file): IR\SourceModule2 {
+    $ctx = new Context($filename);
     $items = [];
     foreach ($file->items as $item) {
       $items[] = self::item($ctx, $item);
     }
-    return new IR\SourceModule2($ctx->pop_module_scope(), $items);
+    return new IR\SourceModule2($ctx->used_builtins, $ctx->pop_module_scope(), $items);
   }
 
   private static function item(Context $ctx, AST\Item $item): IR\Item {

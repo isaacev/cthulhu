@@ -5,11 +5,9 @@ namespace Cthulhu\Codegen;
 use Cthulhu\IR\BlockScope;
 
 class PendingBlock {
-  public $scope;
   public $stmts;
 
-  function __construct(BlockScope $scope) {
-    $this->scope = $scope;
+  function __construct() {
     $this->stmts = [];
   }
 

@@ -5,11 +5,11 @@ namespace Cthulhu\Codegen\PHP;
 use Cthulhu\Codegen\Builder;
 
 class NamespaceNode extends Node {
-  public $path;
+  public $name;
   public $block;
 
-  function __construct(IdentifierPath $path, BlockNode $block) {
-    $this->path = $path;
+  function __construct(Reference $name, BlockNode $block) {
+    $this->name = $name;
     $this->block = $block;
   }
 
@@ -17,11 +17,8 @@ class NamespaceNode extends Node {
     return (new Builder)
       ->keyword('namespace')
       ->space()
-      ->choose($this->path->length() === 0,
-        (new Builder),
-        (new Builder)
-          ->then($this->path)
-          ->space())
+      ->then($this->name)
+      ->space()
       ->then($this->block);
   }
 }

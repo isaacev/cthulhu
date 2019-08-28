@@ -7,12 +7,12 @@ use Cthulhu\Codegen\Builder;
 class FuncStmt extends Stmt {
   public $name;
   public $params;
-  public $block;
+  public $body;
 
-  function __construct(Identifier $name, array $params, BlockNode $block) {
+  function __construct(Reference $name, array $params, BlockNode $body) {
     $this->name = $name;
     $this->params = $params;
-    $this->block = $block;
+    $this->body = $body;
   }
 
   public function build(): Builder {
@@ -23,7 +23,7 @@ class FuncStmt extends Stmt {
       ->paren_left()
       ->each($this->params, (new Builder)->comma())
       ->paren_right()
-      ->then($this->block);
+      ->then($this->body);
   }
 
   public function jsonSerialize() {

@@ -8,13 +8,13 @@ class FnItem extends Item {
   public $symbol;
   public $signature;
   public $scope;
-  public $block;
+  public $body;
 
-  function __construct(Symbol3 $symbol, FnType $signature, BlockScope3 $scope, BlockNode $block) {
+  function __construct(Symbol3 $symbol, FnType $signature, BlockScope3 $scope, BlockNode $body) {
     $this->symbol = $symbol;
     $this->signature = $signature;
     $this->scope = $scope;
-    $this->block = $block;
+    $this->body = $body;
   }
 
   public function jsonSerialize() {
@@ -22,7 +22,7 @@ class FnItem extends Item {
       'type' => 'FnItem',
       'symbol' => $this->symbol,
       'signature' => $this->signature,
-      'block' => $this->block
+      'body' => $this->body
     ];
   }
 }

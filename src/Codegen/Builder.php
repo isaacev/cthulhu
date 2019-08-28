@@ -82,6 +82,10 @@ class Builder implements Buildable {
     return $this->push_str('\\');
   }
 
+  public function dot(): self {
+    return $this->push_str('.');
+  }
+
   /**
    * Variables, keywords, and other literals
    */
