@@ -13,7 +13,7 @@ class Point {
     $this->offset = $offset;
   }
 
-  public function next(string $char): Point {
+  public function next(string $char = ''): Point {
     if ($char === "\n") {
       return new Point($this->line + 1, 1, $this->offset + 1);
     } else {
