@@ -5,7 +5,7 @@ namespace Cthulhu\Codegen;
 use Cthulhu\IR;
 
 class Codegen2 {
-  public static function generate(IR\SourceModule2 $module): PHP\Program {
+  public static function generate(IR\SourceModule2 $module, PHP\Reference $main_fn): PHP\Program {
     $ctx = new Context();
 
     $builtins = array_map(function ($native_module) {
@@ -16,7 +16,7 @@ class Codegen2 {
     self::items($ctx, $module->items);
     $ctx->pop_namespace();
 
-    return new PHP\Program($builtins, $ctx->namespaces);
+    return new PHP\Program($builtins, $ctx->namespaces, $main_fn);
   }
 
   private static function items(Context $ctx, array $items): void {
