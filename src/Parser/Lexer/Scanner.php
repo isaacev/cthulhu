@@ -7,16 +7,18 @@ class Scanner {
   private $chars;
   private $point;
   private $buffer;
+  private $offset;
 
   function __construct($text) {
     $this->text = $text;
     $this->chars = preg_split('//u', $this->text, -1, PREG_SPLIT_NO_EMPTY);
     $this->point = new Point();
     $this->buffer = null;
+    $this->offset = 0;
   }
 
   private function is_done(): bool {
-    return $this->point->offset >= count($this->chars);
+    return $this->offset >= count($this->chars);
   }
 
   public function peek(): ?Character {
@@ -38,7 +40,7 @@ class Scanner {
       return null;
     }
 
-    $char = $this->chars[$this->point->offset];
+    $char = $this->chars[$this->offset++];
     $point = $this->point;
     $this->point = $this->point->next($char);
     return new Character($char, $point);
