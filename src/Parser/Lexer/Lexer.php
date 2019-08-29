@@ -66,15 +66,15 @@ class Lexer {
       case $next->is('='):
         return $this->next_single_char(TokenType::EQUALS, $next);
       case $next->is(':'):
-        return $this->next_starts_with_colon($next);
+        return $this->next_single_or_double_char(TokenType::COLON, ':', TokenType::DOUBLE_COLON, $next);
       case $next->is(','):
         return $this->next_single_char(TokenType::COMMA, $next);
       case $next->is('.'):
         return $this->next_single_char(TokenType::DOT, $next);
       case $next->is('<'):
-        return $this->next_starts_with_less_than($next);
+        return $this->next_single_or_double_char(TokenType::LESS_THAN, '=', TokenType::LESS_THAN_EQ, $next);
       case $next->is('>'):
-        return $this->next_starts_with_greater_than($next);
+      return $this->next_single_or_double_char(TokenType::GREATER_THAN, '=', TokenType::GREATER_THAN_EQ, $next);
       default:
         throw new \Exception("unknown character '$next->char' at $next->point");
     }
@@ -143,62 +143,29 @@ class Lexer {
 
     $span = new Span($from, $to->next());
     switch ($lexeme) {
-      case 'let':  return new Token(TokenType::KEYWORD_LET, $span);
-      case 'if':   return new Token(TokenType::KEYWORD_IF, $span);
-      case 'else': return new Token(TokenType::KEYWORD_ELSE, $span);
-      case 'fn':   return new Token(TokenType::KEYWORD_FN, $span);
-      case 'use':  return new Token(TokenType::KEYWORD_USE, $span);
-      case 'mod':  return new Token(TokenType::KEYWORD_MOD, $span);
+      case 'let':  return new Token(TokenType::KEYWORD_LET, $span, 'let');
+      case 'if':   return new Token(TokenType::KEYWORD_IF, $span, 'if');
+      case 'else': return new Token(TokenType::KEYWORD_ELSE, $span, 'else');
+      case 'fn':   return new Token(TokenType::KEYWORD_FN, $span, 'fn');
+      case 'use':  return new Token(TokenType::KEYWORD_USE, $span, 'use');
+      case 'mod':  return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
       default:     return new Token(TokenType::IDENT, $span, $lexeme);
     }
   }
 
   private function next_single_char(string $type, Character $start): Token {
     $span = new Span($start->point, $start->point->next());
-    return new Token($type, $span);
+    return new Token($type, $span, $start->char);
   }
 
   private function next_single_or_double_char(string $single_type, string $second, string $double_type, Character $start): Token {
     $peek = $this->scanner->peek();
     if ($peek && $peek->is($second)) {
       $span = new Span($start->point, $this->scanner->next()->point->next());
-      return new Token($double_type, $span);
+      return new Token($double_type, $span, $start->char . $peek->char);
     } else {
       $span = new Span($start->point, $start->point->next());
-      return new Token($single_type, $span);
-    }
-  }
-
-  private function next_starts_with_colon(Character $start): Token {
-    $peek = $this->scanner->peek();
-    if ($peek && $peek->is(':')) {
-      $span = new Span($start->point, $this->scanner->next()->point->next());
-      return new Token(TokenType::DOUBLE_COLON, $span);
-    } else {
-      $span = new Span($start->point, $start->point->next());
-      return new Token(TokenType::COLON, $span);
-    }
-  }
-
-  private function next_starts_with_less_than(Character $start): Token {
-    $peek = $this->scanner->peek();
-    if ($peek && $peek->is('=')) {
-      $span = new Span($start->point, $this->scanner->next()->point->next());
-      return new Token(TokenType::LESS_THAN_EQ, $span);
-    } else {
-      $span = new Span($start->point, $start->point->next());
-      return new Token(TokenType::LESS_THAN, $span);
-    }
-  }
-
-  private function next_starts_with_greater_than(Character $start): Token {
-    $peek = $this->scanner->peek();
-    if ($peek && $peek->is('=')) {
-      $span = new Span($start->point, $this->scanner->next()->point->next());
-      return new Token(TokenType::GREATER_THAN_EQ, $span);
-    } else {
-      $span = new Span($start->point, $start->point->next());
-      return new Token(TokenType::GREATER_THAN, $span);
+      return new Token($single_type, $span, $start->char);
     }
   }
 
