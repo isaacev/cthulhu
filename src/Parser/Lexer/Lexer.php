@@ -169,6 +169,15 @@ class Lexer {
     }
   }
 
+  public static function to_tokens(string $text): array {
+    $lexer = new Lexer(new Scanner($text));
+    $tokens = [];
+    while ($lexer->peek()) {
+      $tokens[] = $lexer->next();
+    }
+    return $tokens;
+  }
+
   public static function from_string(string $text): Lexer {
     return new Lexer(new Scanner($text));
   }
