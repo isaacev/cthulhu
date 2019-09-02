@@ -66,12 +66,21 @@ class Codegen {
 
   private static function stmt(Context $ctx, IR\Stmt $stmt): void {
     switch (true) {
+      case $stmt instanceof IR\AssignStmt:
+        self::assign_stmt($ctx, $stmt);
+        break;
       case $stmt instanceof IR\ExprStmt:
         self::expr_stmt($ctx, $stmt);
         break;
       default:
         throw new \Exception('unknown statement');
     }
+  }
+
+  private static function assign_stmt(Context $ctx, IR\AssignStmt $stmt): void {
+    $variable = new PHP\Variable($stmt->symbol->name);
+    $expr = self::expr($ctx, $stmt->expr);
+    $ctx->push_stmt_to_block(new PHP\AssignStmt($variable, $expr));
   }
 
   private static function expr_stmt(Context $ctx, IR\ExprStmt $stmt): void {
@@ -86,6 +95,8 @@ class Codegen {
         return self::reference_expr($ctx, $expr);
       case $expr instanceof IR\StrExpr:
         return self::str_expr($ctx, $expr);
+      case $expr instanceof IR\NumExpr:
+        return self::num_expr($ctx, $expr);
       default:
         throw new \Exception('unknown expression');
     }
@@ -106,5 +117,9 @@ class Codegen {
 
   private static function str_expr(Context $ctx, IR\StrExpr $expr): PHP\StrExpr {
     return new PHP\StrExpr($expr->value);
+  }
+
+  private static function num_expr(Context $ctx, IR\NumExpr $expr): PHP\NumExpr {
+    return new PHP\NumExpr($expr->value);
   }
 }

@@ -2,6 +2,8 @@
 
 namespace Cthulhu\IR;
 
+use Cthulhu\Types\Type;
+
 class BlockScope {
   public $parent;
   private $table;

@@ -82,7 +82,13 @@ class Analyzer {
     }
   }
 
-  // let_stmt
+  private static function let_stmt(Context $ctx, AST\LetStmt $stmt): IR\Stmt {
+    $name = $stmt->name->ident;
+    $symbol = new IR\Symbol($name, null);
+    $expr = self::expr($ctx, $stmt->expr);
+    $ctx->current_block_scope()->add($symbol, $expr->type());
+    return new IR\AssignStmt($symbol, $expr);
+  }
 
   private static function expr_stmt(Context $ctx, AST\ExprStmt $stmt): IR\Stmt {
     return new IR\ExprStmt(self::expr($ctx, $stmt->expr));
