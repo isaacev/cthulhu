@@ -8,7 +8,7 @@ class BlockNode extends Node {
   public $scope;
   public $stmts;
 
-  function __construct(BlockScope3 $scope, array $stmts) {
+  function __construct(BlockScope $scope, array $stmts) {
     $this->scope = $scope;
     $this->stmts = $stmts;
   }

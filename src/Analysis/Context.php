@@ -18,7 +18,7 @@ class Context {
     ];
 
     $this->module_scopes = [
-      new IR\ModuleScope3(null, $filename)
+      new IR\ModuleScope(null, $filename)
     ];
 
     $this->block_scopes = [
@@ -26,22 +26,22 @@ class Context {
     ];
   }
 
-  function current_module_scope(): IR\ModuleScope3 {
+  function current_module_scope(): IR\ModuleScope {
     return end($this->module_scopes);
   }
 
-  function push_module_scope(AST\IdentNode $name): IR\ModuleScope3 {
+  function push_module_scope(AST\IdentNode $name): IR\ModuleScope {
     $parent = $this->current_module_scope();
-    $child = new IR\ModuleScope3($parent, $name->ident);
+    $child = new IR\ModuleScope($parent, $name->ident);
     $parent->add($child->symbol, $chidl);
     return $this->module_scopes[] = $child;
   }
 
-  function pop_module_scope(): IR\ModuleScope3 {
+  function pop_module_scope(): IR\ModuleScope {
     return array_pop($this->module_scopes);
   }
 
-  function resolve_module_scope(string $name): IR\ModuleScope3 {
+  function resolve_module_scope(string $name): IR\ModuleScope {
     switch ($name) {
       case 'IO':
         $this->used_builtins[] = $this->builtin_cache['IO'];
@@ -51,18 +51,18 @@ class Context {
     }
   }
 
-  function current_block_scope(): IR\BlockScope3 {
+  function current_block_scope(): IR\BlockScope {
     return end($this->block_scopes);
   }
 
-  function push_block_scope(): IR\BlockScope3 {
+  function push_block_scope(): IR\BlockScope {
     $parent = empty($this->block_scopes)
       ? $this->current_module_scope()
       : $this->current_block_scope();
-    return $this->block_scopes[] = new IR\BlockScope3($parent);
+    return $this->block_scopes[] = new IR\BlockScope($parent);
   }
 
-  function pop_block_scope(): IR\BlockScope3 {
+  function pop_block_scope(): IR\BlockScope {
     return array_pop($this->block_scopes);
   }
 }

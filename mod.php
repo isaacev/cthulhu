@@ -16,7 +16,7 @@ if ($txt === false) {
   exit(1);
 }
 
-$ast = \Cthulhu\Parser\Parser2::from_string($txt)->file();
-$mod = \Cthulhu\Analysis\Analyzer2::file($ast);
+$ast = \Cthulhu\Parser\Parser::from_string($txt)->file();
+$mod = \Cthulhu\Analysis\Analyzer::file($ast);
 
 echo json_encode($mod, JSON_PRETTY_PRINT) . "\n";

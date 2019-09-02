@@ -2,7 +2,7 @@
 
 namespace Cthulhu\IR;
 
-class BlockScope3 {
+class BlockScope {
   public $parent;
   private $table;
 
@@ -11,15 +11,15 @@ class BlockScope3 {
     $this->table = [];
   }
 
-  public function add(Symbol3 $symbol, Type $type): void {
+  public function add(Symbol $symbol, Type $type): void {
     $this->table[$symbol->id] = [$symbol, $type];
   }
 
-  public function has(Symbol3 $symbol): bool {
+  public function has(Symbol $symbol): bool {
     return array_key_exists($this->table, $symbol->id);
   }
 
-  public function lookup(Symbol3 $symbol): Type {
+  public function lookup(Symbol $symbol): Type {
     if ($this->has($symbol)) {
       return $this->table[$symbol->id][1];
     } else {

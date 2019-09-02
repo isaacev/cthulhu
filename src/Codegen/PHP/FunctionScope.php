@@ -4,11 +4,11 @@ namespace Cthulhu\Codegen\PHP;
 
 use Cthulhu\IR;
 
-class FunctionScope extends Scope2 {
+class FunctionScope extends Scope {
   public $parent;
   public $free_variables;
 
-  function __construct(Scope2 $parent) {
+  function __construct(Scope $parent) {
     $this->parent = $parent;
     $this->params = [];
     $this->free_variables = [];

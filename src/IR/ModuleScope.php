@@ -2,11 +2,11 @@
 
 namespace Cthulhu\IR;
 
-class ModuleScope3 {
+class ModuleScope {
   public static function from_array(string $name, array $names): self {
-    $scope =  new ModuleScope3(null, $name);
+    $scope =  new ModuleScope(null, $name);
     foreach ($names as $name => $type) {
-      $symbol = new Symbol3($name, $scope->symbol);
+      $symbol = new Symbol($name, $scope->symbol);
       $scope->add($symbol, $type);
     }
     return $scope;
@@ -18,7 +18,7 @@ class ModuleScope3 {
 
   function __construct(?self $parent, string $name) {
     $this->parent = $parent;
-    $this->symbol = new Symbol3($name, $parent ? $this->parent->symbol : null);
+    $this->symbol = new Symbol($name, $parent ? $this->parent->symbol : null);
     $this->table = [];
   }
 
@@ -36,15 +36,15 @@ class ModuleScope3 {
     return $ancestor_symbols;
   }
 
-  public function add(Symbol3 $symbol, $type_or_module): void {
+  public function add(Symbol $symbol, $type_or_module): void {
     $this->table[$symbol->id] = [$symbol, $type_or_module];
   }
 
-  public function has(Symbol3 $symbol): bool {
+  public function has(Symbol $symbol): bool {
     return array_key_exists($symbol->id, $this->table);
   }
 
-  public function to_symbol(string $name): Symbol3 {
+  public function to_symbol(string $name): Symbol {
     foreach ($this->table as $id => list($symbol, $type)) {
       if ($symbol->name === $name) {
         return $symbol;
@@ -53,7 +53,7 @@ class ModuleScope3 {
     throw new \Exception("no submodule $name within $this->symbol");
   }
 
-  public function lookup(Symbol3 $symbol) {
+  public function lookup(Symbol $symbol) {
     return $this->table[$symbol->id][1];
   }
 }

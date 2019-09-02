@@ -5,36 +5,17 @@ namespace Cthulhu\Codegen\PHP;
 use Cthulhu\IR\Symbol;
 
 abstract class Scope {
-  protected $symbol_to_uid = [];
-  protected $uids = [];
+  protected $symbol_table = [];
 
-  protected function generate_uid(string $prefix = 'tmp'): string {
-    $count = 1;
-    $uid = $prefix;
-    while (in_array($uid, $this->uids)) {
-      $count++;
-      $uid = $prefix . $count;
-    }
-    array_push($this->uids, $uid);
-    return $uid;
+  protected function add_symbol_to_table(Symbol $symbol, string $name) {
+    $this->symbol_table[$symbol->id] = $name;
   }
 
-  public function has_local_variable(Symbol $symbol): bool {
-    return array_key_exists($symbol->id, $this->symbol_to_uid);
+  protected function has_symbol_in_table(Symbol $symbol): bool {
+    return array_key_exists($symbol->id, $this->symbol_table);
   }
 
-  public function new_temporary(): string {
-    return $this->generate_uid();
-  }
-
-  public function new_variable(Symbol $symbol, string $name): string {
-    $uid = $this->generate_uid($name);
-    $this->symbol_to_uid[$symbol->id] = $uid;
-    return $uid;
-  }
-
-  public function get_variable(Symbol $symbol): string {
-    $uid = $this->symbol_to_uid[$symbol->id];
-    return $uid;
+  protected function get_name_from_table(Symbol $symbol): string {
+    return $this->symbol_table[$symbol->id];
   }
 }

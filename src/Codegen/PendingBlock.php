@@ -2,8 +2,6 @@
 
 namespace Cthulhu\Codegen;
 
-use Cthulhu\IR\BlockScope;
-
 class PendingBlock {
   public $stmts;
 

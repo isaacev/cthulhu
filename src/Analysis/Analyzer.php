@@ -6,14 +6,14 @@ use Cthulhu\AST;
 use Cthulhu\IR;
 use Cthulhu\Types;
 
-class Analyzer2 {
-  public static function file(string $filename, AST\File $file): IR\SourceModule2 {
+class Analyzer {
+  public static function file(string $filename, AST\File $file): IR\SourceModule {
     $ctx = new Context($filename);
     $items = [];
     foreach ($file->items as $item) {
       $items[] = self::item($ctx, $item);
     }
-    return new IR\SourceModule2($ctx->used_builtins, $ctx->pop_module_scope(), $items);
+    return new IR\SourceModule($ctx->used_builtins, $ctx->pop_module_scope(), $items);
   }
 
   private static function item(Context $ctx, AST\Item $item): IR\Item {
@@ -48,7 +48,7 @@ class Analyzer2 {
 
   private static function fn_item(Context $ctx, AST\FnItem $item): IR\FnItem {
     $name = $item->name->ident;
-    $symbol = new IR\Symbol3($name, $ctx->current_module_scope()->symbol);
+    $symbol = new IR\Symbol($name, $ctx->current_module_scope()->symbol);
     $type = new Types\FnType([], new Types\VoidType()); // TODO
     $ctx->current_module_scope()->add($symbol, $type);
     $ctx->push_block_scope();
@@ -143,7 +143,7 @@ class Analyzer2 {
       $module = array_reduce($module_segments, function ($module, $segment) {
         $symbol = $module->to_symbol($segment->ident);
         $module_or_type = $module->lookup($symbol);
-        if (($module_or_type instanceof IR\ModuleScope3) === false) {
+        if (($module_or_type instanceof IR\ModuleScope) === false) {
           throw new \Exception("$symbol has type $module_or_type but was referenced as a module");
         } else {
           return $module_or_type;

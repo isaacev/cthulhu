@@ -10,7 +10,7 @@ use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Parser\Errors;
 use Cthulhu\AST;
 
-class Parser2 {
+class Parser {
   public static function from_string(string $text): self {
     return new self(Lexer::from_string($text));
   }

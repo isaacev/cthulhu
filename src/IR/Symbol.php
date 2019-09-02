@@ -2,7 +2,7 @@
 
 namespace Cthulhu\IR;
 
-class Symbol3 implements \JsonSerializable {
+class Symbol implements \JsonSerializable {
   private static $next_uid = 1;
 
   public $id;

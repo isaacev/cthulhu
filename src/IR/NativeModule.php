@@ -11,16 +11,16 @@ class NativeModule implements Buildable {
   public $builders;
 
   function __construct(string $name) {
-    $this->scope = new ModuleScope3(null, $name);
+    $this->scope = new ModuleScope(null, $name);
     $this->builders = [];
   }
 
-  public function scope(): ModuleScope3 {
+  public function scope(): ModuleScope {
     return $this->scope;
   }
 
   public function fn(string $name, Types\FnType $signature, Builder $builder): void {
-    $symbol = new Symbol3($name, $this->scope->symbol);
+    $symbol = new Symbol($name, $this->scope->symbol);
     $this->scope->add($symbol, $signature);
     $this->builders[] = $builder;
   }

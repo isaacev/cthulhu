@@ -5,7 +5,7 @@ namespace Cthulhu\IR;
 class UseItem extends Item {
   public $symbol;
 
-  function __construct(Symbol3 $symbol) {
+  function __construct(Symbol $symbol) {
     $this->symbol = $symbol;
   }
 

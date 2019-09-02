@@ -2,12 +2,12 @@
 
 namespace Cthulhu\IR;
 
-class ClosureScope3 {
+class ClosureScope {
   public $parent;
   private $closed;
   private $table;
 
-  function __construct(BlockScope3 $parent, array $params) {
+  function __construct(BlockScope $parent, array $params) {
     $this->parent = $parent;
     $this->closed = [];
     $this->table = [];
@@ -17,15 +17,15 @@ class ClosureScope3 {
     }
   }
 
-  private function add(Symbol3 $symbol, Type $type): void {
+  private function add(Symbol $symbol, Type $type): void {
     $this->table[$symbol->id] = [$symbol, $type];
   }
 
-  public function has(Symbol3 $symbol): bool {
+  public function has(Symbol $symbol): bool {
     return array_key_exists($this->table, $symbol->id);
   }
 
-  public function lookup(Symbol3 $symbol): Type {
+  public function lookup(Symbol $symbol): Type {
     if ($this->has($symbol)) {
       return $this->table[$symbol->id];
     } else {

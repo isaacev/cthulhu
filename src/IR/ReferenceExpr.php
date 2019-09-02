@@ -8,7 +8,7 @@ class ReferenceExpr extends Expr {
   public $symbol;
   public $type;
 
-  function __construct(Symbol3 $symbol, Types\Type $type) {
+  function __construct(Symbol $symbol, Types\Type $type) {
     $this->symbol = $symbol;
     $this->type = $type;
   }

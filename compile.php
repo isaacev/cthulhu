@@ -17,9 +17,9 @@ if ($txt === false) {
 }
 
 $ref = new \Cthulhu\Codegen\PHP\Reference([ $basename, 'main' ]);
-$ast = \Cthulhu\Parser\Parser2::from_string($txt)->file();
-$mod = \Cthulhu\Analysis\Analyzer2::file($basename, $ast);
-$php = \Cthulhu\Codegen\Codegen2::generate($mod, $ref);
+$ast = \Cthulhu\Parser\Parser::from_string($txt)->file();
+$mod = \Cthulhu\Analysis\Analyzer::file($basename, $ast);
+$php = \Cthulhu\Codegen\Codegen::generate($mod, $ref);
 $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
 
 $output_filename = $basename . '.php';

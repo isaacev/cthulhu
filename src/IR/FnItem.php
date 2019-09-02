@@ -10,7 +10,7 @@ class FnItem extends Item {
   public $scope;
   public $body;
 
-  function __construct(Symbol3 $symbol, FnType $signature, BlockScope3 $scope, BlockNode $body) {
+  function __construct(Symbol $symbol, FnType $signature, BlockScope $scope, BlockNode $body) {
     $this->symbol = $symbol;
     $this->signature = $signature;
     $this->scope = $scope;
