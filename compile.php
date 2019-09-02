@@ -16,9 +16,18 @@ if ($txt === false) {
   exit(1);
 }
 
-$ref = new \Cthulhu\Codegen\PHP\Reference([ $basename, 'main' ]);
-$ast = \Cthulhu\Parser\Parser::from_string($txt)->file();
-$mod = \Cthulhu\Analysis\Analyzer::file($basename, $ast);
+try {
+  $ref = new \Cthulhu\Codegen\PHP\Reference([ $basename, 'main' ]);
+  $ast = \Cthulhu\Parser\Parser::from_string($txt)->file();
+  $mod = \Cthulhu\Analysis\Analyzer::file($basename, $ast);
+} catch (\Cthulhu\Errors\Error $err) {
+  echo $err;
+  exit(1);
+} catch (\Exception $ex) {
+  echo "$ex\n";
+  exit(2);
+}
+
 $php = \Cthulhu\Codegen\Codegen::generate($mod, $ref);
 $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
 
