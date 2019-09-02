@@ -19,6 +19,10 @@ class Point {
     }
   }
 
+  public function to_span(): Span {
+    return new Span($this, $this->next());
+  }
+
   public function __toString() {
     return "($this->line:$this->column)";
   }

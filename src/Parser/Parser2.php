@@ -37,7 +37,7 @@ class Parser2 {
     $items = [];
     while (true) {
       $peek = $this->lexer->peek();
-      if ($peek === null) {
+      if ($peek->type === TokenType::EOF) {
         break;
       } else if ($brace_wrapped && $peek->type === TokenType::BRACE_RIGHT) {
         break;
@@ -56,7 +56,7 @@ class Parser2 {
       case TokenType::KEYWORD_FN:
         return $this->fn_item();
       default:
-        throw new Errors\UnexpectedToken($peek);
+        throw Errors::expected_item($this->lexer->text(), $this->lexer->next());
     }
   }
 
@@ -104,7 +104,7 @@ class Parser2 {
     $stmts = [];
     while (true) {
       $peek = $this->lexer->peek();
-      if ($peek === null || $peek->type === TokenType::BRACE_RIGHT) {
+      if ($peek->type === TokenType::BRACE_RIGHT) {
         break;
       }
       $stmts[] = $this->stmt();
@@ -154,10 +154,6 @@ class Parser2 {
 
   private function prefix_expr(): AST\Expr {
     $next = $this->lexer->next();
-    if ($next === null) {
-      throw new Errors\UnexpectedEndOfFile();
-    }
-
     switch ($next->type) {
       case TokenType::IDENT:
         return $this->path_expr($next);
@@ -166,7 +162,7 @@ class Parser2 {
       case TokenType::LITERAL_NUM:
         return $this->num_expr($next);
       default:
-        throw new Errors\UnexpectedToken($next);
+        throw Errors::exepcted_expression($this->lexer->text(), $next);
     }
   }
 
@@ -175,6 +171,10 @@ class Parser2 {
       case TokenType::PAREN_LEFT:
         return $this->call_expr($left, $next);
       default:
+        // This condition *should* be unreachable unless there's a bug in the
+        // parser where the `Parser::infix_token_precedence` method thinks a
+        // token is a binary operator but this method doesn't recognize that
+        // token as an operator.
         throw new \Exception('binary operator disagreement: ' . $next->type);
     }
   }
@@ -231,10 +231,8 @@ class Parser2 {
 
   private function next(string $type): Token {
     $next = $this->lexer->next();
-    if ($next === null) {
-      throw new Errors\UnexpectedEndOfFile($type);
-    } else if ($next->type !== $type) {
-      throw new Errors\UnexpectedToken($next, $type);
+    if ($next->type !== $type) {
+      throw Errors::expected_token($this->lexer->text(), $next, $type);
     } else {
       return $next;
     }
@@ -268,16 +266,12 @@ class Parser2 {
 
   private function type_annotation(): AST\Annotation {
     $peek = $this->lexer->peek();
-    if ($peek === null) {
-      throw new Errors\UnexpectedEndOfFile();
-    }
-
     switch ($peek->type) {
       case TokenType::IDENT:
         $ident = $this->next(TokenType::IDENT);
         return new AST\NamedAnnotation($ident->span, $ident->lexeme);
       default:
-        throw new Errors\UnexpectedToken($peek);
+        throw Errors::expected_annotation($this->lexer->text(), $peek);
     }
   }
 }

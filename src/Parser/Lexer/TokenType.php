@@ -3,6 +3,8 @@
 namespace Cthulhu\Parser\Lexer;
 
 abstract class TokenType {
+  const ERROR               = 'ERROR';
+  const EOF                 = 'EOF';
   const LITERAL_NUM         = 'Num';
   const LITERAL_STR         = 'Str';
   const IDENT               = 'Ident';

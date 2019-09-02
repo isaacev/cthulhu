@@ -24,8 +24,12 @@ class Character {
     return $this->char === $char;
   }
 
+  public function is_eof(): bool {
+    return $this->is('');
+  }
+
   public function is_between(string $low, string $high): bool {
-    return $low <= $this->char && $this->char <= $high;
+    return $low <= $this->char && $this->char <= $high && !$this->is_eof();
   }
 
   public function is_letter(): bool {

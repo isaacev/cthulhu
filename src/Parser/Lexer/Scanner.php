@@ -17,11 +17,15 @@ class Scanner {
     $this->offset = 0;
   }
 
+  public function text(): string {
+    return $this->text;
+  }
+
   private function is_done(): bool {
     return $this->offset >= count($this->chars);
   }
 
-  public function peek(): ?Character {
+  public function peek(): Character {
     if ($this->buffer === null) {
       $this->buffer = $this->next();
     }
@@ -29,7 +33,7 @@ class Scanner {
     return $this->buffer;
   }
 
-  public function next(): ?Character {
+  public function next(): Character {
     if ($this->buffer !== null) {
       $buf = $this->buffer;
       $this->buffer = null;
@@ -37,7 +41,7 @@ class Scanner {
     }
 
     if ($this->is_done()) {
-      return null;
+      return new Character('', $this->point);
     }
 
     $char = $this->chars[$this->offset++];
