@@ -122,7 +122,13 @@ class Parser2 {
   }
 
   private function let_stmt(): AST\LetStmt {
-    // TODO
+    $keyword = $this->next(TokenType::KEYWORD_LET);
+    $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $this->next(TokenType::EQUALS);
+    $expr = $this->expr();
+    $semi = $this->next(TokenType::SEMICOLON);
+    $span = $keyword->span->extended_to($semi->span);
+    return new AST\LetStmt($span, $name, $expr);
   }
 
   private function expr_stmt(): AST\ExprStmt {
