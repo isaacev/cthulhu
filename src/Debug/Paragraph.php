@@ -11,42 +11,38 @@ class Paragraph implements Reportable {
     $this->sentences = $sentences;
   }
 
-  public function print(Cursor $cursor, ReportOptions $options): Cursor {
-    $cursor->reset();
+  public function print(Teletype $tty): Teletype {
+    $combined_sentences = implode(' ', $this->sentences);
+    $words = preg_split('/\s+/', $combined_sentences);
+    $word_count = count($words);
+    $word_index = 0;
 
-    $words = [];
-    foreach ($this->sentences as $sentence) {
-      $words = array_merge($words, explode(' ', $sentence));
-    }
+    while ($word_index < $word_count) {
+      $word = $words[$word_index++];
+      $tty
+        ->newline_if_not_empty()
+        ->tab()
+        ->printf($word);
 
-    $pending_line = '';
-    $space_left = Paragraph::MAX_LINE_LENGTH;
-    foreach ($words as $word) {
-      if (strlen($word) + 1 > $space_left) {
-        $cursor
-          ->spaces(2)
-          ->text($pending_line)
-          ->newline();
-        $pending_line = $word;
-        $space_left = Paragraph::MAX_LINE_LENGTH - strlen($word);
-      } else {
-        if (strlen($pending_line) === 0) {
-          $pending_line .= $word;
-          $space_left -= strlen($word);
-        } else {
-          $pending_line .= " $word";
-          $space_left -= strlen($word) + 1;
+      while ($word_index < $word_count) {
+        // Don't increment the `word_index` here because this word might have to
+        // be pushed to the next line if it doesn't fit.
+        $next_word = $words[$word_index];
+
+        if ($tty->space_left_on_line() < strlen($next_word) + 1) {
+          // There isn't enough space on the current line for the next word and
+          // the space before it so move to the next line.
+          continue 2;
         }
+
+        // If the word first, increment the index and print the word.
+        $word_index++;
+        $tty
+          ->spaces(1)
+          ->printf($next_word);
       }
     }
 
-    if ($pending_line !== '') {
-      $cursor
-        ->spaces(2)
-        ->text($pending_line)
-        ->newline();
-    }
-
-    return $cursor;
+    return $tty;
   }
 }

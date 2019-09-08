@@ -2,66 +2,62 @@
 
 namespace Cthulhu\Parser;
 
+use Cthulhu\Debug;
 use Cthulhu\Debug\Report;
 use Cthulhu\Errors\Error;
 use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
+use Cthulhu\Parser\Lexer\TokenType;
+use Cthulhu\Source;
 
 class Errors {
-  public static function expected_item(string $program, Token $found): Error {
-    $title = 'expected item, found ' . $found->description();
-    $location = $found->span;
-    $report = Report::from_array([
-      Report::title($title),
-      Report::quote($program, $location),
-    ]);
-
-    return new Error($title, $location, $report);
+  public static function expected_item(Source\File $file, Token $found): Error {
+    $title = 'expected item';
+    return (new Error($file, $title, $found->span))
+      ->snippet($found->span)
+      ->paragraph('An item can be like one of the following:')
+      ->example("-- import another module\nuse IO;")
+      ->example("-- declare a module\nmod Example {\n  -- more stuff\n};")
+      ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n};");
   }
 
-  public static function expected_statement(string $program, Token $found): Error {
-    $title = 'expected statement, found ' . $found->description();
-    $location = $found->span;
-    $report = Report::from_array([
-      Report::title($title),
-      Report::quote($program, $location),
-    ]);
-
-    return new Error($title, $location, $report);
-  }
-
-  public static function exepcted_expression(string $program, Token $found): Error {
-    $title = 'expected expression, found ' . $found->description();
-    $location = $found->span;
-    $report = Report::from_array([
-      Report::title($title),
-      Report::quote($program, $location),
-    ]);
-
-    return new Error($title, $location, $report);
-  }
-
-  public static function expected_annotation(string $program, Token $found): Error {
-    $title = 'expected a type annotation, found ' . $found->description();
-    $location = $found->span;
-    $report = Report::from_array([
-      Report::title($title),
-      Report::quote($program, $location),
-    ]);
-
-    return new Error($title, $location, $report);
-  }
-
-  public static function expected_token(string $program, Token $found, string $wanted_type): Error {
-    $wanted_desc = "`$wanted_type`";
+  public static function exepcted_expression(Source\File $file, Token $found): Error {
+    $title = 'expected expression';
     $found_desc = $found->description();
-    $title = "expected a $wanted_desc token, found $found_desc instead";
-    $location = $found->span;
-    $report = Report::from_array([
-      Report::title($title),
-      Report::quote($program, $location),
-    ]);
+    return (new Error($file, $title, $found->span))
+      ->paragraph("Found $found_desc instead.")
+      ->snippet($found->span)
+      ->paragraph('An expression can be like one of the following:')
+      ->example('a + b * c')
+      ->example('myFunction("hello")')
+      ->example('if a { b; } else { c; }');
+  }
 
-    return new Error($title, $location, $report);
+  public static function expected_annotation(Source\File $file, Token $found): Error {
+    $title = 'expected type annotation';
+    $found_desc = $found->description();
+    return (new Error($file, $title, $found->span))
+      ->paragraph("Found $found_desc instead.")
+      ->snippet($found->span)
+      ->paragraph('A type annotation can be like one of the following:')
+      ->example("Str")
+      ->example("[Int]");
+  }
+
+  public static function expected_semicolon(Source\File $file, Token $prev, Token $found): Error {
+    $title = 'expected semicolon';
+    return (new Error($file, $title, $found->span))
+      ->paragraph('Reached the end of a statement and didn\'t find a semicolon.')
+      ->snippet($found->span)
+      ->paragraph('Try adding a semicolon here:')
+      ->snippet($prev->span->to->to_span(), null, [
+        'color' => Debug\Foreground::BLUE,
+      ]);
+  }
+
+  public static function expected_token(Source\File $file, Token $found, string $wanted_type): Error {
+    $title = 'expected token';
+    return (new Error($file, $title, $found->span))
+      ->snippet($found->span, "expected $wanted_type here");
   }
 }

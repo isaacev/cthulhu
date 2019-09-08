@@ -5,37 +5,24 @@ namespace Cthulhu\Debug;
 use Cthulhu\Parser\Lexer\Span;
 
 class Report {
-  const TOTAL_COLUMNS = 80;
-
   public $sections;
 
-  function __construct(array $sections) {
+  function __construct(Reportable ...$sections) {
     $this->sections = $sections;
   }
 
-  public function __toString(): string {
-    $options = new ReportOptions();
-    return array_reduce($this->sections, function ($cursor, $section) use ($options) {
-      return $section
-        ->print($cursor, $options)
-        ->reset()
-        ->newline();
-    }, new Cursor(2));
+  function append(Reportable $section): void {
+    array_push($this->sections, $section);
   }
 
-  public static function from_array(array $sections): self {
-    return new self($sections);
-  }
+  public function format(Teletype $tty): void {
+    $tty->increase_tab_stop(2);
 
-  public static function title(string $title): Reportable {
-    return new Title($title);
-  }
+    foreach ($this->sections as $section) {
+      $section->print($tty);
+      $tty->newline_if_not_empty()->newline();
+    }
 
-  public static function paragraph(array $sentences): Reportable {
-    return new Paragraph($sentences);
-  }
-
-  public static function quote(string $program, Span $location): Reportable {
-    return new Quote(new Snippet($program, $location));
+    $tty->pop_tab_stop();
   }
 }

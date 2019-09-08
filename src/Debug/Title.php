@@ -9,19 +9,14 @@ class Title implements Reportable {
     $this->title = $title;
   }
 
-  public function print(Cursor $cursor, ReportOptions $options): Cursor {
-    return $cursor
-      ->reset()
-      ->newline()
-      ->spaces(1)
-      ->inverse()
-      ->spaces(1)
-      ->bold()
-      ->text($this->title)
-      ->spaces(1)
-      ->reset()
+  public function print(Teletype $tty): Teletype {
+    return $tty
+      ->newline_if_not_empty()
+      ->tab()
+      ->apply_styles(Foreground::RED)
+      ->printf(strtoupper($this->title))
       ->spaces(2)
-      ->repeat('-', 80 - 7 - strlen($this->title))
-      ->newline();
+      ->fill_line('-', 2)
+      ->reset_styles();
   }
 }

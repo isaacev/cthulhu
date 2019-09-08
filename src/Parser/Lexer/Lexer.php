@@ -2,42 +2,65 @@
 
 namespace Cthulhu\Parser\Lexer;
 
+use Cthulhu\Source;
+
 class Lexer {
+  public static function from_file(Source\File $file): self {
+    return new self($file, Scanner::from_file($file));
+  }
+
+  private $file;
   public $scanner;
+  private $prev = null;
   private $buffer = null;
   private $mode;
 
   public const MODE_STRICT  = 1; // Throws error if bad syntax found
   public const MODE_RELAXED = 2; // Marks error, keeps lexing if bad syntax found
 
-  function __construct($scanner, int $mode = self::MODE_STRICT) {
+  function __construct(Source\File $file, Scanner $scanner, int $mode = self::MODE_STRICT) {
+    $this->file = $file;
     $this->scanner = $scanner;
     $this->mode = $mode;
-  }
-
-  public function text(): string {
-    return $this->scanner->text();
   }
 
   private function is_strict(): bool {
     return $this->mode === self::MODE_STRICT;
   }
 
+  /**
+   * Return the next token but do not advance the lexer.
+   */
   public function peek(): Token {
     if ($this->buffer === null) {
-      $this->buffer = $this->next();
+      $this->buffer = $this->read();
     }
 
     return $this->buffer;
   }
 
+  /**
+   * Return the previous token but do not advance the lexer.
+   */
+  public function prev(): ?Token {
+    return $this->prev;
+  }
+
+  /**
+   * Return the next token and advance the lexer.
+   */
   public function next(): Token {
-    if ($this->buffer !== null) {
-      $buf = $this->buffer;
+    if ($this->buffer === null) {
+      $this->prev = $this->read();
+    } else {
+      $this->prev = $this->buffer;
       $this->buffer = null;
-      return $buf;
     }
 
+    return $this->prev;
+  }
+
+  protected function read(): Token {
     while ($this->scanner->peek()->is_whitespace()) {
       $this->scanner->next();
     }
@@ -90,7 +113,7 @@ class Lexer {
         return $this->next_single_or_double_char(TokenType::GREATER_THAN, '=', TokenType::GREATER_THAN_EQ, $next);
       default:
         if ($this->is_strict()) {
-          throw Errors::unexpected_character($this->scanner->text(), $next);
+          throw Errors::unexpected_character($this->file, $next);
         } else {
           return new Token(TokenType::ERROR, $next->point->to_span(), $next->char);
         }
@@ -133,7 +156,7 @@ class Lexer {
     if ($last->is_eof() || $last->is(PHP_EOL)) {
       if ($this->is_strict()) {
         $span = $last->point->to_span();
-        throw Errors::unclosed_string($this->scanner->text(), $span);
+        throw Errors::unclosed_string($this->file, $span);
       } else {
         $span = new Span($from, $last->point);
         return new Token(TokenType::ERROR, $span, $lexeme);
@@ -189,16 +212,12 @@ class Lexer {
     }
   }
 
-  public static function to_tokens(string $text, int $mode): array {
-    $lexer = new Lexer(new Scanner($text), $mode);
+  public static function to_tokens(Source\File $file, int $mode): array {
+    $lexer = new Lexer($file, Scanner::from_file($file), $mode);
     $tokens = [];
     while ($lexer->peek()->type !== TokenType::EOF) {
       $tokens[] = $lexer->next();
     }
     return $tokens;
-  }
-
-  public static function from_string(string $text): Lexer {
-    return new Lexer(new Scanner($text));
   }
 }

@@ -2,27 +2,36 @@
 
 namespace Cthulhu\Parser;
 
+use Cthulhu\AST;
 use Cthulhu\Parser\Lexer\Lexer;
 use Cthulhu\Parser\Lexer\Point;
 use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
-use Cthulhu\Parser\Errors;
-use Cthulhu\AST;
+use Cthulhu\Source;
 
 class Parser {
-  public static function from_string(string $text): self {
-    return new self(Lexer::from_string($text));
+  public static function file_to_ast(Source\File $file): AST\File {
+    $lexer = Lexer::from_file($file);
+    $parser = new self($file, $lexer);
+    return $parser->file();
   }
 
+  public static function string_to_ast(string $str): AST\File {
+    $file = new Source\File('<stdin>', $str);
+    return self::file_to_ast($file);
+  }
+
+  private $file;
   private $lexer;
 
-  function __construct(Lexer $lexer) {
+  function __construct(Source\File $file, Lexer $lexer) {
+    $this->file = $file;
     $this->lexer = $lexer;
   }
 
   public function file(): AST\File {
-    return new AST\File($this->items(false));
+    return new AST\File($this->file, $this->items(false));
   }
 
   /**
@@ -56,14 +65,14 @@ class Parser {
       case TokenType::KEYWORD_FN:
         return $this->fn_item();
       default:
-        throw Errors::expected_item($this->lexer->text(), $this->lexer->next());
+        throw Errors::expected_item($this->file, $this->lexer->next());
     }
   }
 
   private function use_item(): AST\UseItem {
     $keyword = $this->next(TokenType::KEYWORD_USE);
     $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
-    $semi = $this->next(TokenType::SEMICOLON);
+    $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
     return new AST\UseItem($span, $name);
   }
@@ -76,7 +85,25 @@ class Parser {
     $keyword = $this->next(TokenType::KEYWORD_FN);
     $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
     $this->next(TokenType::PAREN_LEFT);
-    $params = []; // TODO
+
+    $params = [];
+    if ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
+      while (true) {
+        $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $this->next(TokenType::COLON);
+        $note = $this->type_annotation();
+        $span = new Span($name->from(), $note->to());
+        $params[] = new AST\ParamNode($span, $name, $note);
+
+        if ($this->lexer->peek()->type === TokenType::COMMA) {
+          $this->next(TokenType::COMMA);
+          continue;
+        } else {
+          break;
+        }
+      }
+    }
+
     $this->next(TokenType::PAREN_RIGHT);
     $this->next(TokenType::THIN_ARROW);
     $returns = $this->type_annotation();
@@ -126,14 +153,14 @@ class Parser {
     $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
     $this->next(TokenType::EQUALS);
     $expr = $this->expr();
-    $semi = $this->next(TokenType::SEMICOLON);
+    $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
     return new AST\LetStmt($span, $name, $expr);
   }
 
   private function expr_stmt(): AST\ExprStmt {
     $expr = $this->expr();
-    $semi = $this->next(TokenType::SEMICOLON);
+    $semi = $this->semicolon();
     $span = $expr->span->extended_to($semi->span);
     return new AST\ExprStmt($span, $expr);
   }
@@ -162,7 +189,7 @@ class Parser {
       case TokenType::LITERAL_NUM:
         return $this->num_expr($next);
       default:
-        throw Errors::exepcted_expression($this->lexer->text(), $next);
+        throw Errors::exepcted_expression($this->file, $next);
     }
   }
 
@@ -229,10 +256,22 @@ class Parser {
    * Utility methods for digesting tokens or parsing subtrees
    */
 
+  private function semicolon(): Token {
+    $prev = $this->lexer->prev();
+    $next = $this->lexer->next();
+    if ($next->type === TokenType::SEMICOLON) {
+      return $next;
+    } else if ($prev !== null) {
+      throw Errors::expected_semicolon($this->file, $prev, $next);
+    } else {
+      throw Errors::expected_token($this->file, $next, TokenType::SEMICOLON);
+    }
+  }
+
   private function next(string $type): Token {
     $next = $this->lexer->next();
     if ($next->type !== $type) {
-      throw Errors::expected_token($this->lexer->text(), $next, $type);
+      throw Errors::expected_token($this->file, $next, $type);
     } else {
       return $next;
     }
@@ -271,7 +310,7 @@ class Parser {
         $ident = $this->next(TokenType::IDENT);
         return new AST\NamedAnnotation($ident->span, $ident->lexeme);
       default:
-        throw Errors::expected_annotation($this->lexer->text(), $peek);
+        throw Errors::expected_annotation($this->file, $peek);
     }
   }
 }

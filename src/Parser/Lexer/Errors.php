@@ -2,35 +2,27 @@
 
 namespace Cthulhu\Parser\Lexer;
 
-use Cthulhu\Errors\Error;
 use Cthulhu\Debug\Report;
+use Cthulhu\Errors\Error;
+use Cthulhu\Source;
 
 class Errors {
-  public static function unexpected_character(string $program, Character $char): Error {
+  public static function unexpected_character(Source\File $file, Character $char): Error {
     $title = 'unexpected symbol';
-    $location = $char->point->to_span();
-    $report = Report::from_array([
-      Report::title($title),
-      Report::paragraph([
-        'File contains a symbol that is not part of the syntax.',
-        'Try removing it?',
-      ]),
-      Report::quote($program, $location),
-    ]);
-
-    return new Error($title, $location, $report);
+    return (new Error($file, $title, $char->point->to_span()))
+        ->paragraph(
+          'File contains a symbol that is not part of the syntax.',
+          'Try removing it?'
+        )
+        ->snippet($char->point->to_span());
   }
 
-  public static function unclosed_string(string $program, Span $location): Error {
+  public static function unclosed_string(Source\File $file, Span $location): Error {
     $title = 'unclosed string';
-    $report = Report::from_array([
-      Report::title($title),
-      Report::paragraph([
-        'String extends to the end of a line without a closing double quote.',
-      ]),
-      Report::quote($program, $location),
-    ]);
-
-    return new Error($title, $location, $report);
+    return (new Error($file, $title, $location))
+      ->paragraph(
+        'String extends to the end of a line without a closing double quote.'
+      )
+      ->snippet($location);
   }
 }
