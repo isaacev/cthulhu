@@ -186,13 +186,15 @@ class Lexer {
 
     $span = new Span($from, $to->next());
     switch ($lexeme) {
-      case 'let':  return new Token(TokenType::KEYWORD_LET, $span, 'let');
-      case 'if':   return new Token(TokenType::KEYWORD_IF, $span, 'if');
-      case 'else': return new Token(TokenType::KEYWORD_ELSE, $span, 'else');
-      case 'fn':   return new Token(TokenType::KEYWORD_FN, $span, 'fn');
-      case 'use':  return new Token(TokenType::KEYWORD_USE, $span, 'use');
-      case 'mod':  return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
-      default:     return new Token(TokenType::IDENT, $span, $lexeme);
+      case 'let':     return new Token(TokenType::KEYWORD_LET, $span, 'let');
+      case 'if':      return new Token(TokenType::KEYWORD_IF, $span, 'if');
+      case 'else':    return new Token(TokenType::KEYWORD_ELSE, $span, 'else');
+      case 'fn':      return new Token(TokenType::KEYWORD_FN, $span, 'fn');
+      case 'use':     return new Token(TokenType::KEYWORD_USE, $span, 'use');
+      case 'mod':     return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
+      case 'true':    return new Token(TokenType::LITERAL_BOOL, $span, 'true');
+      case 'false':   return new Token(TokenType::LITERAL_BOOL, $span, 'false');
+      default:        return new Token(TokenType::IDENT, $span, $lexeme);
     }
   }
 

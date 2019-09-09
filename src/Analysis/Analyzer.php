@@ -156,6 +156,8 @@ class Analyzer {
         return self::str_expr($ctx, $expr);
       case $expr instanceof AST\NumExpr:
         return self::num_expr($ctx, $expr);
+      case $expr instanceof AST\BoolExpr:
+        return self::bool_expr($ctx, $expr);
     }
   }
 
@@ -220,6 +222,10 @@ class Analyzer {
 
   private static function num_expr(Context $ctx, AST\NumExpr $expr): IR\NumExpr {
     return new IR\NumExpr($expr->value);
+  }
+
+  private static function bool_expr(Context $ctx, AST\BoolExpr $expr): IR\BoolExpr {
+    return new IR\BoolExpr($expr->value);
   }
 
   // int_expr

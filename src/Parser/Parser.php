@@ -193,6 +193,8 @@ class Parser {
         return $this->str_expr($next);
       case TokenType::LITERAL_NUM:
         return $this->num_expr($next);
+      case TokenType::LITERAL_BOOL:
+        return $this->bool_expr($next);
       default:
         throw Errors::exepcted_expression($this->file, $next);
     }
@@ -253,6 +255,11 @@ class Parser {
   private function num_expr(Token $num): AST\NumExpr {
     $value = intval($num->lexeme, 10);
     return new AST\NumExpr($num->span, $value, $num->lexeme);
+  }
+
+  private function bool_expr(Token $bool) : AST\BoolExpr {
+    $value = $bool->lexeme === 'true';
+    return new AST\BoolExpr($bool->span, $value, $bool->lexeme);
   }
 
   /**

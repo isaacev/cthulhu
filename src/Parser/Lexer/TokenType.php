@@ -7,6 +7,7 @@ abstract class TokenType {
   const EOF                 = 'EOF';
   const LITERAL_NUM         = 'Num';
   const LITERAL_STR         = 'Str';
+  const LITERAL_BOOL        = 'Bool';
   const IDENT               = 'Ident';
   const KEYWORD_LET         = 'Let';
   const KEYWORD_IF          = 'If';
