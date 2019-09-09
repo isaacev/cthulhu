@@ -82,18 +82,18 @@ class Parser {
   }
 
   private function fn_item(): AST\FnItem {
-    $keyword = $this->next(TokenType::KEYWORD_FN);
-    $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $fn_keyword = $this->next(TokenType::KEYWORD_FN);
+    $fn_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
     $this->next(TokenType::PAREN_LEFT);
 
     $params = [];
     if ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
       while (true) {
-        $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $param_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
         $this->next(TokenType::COLON);
-        $note = $this->type_annotation();
-        $span = new Span($name->from(), $note->to());
-        $params[] = new AST\ParamNode($span, $name, $note);
+        $param_note = $this->type_annotation();
+        $param_span = new Span($param_name->from(), $param_note->to());
+        $params[] = new AST\ParamNode($param_span, $param_name, $param_note);
 
         if ($this->lexer->peek()->type === TokenType::COMMA) {
           $this->next(TokenType::COMMA);
@@ -108,8 +108,8 @@ class Parser {
     $this->next(TokenType::THIN_ARROW);
     $returns = $this->type_annotation();
     $body = $this->block();
-    $span = $keyword->span->extended_to($body->span);
-    return new AST\FnItem($span, $name, $params, $returns, $body);
+    $fn_span = $fn_keyword->span->extended_to($body->span);
+    return new AST\FnItem($fn_span, $fn_name, $params, $returns, $body);
   }
 
   /**
