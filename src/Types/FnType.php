@@ -39,11 +39,11 @@ class FnType extends Type {
 
   public function __toString(): string {
     $one_param = count($this->params) === 1;
-    $params = $one_param ? '(' : '';
+    $params = $one_param ? '' : '(';
     foreach ($this->params as $i => $param) {
       $params .= $i > 0 ? ", $param" : "$param";
     }
-    $params .= $one_param ? ')' : '';
+    $params .= $one_param ? '' : ')';
     return "$params -> $this->returns";
   }
 
