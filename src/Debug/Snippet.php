@@ -59,6 +59,7 @@ class Snippet implements Reportable {
 
     // Group tokens by line for each line in the visible region
     $visible_region_lines = [];
+    $prev_line = null;
     foreach ($all_tokens as $token) {
       $token_from_line = $token->span->from->line;
       $token_to_line = $token->span->to->line;
@@ -76,12 +77,19 @@ class Snippet implements Reportable {
         break;
       }
 
-      // Append the token to the list of other tokens from the same line
-      if (array_key_exists($token_from_line, $visible_region_lines)) {
-        $visible_region_lines[$token_from_line][] = $token;
-      } else {
-        $visible_region_lines[$token_from_line] = [$token];
+      // If there were blank lines between the last token and the current token,
+      // add those blank lines to the `$token_from_line` table.
+      $next_unallocated_line = $prev_line === null
+        ? $token_from_line
+        : $prev_line + 1;
+      for ($line_num = $next_unallocated_line; $line_num <= $token_from_line; $line_num++) {
+        $visible_region_lines[$line_num] = [];
       }
+
+      $prev_line = $token_to_line;
+
+      // Append the token to the list of other tokens from the same line
+      $visible_region_lines[$token_from_line][] = $token;
     }
 
     // Determine how many columns will be needed in the gutter to print line
