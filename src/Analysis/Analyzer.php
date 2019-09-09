@@ -7,8 +7,8 @@ use Cthulhu\IR;
 use Cthulhu\Types;
 
 class Analyzer {
-  public static function file(string $filename, AST\File $file): IR\SourceModule {
-    $ctx = new Context($filename);
+  public static function ast_to_module(AST\File $file): IR\SourceModule {
+    $ctx = new Context($file->file);
     $items = [];
     foreach ($file->items as $item) {
       $items[] = self::item($ctx, $item);
@@ -48,23 +48,57 @@ class Analyzer {
 
   private static function fn_item(Context $ctx, AST\FnItem $item): IR\FnItem {
     $name = $item->name->ident;
-    $symbol = new IR\Symbol($name, $ctx->current_module_scope()->symbol);
-    $type = new Types\FnType([], new Types\VoidType()); // TODO
-    $ctx->current_module_scope()->add($symbol, $type);
-    $ctx->push_block_scope();
-    // TODO: check function body
-    $body = self::block($ctx, $item->body);
-    $wanted_type = $type->returns;
-    $given_type = $body->type();
-    if (($wanted_type->accepts($given_type)) === false) {
-      throw new Types\Errors\TypeMismatch($wanted_type, $given_type);
+    $origin = $item->span->extended_to($item->returns->span);
+    $symbol = new IR\Symbol($name, $origin, $ctx->current_module_scope()->symbol);
+
+    // Determine function type signature
+    $param_types = [];
+    foreach ($item->params as $param) {
+      $param_types[] = self::annotation_to_type($ctx, $param->note);
     }
+    $return_origin = $item->returns->span;
+    $return_type = self::annotation_to_type($ctx, $item->returns);
+    $type = new Types\FnType($param_types, $return_type);
+    $ctx->current_module_scope()->add($symbol, $type);
+
+    // Build new block scope and add parameters to the scope
+    $ctx->push_block_scope();
+    foreach ($item->params as $index => $param) {
+      $param_name = $param->name->ident;
+      $param_origin = $param->span;
+      $param_symbol = new IR\Symbol($param_name, $param_origin, null);
+      $param_type = $param_types[$index];
+      $ctx->current_block_scope()->add($param_symbol, $param_type);
+    }
+
+    // Verify that the function body returns the correct type
+    $ctx->push_expected_return($item, $return_type);
+    $body = self::block($ctx, $item->body);
+    $found_type = $body->type();
+    $ctx->pop_expected_return();
+
+    if ($return_type->accepts($found_type) === false) {
+      // This condition is necessary because even though the `$return_type` was
+      // pushed onto the expected return stack, that stack is only read when an
+      // `AST\SemiStmt` (implicit return) is encountered. If the block is has
+      // a branch that returns *nothing* and the return type is not `Void`, this
+      // check will catch and report those errors.
+      $block_span = $item->body->span;
+      $wanted_span = $item->returns->span;
+      $wanted_type = $return_type;
+      $last_stmt = $body->last_stmt();
+      $last_ast_stmt = end($item->body->stmts);
+      $last_semi = $last_ast_stmt instanceof AST\SemiStmt ? $last_ast_stmt->semi->span : null;
+      throw Errors::function_returns_nothing($ctx->file, $block_span, $wanted_span, $wanted_type, $last_stmt, $last_semi);
+    }
+
     return new IR\FnItem($symbol, $type, $ctx->pop_block_scope(), $body);
   }
 
   private static function block(Context $ctx, AST\BlockNode $block): IR\BlockNode {
     $ctx->push_block_scope();
     $stmts = [];
+    $total_stmts = count($block->stmts);
     foreach ($block->stmts as $stmt) {
       $stmts[] = self::stmt($ctx, $stmt);
     }
@@ -75,6 +109,8 @@ class Analyzer {
     switch (true) {
       case $stmt instanceof AST\LetStmt:
         return self::let_stmt($ctx, $stmt);
+      case $stmt instanceof AST\SemiStmt:
+        return self::semi_stmt($ctx, $stmt);
       case $stmt instanceof AST\ExprStmt:
         return self::expr_stmt($ctx, $stmt);
       default:
@@ -84,14 +120,30 @@ class Analyzer {
 
   private static function let_stmt(Context $ctx, AST\LetStmt $stmt): IR\Stmt {
     $name = $stmt->name->ident;
-    $symbol = new IR\Symbol($name, null);
+    $origin = $stmt->name->span;
+    $symbol = new IR\Symbol($name, $origin, null);
     $expr = self::expr($ctx, $stmt->expr);
     $ctx->current_block_scope()->add($symbol, $expr->type());
     return new IR\AssignStmt($symbol, $expr);
   }
 
+  private static function semi_stmt(Context $ctx, AST\SemiStmt $stmt): IR\Stmt {
+    $expr = self::expr($ctx, $stmt->expr);
+    return new IR\SemiStmt($expr);
+  }
+
   private static function expr_stmt(Context $ctx, AST\ExprStmt $stmt): IR\Stmt {
-    return new IR\ExprStmt(self::expr($ctx, $stmt->expr));
+    $expr = self::expr($ctx, $stmt->expr);
+
+    list($fn_node, $return_type) = $ctx->current_expected_return();
+    $found_type = $expr->type();
+    if ($return_type->accepts($found_type) === false) {
+      $found_span = $stmt->span;
+      $wanted_span = $fn_node->returns->span;
+      throw Errors::incorrect_return_type($ctx->file, $found_span, $found_type, $wanted_span, $return_type);
+    }
+
+    return new IR\ReturnStmt($expr);
   }
 
   private static function expr(Context $ctx, AST\Expr $expr): IR\Expr {
@@ -171,4 +223,29 @@ class Analyzer {
   }
 
   // int_expr
+
+  /**
+   * Utility methods
+   */
+  private static function annotation_to_type(Context $ctx, AST\Annotation $note): Types\Type {
+    switch (true) {
+      case $note instanceof AST\NamedAnnotation:
+        return self::named_annotation_to_type($ctx, $note);
+      default:
+        throw new \Exception('unknown annotation type');
+    }
+  }
+
+  private static function named_annotation_to_type(Context $ctx, AST\NamedANnotation $note): Types\Type {
+    switch ($note->name) {
+      case 'Str':
+        return new Types\StrType();
+      case 'Num':
+        return new Types\NumType();
+      case 'Void':
+        return new Types\VoidType();
+      default:
+        throw Errors::unknown_named_type($note);
+    }
+  }
 }

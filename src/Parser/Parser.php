@@ -134,7 +134,9 @@ class Parser {
       if ($peek->type === TokenType::BRACE_RIGHT) {
         break;
       }
-      $stmts[] = $this->stmt();
+      if (($stmts[] = $this->stmt()) instanceof AST\ExprStmt) {
+        break;
+      }
     }
     return $stmts;
   }
@@ -158,11 +160,14 @@ class Parser {
     return new AST\LetStmt($span, $name, $expr);
   }
 
-  private function expr_stmt(): AST\ExprStmt {
+  private function expr_stmt(): AST\Stmt {
     $expr = $this->expr();
-    $semi = $this->semicolon();
-    $span = $expr->span->extended_to($semi->span);
-    return new AST\ExprStmt($span, $expr);
+    if ($this->lexer->peek()->type === TokenType::SEMICOLON) {
+      $semi = $this->semicolon();
+      return new AST\SemiStmt($expr, $semi);
+    } else {
+      return new AST\ExprSTmt($expr);
+    }
   }
 
   /**

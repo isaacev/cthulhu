@@ -18,7 +18,16 @@ class BlockScope {
   }
 
   public function has(Symbol $symbol): bool {
-    return array_key_exists($this->table, $symbol->id);
+    return array_key_exists($symbol->id, $this->table);
+  }
+
+  public function to_symbol(string $name): Symbol {
+    foreach ($this->table as $id => list($symbol, $type)) {
+      if ($symbol->name === $name) {
+        return $symbol;
+      }
+    }
+    return $this->parent->to_symbol($name);
   }
 
   public function lookup(Symbol $symbol): Type {

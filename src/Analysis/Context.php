@@ -2,28 +2,36 @@
 
 namespace Cthulhu\Analysis;
 
+use Cthulhu\AST;
 use Cthulhu\IR;
-use Cthulhu\Types;
 use Cthulhu\Kernel\Kernel;
+use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
+use Cthulhu\Types;
 
 class Context {
+  public $file;
   public $used_builtins;
   private $builtin_cache;
   private $module_scopes;
+  private $expected_return;
 
-  function __construct(string $filename) {
+  function __construct(Source\File $file) {
+    $this->file = $file;
     $this->used_builtins = [];
     $this->builtin_cache = [
       'IO' => Kernel::IO()
     ];
 
     $this->module_scopes = [
-      new IR\ModuleScope(null, $filename)
+      new IR\ModuleScope(null, $file->filepath)
     ];
 
     $this->block_scopes = [
       // empty
     ];
+
+    $this->expected_return = [];
   }
 
   function current_module_scope(): IR\ModuleScope {
@@ -64,5 +72,17 @@ class Context {
 
   function pop_block_scope(): IR\BlockScope {
     return array_pop($this->block_scopes);
+  }
+
+  function push_expected_return(AST\Node $fn_node, Types\Type $return_type): void {
+    $this->expected_return[] = [$fn_node, $return_type];
+  }
+
+  function current_expected_return(): array {
+    return end($this->expected_return);
+  }
+
+  function pop_expected_return(): void {
+    array_pop($this->expected_return);
   }
 }

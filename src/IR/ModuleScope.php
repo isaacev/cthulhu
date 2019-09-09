@@ -3,22 +3,14 @@
 namespace Cthulhu\IR;
 
 class ModuleScope {
-  public static function from_array(string $name, array $names): self {
-    $scope =  new ModuleScope(null, $name);
-    foreach ($names as $name => $type) {
-      $symbol = new Symbol($name, $scope->symbol);
-      $scope->add($symbol, $type);
-    }
-    return $scope;
-  }
-
   public $parent;
   public $symbol;
   private $table;
 
   function __construct(?self $parent, string $name) {
     $this->parent = $parent;
-    $this->symbol = new Symbol($name, $parent ? $this->parent->symbol : null);
+    $origin = null; // TODO
+    $this->symbol = new Symbol($name, $origin, $parent ? $this->parent->symbol : null);
     $this->table = [];
   }
 

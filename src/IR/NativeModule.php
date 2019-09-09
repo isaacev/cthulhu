@@ -20,7 +20,7 @@ class NativeModule implements Buildable {
   }
 
   public function fn(string $name, Types\FnType $signature, Builder $builder): void {
-    $symbol = new Symbol($name, $this->scope->symbol);
+    $symbol = new Symbol($name, null, $this->scope->symbol);
     $this->scope->add($symbol, $signature);
     $this->builders[] = $builder;
   }

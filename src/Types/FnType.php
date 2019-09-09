@@ -49,7 +49,9 @@ class FnType extends Type {
 
   public function jsonSerialize() {
     return [
-      'type' => 'FnType'
+      'type' => 'FnType',
+      'params' => $this->params,
+      'returns' => $this->returns
     ];
   }
 }

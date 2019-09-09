@@ -23,12 +23,21 @@ class FnItem extends Item {
       $visitor_table['FnItem']($this);
     }
 
-    // TODO
+    $this->name->visit($visitor_table);
+    foreach ($this->params as $param) {
+      $param->visit($visitor_table);
+    }
+    $this->returns->visit($visitor_table);
+    $this->body->visit($visitor_table);
   }
 
   public function jsonSerialize() {
     return [
-      // TODO
+      'type' => 'FnItem',
+      'name' => $this->name,
+      'params' => $this->params,
+      'returns' => $this->returns,
+      'body' => $this->body
     ];
   }
 }

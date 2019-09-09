@@ -7,8 +7,8 @@ use Cthulhu\Parser\Lexer\Span;
 class ExprStmt extends Stmt {
   public $expr;
 
-  function __construct(Span $span, Expr $expr) {
-    parent::__construct($span);
+  function __construct(Expr $expr) {
+    parent::__construct($expr->span);
     $this->expr = $expr;
   }
 

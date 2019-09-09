@@ -25,8 +25,13 @@ class BlockNode extends Node {
   }
 
   public function type(): Types\Type {
-    $last_stmt = $this->last_stmt();
-    return $last_stmt ? $last_stmt->type() : new Types\VoidType();
+    if ($last_stmt = $this->last_stmt()) {
+      if ($last_stmt instanceof IR\ExprStmt) {
+        return $last_stmt->expr->type();
+      }
+    }
+
+    return new Types\VoidType();
   }
 
   public function jsonSerialize() {

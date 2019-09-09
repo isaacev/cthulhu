@@ -2,16 +2,20 @@
 
 namespace Cthulhu\IR;
 
+use Cthulhu\Parser\Lexer\Span;
+
 class Symbol implements \JsonSerializable {
   private static $next_uid = 1;
 
   public $id;
   public $name;
+  public $origin;
   public $parent;
 
-  function __construct(string $name, ?self $parent = null) {
+  function __construct(string $name, ?Span $origin, ?self $parent = null) {
     $this->id = strval(self::$next_uid++);
     $this->name = $name;
+    $this->origin = $origin;
     $this->parent = $parent;
   }
 
@@ -19,6 +23,7 @@ class Symbol implements \JsonSerializable {
     return [
       'id' => $this->id,
       'name' => $this->name,
+      'origin' => $this->origin,
       'parent' => $this->parent
     ];
   }
