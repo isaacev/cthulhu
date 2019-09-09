@@ -185,6 +185,7 @@ class Snippet implements Reportable {
       case TokenType::ERROR:
         return [Background::RED, Foreground::DEFAULT];
       case TokenType::LITERAL_NUM:
+      case TokenType::LITERAL_BOOL:
         return [Foreground::MAGENTA];
       case TokenType::LITERAL_STR:
         return [Foreground::GREEN];
