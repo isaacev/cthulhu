@@ -50,11 +50,11 @@ class Snippet implements Reportable {
     }
 
     $first_visible_line_num = max(
-      $first_focused_line - self::LINES_ABOVE,
+      $first_focused_line - $this->get_option('lines_above', self::LINES_ABOVE),
       1);
 
     $last_visible_line_num = min(
-      $last_focused_line + self::LINES_BELOW,
+      $last_focused_line + $this->get_option('lines_below', self::LINES_BELOW),
       end($all_tokens)->span->to->line);
 
     // Group tokens by line for each line in the visible region
