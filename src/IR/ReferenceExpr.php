@@ -20,6 +20,7 @@ class ReferenceExpr extends Expr {
   public function jsonSerialize() {
     return [
       'type' => 'ReferenceExpr',
+      'datatype' => $this->type,
       'symbol' => $this->symbol
     ];
   }
