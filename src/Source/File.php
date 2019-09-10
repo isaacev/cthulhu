@@ -10,4 +10,8 @@ class File {
     $this->filepath = $filepath;
     $this->contents = $contents;
   }
+
+  public function basename(): string {
+    return basename($this->filepath);
+  }
 }
