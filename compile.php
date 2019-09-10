@@ -8,18 +8,18 @@ if ($argc < 2) {
   exit(1);
 }
 
-$intput_filename = $argv[1];
-$basename = basename($intput_filename);
-$txt = @file_get_contents($intput_filename);
+$input_filename = $argv[1];
+$txt = @file_get_contents($input_filename);
 if ($txt === false) {
-  echo "unable to get contents of '$intput_filename'" . PHP_EOL;
+  echo "unable to get contents of '$input_filename'" . PHP_EOL;
   exit(1);
 }
 
 try {
-  $ref = new \Cthulhu\Codegen\PHP\Reference([ $basename, 'main' ]);
-  $ast = \Cthulhu\Parser\Parser::from_string($txt)->file();
-  $mod = \Cthulhu\Analysis\Analyzer::file($basename, $ast);
+  $file = new \Cthulhu\Source\File($input_filename, $txt);
+  $ast  = \Cthulhu\Parser\Parser::file_to_ast($file);
+  $mod  = \Cthulhu\Analysis\Analyzer::ast_to_module($ast);
+  $ref  = \Cthulhu\Codegen\PHP\Reference::from_symbol($mod->scope->to_symbol('main'));
 } catch (\Cthulhu\Errors\Error $err) {
   echo $err;
   exit(1);
@@ -31,9 +31,9 @@ try {
 $php = \Cthulhu\Codegen\Codegen::generate($mod, $ref);
 $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
 
-$output_filename = $basename . '.php';
+$output_filename = $file->basename() . '.php';
 $output_file = fopen($output_filename, 'w') or die('unable to open file');
 fwrite($output_file, $str);
 fclose($output_file);
 
-echo "compiled $intput_filename to $output_filename" . PHP_EOL;
+echo "compiled $input_filename to $output_filename" . PHP_EOL;

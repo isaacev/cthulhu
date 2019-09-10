@@ -13,7 +13,7 @@ class Analyzer {
     foreach ($file->items as $item) {
       $items[] = self::item($ctx, $item);
     }
-    return new IR\SourceModule($ctx->used_builtins, $ctx->pop_module_scope(), $items);
+    return new IR\SourceModule($file->file, $ctx->used_builtins, $ctx->pop_module_scope(), $items);
   }
 
   private static function item(Context $ctx, AST\Item $item): IR\Item {
@@ -47,9 +47,9 @@ class Analyzer {
   }
 
   private static function fn_item(Context $ctx, AST\FnItem $item): IR\FnItem {
-    $name = $item->name->ident;
+    $fn_name = $item->name->ident;
     $origin = $item->span->extended_to($item->returns->span);
-    $symbol = new IR\Symbol($name, $origin, $ctx->current_module_scope()->symbol);
+    $symbol = new IR\Symbol($fn_name, $origin, $ctx->current_module_scope()->symbol);
 
     // Determine function type signature
     $param_types = [];
@@ -63,10 +63,12 @@ class Analyzer {
 
     // Build new block scope and add parameters to the scope
     $ctx->push_block_scope();
+    $param_symbols = [];
     foreach ($item->params as $index => $param) {
       $param_name = $param->name->ident;
       $param_origin = $param->span;
       $param_symbol = new IR\Symbol($param_name, $param_origin, null);
+      $param_symbols[] = $param_symbol;
       $param_type = $param_types[$index];
       $ctx->current_block_scope()->add($param_symbol, $param_type);
     }
@@ -92,7 +94,7 @@ class Analyzer {
       throw Errors::function_returns_nothing($ctx->file, $block_span, $wanted_span, $wanted_type, $last_stmt, $last_semi);
     }
 
-    return new IR\FnItem($symbol, $type, $ctx->pop_block_scope(), $body);
+    return new IR\FnItem($symbol, $param_symbols, $type, $ctx->pop_block_scope(), $body);
   }
 
   private static function block(Context $ctx, AST\BlockNode $block): IR\BlockNode {
@@ -135,19 +137,21 @@ class Analyzer {
   private static function expr_stmt(Context $ctx, AST\ExprStmt $stmt): IR\Stmt {
     $expr = self::expr($ctx, $stmt->expr);
 
-    list($fn_node, $return_type) = $ctx->current_expected_return();
-    $found_type = $expr->type();
-    if ($return_type->accepts($found_type) === false) {
-      $found_span = $stmt->span;
-      $wanted_span = $fn_node->returns->span;
-      throw Errors::incorrect_return_type($ctx->file, $found_span, $found_type, $wanted_span, $return_type);
-    }
+    // list($fn_node, $return_type) = $ctx->current_expected_return();
+    // $found_type = $expr->type();
+    // if ($return_type->accepts($found_type) === false) {
+    //   $found_span = $stmt->span;
+    //   $wanted_span = $fn_node->returns->span;
+    //   throw Errors::incorrect_return_type($ctx->file, $found_span, $found_type, $wanted_span, $return_type);
+    // }
 
     return new IR\ReturnStmt($expr);
   }
 
   private static function expr(Context $ctx, AST\Expr $expr): IR\Expr {
     switch (true) {
+      case $expr instanceof AST\IfExpr:
+        return self::if_expr($ctx, $expr);
       case $expr instanceof AST\CallExpr:
         return self::call_expr($ctx, $expr);
       case $expr instanceof AST\PathExpr:
@@ -162,7 +166,76 @@ class Analyzer {
   }
 
   // fn_expr
-  // if_expr
+
+  /**
+   * If-expression analysis
+   *
+   * - If the true-branch of an if-expression returns a value, all other
+   *   branches must also return a value with a compatible type.
+   * - If the false-branch is not given, the else-branch is treated as if it
+   *   does not return a type.
+   */
+  private static function if_expr(Context $ctx, AST\IfExpr $expr): IR\Expr {
+    $cond = self::expr($ctx, $expr->condition);
+    if (($cond->type() instanceof Types\BoolType) === false) {
+      $found_span = $expr->condition->span;
+      $found_type = $cond->type();
+      throw Errors::condition_not_bool($ctx->file, $found_span, $found_type);
+    }
+
+    $if_true = self::block($ctx, $expr->if_clause);
+    $if_true_type = $if_true->type();
+
+    if ($expr->else_clause !== null) {
+      $if_false = self::block($ctx, $expr->else_clause);
+      $if_false_type = $if_false->type();
+      if ($if_true_type->accepts($if_false_type) === false) {
+        $if_true_span = $expr->if_clause->span;
+
+        // When determining which span to use for both blocks, if the block
+        // implicitly returns its last statement, use the span from that
+        // statement. If the block is empty or doesn't have an implicit return,
+        // use the span of the entire block.
+        $if_true_span = $expr->if_clause->returns()
+          ? $expr->if_clause->last_stmt()->span
+          : $expr->if_clause->span;
+
+        $if_false_span = $expr->else_clause->returns()
+          ? $expr->else_clause->last_stmt()->span
+          : $expr->else_clause->span;
+
+        throw Errors::incompatible_if_and_else_types(
+          $ctx->file,
+          $if_true_span,
+          $if_true_type,
+          $if_false_span,
+          $if_false_type);
+      }
+    } else {
+      // The if-expression doesn't have a false-block, this means the block
+      // implicitly returns the Void type. If the true-block returns a non-Void
+      // type, throw an error because of type incompatibility.
+      if (($if_true_type instanceof Types\VoidType) === false) {
+        // When determining which span to use for both blocks, if the block
+        // implicitly returns its last statement, use the span from that
+        // statement. If the block is empty or doesn't have an implicit return,
+        // use the span of the entire block.
+        $if_true_span = $expr->if_clause->returns()
+          ? $expr->if_clause->last_stmt()->span
+          : $expr->if_clause->span;
+
+        $if_true_block_span = $expr->if_clause->span;
+
+        throw Errors::if_block_incompatible_with_void(
+          $ctx->file,
+          $if_true_span,
+          $if_true_type,
+          $if_true_block_span);
+      }
+    }
+
+    return new IR\IfExpr($if_true_type, $cond, $if_true, $if_false);
+  }
 
   private static function call_expr(Context $ctx, AST\CallExpr $expr): IR\CallExpr {
     $callee = self::expr($ctx, $expr->callee);
@@ -248,6 +321,8 @@ class Analyzer {
         return new Types\StrType();
       case 'Num':
         return new Types\NumType();
+      case 'Bool':
+        return new Types\BoolType();
       case 'Void':
         return new Types\VoidType();
       default:

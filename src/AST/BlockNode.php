@@ -12,6 +12,26 @@ class BlockNode extends Node {
     $this->stmts = $stmts;
   }
 
+  public function empty(): bool {
+    return empty($this->stmts);
+  }
+
+  public function last_stmt(): ?Stmt {
+    if ($this->empty()) {
+      return null;
+    } else {
+      return end($this->stmts);
+    }
+  }
+
+  public function returns(): bool {
+    if ($this->empty()) {
+      return false;
+    }
+
+    return $this->last_stmt() instanceof ExprStmt;
+  }
+
   public function visit(array $visitor_table): void {
     if (array_key_exists('BlockNode', $visitor_table)) {
       $visitor_table['BlockNode']($this);

@@ -5,21 +5,14 @@ namespace Cthulhu\Codegen\PHP;
 use Cthulhu\Codegen\Builder;
 
 class VariableExpr extends Expr {
-  public $name;
+  public $variable;
 
-  function __construct(string $name) {
-    $this->name = $name;
+  function __construct(Variable $variable) {
+    $this->variable = $variable;
   }
 
   public function build(): Builder {
     return (new Builder)
-      ->variable($this->name);
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'VarExpr',
-      'name' => $this->name
-    ];
+      ->then($this->variable);
   }
 }

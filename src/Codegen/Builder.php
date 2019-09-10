@@ -118,6 +118,14 @@ class Builder implements Buildable {
     return $this->push_str("$value");
   }
 
+  public function bool_literal(bool $value): self {
+    return $this->push_str($value ? 'true' : 'false');
+  }
+
+  public function null_literal(): self {
+    return $this->push_str('null');
+  }
+
   public function comment(string $message): self {
     // FIXME: comment message could multiple lines
     return $this->push_str("// $message");

@@ -187,6 +187,8 @@ class Parser {
   private function prefix_expr(): AST\Expr {
     $next = $this->lexer->next();
     switch ($next->type) {
+      case TokenType::KEYWORD_IF:
+        return $this->if_expr($next);
       case TokenType::IDENT:
         return $this->path_expr($next);
       case TokenType::LITERAL_STR:
@@ -211,6 +213,21 @@ class Parser {
         // token as an operator.
         throw new \Exception('binary operator disagreement: ' . $next->type);
     }
+  }
+
+  private function if_expr(Token $if_keyword): AST\IfExpr {
+    $cond = $this->expr();
+    $if_true = $this->block();
+
+    if ($this->lexer->peek()->type === TokenType::KEYWORD_ELSE) {
+      $this->next(TokenType::KEYWORD_ELSE);
+      $if_false = $this->block();
+    } else {
+      $if_false = null;
+    }
+
+    $span = $if_keyword->span->extended_to(($if_false ? $if_false : $if_true)->span);
+    return new AST\IfExpr($span, $cond, $if_true, $if_false);
   }
 
   private function call_expr(AST\Expr $callee, Token $paren_left): AST\CallExpr {

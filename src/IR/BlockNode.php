@@ -26,7 +26,7 @@ class BlockNode extends Node {
 
   public function type(): Types\Type {
     if ($last_stmt = $this->last_stmt()) {
-      if ($last_stmt instanceof IR\ExprStmt) {
+      if ($last_stmt instanceof ReturnStmt) {
         return $last_stmt->expr->type();
       }
     }

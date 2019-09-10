@@ -50,10 +50,15 @@ class Codegen {
   }
 
   private static function fn_item(Context $ctx, IR\FnItem $item): void {
-    $name = new PHP\Reference([ $item->symbol->name ]);
-    $params = []; // TODO
+    $fn_name = new PHP\Reference([ $item->symbol->name ]);
+
+    $params = [];
+    foreach ($item->param_symbols as $param_symbol) {
+      $params[] = new PHP\Variable($param_symbol->name);
+    }
+
     $body = self::block($ctx, $item->body);
-    $ctx->push_stmt_to_namespace(new PHP\FuncStmt($name, $params, $body));
+    $ctx->push_stmt_to_namespace(new PHP\FuncStmt($fn_name, $params, $body));
   }
 
   private static function block(Context $ctx, IR\BlockNode $block): PHP\BlockNode {
@@ -64,16 +69,38 @@ class Codegen {
     return $ctx->pop_block();
   }
 
+  private static function block_with_trailing_assignment(Context $ctx, IR\BlockNode $block, PHP\Variable $var): PHP\BlockNode {
+    $ctx->push_block();
+    foreach ($block->stmts as $index => $stmt) {
+      if ($index === $block->length() - 1) {
+        if ($stmt instanceof IR\ReturnStmt) {
+          $expr = self::expr($ctx, $stmt->expr);
+          $ctx->push_stmt_to_block(new PHP\AssignStmt($var, $expr));
+        } else {
+          self::stmt($ctx, $stmt);
+          $expr = new PHP\NullLiteral();
+          $ctx->push_stmt_to_block(new PHP\AssignStmt($var, $expr));
+        }
+      } else {
+        self::stmt($ctx, $stmt);
+      }
+    }
+    return $ctx->pop_block();
+  }
+
   private static function stmt(Context $ctx, IR\Stmt $stmt): void {
     switch (true) {
       case $stmt instanceof IR\AssignStmt:
         self::assign_stmt($ctx, $stmt);
         break;
-      case $stmt instanceof IR\ExprStmt:
-        self::expr_stmt($ctx, $stmt);
+      case $stmt instanceof IR\ReturnStmt:
+        self::return_stmt($ctx, $stmt);
+        break;
+      case $stmt instanceof IR\SemiStmt:
+        self::semi_stmt($ctx, $stmt);
         break;
       default:
-        throw new \Exception('unknown statement');
+        throw new \Exception('unknown statement: ' . get_class($stmt));
     }
   }
 
@@ -83,12 +110,19 @@ class Codegen {
     $ctx->push_stmt_to_block(new PHP\AssignStmt($variable, $expr));
   }
 
-  private static function expr_stmt(Context $ctx, IR\ExprStmt $stmt): void {
-    $ctx->push_stmt_to_block(new PHP\ExprStmt(self::expr($ctx, $stmt->expr)));
+  private static function return_stmt(Context $ctx, IR\ReturnStmt $stmt): void {
+    $expr = self::expr($ctx, $stmt->expr);
+    $ctx->push_stmt_to_block(new PHP\ReturnStmt($expr));
+  }
+
+  private static function semi_stmt(Context $ctx, IR\SemiStmt $stmt): void {
+    $ctx->push_stmt_to_block(new PHP\SemiStmt(self::expr($ctx, $stmt->expr)));
   }
 
   private static function expr(Context $ctx, IR\Expr $expr): PHP\Expr {
     switch (true) {
+      case $expr instanceof IR\IfExpr:
+        return self::if_expr($ctx, $expr);
       case $expr instanceof IR\CallExpr:
         return self::call_expr($ctx, $expr);
       case $expr instanceof IR\ReferenceExpr:
@@ -97,9 +131,22 @@ class Codegen {
         return self::str_expr($ctx, $expr);
       case $expr instanceof IR\NumExpr:
         return self::num_expr($ctx, $expr);
+      case $expr instanceof IR\BoolExpr:
+        return self::bool_expr($ctx, $expr);
       default:
-        throw new \Exception('unknown expression');
+        throw new \Exception('unknown expression: ' . get_class($expr));
     }
+  }
+
+  private static function if_expr(Context $ctx, IR\IfExpr $expr): PHP\Expr {
+    $variable = new PHP\Variable('var' . rand(0, 1000));
+    $cond = self::expr($ctx, $expr->condition);
+    $if_true = self::block_with_trailing_assignment($ctx, $expr->if_block, $variable);
+    $if_false = $expr->else_block
+      ? self::block_with_trailing_assignment($ctx, $expr->else_block, $variable)
+      : null;
+    $ctx->push_stmt_to_block(new PHP\IfStmt($cond, $if_true, $if_false));
+    return new PHP\VariableExpr($variable);
   }
 
   private static function call_expr(Context $ctx, IR\CallExpr $expr): PHP\CallExpr {
@@ -110,9 +157,14 @@ class Codegen {
     return new PHP\CallExpr($callee, $args);
   }
 
-  private static function reference_expr(Context $ctx, IR\ReferenceExpr $expr): PHP\ReferenceExpr {
-    $reference = PHP\Reference::from_symbol($expr->symbol);
-    return new PHP\ReferenceExpr($reference);
+  private static function reference_expr(Context $ctx, IR\ReferenceExpr $expr): PHP\Expr {
+    if ($expr->symbol->parent === null) {
+      $variable = new PHP\Variable($expr->symbol->name);
+      return new PHP\VariableExpr($variable);
+    } else {
+      $reference = PHP\Reference::from_symbol($expr->symbol);
+      return new PHP\ReferenceExpr($reference);
+    }
   }
 
   private static function str_expr(Context $ctx, IR\StrExpr $expr): PHP\StrExpr {
@@ -121,5 +173,9 @@ class Codegen {
 
   private static function num_expr(Context $ctx, IR\NumExpr $expr): PHP\NumExpr {
     return new PHP\NumExpr($expr->value);
+  }
+
+  private static function bool_expr(Context $ctx, IR\BoolExpr $expr): PHP\BoolExpr {
+    return new PHP\BoolExpr($expr->value);
   }
 }

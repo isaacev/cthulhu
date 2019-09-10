@@ -24,7 +24,7 @@ class Context {
     ];
 
     $this->module_scopes = [
-      new IR\ModuleScope(null, $file->filepath)
+      new IR\ModuleScope(null, $file->basename())
     ];
 
     $this->block_scopes = [

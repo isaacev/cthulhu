@@ -4,7 +4,7 @@ namespace Cthulhu\Codegen\PHP;
 
 use Cthulhu\Codegen\Builder;
 
-class ExprStmt extends Stmt {
+class SemiStmt extends Stmt {
   public $expr;
 
   function __construct(Expr $expr) {
@@ -19,7 +19,7 @@ class ExprStmt extends Stmt {
 
   public function jsonSerialize() {
     return [
-      'type' => 'ExprStmt',
+      'type' => 'SemiStmt',
       'expr' => $this->expr->jsonSerialize()
     ];
   }
