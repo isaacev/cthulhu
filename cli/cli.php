@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/args.php';
+use \Cthulhu\utils\cli;
 
 function parse(string $absolute_path): \Cthulhu\AST\File {
   $contents = @file_get_contents($absolute_path);
@@ -40,46 +40,46 @@ function codegen(\Cthulhu\IR\SourceModule $module): \Cthulhu\Codegen\PHP\Program
   }
 }
 
-$ast = (new CLI\CommandBuilder('ast'))
-  ->argument('file')
-  ->callback(function (string $input) {
-    $absolute_filepath = realpath($input);
-    if ($absolute_filepath === false) {
-      CLI\fatal('cannot find %s', $input);
-    } else {
-      $ast = parse($absolute_filepath);
-      echo json_encode($ast, JSON_PRETTY_PRINT) . PHP_EOL;
+$root = (new cli\Program('cthulhu', '0.1.0'));
+
+$root->subcommand('ast', 'Convert source code to an abstract syntax tree')
+  ->single_argument('file', 'Path to the source file')
+  ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
+    $abspath = realpath($args->get('file'));
+    if ($abspath === false) {
+      fwrite(STDERR, sprintf("cannot find file: `%s`\n", $args->get('file')));
+      exit(1);
     }
+
+    $ast = parse($abspath);
+    echo json_encode($ast, JSON_PRETTY_PRINT) . PHP_EOL;
   });
 
-$check = (new CLI\CommandBuilder('check'))
-  ->argument('file')
-  ->callback(function (string $input) {
-    $absolute_filepath = realpath($input);
-    if ($absolute_filepath === false) {
-      CLI\fatal('cannot find %s', $input);
-    } else {
-      check(parse($absolute_filepath));
-      echo "no errors\n";
-      exit(0);
+$root->subcommand('check', 'Check that a source file is free of errors')
+  ->single_argument('file', 'Path to the source file')
+  ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
+    $abspath = realpath($args->get('file'));
+    if ($abspath === false) {
+      fwrite(STDERR, sprintf("cannot find file: `%s`\n", $args->get('file')));
+      exit(1);
     }
+
+    check(parse($abspath));
+    echo "no errors in $abspath\n";
   });
 
-$codegen = (new CLI\CommandBuilder('codegen'))
-  ->argument('file')
-  ->callback(function (string $input) {
-    $absolute_filepath = realpath($input);
-    if ($absolute_filepath === false) {
-      CLI\fatal('cannot find %s', $input);
-    } else {
-      $php = codegen(check(parse($absolute_filepath)));
-      $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
-      echo $str . PHP_EOL;
+$root->subcommand('compile', 'Convert source code to PHP')
+  ->single_argument('file', 'Path to the source file')
+  ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
+    $abspath = realpath($args->get('file'));
+    if ($abspath === false) {
+      fwrite(STDERR, sprintf("cannot find file: `%s`\n", $args->get('file')));
+      exit(1);
     }
+
+    $php = codegen(check(parse($abspath)));
+    $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
+    echo $str . PHP_EOL;
   });
 
-(new CLI\Parser)
-  ->command($ast)
-  ->command($check)
-  ->command($codegen)
-  ->dispatch($argv);
+$root->parse($argv);
