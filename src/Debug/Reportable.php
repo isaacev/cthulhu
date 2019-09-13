@@ -2,6 +2,8 @@
 
 namespace Cthulhu\Debug;
 
+use Cthulhu\utils\fmt\Formatter;
+
 interface Reportable {
-  public function print(Teletype $tty): Teletype;
+  public function print(Formatter $f): Formatter;
 }

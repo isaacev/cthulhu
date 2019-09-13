@@ -3,6 +3,7 @@
 namespace Cthulhu\Debug;
 
 use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\utils\fmt\Formatter;
 
 class Report {
   public $sections;
@@ -15,14 +16,15 @@ class Report {
     array_push($this->sections, $section);
   }
 
-  public function format(Teletype $tty): void {
-    $tty->increase_tab_stop(2);
+  public function format(Formatter $f): void {
+    $f->increment_tab_stop(2);
 
     foreach ($this->sections as $section) {
-      $section->print($tty);
-      $tty->newline_if_not_empty()->newline();
+      $section->print($f);
+      $f->newline_if_not_already()
+        ->newline();
     }
 
-    $tty->pop_tab_stop();
+    $f->pop_tab_stop();
   }
 }

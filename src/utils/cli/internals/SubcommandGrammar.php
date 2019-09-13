@@ -3,6 +3,7 @@
 namespace Cthulhu\utils\cli\internals;
 
 use \Cthulhu\utils\cli\Lookup;
+use \Cthulhu\utils\fmt\StreamFormatter;
 
 class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
   public $program_name;
@@ -26,9 +27,12 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
   }
 
   function print_help(): void {
-    Helper::usage($this->program_name, $this->id, '[FLAGS]', ...$this->argument_grammars);
-    Helper::section('flags', ...$this->flag_grammars);
-    Helper::section('arguments', ...$this->argument_grammars);
+    $f = new StreamFormatter(STDOUT);
+    Helper::usage($f, $this->program_name, $this->id, '[FLAGS]', ...$this->argument_grammars);
+    $f->newline();
+    Helper::section($f, 'flags', ...$this->flag_grammars);
+    $f->newline();
+    Helper::section($f, 'arguments', ...$this->argument_grammars);
   }
 
   function full_name(): string {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\Debug;
+namespace Cthulhu\utils\fmt;
 
 class Background {
   const BLACK          = 40;

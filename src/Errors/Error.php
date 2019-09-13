@@ -5,6 +5,7 @@ namespace Cthulhu\Errors;
 use Cthulhu\Debug;
 use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Source;
+use Cthulhu\utils\fmt\Formatter;
 
 class Error extends \Exception {
   private $source_file;
@@ -37,7 +38,7 @@ class Error extends \Exception {
     return $this;
   }
 
-  public function format(Debug\Teletype $tty): void {
-    $this->report->format($tty);
+  public function format(Formatter $f): void {
+    $this->report->format($f);
   }
 }

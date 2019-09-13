@@ -2,34 +2,48 @@
 
 namespace Cthulhu\utils\cli\internals;
 
+use \Cthulhu\utils\fmt\Formatter;
+
 class Helper {
-  static function aligned_descriptions(Describeable ...$pairs): void {
+  const COLUMN_SPACER = 4;
+
+  static function aligned_descriptions(Formatter $f, Describeable ...$pairs): void {
     $max_width = 0;
     foreach ($pairs as $pair) {
       $max_width = max($max_width, strlen($pair->full_name()));
     }
 
+    $f->push_tab_stop(self::COLUMN_SPACER);
     foreach ($pairs as $pair) {
-      printf("    %-${max_width}s    %s\n",
-        $pair->full_name(),
-        $pair->description);
+      $f->tab()
+        ->printf('%s', $pair->full_name())
+        ->increment_tab_stop($max_width + self::COLUMN_SPACER)
+        ->tab()
+        ->text_wrap($pair->description())
+        ->pop_tab_stop()
+        ->newline();
     }
+    $f->pop_tab_stop();
   }
 
-  static function section(string $title, Describeable ...$pairs): void {
-    printf("%s:\n", strtoupper($title));
+  static function section(Formatter $f, string $title, Describeable ...$pairs): void {
+    $f->printf('%s:', strtoupper($title))
+      ->newline();
 
     if (empty($pairs)) {
-      printf("    no %s\n", strtolower($title));
+      $f->tab_to(self::COLUMN_SPACER)
+        ->printf('no %s', strtolower($title))
+        ->newline();
     } else {
-      self::aligned_descriptions(...$pairs);
+      self::aligned_descriptions($f, ...$pairs);
     }
-
-    echo PHP_EOL;
   }
 
-  static function usage(string ...$segments): void {
-    echo "USAGE:\n";
-    printf("    %s\n\n", implode(' ', $segments));
+  static function usage(Formatter $f, string ...$segments): void {
+    $f->printf('USAGE:')
+      ->newline()
+      ->tab_to(self::COLUMN_SPACER)
+      ->printf('%s', implode(' ', $segments))
+      ->newline();
   }
 }

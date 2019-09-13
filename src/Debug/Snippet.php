@@ -7,6 +7,9 @@ use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source\File;
+use Cthulhu\utils\fmt\Background;
+use Cthulhu\utils\fmt\Foreground;
+use Cthulhu\utils\fmt\Formatter;
 
 class Snippet implements Reportable {
   const LINES_ABOVE = 0;
@@ -33,7 +36,7 @@ class Snippet implements Reportable {
     }
   }
 
-  public function print(Teletype $tty): Teletype {
+  public function print(Formatter $f): Formatter {
     $focus_from         = $this->location->from;
     $focus_to           = $this->location->to;
     $focus_color        = $this->get_option('color', Foreground::RED);
@@ -43,10 +46,10 @@ class Snippet implements Reportable {
     $all_tokens = Lexer::to_tokens($this->file, Lexer::MODE_RELAXED);
 
     if (empty($all_tokens)) {
-      return $tty
-        ->newline_if_not_empty()
-        ->tab()
-        ->printf('empty program');
+      return (
+        $f->newline_if_not_already()
+          ->tab()
+          ->printf('empty program'));
     }
 
     $first_visible_line_num = max(
@@ -116,8 +119,7 @@ class Snippet implements Reportable {
         : $gutter_padding_format;
 
       // Indent the line and print the gutter
-      $tty
-        ->newline_if_not_empty()
+      $f->newline_if_not_already()
         ->tab()
         ->apply_styles_if($line_contains_focused_region, $focus_color)
         ->printf($gutter_format, $line_num)
@@ -130,8 +132,7 @@ class Snippet implements Reportable {
       foreach ($tokens_in_line as $token) {
         $styles = self::token_styles($token);
         $has_styles = !empty($styles);
-        $tty
-          ->spaces($token->span->from->column - $col)
+        $f->spaces($token->span->from->column - $col)
           ->apply_styles_if($has_styles, ...$styles)
           ->printf($token->lexeme)
           ->reset_styles_if($has_styles);
@@ -142,8 +143,7 @@ class Snippet implements Reportable {
       // token, print an underline beneath the focused region.
       $line_has_tokens = !empty($tokens_in_line);
       if ($line_contains_focused_region && $line_has_tokens) {
-        $tty
-          ->newline_if_not_empty()
+        $f->newline_if_not_already()
           ->tab()
           ->apply_styles($focus_color)
           ->printf($gutter_underline_format, ' ');
@@ -163,21 +163,20 @@ class Snippet implements Reportable {
           ? $last_token_on_line->span->to->column - ($total_spaces + 1)
           : $focus_to->column - ($total_spaces + 1);
 
-        $tty
-          ->spaces($total_spaces)
+        $f->spaces($total_spaces)
           ->repeat(self::UNDERLINE_CHAR, $total_underline);
 
         // If this line contains the end of the focused region and if the note
         // includes a message, print that message after the underline.
         if ($line_num === $last_focused_line && $this->message) {
-          $tty->printf(" %s", $this->message);
+          $f->printf(" %s", $this->message);
         }
 
-        $tty->reset_styles();
+        $f->reset_styles();
       }
     }
 
-    return $tty;
+    return $f;
   }
 
   public static function token_styles(Token $token): array {

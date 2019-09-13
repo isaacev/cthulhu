@@ -3,7 +3,7 @@
 namespace Cthulhu\Analysis;
 
 use Cthulhu\AST;
-use Cthulhu\Debug\Foreground;
+use Cthulhu\utils\fmt\Foreground;
 use Cthulhu\Debug\Report;
 use Cthulhu\Errors\Error;
 use Cthulhu\IR;

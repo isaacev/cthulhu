@@ -2,6 +2,8 @@
 
 namespace Cthulhu\utils\cli\internals;
 
+use \Cthulhu\utils\fmt\StreamFormatter;
+
 class ProgramGrammar extends HasFlagsGrammar {
   public $name;
   public $version;
@@ -28,9 +30,12 @@ class ProgramGrammar extends HasFlagsGrammar {
   }
 
   function print_help(): void {
-    Helper::usage($this->name, '[FLAGS]', '[SUBCOMMAND]');
-    Helper::section('flags', ...$this->flag_grammars);
-    Helper::section('subcommands', ...$this->subcommand_grammars);
+    $f = new StreamFormatter(STDOUT);
+    Helper::usage($f, $this->name, '[FLAGS]', '[SUBCOMMAND]');
+    $f->newline();
+    Helper::section($f, 'flags', ...$this->flag_grammars);
+    $f->newline();
+    Helper::section($f, 'subcommands', ...$this->subcommand_grammars);
   }
 
   function print_version(): void {
