@@ -71,7 +71,7 @@ class ProgramGrammar extends HasFlagsGrammar {
       return $grammar->parse($this, $scanner);
     }
 
-    fatal('unknown subcommand: `%s`', $token);
+    Scanner::fatal_error('unknown subcommand: `%s`', $token);
   }
 
   function parse(Scanner $scanner): ProgramResult {

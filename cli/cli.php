@@ -5,7 +5,8 @@ use \Cthulhu\utils\cli;
 function parse(string $absolute_path): \Cthulhu\AST\File {
   $contents = @file_get_contents($absolute_path);
   if ($contents === false) {
-    CLI\fatal('cannot read %s', $absolute_path);
+    fwrite(STDERR, sprintf("cannot read file: `%s`\n", $absolute_path));
+    exit(1);
   }
 
   try {
