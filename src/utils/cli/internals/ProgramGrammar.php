@@ -12,7 +12,7 @@ class ProgramGrammar extends HasFlagsGrammar {
     $this->name = $name;
     $this->version = $version;
     $this->subcommand_grammars = [];
-    $this->callback = function () { echo "do nothing\n"; };
+    $this->callback = [$this, 'print_help'];
 
     parent::add_flag(new ShortCircuitFlagGrammar(
       'help',

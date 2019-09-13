@@ -16,7 +16,7 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
     $this->id = $id;
     $this->description = $description;
     $this->argument_grammars = [];
-    $this->callback = function () { echo "nothing to do\n"; };
+    $this->callback = [$this, 'print_help'];
 
     parent::add_flag(new ShortCircuitFlagGrammar(
       'help',
