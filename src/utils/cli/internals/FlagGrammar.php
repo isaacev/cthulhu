@@ -8,6 +8,7 @@ abstract class FlagGrammar implements Describeable {
     $this->description = $description;
   }
 
+  abstract function completions(): array;
   abstract function matches(string $token): bool;
   abstract function parse(string $token, Scanner $scanner): FlagResult;
   abstract function full_name(): string;

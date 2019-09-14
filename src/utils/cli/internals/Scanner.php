@@ -25,6 +25,10 @@ class Scanner {
     return $prefix === substr($this->argv[$this->index], 0, strlen($prefix));
   }
 
+  function next_is(string $pattern): bool {
+    return !!(preg_match($pattern, $this->argv[$this->index]));
+  }
+
   function advance(): ?string {
     return $this->argv[$this->index++];
   }

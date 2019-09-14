@@ -3,6 +3,13 @@
 namespace Cthulhu\utils\cli\internals;
 
 class BoolFlagGrammar extends FlagGrammar {
+  function completions(): array {
+    return [
+      "--$this->id",
+      "--no-$this->id"
+    ];
+  }
+
   function matches(string $token): bool {
     return (
       $token === $this->id ||

@@ -21,6 +21,10 @@ class ShortCircuitFlagGrammar extends FlagGrammar {
     $this->callback = $callback;
   }
 
+  function completions(): array {
+    return ["--$this->id"];
+  }
+
   function matches(string $token): bool {
     return $token === $this->id;
   }

@@ -35,6 +35,10 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
     Helper::section($f, 'arguments', ...$this->argument_grammars);
   }
 
+  function completions(): array {
+    return $this->flag_completions();
+  }
+
   function full_name(): string {
     return $this->id;
   }
