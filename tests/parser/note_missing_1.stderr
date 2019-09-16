@@ -1,0 +1,14 @@
+
+  EXPECTED TYPE ANNOTATION  --------------------------------------------------
+
+  Found `{` instead.
+
+  1 | fn x() -> {
+    |           ^
+
+  A type annotation can be like one of the following:
+
+    Str
+
+    [Int]
+

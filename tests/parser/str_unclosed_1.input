@@ -1,0 +1,4 @@
+use IO;
+
+fn main() -> Void {
+  let y = "abc def

@@ -1,0 +1,10 @@
+use IO;
+
+fn main () -> Void {
+  let name = if true {
+    "is a string"
+  } else {
+    123
+  };
+  IO::println(name);
+}

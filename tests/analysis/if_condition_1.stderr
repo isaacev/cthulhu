@@ -1,0 +1,8 @@
+
+  NON-BOOLEAN CONDITION  -----------------------------------------------------
+
+  Conditions need to have the type `Bool`, found type `Str` instead:
+
+  2 |   if "abc" {
+    |      ^^^^^
+

@@ -1,0 +1,26 @@
+
+  INCORRECT RETURN TYPE  -----------------------------------------------------
+
+  Expected the function to return the type `Num` because of the type signature
+  on line 1:
+
+  1 | fn main() -> Num {
+    |              ^^^
+
+  But the function body returns nothing:
+
+  1 | fn main() -> Num {
+    |                  ^
+  2 |   let x = 123;
+    |   ^^^^^^^^^^^^
+  3 |   x;
+    |   ^^
+  4 | }
+    | ^
+
+  However the last statement in the block might return the correct value if it
+  wasn't followed by a semicolon:
+
+  3 |   x;
+    |    ^ consider removing this semicolon
+

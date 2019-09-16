@@ -1,0 +1,4 @@
+fn main() -> Num {
+  let x = 123;
+  x;
+}

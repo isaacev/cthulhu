@@ -1,0 +1,8 @@
+
+  UNEXPECTED SYMBOL  ---------------------------------------------------------
+
+  File contains a symbol that is not part of the syntax. Try removing it?
+
+  4 |   let x = #123;
+    |           ^
+

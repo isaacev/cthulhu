@@ -2,6 +2,8 @@
 
 use \Cthulhu\utils\cli;
 
+require_once __DIR__ . '/command_test.php';
+
 function parse(string $absolute_path): \Cthulhu\AST\File {
   $contents = @file_get_contents($absolute_path);
   if ($contents === false) {
@@ -82,5 +84,9 @@ $root->subcommand('compile', 'Convert source code to PHP')
     $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
     echo $str . PHP_EOL;
   });
+
+$root->subcommand('test', 'Run all of the available tests')
+  ->bool_flag('bless', 'Update any stdout/stderr files for failing tests')
+  ->callback('command_test');
 
 $root->parse($argv);

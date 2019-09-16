@@ -1,0 +1,14 @@
+
+  INCOMPATIBLE IF AND ELSE TYPES  --------------------------------------------
+
+  Expected `Str` because of the return type of the if clause:
+
+  5 |     "is a string"
+    |     ^^^^^^^^^^^^^
+
+  Expected the else clause to return a type compatible with `Str`. Instead it
+  returned `Num`:
+
+  7 |     123
+    |     ^^^
+

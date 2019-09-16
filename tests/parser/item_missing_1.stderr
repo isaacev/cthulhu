@@ -1,0 +1,21 @@
+
+  EXPECTED ITEM  -------------------------------------------------------------
+
+  1 | xyz = 123;
+    | ^^^
+
+  An item can be like one of the following:
+
+    -- import another module
+    use IO;
+
+    -- declare a module
+    mod Example {
+      -- more stuff
+    };
+
+    -- create a function
+    fn hello() -> Str {
+      "world"
+    };
+

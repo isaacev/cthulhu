@@ -1,0 +1,5 @@
+fn main () -> Void {
+  if "abc" {
+    IO::println("should not compile");
+  };
+}

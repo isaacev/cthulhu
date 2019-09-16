@@ -1,0 +1,16 @@
+
+  EXPECTED EXPRESSION  -------------------------------------------------------
+
+  Found `+` instead.
+
+  2 |   let x = +123;
+    |           ^
+
+  An expression can be like one of the following:
+
+    a + b * c
+
+    myFunction("hello")
+
+    if a { b; } else { c; }
+
