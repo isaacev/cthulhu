@@ -37,7 +37,7 @@ class Program {
     $result = $this->grammar->parse($scanner);
 
     if ($result->subcommand === null) {
-      $flags = Lookup::from_flat_array($result->flags);
+      $flags = Lookup::from_flat_array($result->flags->flags);
       $result->grammar->dispatch($flags);
     } else {
       $result->subcommand->grammar->dispatch($result);

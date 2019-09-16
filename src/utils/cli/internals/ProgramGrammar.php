@@ -5,25 +5,27 @@ namespace Cthulhu\utils\cli\internals;
 use \Cthulhu\utils\cli\Lookup;
 use \Cthulhu\utils\fmt\StreamFormatter;
 
-class ProgramGrammar extends HasFlagsGrammar {
+class ProgramGrammar {
   public $name;
   public $version;
+  public $flags_grammar;
   public $subcommand_grammars;
   public $callback;
 
   function __construct(string $name, string $version) {
     $this->name = $name;
     $this->version = $version;
+    $this->flags_grammar = new FlagsGrammar();
     $this->subcommand_grammars = [];
     $this->callback = [$this, 'print_help'];
 
-    parent::add_flag(new ShortCircuitFlagGrammar(
+    $this->flags_grammar->add(new ShortCircuitFlagGrammar(
       'help',
       'Show this message',
       [$this, 'print_help']
     ));
 
-    parent::add_flag(new ShortCircuitFlagGrammar(
+    $this->flags_grammar->add(new ShortCircuitFlagGrammar(
       'version',
       'Show version number',
       [$this, 'print_version']
@@ -34,7 +36,7 @@ class ProgramGrammar extends HasFlagsGrammar {
     $f = new StreamFormatter(STDOUT);
     Helper::usage($f, $this->name, '[FLAGS]', '[SUBCOMMAND]');
     $f->newline();
-    Helper::section($f, 'flags', ...$this->flag_grammars);
+    Helper::section($f, 'flags', ...$this->flags_grammar->flags);
     $f->newline();
     Helper::section($f, 'subcommands', ...$this->subcommand_grammars);
   }
@@ -53,9 +55,13 @@ class ProgramGrammar extends HasFlagsGrammar {
 
   function completions(): array {
     return array_merge(
-      $this->flag_completions(),
+      $this->flags_grammar->completions(),
       $this->subcommand_completions()
     );
+  }
+
+  function add_flag(FlagGrammar $flag): void {
+    $this->flags_grammar->add($flag);
   }
 
   function add_subcommand(SubcommandGrammar $new_grammar): void {
@@ -122,7 +128,7 @@ class ProgramGrammar extends HasFlagsGrammar {
   }
 
   function parse(Scanner $scanner): ProgramResult {
-    $flags = $this->parse_flags($scanner);
+    $flags = $this->flags_grammar->parse($scanner);
     $subcommand = $this->parse_subcommand($scanner);
     return new ProgramResult($this, $flags, $subcommand);
   }

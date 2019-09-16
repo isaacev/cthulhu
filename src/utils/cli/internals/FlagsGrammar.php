@@ -2,28 +2,28 @@
 
 namespace Cthulhu\utils\cli\internals;
 
-abstract class HasFlagsGrammar {
-  protected $flag_grammars;
+class FlagsGrammar {
+  public $flags;
 
-  function add_flag(FlagGrammar $grammar) {
-    $this->flag_grammars[] = $grammar;
+  function add(FlagGrammar $flag) {
+    $this->flags[] = $flag;
   }
 
-  function flag_completions(): array {
-    $comps = [];
-    foreach ($this->flag_grammars as $flag_grammar) {
-      $comps = array_merge($comps, $flag_grammar->completions());
-    }
-    return $comps;
-  }
-
-  function get_flag(string $token): ?FlagGrammar {
-    foreach ($this->flag_grammars as $grammar) {
-      if ($grammar->matches($token)) {
-        return $grammar;
+  function get(string $token): ?FlagGrammar {
+    foreach ($this->flags as $flag) {
+      if ($flag->matches($token)) {
+        return $flag;
       }
     }
     return null;
+  }
+
+  function completions(): array {
+    $comps = [];
+    foreach ($this->flags as $flag) {
+      $comps = array_merge($comps, $flag->completions());
+    }
+    return $comps;
   }
 
   function parse_single_flag(Scanner $scanner): FlagResult {
@@ -31,15 +31,15 @@ abstract class HasFlagsGrammar {
     preg_match('/^--(\S+)/', $next, $matches);
     if (array_key_exists(1, $matches)) {
       $token = $matches[1];
-      if ($grammar = $this->get_flag($token)) {
+      if ($grammar = $this->get($token)) {
         return $grammar->parse($token, $scanner);
       }
     }
     Scanner::fatal_error('unknown flag: `%s`', $next);
   }
 
-  function parse_flags(Scanner $scanner): array {
-    $flags = [];
+  function parse(Scanner $scanner): FlagsResult {
+    $flag_results = [];
     while ($scanner->not_empty()) {
       if ($scanner->next_is('/^--$/')) {
         /**
@@ -50,13 +50,13 @@ abstract class HasFlagsGrammar {
         $scanner->advance();
         break;
       } else if ($scanner->next_starts_with('--')) {
-        $flags[] = $this->parse_single_flag($scanner);
+        $flag_results[] = $this->parse_single_flag($scanner);
       } else if ($scanner->next_starts_with('-')) {
         Scanner::fatal_error("unknown flag: `%s`", $scanner->advance());
       } else {
         break;
       }
     }
-    return $flags;
+    return new FlagsResult($this, $flag_results);
   }
 }

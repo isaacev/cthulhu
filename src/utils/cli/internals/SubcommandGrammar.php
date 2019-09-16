@@ -5,10 +5,11 @@ namespace Cthulhu\utils\cli\internals;
 use \Cthulhu\utils\cli\Lookup;
 use \Cthulhu\utils\fmt\StreamFormatter;
 
-class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
+class SubcommandGrammar implements Describeable {
   public $program_name;
   public $id;
   public $description;
+  public $flags_grammar;
   public $argument_grammars;
   public $callback;
 
@@ -16,10 +17,11 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
     $this->program_name = $program_name;
     $this->id = $id;
     $this->description = $description;
+    $this->flags_grammar = new FlagsGrammar();
     $this->argument_grammars = [];
     $this->callback = [$this, 'print_help'];
 
-    parent::add_flag(new ShortCircuitFlagGrammar(
+    $this->add_flag(new ShortCircuitFlagGrammar(
       'help',
       'Show this message',
       [$this, 'print_help']
@@ -30,13 +32,13 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
     $f = new StreamFormatter(STDOUT);
     Helper::usage($f, $this->program_name, $this->id, '[FLAGS]', ...$this->argument_grammars);
     $f->newline();
-    Helper::section($f, 'flags', ...$this->flag_grammars);
+    Helper::section($f, 'flags', ...$this->flags_grammar->flags);
     $f->newline();
     Helper::section($f, 'arguments', ...$this->argument_grammars);
   }
 
   function completions(): array {
-    return $this->flag_completions();
+    return $this->flags_grammar->completions();
   }
 
   function full_name(): string {
@@ -45,6 +47,10 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
 
   function description(): string {
     return $this->description;
+  }
+
+  function add_flag(FlagGrammar $new_grammar): void {
+    $this->flags_grammar->add($new_grammar);
   }
 
   function add_argument(ArgumentGrammar $new_grammar): void {
@@ -79,13 +85,13 @@ class SubcommandGrammar extends HasFlagsGrammar implements Describeable {
   }
 
   function parse(ProgramGrammar $program, Scanner $scanner): SubcommandResult {
-    $flags = $this->parse_flags($scanner);
+    $flags = $this->flags_grammar->parse($scanner);
     $args = $this->parse_args($scanner);
     return new SubcommandResult($this, $flags, $args);
   }
 
   function dispatch(ProgramResult $program_result) {
-    $flags = Lookup::from_flat_array($program_result->subcommand->flags);
+    $flags = Lookup::from_flat_array($program_result->subcommand->flags->flags);
     $args = Lookup::from_flat_array($program_result->subcommand->arguments);
     if ($this->callback) {
       call_user_func($this->callback, $flags, $args);
