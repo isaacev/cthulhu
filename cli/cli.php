@@ -81,7 +81,7 @@ $root->subcommand('compile', 'Convert source code to PHP')
     }
 
     $php = codegen(check(parse($abspath)));
-    $str = $php->build()->write(new \Cthulhu\Codegen\StringWriter());
+    $str = $php->build()->write(new \Cthulhu\utils\fmt\StringFormatter());
     echo $str . PHP_EOL;
   });
 

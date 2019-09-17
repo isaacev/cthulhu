@@ -2,6 +2,8 @@
 
 namespace Cthulhu\Codegen;
 
+use Cthulhu\utils\fmt;
+
 class Builder implements Buildable {
   private $frames = [];
 
@@ -14,8 +16,8 @@ class Builder implements Buildable {
   }
 
   private function push_str(string $str): self {
-    return $this->push_frame(function (Writer $w) use ($str) {
-      $w->write($str);
+    return $this->push_frame(function (fmt\Formatter $f) use ($str) {
+      $f->printf('%s', $str);
     });
   }
 
@@ -32,13 +34,13 @@ class Builder implements Buildable {
   }
 
   /**
-   * Apply accumulated frames to a Writer
+   * Apply accumulated frames to a fmt\Formatter
    */
-  public function write(Writer $writer): Writer {
+  public function write(fmt\Formatter $f): fmt\Formatter {
     foreach ($this->frames as $frame) {
-      call_user_func($frame, $writer);
+      call_user_func($frame, $f);
     }
-    return $writer;
+    return $f;
   }
 
   /**
@@ -143,8 +145,8 @@ class Builder implements Buildable {
   }
 
   public function indent(): self {
-    return $this->push_frame(function (Writer $w) {
-      $w->write($w->get_indentation());
+    return $this->push_frame(function (fmt\Formatter $f) {
+      $f->tab();
     });
   }
 
@@ -155,14 +157,14 @@ class Builder implements Buildable {
   }
 
   public function increase_indentation(): self {
-    return $this->push_frame(function (Writer $w) {
-      $w->increase_indentation();
+    return $this->push_frame(function (fmt\Formatter $f) {
+      $f->increment_tab_stop(2);
     });
   }
 
   public function decrease_indentation(): self {
-    return $this->push_frame(function (Writer $w) {
-      $w->decrease_indentation();
+    return $this->push_frame(function (fmt\Formatter $f) {
+      $f->pop_tab_stop();
     });
   }
 

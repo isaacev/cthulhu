@@ -7,6 +7,7 @@ use \Cthulhu\Codegen;
 use \Cthulhu\Errors;
 use \Cthulhu\Parser;
 use \Cthulhu\Source;
+use \Cthulhu\utils\fmt;
 
 class Test {
   public $dir;
@@ -55,10 +56,10 @@ class Test {
       $sym    = $mod->scope->to_symbol('main');
       $ref    = Codegen\PHP\Reference::from_symbol($sym);
       $php    = Codegen\Codegen::generate($mod, $ref);
-      $stdout = $php->build()->write(new Codegen\StringWriter());
+      $stdout = $php->build()->write(new fmt\StringFormatter());
       return new TestOutput($stdout, '');
     } catch (Errors\Error $err) {
-      $stderr = new \Cthulhu\utils\fmt\StringFormatter();
+      $stderr = new fmt\StringFormatter();
       $err->format($stderr);
       return new TestOutput('', $stderr);
     }
