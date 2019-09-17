@@ -12,10 +12,10 @@
     -- declare a module
     mod Example {
       -- more stuff
-    };
+    }
 
     -- create a function
     fn hello() -> Str {
       "world"
-    };
+    }
 

@@ -18,8 +18,8 @@ class Errors {
       ->snippet($found->span)
       ->paragraph('An item can be like one of the following:')
       ->example("-- import another module\nuse IO;")
-      ->example("-- declare a module\nmod Example {\n  -- more stuff\n};")
-      ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n};");
+      ->example("-- declare a module\nmod Example {\n  -- more stuff\n}")
+      ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n}");
   }
 
   public static function exepcted_expression(Source\File $file, Token $found): Error {
