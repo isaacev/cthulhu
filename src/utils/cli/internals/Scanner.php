@@ -30,6 +30,9 @@ class Scanner {
   }
 
   function advance(): ?string {
+    if ($this->is_empty()) {
+      return null;
+    }
     return $this->argv[$this->index++];
   }
 

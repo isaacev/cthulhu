@@ -77,20 +77,14 @@ class ProgramGrammar {
 
   function complete_callback(Lookup $flags, Lookup $args) {
     $parts = $args->get('parts');
-    if (empty($parts)) {
-      echo implode(' ', $this->completions());
-      exit(0);
-    } else {
-      $command_part = $parts[0];
-      foreach ($this->subcommand_grammars as $grammar) {
-        if ($grammar->id === $command_part) {
-          echo implode(' ', $grammar->completions());
-          echo PHP_EOL;
-          exit(0);
-        }
-      }
-      exit(1);
+    $parts = array_slice($parts, 1);
+    $last_part = end($parts);
+    if ($last_part !== '') {
+      array_pop($parts);
     }
+    $scanner = new Scanner($parts);
+    $completions = Completions::find($scanner, $this);
+    echo implode(' ', $completions);
   }
 
   function get_subcommand(string $token): ?SubcommandGrammar {
