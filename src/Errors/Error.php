@@ -5,7 +5,7 @@ namespace Cthulhu\Errors;
 use Cthulhu\Debug;
 use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Source;
-use Cthulhu\utils\fmt\Formatter;
+use Cthulhu\lib\fmt\Formatter;
 
 class Error extends \Exception {
   private $source_file;

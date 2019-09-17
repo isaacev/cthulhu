@@ -7,9 +7,9 @@ use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source\File;
-use Cthulhu\utils\fmt\Background;
-use Cthulhu\utils\fmt\Foreground;
-use Cthulhu\utils\fmt\Formatter;
+use Cthulhu\lib\fmt\Background;
+use Cthulhu\lib\fmt\Foreground;
+use Cthulhu\lib\fmt\Formatter;
 
 class Snippet implements Reportable {
   const LINES_ABOVE = 0;

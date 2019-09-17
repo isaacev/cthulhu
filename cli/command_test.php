@@ -1,9 +1,9 @@
 <?php
 
-use \Cthulhu\utils\cli;
-use \Cthulhu\utils\diff;
-use \Cthulhu\utils\fmt;
-use \Cthulhu\utils\test;
+use \Cthulhu\lib\cli;
+use \Cthulhu\lib\diff;
+use \Cthulhu\lib\fmt;
+use \Cthulhu\lib\test;
 
 function command_test(cli\Lookup $flags, cli\Lookup $args) {
   $is_blessed = $flags->get('bless');

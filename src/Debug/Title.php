@@ -2,8 +2,8 @@
 
 namespace Cthulhu\Debug;
 
-use Cthulhu\utils\fmt\Foreground;
-use Cthulhu\utils\fmt\Formatter;
+use Cthulhu\lib\fmt\Foreground;
+use Cthulhu\lib\fmt\Formatter;
 
 class Title implements Reportable {
   public $title;

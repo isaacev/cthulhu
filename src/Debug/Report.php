@@ -3,7 +3,7 @@
 namespace Cthulhu\Debug;
 
 use Cthulhu\Parser\Lexer\Span;
-use Cthulhu\utils\fmt\Formatter;
+use Cthulhu\lib\fmt\Formatter;
 
 class Report {
   public $sections;

@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Codegen;
 
-use Cthulhu\utils\fmt;
+use Cthulhu\lib\fmt;
 
 class Builder implements Buildable {
   private $frames = [];

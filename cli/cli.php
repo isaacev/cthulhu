@@ -1,6 +1,6 @@
 <?php
 
-use \Cthulhu\utils\cli;
+use \Cthulhu\lib\cli;
 
 require_once __DIR__ . '/command_test.php';
 
@@ -16,7 +16,7 @@ function parse(string $absolute_path): \Cthulhu\AST\File {
     $ast = \Cthulhu\Parser\Parser::file_to_ast($file);
     return $ast;
   } catch (\Cthulhu\Errors\Error $err) {
-    $f = new \Cthulhu\utils\fmt\StreamFormatter(STDERR);
+    $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
     $err->format($f);
     exit(1);
   }
@@ -26,7 +26,7 @@ function check(\Cthulhu\AST\File $ast): \Cthulhu\IR\SourceModule {
   try {
     return \Cthulhu\Analysis\Analyzer::ast_to_module($ast);
   } catch (\Cthulhu\Errors\Error $err) {
-    $f = new \Cthulhu\utils\fmt\StreamFormatter(STDERR);
+    $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
     $err->format($f);
     exit(1);
   }
@@ -37,7 +37,7 @@ function codegen(\Cthulhu\IR\SourceModule $module): \Cthulhu\Codegen\PHP\Program
     $bootstrap = \Cthulhu\Codegen\PHP\Reference::from_symbol($module->scope->to_symbol('main'));
     return \Cthulhu\Codegen\Codegen::generate($module, $bootstrap);
   } catch (\Cthulhu\Errors\Error $err) {
-    $f = new \Cthulhu\utils\fmt\StreamFormatter(STDERR);
+    $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
     $err->format($f);
     exit(1);
   }
@@ -81,7 +81,7 @@ $root->subcommand('compile', 'Convert source code to PHP')
     }
 
     $php = codegen(check(parse($abspath)));
-    $str = $php->build()->write(new \Cthulhu\utils\fmt\StringFormatter());
+    $str = $php->build()->write(new \Cthulhu\lib\fmt\StringFormatter());
     echo $str . PHP_EOL;
   });
 

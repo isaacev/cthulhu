@@ -9,7 +9,7 @@ use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;
-use Cthulhu\utils\fmt\Foreground;
+use Cthulhu\lib\fmt\Foreground;
 
 class Errors {
   public static function expected_item(Source\File $file, Token $found): Error {

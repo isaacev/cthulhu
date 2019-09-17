@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Debug;
 
-use Cthulhu\utils\fmt\Formatter;
+use Cthulhu\lib\fmt\Formatter;
 
 class Paragraph implements Reportable {
   const MAX_LINE_LENGTH = 80 - 4;
