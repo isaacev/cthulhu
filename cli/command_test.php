@@ -72,6 +72,16 @@ function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string 
     ->push_tab_stop(3)
     ->tab()
     ->printf($desc)
+    ->spaces(2)
+    ->printf('( ')
+    ->apply_styles(fmt\Foreground::RED)
+    ->printf('-found')
+    ->reset_styles()
+    ->printf(' / ')
+    ->apply_styles(fmt\Foreground::GREEN)
+    ->printf('+expected')
+    ->reset_styles()
+    ->printf(' )')
     ->newline();
 
   $diff_lines = diff\Diff::lines($expected, $found);
