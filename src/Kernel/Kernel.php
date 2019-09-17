@@ -3,6 +3,7 @@
 namespace Cthulhu\Kernel;
 
 use Cthulhu\Codegen\Builder;
+use Cthulhu\Codegen\PHP;
 use Cthulhu\IR;
 use Cthulhu\Types;
 
@@ -12,25 +13,18 @@ class Kernel {
       self::fn([
         'name' => 'println',
         'signature' => new Types\FnType([ new Types\StrType() ], new Types\VoidType()),
-        'builder' => (new Builder)
-          ->keyword('function')
-          ->space()
-          ->identifier('println')
-          ->paren_left()
-          ->variable('str')
-          ->paren_right()
-          ->brace_left()
-          ->increase_indentation()
-          ->newline_then_indent()
-          ->keyword('echo')
-          ->space()
-          ->variable('str')
-          ->dot()
-          ->string_literal('\n')
-          ->semicolon()
-          ->decrease_indentation()
-          ->newline_then_indent()
-          ->brace_right()
+        'stmt' => function (IR\Symbol $symbol) {
+          $ref = new PHP\Reference([$symbol->name]);
+          $str = new PHP\Variable('str');
+          $params = [ $str ];
+          $body = new PHP\BlockNode([
+            new PHP\EchoStmt(
+              new PHP\BinaryExpr('.',
+                new PHP\VariableExpr($str),
+                new PHP\StrExpr('\\n'))),
+          ]);
+          return new PHP\FuncStmt($ref, $params, $body);
+        },
       ])
     ]);
   }
@@ -41,9 +35,10 @@ class Kernel {
       switch ($item['type']) {
         case 'fn':
           $name = $item['fields']['name'];
+          $symbol = new IR\Symbol($name, null, $module->scope->symbol);
           $signature = $item['fields']['signature'];
-          $builder = $item['fields']['builder'];
-          $module->fn($name, $signature, $builder);
+          $stmt = $item['fields']['stmt']($symbol);
+          $module->fn($symbol, $signature, $stmt);
           break;
       }
     }

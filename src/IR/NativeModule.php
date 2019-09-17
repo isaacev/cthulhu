@@ -2,27 +2,27 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Types;
-use Cthulhu\Codegen\Builder;
 use Cthulhu\Codegen\Buildable;
+use Cthulhu\Codegen\Builder;
+use Cthulhu\Codegen\PHP;
+use Cthulhu\Types;
 
 class NativeModule implements Buildable {
   public $scope;
-  public $builders;
+  public $stmts;
 
   function __construct(string $name) {
     $this->scope = new ModuleScope(null, $name);
-    $this->builders = [];
+    $this->stmts = [];
   }
 
   public function scope(): ModuleScope {
     return $this->scope;
   }
 
-  public function fn(string $name, Types\FnType $signature, Builder $builder): void {
-    $symbol = new Symbol($name, null, $this->scope->symbol);
+  public function fn(Symbol $symbol, Types\FnType $signature, PHP\Stmt $stmt): void {
     $this->scope->add($symbol, $signature);
-    $this->builders[] = $builder;
+    $this->stmts[] = $stmt;
   }
 
   public function build(): Builder {
@@ -34,7 +34,7 @@ class NativeModule implements Buildable {
       ->brace_left()
       ->increase_indentation()
       ->newline_then_indent()
-      ->each($this->builders)
+      ->each($this->stmts)
       ->decrease_indentation()
       ->newline_then_indent()
       ->brace_right();
