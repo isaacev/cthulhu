@@ -5,6 +5,7 @@ namespace Cthulhu\Parser\Lexer;
 abstract class TokenType {
   const ERROR               = 'ERROR';
   const EOF                 = 'EOF';
+  const COMMENT             = 'Comment';
   const LITERAL_NUM         = 'Num';
   const LITERAL_STR         = 'Str';
   const LITERAL_BOOL        = 'Bool';

@@ -15,7 +15,7 @@ class Example implements Reportable {
 
   public function print(Formatter $f): Formatter {
     $file = new Source\File('<example>', $this->example);
-    $all_tokens = Lexer::to_tokens($file, Lexer::MODE_RELAXED);
+    $all_tokens = Lexer::to_tokens($file, Lexer::RELAXED_ERRORS | Lexer::KEEP_COMMENTS);
 
     $f->increment_tab_stop(2)
       ->newline_if_not_already()

@@ -43,7 +43,7 @@ class Snippet implements Reportable {
     $first_focused_line = $focus_from->line;
     $last_focused_line  = $focus_to->line;
 
-    $all_tokens = Lexer::to_tokens($this->file, Lexer::MODE_RELAXED);
+    $all_tokens = Lexer::to_tokens($this->file, Lexer::RELAXED_ERRORS | Lexer::KEEP_COMMENTS);
 
     if (empty($all_tokens)) {
       return (
@@ -201,10 +201,11 @@ class Snippet implements Reportable {
       case TokenType::KEYWORD_USE:
       case TokenType::KEYWORD_MOD:
         return [Foreground::CYAN];
-      case TokenType::IDENT:
-        return [Foreground::DEFAULT];
+      case TokenType::COMMENT:
+      case TokenType::SEMICOLON:
+        return [Foreground::BRIGHT_BLACK];
       default:
-        return [FOREGROUND::BRIGHT_BLACK];
+        return [FOREGROUND::DEFAULT];
     }
   }
 }

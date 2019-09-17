@@ -13,19 +13,23 @@ class Lexer {
   public $scanner;
   private $prev = null;
   private $buffer = null;
-  private $mode;
+  private $settings;
 
-  public const MODE_STRICT  = 1; // Throws error if bad syntax found
-  public const MODE_RELAXED = 2; // Marks error, keeps lexing if bad syntax found
+  public const RELAXED_ERRORS = 0x0001; // Return errors as tokens instead of throwing an error
+  public const KEEP_COMMENTS  = 0x0010; // Return comments as tokens instead of ignoring
 
-  function __construct(Source\File $file, Scanner $scanner, int $mode = self::MODE_STRICT) {
+  function __construct(Source\File $file, Scanner $scanner, int $settings = 0) {
     $this->file = $file;
     $this->scanner = $scanner;
-    $this->mode = $mode;
+    $this->settings = $settings;
   }
 
-  private function is_strict(): bool {
-    return $this->mode === self::MODE_STRICT;
+  private function is_relaxed(): bool {
+    return ($this->settings & self::RELAXED_ERRORS) > 0;
+  }
+
+  private function keep_comments(): bool {
+    return ($this->settings & self::KEEP_COMMENTS) > 0;
   }
 
   /**
@@ -92,7 +96,7 @@ class Lexer {
       case $next->is('+'):
         return $this->next_single_char(TokenType::PLUS, $next);
       case $next->is('-'):
-        return $this->next_single_or_double_char(TokenType::DASH, '>', TokenType::THIN_ARROW, $next);
+        return $this->starts_with_dash($next);
       case $next->is('*'):
         return $this->next_single_char(TokenType::STAR, $next);
       case $next->is('/'):
@@ -112,10 +116,10 @@ class Lexer {
       case $next->is('>'):
         return $this->next_single_or_double_char(TokenType::GREATER_THAN, '=', TokenType::GREATER_THAN_EQ, $next);
       default:
-        if ($this->is_strict()) {
-          throw Errors::unexpected_character($this->file, $next);
-        } else {
+        if ($this->is_relaxed()) {
           return new Token(TokenType::ERROR, $next->point->to_span(), $next->char);
+        } else {
+          throw Errors::unexpected_character($this->file, $next);
         }
     }
   }
@@ -154,12 +158,12 @@ class Lexer {
 
     $last = $this->scanner->next();
     if ($last->is_eof() || $last->is(PHP_EOL)) {
-      if ($this->is_strict()) {
-        $span = $last->point->to_span();
-        throw Errors::unclosed_string($this->file, $span);
-      } else {
+      if ($this->is_relaxed()) {
         $span = new Span($from, $last->point);
         return new Token(TokenType::ERROR, $span, $lexeme);
+      } else {
+        $span = $last->point->to_span();
+        throw Errors::unclosed_string($this->file, $span);
       }
     }
 
@@ -203,6 +207,36 @@ class Lexer {
     return new Token($type, $span, $start->char);
   }
 
+  private function starts_with_dash(Character $start): Token {
+    $peek = $this->scanner->peek();
+    if ($peek->is('>')) {
+      $span = new Span($start->point, $this->scanner->next()->point->next());
+      return new Token(TokenType::THIN_ARROW, $span, '->');
+    } else if ($peek->is('-')) {
+      $lexeme = '-';
+      while ($peek = $this->scanner->peek()) {
+        if ($peek->is_eof() || $peek->is(PHP_EOL)) {
+          break;
+        }
+
+        $next = $this->scanner->next();
+        $lexeme .= $next->char;
+        $to = $next->point;
+      }
+
+      $span = new Span($start->point, $to->next());
+
+      if ($this->keep_comments()) {
+        return new Token(TokenType::COMMENT, $span, $lexeme);
+      } else {
+        return $this->read();
+      }
+    } else {
+      $span = new Span($start->point, $start->point->next());
+      return new Token(TokenType::DASH, $span, '-');
+    }
+  }
+
   private function next_single_or_double_char(string $single_type, string $second, string $double_type, Character $start): Token {
     $peek = $this->scanner->peek();
     if ($peek->is($second)) {
@@ -214,8 +248,8 @@ class Lexer {
     }
   }
 
-  public static function to_tokens(Source\File $file, int $mode): array {
-    $lexer = new Lexer($file, Scanner::from_file($file), $mode);
+  public static function to_tokens(Source\File $file, int $settings): array {
+    $lexer = new Lexer($file, Scanner::from_file($file), $settings);
     $tokens = [];
     while ($lexer->peek()->type !== TokenType::EOF) {
       $tokens[] = $lexer->next();
