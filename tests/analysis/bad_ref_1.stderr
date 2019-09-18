@@ -1,0 +1,8 @@
+
+  UNKNOWN VARIABLE  ----------------------------------------------------------
+
+  Referenced `foo` before it was declared.
+
+  2 |   foo();
+    |   ^^^
+

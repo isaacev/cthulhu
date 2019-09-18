@@ -36,13 +36,13 @@ class ModuleScope {
     return array_key_exists($symbol->id, $this->table);
   }
 
-  public function to_symbol(string $name): Symbol {
+  public function to_symbol(string $name): ?Symbol {
     foreach ($this->table as $id => list($symbol, $type)) {
       if ($symbol->name === $name) {
         return $symbol;
       }
     }
-    throw new \Exception("no submodule $name within $this->symbol");
+    return null;
   }
 
   public function lookup(Symbol $symbol) {

@@ -1,0 +1,8 @@
+
+  UNKNOWN MODULE FIELD  ------------------------------------------------------
+
+  The `IO` module doesn't have a field named `doesNotExist`
+
+  4 |   IO::doesNotExist();
+    |       ^^^^^^^^^^^^
+

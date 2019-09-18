@@ -1,0 +1,9 @@
+
+  VALUE REFERENCED AS MODULE  ------------------------------------------------
+
+  The value `IO::println` has the type `Str -> Void` but was referenced as a
+  module:
+
+  4 |   IO::println::extra();
+    |   ^^^^^^^^^^^^^^^^^^
+

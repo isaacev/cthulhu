@@ -141,4 +141,66 @@ class Errors {
         'lines_above' => $if_true_height,
       ]);
   }
+
+  public static function unknown_local_variable(
+    Source\File $file,
+    Span $span,
+    string $name
+  ): Error {
+    $title = 'unknown variable';
+    return (new Error($file, $title, $span))
+      ->paragraph("Referenced `$name` before it was declared.")
+      ->snippet($span);
+  }
+
+  public static function unknown_submodule(
+    Source\File $file,
+    IR\Symbol $parent_module,
+    Span $child_span,
+    string $child_name
+  ): Error {
+    $title = 'unknown module';
+    return (new Error($file, $title, $child_span))
+      ->paragraph("The `$parent_module` module doesn't have a submodule named `$child_name`")
+      ->snippet($child_span);
+  }
+
+  public static function unknown_module_field(
+    Source\File $file,
+    IR\Symbol $parent_module,
+    Span $field_span,
+    string $field_name
+  ): Error {
+    $title = 'unknown module field';
+    return (new Error($file, $title, $field_span))
+      ->paragraph("The `$parent_module` module doesn't have a field named `$field_name`")
+      ->snippet($field_span);
+  }
+
+  public static function value_referenced_as_module(
+    Source\File $file,
+    Span $value_span,
+    IR\Symbol $value_symbol,
+    Types\Type $value_type,
+    Span $submodule_span
+  ): Error {
+    $title = 'value referenced as module';
+    return (new Error($file, $title, $value_span))
+      ->paragraph("The value `$value_symbol` has the type `$value_type` but was referenced as a module:")
+      ->snippet($submodule_span);
+  }
+
+  public static function func_called_with_wrong_num_or_args(
+    Source\File $file,
+    Span $call_site,
+    int $num_args_given,
+    Types\FnType $callee_type
+  ): Error {
+    $title = 'wrong number of arguments';
+    $num_args_expected = count($callee_type->params);
+    $s = $num_args_expected === 1 ? '' : 's';
+    return (new Error($file, $title, $call_site))
+      ->paragraph("The expected $num_args_expected argument${s}, $num_args_given given:")
+      ->snippet($call_site);
+  }
 }

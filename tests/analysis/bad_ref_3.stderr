@@ -1,0 +1,8 @@
+
+  UNKNOWN MODULE  ------------------------------------------------------------
+
+  The `IO` module doesn't have a submodule named `fmt`
+
+  4 |   IO::fmt::println();
+    |       ^^^
+

@@ -1,0 +1,8 @@
+
+  WRONG NUMBER OF ARGUMENTS  -------------------------------------------------
+
+  The expected 1 argument, 0 given:
+
+  4 |   IO::println();
+    |   ^^^^^^^^^^^^^
+

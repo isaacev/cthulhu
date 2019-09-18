@@ -246,7 +246,12 @@ class Analyzer {
     $wanted_num_args = count($callee->type()->params);
     $given_num_args = count($expr->args);
     if ($wanted_num_args !== $given_num_args) {
-      throw new \Exception("wanted $wanted_num_args arguments, was given $given_num_args");
+      throw Errors::func_called_with_wrong_num_or_args(
+        $ctx->file,
+        $expr->span,
+        $given_num_args,
+        $callee->type()
+      );
     } else {
       $args = [];
       for ($i = 0; $i < $wanted_num_args; $i++) {
@@ -268,25 +273,57 @@ class Analyzer {
       // Treat path as a reference to a name within the local scope
       $name = $expr->nth(0)->ident;
       $symbol = $ctx->current_block_scope()->to_symbol($name);
+      if ($symbol === null) {
+        throw Errors::unknown_local_variable($ctx->file, $expr->span, $name);
+      }
       $type = $ctx->current_block_scope()->lookup($symbol);
       return new IR\ReferenceExpr($symbol, $type);
-    } else {
-      // Treat path as a reference to a name within a module
-      $module_segments = array_slice($expr->segments, 0, -1);
-      $module = array_reduce($module_segments, function ($module, $segment) {
-        $symbol = $module->to_symbol($segment->ident);
-        $module_or_type = $module->lookup($symbol);
-        if (($module_or_type instanceof IR\ModuleScope) === false) {
-          throw new \Exception("$symbol has type $module_or_type but was referenced as a module");
-        } else {
-          return $module_or_type;
-        }
-      }, $ctx->current_module_scope());
-      $last_segment = end($expr->segments);
-      $symbol = $module->to_symbol($last_segment->ident);
-      $type = $module->lookup($symbol);
-      return new IR\ReferenceExpr($symbol, $type);
     }
+
+    // Treat path as a reference to a name within a module
+    $module_segments = array_slice($expr->segments, 0, -1);
+    $value_segment = end($expr->segments);
+
+    // Get the reference to the last module in the path
+    $current_module = $ctx->current_module_scope();
+    foreach ($module_segments as $index => $module_segment) {
+      $module_symbol = $current_module->to_symbol($module_segment->ident);
+      if ($module_symbol === null) {
+        throw Errors::unknown_submodule(
+          $ctx->file,
+          $current_module->symbol,
+          $module_segment->span,
+          $module_segment->ident
+        );
+      }
+
+      $lookup_result = $current_module->lookup($module_symbol);
+      if ($lookup_result instanceof IR\ModuleScope) {
+        $current_module = $lookup_result;
+        continue;
+      }
+
+      $next_segment = $expr->segments[$index + 1];
+      throw Errors::value_referenced_as_module(
+        $ctx->file,
+        $expr->span->extended_to($module_segment->span),
+        $module_symbol,
+        $lookup_result,
+        $expr->span->extended_to($next_segment->span)
+      );
+    }
+
+    $value_symbol = $current_module->to_symbol($value_segment->ident);
+    if ($value_symbol === null) {
+      throw Errors::unknown_module_field(
+        $ctx->file,
+        $current_module->symbol,
+        $value_segment->span,
+        $value_segment->ident
+      );
+    }
+    $type = $current_module->lookup($value_symbol);
+    return new IR\ReferenceExpr($value_symbol, $type);
   }
 
   private static function str_expr(Context $ctx, AST\StrExpr $expr): IR\StrExpr {
