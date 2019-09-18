@@ -61,6 +61,8 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     ->printf('total  %d', $stats['total'])->newline()
     ->printf('passed %d', $stats['passed'])->newline()
     ->printf('failed %d', $stats['failed'])->newline();
+
+  exit(empty($failed_results) ? 0 : 1);
 }
 
 function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string $found) {
