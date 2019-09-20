@@ -80,6 +80,7 @@ class Lexer {
       case $next->is('"'):
         return $this->next_str($next);
       case $next->is_letter():
+      case $next->is('_'):
         return $this->next_word($next);
       case $next->is('{'):
         return $this->next_single_char(TokenType::BRACE_LEFT, $next);
@@ -179,7 +180,13 @@ class Lexer {
     $to = $start->point;
 
     while ($peek = $this->scanner->peek()) {
-      if ($peek->is_letter() === false) {
+      $peek_char_is_allowed = (
+        $peek->is_letter() ||
+        $peek->is_digit() ||
+        $peek->is('_')
+      );
+
+      if ($peek_char_is_allowed === false) {
         break;
       }
 
