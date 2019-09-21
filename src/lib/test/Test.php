@@ -52,10 +52,8 @@ class Test {
     try {
       $file   = new Source\File($this->name, $this->input);
       $ast    = Parser\Parser::file_to_ast($file);
-      $mod    = Analysis\Analyzer::ast_to_module($ast);
-      $sym    = $mod->scope->to_symbol('main');
-      $ref    = Codegen\PHP\Reference::from_symbol($sym);
-      $php    = Codegen\Codegen::generate($mod, $ref);
+      $prog   = Analysis\Analyzer::ast_to_program($ast);
+      $php    = Codegen\Codegen::generate($prog);
       $stdout = $php->build()->write(new fmt\StringFormatter());
       return new TestOutput($stdout, '');
     } catch (Errors\Error $err) {

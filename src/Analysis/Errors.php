@@ -14,6 +14,16 @@ use Cthulhu\Types;
 use Cthulhu\Types\Type;
 
 class Errors {
+  public static function no_entry_point(Source\File $file): Error {
+    $title = 'no main function';
+    return (new Error($file, $title, (new Point)->to_span()))
+      ->paragraph(
+        "Without a main function the program won't run.",
+        "A main function can be as simple as the following:"
+      )
+      ->example("fn main() -> Void {\n  -- more code here\n}");
+  }
+
   public static function unknown_named_type(AST\NamedAnnotation $note): Error {
     // TODO
   }

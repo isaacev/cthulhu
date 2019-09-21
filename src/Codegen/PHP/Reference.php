@@ -7,15 +7,6 @@ use Cthulhu\Codegen\Builder;
 use Cthulhu\IR;
 
 class Reference implements Buildable {
-  public static function from_symbol(IR\Symbol $symbol): Reference {
-    $segments = [];
-    while ($symbol !== null) {
-      $segments[] = $symbol->name;
-      $symbol = $symbol->parent;
-    }
-    return new Reference(array_reverse($segments));
-  }
-
   public $segments;
 
   function __construct(array $segments) {

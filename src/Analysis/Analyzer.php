@@ -7,6 +7,19 @@ use Cthulhu\IR;
 use Cthulhu\Types;
 
 class Analyzer {
+  public static function ast_to_program(AST\File $file): IR\Program {
+    $root_module = self::ast_to_module($file);
+
+    // Check if the root module has a `main` function
+    foreach ($root_module->items as $item) {
+      if ($item instanceof IR\FnItem && $item->symbol->name === 'main') {
+        return new IR\Program($root_module, $item->symbol);
+      }
+    }
+
+    throw Errors::no_entry_point($file->file);
+  }
+
   public static function ast_to_module(AST\File $file): IR\SourceModule {
     $ctx = new Context($file->file);
     $items = [];

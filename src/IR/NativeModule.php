@@ -5,9 +5,10 @@ namespace Cthulhu\IR;
 use Cthulhu\Codegen\Buildable;
 use Cthulhu\Codegen\Builder;
 use Cthulhu\Codegen\PHP;
+use Cthulhu\Codegen\Renamer;
 use Cthulhu\Types;
 
-class NativeModule implements Buildable {
+class NativeModule {
   public $scope;
   public $stmts;
 
@@ -20,21 +21,26 @@ class NativeModule implements Buildable {
     return $this->scope;
   }
 
-  public function fn(Symbol $symbol, Types\FnType $signature, PHP\Stmt $stmt): void {
+  public function fn(Symbol $symbol, Types\FnType $signature, callable $callable): void {
     $this->scope->add($symbol, $signature);
-    $this->stmts[] = $stmt;
+    $this->stmts[] = [$symbol, $callable];
   }
 
-  public function build(): Builder {
+  public function build(Renamer $renamer): Builder {
+    $stmts = [];
+    foreach ($this->stmts as list($symbol, $callable)) {
+      $stmts[] = $callable($renamer, $symbol);
+    }
+
     return (new Builder)
       ->keyword('namespace')
       ->space()
-      ->identifier($this->scope->symbol->name)
+      ->identifier($renamer->resolve($this->scope->symbol))
       ->space()
       ->brace_left()
       ->increase_indentation()
       ->newline_then_indent()
-      ->each($this->stmts)
+      ->each($stmts)
       ->decrease_indentation()
       ->newline_then_indent()
       ->brace_right();

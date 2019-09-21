@@ -5,11 +5,14 @@ namespace Cthulhu\Codegen;
 class Context {
   public $namespaces;
   public $block_stack;
+  public $renamer;
 
   function __construct() {
     $this->namespaces = [];
     $this->namespace_stack = [];
     $this->block_stack = [];
+    $this->renamer = new Renamer();
+    $this->renamer->push_scope(new PHP\NamespaceScope(null));
   }
 
   function push_namespace(PHP\Reference $name) {

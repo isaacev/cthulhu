@@ -22,9 +22,9 @@ function parse(string $absolute_path): \Cthulhu\AST\File {
   }
 }
 
-function check(\Cthulhu\AST\File $ast): \Cthulhu\IR\SourceModule {
+function check(\Cthulhu\AST\File $ast): \Cthulhu\IR\Program {
   try {
-    return \Cthulhu\Analysis\Analyzer::ast_to_module($ast);
+    return \Cthulhu\Analysis\Analyzer::ast_to_program($ast);
   } catch (\Cthulhu\Errors\Error $err) {
     $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
     $err->format($f);
@@ -32,10 +32,9 @@ function check(\Cthulhu\AST\File $ast): \Cthulhu\IR\SourceModule {
   }
 }
 
-function codegen(\Cthulhu\IR\SourceModule $module): \Cthulhu\Codegen\PHP\Program {
+function codegen(\Cthulhu\IR\Program $prog): \Cthulhu\Codegen\PHP\Program {
   try {
-    $bootstrap = \Cthulhu\Codegen\PHP\Reference::from_symbol($module->scope->to_symbol('main'));
-    return \Cthulhu\Codegen\Codegen::generate($module, $bootstrap);
+    return \Cthulhu\Codegen\Codegen::generate($prog);
   } catch (\Cthulhu\Errors\Error $err) {
     $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
     $err->format($f);

@@ -5,18 +5,22 @@ namespace Cthulhu\Codegen;
 use Cthulhu\IR;
 
 class Codegen {
-  public static function generate(IR\SourceModule $module, PHP\Reference $main_fn): PHP\Program {
+  public static function generate(IR\Program $prog): PHP\Program {
     $ctx = new Context();
 
-    $builtins = array_map(function ($native_module) {
-      return new PHP\Builtin($native_module->build());
-    }, $module->builtins);
+    $builtins = [];
+    foreach ($prog->root_module->builtins as $native_module) {
+      $builtins[] = new PHP\Builtin($native_module->build($ctx->renamer));
+    }
 
-    $ctx->push_namespace(PHP\Reference::from_symbol($module->scope->symbol));
-    self::items($ctx, $module->items);
+    $ctx->push_namespace($ctx->renamer->get_reference($prog->root_module->scope->symbol));
+    $ctx->renamer->push_scope(new PHP\NamespaceScope($ctx->renamer->current_scope()));
+    self::items($ctx, $prog->root_module->items);
+    $main_ref = $ctx->renamer->get_reference($prog->entry_point);
     $ctx->pop_namespace();
+    $ctx->renamer->pop_scope();
 
-    return new PHP\Program($builtins, $ctx->namespaces, $main_fn);
+    return new PHP\Program($builtins, $ctx->namespaces, $main_ref);
   }
 
   private static function items(Context $ctx, array $items): void {
@@ -50,14 +54,16 @@ class Codegen {
   }
 
   private static function fn_item(Context $ctx, IR\FnItem $item): void {
-    $fn_name = new PHP\Reference([ $item->symbol->name ]);
+    $fn_name = new PHP\Reference([ $ctx->renamer->resolve($item->symbol) ]);
 
+    $ctx->renamer->push_scope(new PHP\FunctionScope($ctx->renamer->current_scope()));
     $params = [];
     foreach ($item->param_symbols as $param_symbol) {
-      $params[] = new PHP\Variable($param_symbol->name);
+      $params[] = $ctx->renamer->get_variable($param_symbol);
     }
 
     $body = self::block($ctx, $item->body);
+    $ctx->renamer->pop_scope();
     $ctx->push_stmt_to_namespace(new PHP\FuncStmt($fn_name, $params, $body));
   }
 
@@ -105,9 +111,9 @@ class Codegen {
   }
 
   private static function assign_stmt(Context $ctx, IR\AssignStmt $stmt): void {
-    $variable = new PHP\Variable($stmt->symbol->name);
+    $var = $ctx->renamer->get_variable($stmt->symbol);
     $expr = self::expr($ctx, $stmt->expr);
-    $ctx->push_stmt_to_block(new PHP\AssignStmt($variable, $expr));
+    $ctx->push_stmt_to_block(new PHP\AssignStmt($var, $expr));
   }
 
   private static function return_stmt(Context $ctx, IR\ReturnStmt $stmt): void {
@@ -139,7 +145,7 @@ class Codegen {
   }
 
   private static function if_expr(Context $ctx, IR\IfExpr $expr): PHP\Expr {
-    $variable = new PHP\Variable('var' . rand(0, 1000));
+    $variable = $ctx->renamer->allocate_variable('var');
     $cond = self::expr($ctx, $expr->condition);
     $if_true = self::block_with_trailing_assignment($ctx, $expr->if_block, $variable);
     $if_false = $expr->else_block
@@ -159,11 +165,9 @@ class Codegen {
 
   private static function reference_expr(Context $ctx, IR\ReferenceExpr $expr): PHP\Expr {
     if ($expr->symbol->parent === null) {
-      $variable = new PHP\Variable($expr->symbol->name);
-      return new PHP\VariableExpr($variable);
+      return new PHP\VariableExpr($ctx->renamer->get_variable($expr->symbol));
     } else {
-      $reference = PHP\Reference::from_symbol($expr->symbol);
-      return new PHP\ReferenceExpr($reference);
+      return new PHP\ReferenceExpr($ctx->renamer->get_reference($expr->symbol));
     }
   }
 
