@@ -40,7 +40,9 @@ class BinaryExpr extends Expr {
   public function build(): Builder {
     return (new Builder)
       ->expr($this->left, $this->precedence())
+      ->space()
       ->operator($this->operator)
+      ->space()
       ->expr($this->right, $this->precedence());
   }
 

@@ -17,14 +17,20 @@ class IfStmt extends Stmt {
 
   public function build(): Builder {
     $else_block = $this->else_block
-      ? (new Builder)->keyword('else')->then($this->else_block)
+      ? (new Builder)
+        ->space()
+        ->keyword('else')
+        ->space()
+        ->then($this->else_block)
       : (new Builder);
 
     return (new Builder)
       ->keyword('if')
+      ->space()
       ->paren_left()
       ->expr($this->cond)
       ->paren_right()
+      ->space()
       ->then($this->if_block)
       ->then($else_block);
   }

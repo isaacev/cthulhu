@@ -23,6 +23,7 @@ class FuncStmt extends Stmt {
       ->paren_left()
       ->each($this->params, (new Builder)->comma())
       ->paren_right()
+      ->space()
       ->then($this->body);
   }
 

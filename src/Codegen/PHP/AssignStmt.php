@@ -16,7 +16,9 @@ class AssignStmt extends Stmt {
   public function build(): Builder {
     return (new Builder)
       ->then($this->assignee)
+      ->space()
       ->equals()
+      ->space()
       ->expr($this->expr)
       ->semicolon();
   }

@@ -21,7 +21,9 @@ class CallExpr extends Expr {
     return (new Builder)
       ->expr($this->callee, $this->precedence())
       ->paren_left()
-      ->each($this->args, (new Builder)->comma())
+      ->each($this->args, (new Builder)
+        ->comma()
+        ->space())
       ->paren_right();
   }
 
