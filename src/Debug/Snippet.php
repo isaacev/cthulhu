@@ -49,7 +49,7 @@ class Snippet implements Reportable {
       return (
         $f->newline_if_not_already()
           ->tab()
-          ->printf('empty program'));
+          ->print('empty program'));
     }
 
     $first_visible_line_num = max(
@@ -134,7 +134,7 @@ class Snippet implements Reportable {
         $has_styles = !empty($styles);
         $f->spaces($token->span->from->column - $col)
           ->apply_styles_if($has_styles, ...$styles)
-          ->printf($token->lexeme)
+          ->print($token->lexeme)
           ->reset_styles_if($has_styles);
         $col = $token->span->to->column;
       }
@@ -169,7 +169,8 @@ class Snippet implements Reportable {
         // If this line contains the end of the focused region and if the note
         // includes a message, print that message after the underline.
         if ($line_num === $last_focused_line && $this->message) {
-          $f->printf(" %s", $this->message);
+          $f->space()
+            ->print($this->message);
         }
 
         $f->reset_styles();

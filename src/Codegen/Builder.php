@@ -17,7 +17,7 @@ class Builder implements Buildable {
 
   private function push_str(string $str): self {
     return $this->push_frame(function (fmt\Formatter $f) use ($str) {
-      $f->printf('%s', $str);
+      $f->print($str);
     });
   }
 

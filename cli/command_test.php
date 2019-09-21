@@ -26,19 +26,19 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     if ($result instanceof test\TestPassed || $is_blessed) {
       $stats['passed']++;
       $f->apply_styles(fmt\Foreground::GREEN)
-        ->printf("✓")
+        ->print("✓")
         ->reset_styles()
         ->space()
-        ->printf($test->name)
+        ->print($test->name)
         ->newline();
     } else {
       $stats['failed']++;
       $failed_results[] = $result;
       $f->apply_styles(fmt\Foreground::RED)
-        ->printf("✗")
+        ->print("✗")
         ->reset_styles()
         ->space()
-        ->printf($test->name)
+        ->print($test->name)
         ->newline();
     }
   }
@@ -73,17 +73,17 @@ function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string 
   $f->newline()
     ->push_tab_stop(3)
     ->tab()
-    ->printf($desc)
+    ->print($desc)
     ->spaces(2)
-    ->printf('( ')
+    ->print('( ')
     ->apply_styles(fmt\Foreground::RED)
-    ->printf('-found')
+    ->print('-found')
     ->reset_styles()
-    ->printf(' / ')
+    ->print(' / ')
     ->apply_styles(fmt\Foreground::GREEN)
-    ->printf('+expected')
+    ->print('+expected')
     ->reset_styles()
-    ->printf(' )')
+    ->print(' )')
     ->newline();
 
   $diff_lines = diff\Diff::lines($expected, $found);
@@ -91,22 +91,22 @@ function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string 
     if ($diff_line instanceof diff\DeleteLine) {
       $f->tab()
         ->apply_styles(fmt\Foreground::RED)
-        ->printf('- ')
-        ->printf($diff_line->text())
+        ->print('- ')
+        ->print($diff_line->text())
         ->reset_styles()
         ->newline();
     } else if ($diff_line instanceof diff\InsertLine) {
       $f->tab()
         ->apply_styles(fmt\Foreground::GREEN)
-        ->printf('+ ')
-        ->printf($diff_line->text())
+        ->print('+ ')
+        ->print($diff_line->text())
         ->reset_styles()
         ->newline();
     } else {
       $f->tab()
         ->apply_styles(fmt\Foreground::WHITE)
-        ->printf('. ')
-        ->printf($diff_line->text())
+        ->print('. ')
+        ->print($diff_line->text())
         ->reset_styles()
         ->newline();
     }

@@ -39,7 +39,7 @@ class Example implements Reportable {
 
       $f->spaces($total_spaces)
         ->apply_styles_if($has_styles, ...$styles)
-        ->printf($token->lexeme)
+        ->print($token->lexeme)
         ->reset_styles_if($has_styles);
     }
 

@@ -170,6 +170,14 @@ abstract class Formatter {
   }
 
   /**
+   * Write a string literal.
+   */
+  public function print(string $str): self {
+    $this->write_text($str);
+    return $this;
+  }
+
+  /**
    * Write a formatted string using the same syntax as PHP's `sprintf`.
    */
   public function printf(string $format, ...$args): self {
@@ -233,7 +241,7 @@ abstract class Formatter {
 
       // Always write at least 1 word per line, even if the word is longer
       // than the maximum line length.
-      $this->printf($word);
+      $this->print($word);
 
       while ($index < $count) {
         // Don't increment the `$index` yet because this word could be too long
@@ -260,7 +268,7 @@ abstract class Formatter {
         $index++;
         $this
           ->space()
-          ->printf($word);
+          ->print($word);
       }
     }
     return $this;

@@ -16,7 +16,7 @@ class Helper {
     $f->push_tab_stop(self::COLUMN_SPACER);
     foreach ($pairs as $pair) {
       $f->tab()
-        ->printf('%s', $pair->full_name())
+        ->print($pair->full_name())
         ->increment_tab_stop($max_width + self::COLUMN_SPACER)
         ->tab()
         ->text_wrap($pair->description())
@@ -40,10 +40,10 @@ class Helper {
   }
 
   static function usage(Formatter $f, string ...$segments): void {
-    $f->printf('USAGE:')
+    $f->print('USAGE:')
       ->newline()
       ->tab_to(self::COLUMN_SPACER)
-      ->printf('%s', implode(' ', $segments))
+      ->print(implode(' ', $segments))
       ->newline();
   }
 }

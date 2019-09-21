@@ -17,7 +17,7 @@ class Title implements Reportable {
       $f->newline_if_not_already()
         ->tab()
         ->apply_styles(Foreground::RED)
-        ->printf(strtoupper($this->title))
+        ->print(strtoupper($this->title))
         ->spaces(2)
         ->fill_line('-', 2)
         ->reset_styles());
