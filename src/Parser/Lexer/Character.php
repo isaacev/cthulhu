@@ -2,11 +2,13 @@
 
 namespace Cthulhu\Parser\Lexer;
 
+use Cthulhu\Source;
+
 class Character {
   public $char;
   public $point;
 
-  function __construct(string $char, Point $point) {
+  function __construct(string $char, Source\Point $point) {
     $this->char = $char;
     $this->point = $point;
   }

@@ -7,8 +7,6 @@ use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\Debug\Report;
 use Cthulhu\Errors\Error;
 use Cthulhu\IR;
-use Cthulhu\Parser\Lexer\Span;
-use Cthulhu\Parser\Lexer\Point;
 use Cthulhu\Source;
 use Cthulhu\Types;
 use Cthulhu\Types\Type;
@@ -16,7 +14,7 @@ use Cthulhu\Types\Type;
 class Errors {
   public static function no_entry_point(Source\File $file): Error {
     $title = 'no main function';
-    return (new Error($file, $title, (new Point)->to_span()))
+    return (new Error($file, $title, (new Source\Point)->to_span()))
       ->paragraph(
         "Without a main function the program won't run.",
         "A main function can be as simple as the following:"
@@ -30,9 +28,9 @@ class Errors {
 
   public static function incorrect_return_type(
     Source\File $file,
-    Span $found_span,
+    Source\Span $found_span,
     Type $found_type,
-    Span $wanted_span,
+    Source\Span $wanted_span,
     Type $wanted_type,
     ?IR\Node $last_stmt = null
   ): Error {
@@ -55,11 +53,11 @@ class Errors {
 
   public static function function_returns_nothing(
     Source\File $file,
-    Span $block_span,
-    Span $wanted_span,
+    Source\Span $block_span,
+    Source\Span $wanted_span,
     Type $wanted_type,
     ?IR\Node $last_stmt = null,
-    ?Span $last_semi = null
+    ?Source\Span $last_semi = null
   ): Error {
     $title = 'incorrect return type';
     $wanted_line = $wanted_span->from->line;
@@ -91,7 +89,7 @@ class Errors {
 
   public static function condition_not_bool(
     Source\File $file,
-    Span $found_span,
+    Source\Span $found_span,
     Type $found_type
   ): Error {
     $title = 'non-boolean condition';
@@ -104,9 +102,9 @@ class Errors {
 
   public static function incompatible_if_and_else_types(
     Source\File $file,
-    Span $if_true_span,
+    Source\Span $if_true_span,
     Type $if_true_type,
-    Span $if_false_span,
+    Source\Span $if_false_span,
     Type $if_false_type
   ): Error {
     $title = 'incompatible if and else types';
@@ -126,9 +124,9 @@ class Errors {
 
   public static function if_block_incompatible_with_void(
     Source\File $file,
-    Span $if_true_span,
+    Source\Span $if_true_span,
     Type $if_true_type,
-    Span $if_true_block_span
+    Source\Span $if_true_block_span
   ): Error {
     $title = 'if expression missing an else clause';
     $if_true_line = $if_true_span->from->line;
@@ -154,7 +152,7 @@ class Errors {
 
   public static function unknown_local_variable(
     Source\File $file,
-    Span $span,
+    Source\Span $span,
     string $name
   ): Error {
     $title = 'unknown variable';
@@ -166,7 +164,7 @@ class Errors {
   public static function unknown_submodule(
     Source\File $file,
     IR\Symbol $parent_module,
-    Span $child_span,
+    Source\Span $child_span,
     string $child_name
   ): Error {
     $title = 'unknown module';
@@ -178,7 +176,7 @@ class Errors {
   public static function unknown_module_field(
     Source\File $file,
     IR\Symbol $parent_module,
-    Span $field_span,
+    Source\Span $field_span,
     string $field_name
   ): Error {
     $title = 'unknown module field';
@@ -189,10 +187,10 @@ class Errors {
 
   public static function value_referenced_as_module(
     Source\File $file,
-    Span $value_span,
+    Source\Span $value_span,
     IR\Symbol $value_symbol,
     Types\Type $value_type,
-    Span $submodule_span
+    Source\Span $submodule_span
   ): Error {
     $title = 'value referenced as module';
     return (new Error($file, $title, $value_span))
@@ -202,7 +200,7 @@ class Errors {
 
   public static function func_called_with_wrong_num_or_args(
     Source\File $file,
-    Span $call_site,
+    Source\Span $call_site,
     int $num_args_given,
     Types\FnType $callee_type
   ): Error {

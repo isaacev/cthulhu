@@ -2,13 +2,13 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class LetStmt extends Stmt {
   public $name;
   public $expr;
 
-  function __construct(Span $span, IdentNode $name, Expr $expr) {
+  function __construct(Source\Span $span, IdentNode $name, Expr $expr) {
     parent::__construct($span);
     $this->name = $name;
     $this->expr = $expr;

@@ -3,7 +3,7 @@
 namespace Cthulhu\Debug;
 
 use Cthulhu\Parser\Lexer\Lexer;
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source\File;
@@ -21,7 +21,7 @@ class Snippet implements Reportable {
   public $message;
   public $options;
 
-  function __construct(File $file, Span $location, ?string $message = null, array $options = []) {
+  function __construct(File $file, Source\Span $location, ?string $message = null, array $options = []) {
     $this->file = $file;
     $this->location = $location;
     $this->message = $message;

@@ -5,7 +5,6 @@ namespace Cthulhu\Analysis;
 use Cthulhu\AST;
 use Cthulhu\IR;
 use Cthulhu\Kernel\Kernel;
-use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Source;
 use Cthulhu\Types;
 

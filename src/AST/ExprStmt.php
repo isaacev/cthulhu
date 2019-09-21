@@ -2,8 +2,6 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
-
 class ExprStmt extends Stmt {
   public $expr;
 

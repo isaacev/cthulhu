@@ -2,7 +2,7 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class FnItem extends Item {
   public $name;
@@ -10,7 +10,7 @@ class FnItem extends Item {
   public $returns;
   public $body;
 
-  function __construct(Span $span, IdentNode $name, array $params, Annotation $returns, BlockNode $body) {
+  function __construct(Source\Span $span, IdentNode $name, array $params, Annotation $returns, BlockNode $body) {
     parent::__construct($span);
     $this->name = $name;
     $this->params = $params;

@@ -140,7 +140,7 @@ class Lexer {
       $to = $next->point;
     }
 
-    $span = new Span($from, $to->next());
+    $span = new Source\Span($from, $to->next());
     return new Token(TokenType::LITERAL_NUM, $span, $lexeme);
   }
 
@@ -160,7 +160,7 @@ class Lexer {
     $last = $this->scanner->next();
     if ($last->is_eof() || $last->is(PHP_EOL)) {
       if ($this->is_relaxed()) {
-        $span = new Span($from, $last->point);
+        $span = new Source\Span($from, $last->point);
         return new Token(TokenType::ERROR, $span, $lexeme);
       } else {
         $span = $last->point->to_span();
@@ -170,7 +170,7 @@ class Lexer {
 
     $lexeme .= $last->char;
     $to = $last->point;
-    $span = new Span($from, $to->next());
+    $span = new Source\Span($from, $to->next());
     return new Token(TokenType::LITERAL_STR, $span, $lexeme);
   }
 
@@ -195,7 +195,7 @@ class Lexer {
       $to = $next->point;
     }
 
-    $span = new Span($from, $to->next());
+    $span = new Source\Span($from, $to->next());
     switch ($lexeme) {
       case 'let':     return new Token(TokenType::KEYWORD_LET, $span, 'let');
       case 'if':      return new Token(TokenType::KEYWORD_IF, $span, 'if');
@@ -210,14 +210,14 @@ class Lexer {
   }
 
   private function next_single_char(string $type, Character $start): Token {
-    $span = new Span($start->point, $start->point->next());
+    $span = new Source\Span($start->point, $start->point->next());
     return new Token($type, $span, $start->char);
   }
 
   private function starts_with_dash(Character $start): Token {
     $peek = $this->scanner->peek();
     if ($peek->is('>')) {
-      $span = new Span($start->point, $this->scanner->next()->point->next());
+      $span = new Source\Span($start->point, $this->scanner->next()->point->next());
       return new Token(TokenType::THIN_ARROW, $span, '->');
     } else if ($peek->is('-')) {
       $lexeme = '-';
@@ -231,7 +231,7 @@ class Lexer {
         $to = $next->point;
       }
 
-      $span = new Span($start->point, $to->next());
+      $span = new Source\Span($start->point, $to->next());
 
       if ($this->keep_comments()) {
         return new Token(TokenType::COMMENT, $span, $lexeme);
@@ -239,7 +239,7 @@ class Lexer {
         return $this->read();
       }
     } else {
-      $span = new Span($start->point, $start->point->next());
+      $span = new Source\Span($start->point, $start->point->next());
       return new Token(TokenType::DASH, $span, '-');
     }
   }
@@ -247,10 +247,10 @@ class Lexer {
   private function next_single_or_double_char(string $single_type, string $second, string $double_type, Character $start): Token {
     $peek = $this->scanner->peek();
     if ($peek->is($second)) {
-      $span = new Span($start->point, $this->scanner->next()->point->next());
+      $span = new Source\Span($start->point, $this->scanner->next()->point->next());
       return new Token($double_type, $span, $start->char . $peek->char);
     } else {
-      $span = new Span($start->point, $start->point->next());
+      $span = new Source\Span($start->point, $start->point->next());
       return new Token($single_type, $span, $start->char);
     }
   }

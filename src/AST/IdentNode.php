@@ -2,7 +2,7 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 use Cthulhu\Parser\Lexer\Token;
 
 class IdentNode extends Node {
@@ -12,7 +12,7 @@ class IdentNode extends Node {
 
   public $ident;
 
-  function __construct(Span $span, string $ident) {
+  function __construct(Source\Span $span, string $ident) {
     parent::__construct($span);
     $this->ident = $ident;
   }

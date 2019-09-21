@@ -2,13 +2,13 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class CallExpr extends Expr {
   public $callee;
   public $args;
 
-  function __construct(Span $span, Expr $callee, array $args) {
+  function __construct(Source\Span $span, Expr $callee, array $args) {
     parent::__construct($span);
     $this->callee = $callee;
     $this->args = $args;

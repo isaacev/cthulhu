@@ -2,10 +2,10 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class ModItem extends Item {
-  function __construct(Span $span, IdentNode $name, array $items) {
+  function __construct(Source\Span $span, IdentNode $name, array $items) {
     parent::__construct($span);
     // TODO
   }

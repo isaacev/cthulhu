@@ -3,7 +3,6 @@
 namespace Cthulhu\Errors;
 
 use Cthulhu\Debug;
-use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Source;
 use Cthulhu\lib\fmt\Formatter;
 
@@ -13,7 +12,7 @@ class Error extends \Exception {
   private $location;
   private $report;
 
-  function __construct(Source\File $source_file, string $title, Span $location) {
+  function __construct(Source\File $source_file, string $title, Source\Span $location) {
     parent::__construct("$title at $location->from");
     $this->source_file = $source_file;
     $this->title = $title;
@@ -23,7 +22,7 @@ class Error extends \Exception {
     );
   }
 
-  public function snippet(Span $location, ?string $message = null, array $options = []): self {
+  public function snippet(Source\Span $location, ?string $message = null, array $options = []): self {
     $this->report->append(new Debug\Snippet($this->source_file, $location, $message, $options));
     return $this;
   }

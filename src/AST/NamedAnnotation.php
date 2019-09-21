@@ -2,12 +2,12 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class NamedAnnotation extends Annotation {
   public $name;
 
-  function __construct(Span $span, string $name) {
+  function __construct(Source\Span $span, string $name) {
     parent::__construct($span);
     $this->name = $name;
   }

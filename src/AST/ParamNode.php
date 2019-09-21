@@ -2,13 +2,13 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class ParamNode extends Node {
   public $name;
   public $note;
 
-  function __construct(Span $span, IdentNode $name, Annotation $note) {
+  function __construct(Source\Span $span, IdentNode $name, Annotation $note) {
     parent::__construct($span);
     $this->name = $name;
     $this->note = $note;

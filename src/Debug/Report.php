@@ -2,7 +2,7 @@
 
 namespace Cthulhu\Debug;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 use Cthulhu\lib\fmt\Formatter;
 
 class Report {

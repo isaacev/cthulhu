@@ -17,7 +17,7 @@ class Errors {
         ->snippet($char->point->to_span());
   }
 
-  public static function unclosed_string(Source\File $file, Span $location): Error {
+  public static function unclosed_string(Source\File $file, Source\Span $location): Error {
     $title = 'unclosed string';
     return (new Error($file, $title, $location))
       ->paragraph(

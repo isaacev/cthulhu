@@ -5,7 +5,6 @@ namespace Cthulhu\Parser;
 use Cthulhu\Debug;
 use Cthulhu\Debug\Report;
 use Cthulhu\Errors\Error;
-use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;

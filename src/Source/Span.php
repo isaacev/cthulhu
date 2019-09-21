@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\Parser\Lexer;
+namespace Cthulhu\Source;
 
 class Span {
   public $from;

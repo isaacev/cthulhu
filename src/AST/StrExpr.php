@@ -2,13 +2,13 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class StrExpr extends Expr {
   public $value;
   public $raw;
 
-  function __construct(Span $span, string $value, string $raw) {
+  function __construct(Source\Span $span, string $value, string $raw) {
     parent::__construct($span);
     $this->value = $value;
     $this->raw = $raw;

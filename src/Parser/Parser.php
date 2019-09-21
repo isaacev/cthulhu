@@ -4,8 +4,6 @@ namespace Cthulhu\Parser;
 
 use Cthulhu\AST;
 use Cthulhu\Parser\Lexer\Lexer;
-use Cthulhu\Parser\Lexer\Point;
-use Cthulhu\Parser\Lexer\Span;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;
@@ -92,7 +90,7 @@ class Parser {
         $param_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
         $this->next(TokenType::COLON);
         $param_note = $this->type_annotation();
-        $param_span = new Span($param_name->from(), $param_note->to());
+        $param_span = new Source\Span($param_name->from(), $param_note->to());
         $params[] = new AST\ParamNode($param_span, $param_name, $param_note);
 
         if ($this->lexer->peek()->type === TokenType::COMMA) {

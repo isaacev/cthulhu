@@ -2,12 +2,12 @@
 
 namespace Cthulhu\AST;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class BlockNode extends Node {
   public $stmts;
 
-  function __construct(Span $span, array $stmts) {
+  function __construct(Source\Span $span, array $stmts) {
     parent::__construct($span);
     $this->stmts = $stmts;
   }

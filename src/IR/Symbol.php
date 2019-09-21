@@ -2,7 +2,7 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Parser\Lexer\Span;
+use Cthulhu\Source;
 
 class Symbol implements \JsonSerializable {
   private static $next_uid = 1;
@@ -12,7 +12,7 @@ class Symbol implements \JsonSerializable {
   public $origin;
   public $parent;
 
-  function __construct(string $name, ?Span $origin, ?self $parent = null) {
+  function __construct(string $name, ?Source\Span $origin, ?self $parent = null) {
     $this->id = strval(self::$next_uid++);
     $this->name = $name;
     $this->origin = $origin;
