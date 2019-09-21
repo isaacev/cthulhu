@@ -1,5 +1,7 @@
 <?php
 
+ini_set('display_errors', 'stderr');
+
 use \Cthulhu\lib\cli;
 
 require_once __DIR__ . '/command_test.php';
