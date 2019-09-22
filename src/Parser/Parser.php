@@ -90,7 +90,7 @@ class Parser {
         $param_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
         $this->next(TokenType::COLON);
         $param_note = $this->type_annotation();
-        $param_span = new Source\Span($param_name->from(), $param_note->to());
+        $param_span = new Source\Span($param_name->span->from, $param_note->span->to);
         $params[] = new AST\ParamNode($param_span, $param_name, $param_note);
 
         if ($this->lexer->peek()->type === TokenType::COMMA) {
