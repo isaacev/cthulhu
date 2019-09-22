@@ -164,7 +164,7 @@ class Parser {
       $semi = $this->semicolon();
       return new AST\SemiStmt($expr, $semi);
     } else {
-      return new AST\ExprSTmt($expr);
+      return new AST\ExprStmt($expr);
     }
   }
 
