@@ -4,8 +4,6 @@ ini_set('display_errors', 'stderr');
 
 use \Cthulhu\lib\cli;
 
-require_once __DIR__ . '/command_test.php';
-
 function parse(string $absolute_path): \Cthulhu\AST\File {
   $contents = @file_get_contents($absolute_path);
   if ($contents === false) {
@@ -72,20 +70,12 @@ $root->subcommand('check', 'Check that a source file is free of errors')
     echo "no errors in $abspath\n";
   });
 
+require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
   ->single_argument('file', 'Path to the source file')
-  ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
-    $abspath = realpath($args->get('file'));
-    if ($abspath === false) {
-      fwrite(STDERR, sprintf("cannot find file: `%s`\n", $args->get('file')));
-      exit(1);
-    }
+  ->callback('command_compile');
 
-    $php = codegen(check(parse($abspath)));
-    $str = $php->build()->write(new \Cthulhu\lib\fmt\StringFormatter());
-    echo $str . PHP_EOL;
-  });
-
+require_once __DIR__ . '/command_test.php';
 $root->subcommand('test', 'Run all of the available tests')
   ->bool_flag('bless', 'Update any stdout/stderr files for failing tests')
   ->callback('command_test');
