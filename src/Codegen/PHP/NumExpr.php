@@ -11,6 +11,13 @@ class NumExpr extends Expr {
     $this->value = $value;
   }
 
+  public function visit(array $table): void {
+    parent::visit($table);
+    if (array_key_exists('NumExpr', $table)) {
+      $table['NumExpr']($this);
+    }
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->int_literal($this->value);

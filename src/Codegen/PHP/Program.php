@@ -4,7 +4,7 @@ namespace Cthulhu\Codegen\PHP;
 
 use Cthulhu\Codegen\{ Buildable, Builder };
 
-class Program implements Buildable {
+class Program extends Node {
   public $builtins;
   public $modules;
   public $main_fn;
@@ -13,6 +13,16 @@ class Program implements Buildable {
     $this->builtins = $builtins;
     $this->modules = $modules;
     $this->main_fn = $main_fn;
+  }
+
+  public function visit(array $table): void {
+    parent::visit($table);
+    if (array_key_exists('Program', $table)) {
+      $table['Program']($this);
+    }
+
+    foreach ($this->builtins as $builtin) { $builtin->visit($table); }
+    foreach ($this->modules as $namespace) { $namespace->visit($table); }
   }
 
   public function build(): Builder {

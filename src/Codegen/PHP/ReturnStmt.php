@@ -11,6 +11,15 @@ class ReturnStmt extends Stmt {
     $this->expr = $expr;
   }
 
+  public function visit(array $table): void {
+    parent::visit($table);
+    if (array_key_exists('ReturnStmt', $table)) {
+      $table['ReturnStmt']($this);
+    }
+
+    $this->expr->visit($table);
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->keyword('return')

@@ -15,6 +15,15 @@ class FuncStmt extends Stmt {
     $this->body = $body;
   }
 
+  public function visit(array $table): void {
+    parent::visit($table);
+    if (array_key_exists('FuncStmt', $table)) {
+      $table['FuncStmt']($this);
+    }
+
+    $this->body->visit($table);
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->keyword('function')

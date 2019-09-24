@@ -11,6 +11,15 @@ class BlockNode extends Node {
     $this->stmts = $stmts;
   }
 
+  public function visit(array $table): void {
+    parent::visit($table);
+    if (array_key_exists('Block', $table)) {
+      $table['Block']($this);
+    }
+
+    foreach ($this->stmts as $stmt) { $stmt->visit($table); }
+  }
+
   public function is_empty(): bool {
     return count($this->stmts) === 0;
   }
