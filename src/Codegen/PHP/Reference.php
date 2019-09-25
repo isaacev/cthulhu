@@ -7,9 +7,11 @@ use Cthulhu\Codegen\Builder;
 use Cthulhu\IR;
 
 class Reference implements Buildable {
+  public $symbol;
   public $segments;
 
-  function __construct(array $segments) {
+  function __construct(IR\Symbol $symbol, array $segments) {
+    $this->symbol = $symbol;
     $this->segments = $segments;
   }
 

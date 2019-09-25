@@ -15,7 +15,7 @@ class Kernel {
         'name' => 'println',
         'signature' => new Types\FnType([ new Types\StrType() ], new Types\VoidType()),
         'stmt' => function (Renamer $renamer, IR\Symbol $symbol) {
-          $ref = new PHP\Reference([ $renamer->resolve($symbol) ]);
+          $ref = new PHP\Reference($symbol, [ $renamer->resolve($symbol) ]);
           $str = $renamer->allocate_variable('str');
           $params = [ $str ];
           $body = new PHP\BlockNode([

@@ -22,11 +22,12 @@ class Renamer {
 
   public function get_reference(IR\Symbol $symbol): PHP\Reference {
     $segments = [];
-    while ($symbol !== null) {
-      $segments[] = $this->resolve($symbol);
-      $symbol = $symbol->parent;
+    $sym = $symbol;
+    while ($sym !== null) {
+      $segments[] = $this->resolve($sym);
+      $sym = $sym->parent;
     }
-    return new PHP\Reference(array_reverse($segments));
+    return new PHP\Reference($symbol, array_reverse($segments));
   }
 
   public function get_variable(IR\Symbol $symbol): PHP\Variable {
