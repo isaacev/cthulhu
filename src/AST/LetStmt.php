@@ -8,8 +8,8 @@ class LetStmt extends Stmt {
   public $name;
   public $expr;
 
-  function __construct(Source\Span $span, IdentNode $name, Expr $expr) {
-    parent::__construct($span);
+  function __construct(Source\Span $span, IdentNode $name, Expr $expr, array $attrs) {
+    parent::__construct($span, $attrs);
     $this->name = $name;
     $this->expr = $expr;
   }

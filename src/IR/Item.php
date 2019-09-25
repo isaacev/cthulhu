@@ -3,5 +3,9 @@
 namespace Cthulhu\IR;
 
 abstract class Item extends Node {
-  // empty
+  public $attrs;
+
+  function __construct(array $attrs) {
+    $this->attrs = $attrs;
+  }
 }

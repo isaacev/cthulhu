@@ -82,6 +82,8 @@ class Lexer {
       case $next->is_letter():
       case $next->is('_'):
         return $this->next_word($next);
+      case $next->is('#'):
+        return $this->next_single_char(TokenType::POUND, $next);
       case $next->is('{'):
         return $this->next_single_char(TokenType::BRACE_LEFT, $next);
       case $next->is('}'):

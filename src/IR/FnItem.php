@@ -11,7 +11,8 @@ class FnItem extends Item {
   public $scope;
   public $body;
 
-  function __construct(Symbol $symbol, array $param_symbols, FnType $signature, BlockScope $scope, BlockNode $body) {
+  function __construct(Symbol $symbol, array $param_symbols, FnType $signature, BlockScope $scope, BlockNode $body, array $attrs) {
+    parent::__construct($attrs);
     $this->symbol = $symbol;
     $this->param_symbols = $param_symbols;
     $this->signature = $signature;

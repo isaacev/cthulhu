@@ -5,8 +5,8 @@ namespace Cthulhu\AST;
 class ExprStmt extends Stmt {
   public $expr;
 
-  function __construct(Expr $expr) {
-    parent::__construct($expr->span);
+  function __construct(Expr $expr, array $attrs) {
+    parent::__construct($expr->span, $attrs);
     $this->expr = $expr;
   }
 

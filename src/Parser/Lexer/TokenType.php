@@ -16,6 +16,7 @@ abstract class TokenType {
   const KEYWORD_FN          = 'Fn';
   const KEYWORD_USE         = 'Use';
   const KEYWORD_MOD         = 'Mod';
+  const POUND               = '#';
   const BRACE_LEFT          = '{';
   const BRACE_RIGHT         = '}';
   const BRACKET_LEFT        = '[';

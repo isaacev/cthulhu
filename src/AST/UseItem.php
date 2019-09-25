@@ -7,8 +7,8 @@ use Cthulhu\Source;
 class UseItem extends Item {
   public $name;
 
-  function __construct(Source\Span $span, IdentNode $name) {
-    parent::__construct($span);
+  function __construct(Source\Span $span, IdentNode $name, array $attrs) {
+    parent::__construct($span, $attrs);
     $this->name = $name;
   }
 

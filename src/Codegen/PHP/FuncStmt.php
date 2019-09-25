@@ -8,11 +8,13 @@ class FuncStmt extends Stmt {
   public $name;
   public $params;
   public $body;
+  public $attrs;
 
-  function __construct(Reference $name, array $params, BlockNode $body) {
+  function __construct(Reference $name, array $params, BlockNode $body, array $attrs = []) {
     $this->name = $name;
     $this->params = $params;
     $this->body = $body;
+    $this->attrs = $attrs;
   }
 
   public function visit(array $table): void {

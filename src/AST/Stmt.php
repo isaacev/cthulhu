@@ -2,6 +2,13 @@
 
 namespace Cthulhu\AST;
 
+use Cthulhu\Source;
+
 abstract class Stmt extends Node {
-  // TODO
+  public $attrs;
+
+  function __construct(Source\Span $span, array $attrs) {
+    parent::__construct($span);
+    $this->attrs = $attrs;
+  }
 }

@@ -1,5 +1,5 @@
 use IO;
 
 fn main() -> Void {
-  let x = #123;
+  let x = %123;
 };

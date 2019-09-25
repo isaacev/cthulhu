@@ -46,7 +46,7 @@ class Analyzer {
     $name = $item->name->ident;
     $remote_scope = $ctx->resolve_module_scope($name);
     $ctx->current_module_scope()->add($remote_scope->symbol, $remote_scope);
-    return new IR\UseItem($remote_scope->symbol);
+    return new IR\UseItem($remote_scope->symbol, $item->attrs);
   }
 
   private static function mod_item(Context $ctx, AST\ModItem $item): IR\ModItem {
@@ -107,7 +107,7 @@ class Analyzer {
       throw Errors::function_returns_nothing($ctx->file, $block_span, $wanted_span, $wanted_type, $last_stmt, $last_semi);
     }
 
-    return new IR\FnItem($symbol, $param_symbols, $type, $ctx->pop_block_scope(), $body);
+    return new IR\FnItem($symbol, $param_symbols, $type, $ctx->pop_block_scope(), $body, $item->attrs);
   }
 
   private static function block(Context $ctx, AST\BlockNode $block): IR\BlockNode {

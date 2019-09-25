@@ -5,8 +5,8 @@ namespace Cthulhu\AST;
 use Cthulhu\Source;
 
 class ModItem extends Item {
-  function __construct(Source\Span $span, IdentNode $name, array $items) {
-    parent::__construct($span);
+  function __construct(Source\Span $span, IdentNode $name, array $items, array $attrs) {
+    parent::__construct($span, $attrs);
     // TODO
   }
 

@@ -55,31 +55,50 @@ class Parser {
   }
 
   private function item(): AST\Item {
+    $attrs = $this->attributes();
+
     switch ($this->lexer->peek()->type) {
       case TokenType::KEYWORD_USE:
-        return $this->use_item();
+        return $this->use_item($attrs);
       case TokenType::KEYWORD_MOD:
-        return $this->mod_item();
+        return $this->mod_item($attrs);
       case TokenType::KEYWORD_FN:
-        return $this->fn_item();
+        return $this->fn_item($attrs);
       default:
         throw Errors::expected_item($this->file, $this->lexer->next());
     }
   }
 
-  private function use_item(): AST\UseItem {
+  private function attributes(): array {
+    $attrs = [];
+    while ($this->lexer->peek()->type === TokenType::POUND) {
+      $attrs[] = $this->attribute();
+    }
+    return $attrs;
+  }
+
+  private function attribute(): AST\Attribute {
+    $pound         = $this->next(TokenType::POUND);
+    $bracket_left  = $this->next(TokenType::BRACKET_LEFT);
+    $name          = $this->next(TokenType::IDENT)->lexeme;
+    $bracket_right = $this->next(TokenType::BRACKET_RIGHT);
+    $span          = $pound->span->extended_to($bracket_right->span);
+    return new AST\Attribute($span, $name);
+  }
+
+  private function use_item(array $attrs): AST\UseItem {
     $keyword = $this->next(TokenType::KEYWORD_USE);
     $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
-    return new AST\UseItem($span, $name);
+    return new AST\UseItem($span, $name, $attrs);
   }
 
   private function mod_item(): AST\ModItem {
     // TODO
   }
 
-  private function fn_item(): AST\FnItem {
+  private function fn_item(array $attrs): AST\FnItem {
     $fn_keyword = $this->next(TokenType::KEYWORD_FN);
     $fn_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
     $this->next(TokenType::PAREN_LEFT);
@@ -107,7 +126,7 @@ class Parser {
     $returns = $this->type_annotation();
     $body = $this->block();
     $fn_span = $fn_keyword->span->extended_to($body->span);
-    return new AST\FnItem($fn_span, $fn_name, $params, $returns, $body);
+    return new AST\FnItem($fn_span, $fn_name, $params, $returns, $body, $attrs);
   }
 
   /**
@@ -140,31 +159,33 @@ class Parser {
   }
 
   private function stmt(): AST\Stmt {
+    $attrs = $this->attributes();
+
     switch ($this->lexer->peek()->type) {
       case TokenType::KEYWORD_LET:
-        return $this->let_stmt();
+        return $this->let_stmt($attrs);
       default:
-        return $this->expr_stmt();
+        return $this->expr_stmt($attrs);
     }
   }
 
-  private function let_stmt(): AST\LetStmt {
+  private function let_stmt(array $attrs): AST\LetStmt {
     $keyword = $this->next(TokenType::KEYWORD_LET);
     $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
     $this->next(TokenType::EQUALS);
     $expr = $this->expr();
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
-    return new AST\LetStmt($span, $name, $expr);
+    return new AST\LetStmt($span, $name, $expr, $attrs);
   }
 
-  private function expr_stmt(): AST\Stmt {
+  private function expr_stmt(array $attrs): AST\Stmt {
     $expr = $this->expr();
     if ($this->lexer->peek()->type === TokenType::SEMICOLON) {
       $semi = $this->semicolon();
-      return new AST\SemiStmt($expr, $semi);
+      return new AST\SemiStmt($expr, $semi, $attrs);
     } else {
-      return new AST\ExprStmt($expr);
+      return new AST\ExprStmt($expr, $attrs);
     }
   }
 
