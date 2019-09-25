@@ -8,9 +8,9 @@ class Codegen {
   public static function generate(IR\Program $prog): PHP\Program {
     $ctx = new Context();
 
-    $builtins = [];
+    $builtin_namespaces = [];
     foreach ($prog->root_module->builtins as $native_module) {
-      $builtins[] = new PHP\Builtin($native_module->build($ctx->renamer));
+      $builtin_namespaces[] = $native_module->codegen($ctx->renamer);
     }
 
     $ctx->push_namespace($ctx->renamer->get_reference($prog->root_module->scope->symbol));
@@ -20,7 +20,7 @@ class Codegen {
     $ctx->pop_namespace();
     $ctx->renamer->pop_scope();
 
-    return new PHP\Program($builtins, $ctx->namespaces, $main_ref);
+    return new PHP\Program($builtin_namespaces, $ctx->namespaces, $main_ref);
   }
 
   private static function items(Context $ctx, array $items): void {
@@ -54,7 +54,7 @@ class Codegen {
   }
 
   private static function fn_item(Context $ctx, IR\FnItem $item): void {
-    $fn_name = new PHP\Reference([ $ctx->renamer->resolve($item->symbol) ]);
+    $fn_name = new PHP\Reference($item->symbol, [ $ctx->renamer->resolve($item->symbol) ]);
 
     $ctx->renamer->push_scope(new PHP\FunctionScope($ctx->renamer->current_scope()));
     $params = [];

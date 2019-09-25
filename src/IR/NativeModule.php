@@ -26,23 +26,13 @@ class NativeModule {
     $this->stmts[] = [$symbol, $callable];
   }
 
-  public function build(Renamer $renamer): Builder {
-    $stmts = [];
+  public function codegen(Renamer $renamer): PHP\NamespaceNode {
+    $ref = $renamer->get_reference($this->scope->symbol);
+    $stmt_nodes = [];
     foreach ($this->stmts as list($symbol, $callable)) {
-      $stmts[] = $callable($renamer, $symbol);
+      $stmt_nodes[] = $callable($renamer, $symbol);
     }
-
-    return (new Builder)
-      ->keyword('namespace')
-      ->space()
-      ->identifier($renamer->resolve($this->scope->symbol))
-      ->space()
-      ->brace_left()
-      ->increase_indentation()
-      ->newline_then_indent()
-      ->each($stmts)
-      ->decrease_indentation()
-      ->newline_then_indent()
-      ->brace_right();
+    $block = new PHP\BlockNode($stmt_nodes);
+    return new PHP\NamespaceNode($ref, $block);
   }
 }
