@@ -5,12 +5,10 @@ namespace Cthulhu\Codegen\PHP;
 use Cthulhu\Codegen\{ Buildable, Builder };
 
 class Program extends Node {
-  public $builtins;
   public $modules;
   public $main_fn;
 
-  function __construct(array $builtins, array $modules, Reference $main_fn) {
-    $this->builtins = $builtins;
+  function __construct(array $modules, Reference $main_fn) {
     $this->modules = $modules;
     $this->main_fn = $main_fn;
   }
@@ -21,22 +19,15 @@ class Program extends Node {
       $table['Program']($this);
     }
 
-    foreach ($this->builtins as $builtin) { $builtin->visit($table); }
     foreach ($this->modules as $namespace) { $namespace->visit($table); }
   }
 
   public function build(): Builder {
     return (new Builder)
       ->opening_php_tag()
-      ->newline()
-      ->comment('builtin modules')
-      ->newline()
-      ->each($this->builtins)
-      ->newline()
-      ->newline()
-      ->comment('user modules')
-      ->newline()
-      ->each($this->modules)
+      ->each($this->modules, (new Builder)
+        ->newline()
+        ->newline())
       ->newline()
       ->newline()
       ->comment('call to main function')

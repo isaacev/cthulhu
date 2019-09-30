@@ -20,7 +20,7 @@ class Codegen {
     $ctx->pop_namespace();
     $ctx->renamer->pop_scope();
 
-    return new PHP\Program($builtin_namespaces, $ctx->namespaces, $main_ref);
+    return new PHP\Program(array_merge($builtin_namespaces, $ctx->namespaces), $main_ref);
   }
 
   private static function items(Context $ctx, array $items): void {
