@@ -26,7 +26,15 @@ class FuncStmt extends Stmt {
   }
 
   public function build(): Builder {
+    $commented_attrs = [];
+    foreach ($this->attrs as $name => $value) {
+      $commented_attrs[] = (new Builder)
+        ->comment('#[' . $name . ']')
+        ->newline_then_indent();
+    }
+
     return (new Builder)
+      ->each($commented_attrs)
       ->keyword('function')
       ->space()
       ->then($this->name)
