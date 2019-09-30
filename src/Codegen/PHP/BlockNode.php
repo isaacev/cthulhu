@@ -23,6 +23,10 @@ class BlockNode extends Node {
     return new self($nodes);
   }
 
+  public function length(): int {
+    return count($this->stmts);
+  }
+
   public function build(): Builder {
     $is_empty = (new Builder)
       ->comment('empty');

@@ -11,6 +11,11 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
   }
 
   $php = codegen(check(parse($abspath)));
+
+  if ($flags->get('inline')) {
+    $php = \Cthulhu\Codegen\Optimizations\Inline::apply($php);
+  }
+
   $str = $php->build()->write(new fmt\StringFormatter());
   echo $str . PHP_EOL;
 }

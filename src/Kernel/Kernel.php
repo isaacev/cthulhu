@@ -24,7 +24,7 @@ class Kernel {
                 new PHP\VariableExpr($str),
                 new PHP\StrExpr('\\n'))),
           ]);
-          return new PHP\FuncStmt($ref, $params, $body);
+          return new PHP\FuncStmt($ref, $params, $body, ['inline' => true]);
         },
       ])
     ]);
