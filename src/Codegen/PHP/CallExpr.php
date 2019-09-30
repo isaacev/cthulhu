@@ -13,16 +13,6 @@ class CallExpr extends Expr {
     $this->args = $args;
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('CallExpr', $table)) {
-      $table['CallExpr']($this);
-    }
-
-    $this->callee->visit($table);
-    foreach ($this->args as $arg) { $arg->visit($table); }
-  }
-
   public function precedence(): int {
     return 40;
   }

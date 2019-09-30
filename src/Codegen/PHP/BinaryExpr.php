@@ -19,16 +19,6 @@ class BinaryExpr extends Expr {
     $this->right = $right;
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('BinaryExpr', $table)) {
-      $table['BinaryExpr']($this);
-    }
-
-    $this->left->visit($table);
-    $this->right->visit($table);
-  }
-
   public function precedence(): int {
     switch ($this->operator) {
       case '<':

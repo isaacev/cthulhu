@@ -15,17 +15,6 @@ class IfStmt extends Stmt {
     $this->else_block = $else_block;
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('IfStmt', $table)) {
-      $table['IfStmt']($this);
-    }
-
-    $this->cond->visit($table);
-    $this->if_block->visit($table);
-    $this->else_block && $this->else_block->visit($table);
-  }
-
   public function build(): Builder {
     $else_block = $this->else_block
       ? (new Builder)

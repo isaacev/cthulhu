@@ -10,13 +10,6 @@ class NullLiteral extends Expr {
       ->null_literal();
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('NullLiteral', $table)) {
-      $table['NullLiteral']($this);
-    }
-  }
-
   public function jsonSerialize() {
     return [
       'type' => 'NullLiteral'

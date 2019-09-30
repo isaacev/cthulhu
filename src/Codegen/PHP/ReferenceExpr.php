@@ -11,13 +11,6 @@ class ReferenceExpr extends Expr {
     $this->reference = $reference;
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('ReferenceExpr', $table)) {
-      $table['ReferenceExpr']($this);
-    }
-  }
-
   public function build(): Builder {
     return (new Builder)
       ->backslash()

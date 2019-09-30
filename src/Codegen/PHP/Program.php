@@ -13,15 +13,6 @@ class Program extends Node {
     $this->main_fn = $main_fn;
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('Program', $table)) {
-      $table['Program']($this);
-    }
-
-    foreach ($this->modules as $namespace) { $namespace->visit($table); }
-  }
-
   public function build(): Builder {
     return (new Builder)
       ->opening_php_tag()

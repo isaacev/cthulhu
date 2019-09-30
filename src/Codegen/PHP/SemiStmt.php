@@ -11,15 +11,6 @@ class SemiStmt extends Stmt {
     $this->expr = $expr;
   }
 
-  public function visit(array $table): void {
-    parent::visit($table);
-    if (array_key_exists('SemiStmt', $table)) {
-      $table['SemiStmt']($this);
-    }
-
-    $this->expr->visit($table);
-  }
-
   public function build(): Builder {
     return (new Builder)
       ->expr($this->expr)
