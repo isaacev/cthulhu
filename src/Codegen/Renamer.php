@@ -31,7 +31,7 @@ class Renamer {
   }
 
   public function get_variable(IR\Symbol $symbol): PHP\Variable {
-    return new PHP\Variable($this->resolve($symbol));
+    return new PHP\Variable($symbol, $this->resolve($symbol));
   }
 
   public function allocate_variable(string $initial_name): PHP\Variable {
