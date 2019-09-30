@@ -23,14 +23,15 @@ class Path {
   }
 
   function walk(Table $table): void {
-    $table->apply($this);
+    $table->preorder($this);
     foreach ($this->node->to_children() as $child_node) {
       (new Path($this, $child_node))->walk($table);
     }
+    $table->postorder($this);
   }
 
   function edit(Table $table) {
-    $table->apply($this);
+    $table->preorder($this);
     if ($this->has_changed()) {
       return $this->replacement;
     }
@@ -49,9 +50,12 @@ class Path {
 
     if ($this->has_changed()) {
       return $this->replacement;
-    } else {
-      return $this->node->from_children($new_children);
     }
+
+    $table->postorder($this);
+    return $this->has_changed()
+      ? $this->replacement
+      : $this->node->from_children($new_children);
   }
 }
 
