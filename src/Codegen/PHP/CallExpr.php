@@ -13,6 +13,14 @@ class CallExpr extends Expr {
     $this->args = $args;
   }
 
+  public function to_children(): array {
+    return array_merge([ $this->callee ], $this->args);
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($nodes[0], array_slice($nodes, 1));
+  }
+
   public function precedence(): int {
     return 40;
   }

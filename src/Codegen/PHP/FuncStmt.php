@@ -17,6 +17,14 @@ class FuncStmt extends Stmt {
     $this->attrs = $attrs;
   }
 
+  public function to_children(): array {
+    return [ $this->body ];
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($this->name, $this->params, $nodes[0], $this->attrs);
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->keyword('function')

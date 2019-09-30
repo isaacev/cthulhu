@@ -13,6 +13,14 @@ class NamespaceNode extends Node {
     $this->block = $block;
   }
 
+  public function to_children(): array {
+    return [ $this->block ];
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($this->name, $nodes[0]);
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->keyword('namespace')

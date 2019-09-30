@@ -11,6 +11,14 @@ class SemiStmt extends Stmt {
     $this->expr = $expr;
   }
 
+  public function to_children(): array {
+    return [ $this->expr ];
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($nodes[0]);
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->expr($this->expr)

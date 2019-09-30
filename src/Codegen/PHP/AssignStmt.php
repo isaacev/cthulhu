@@ -13,6 +13,14 @@ class AssignStmt extends Stmt {
     $this->expr = $expr;
   }
 
+  public function to_children(): array {
+    return [ $this->expr ];
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($this->assignee, $nodes[0]);
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->then($this->assignee)

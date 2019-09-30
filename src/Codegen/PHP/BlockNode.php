@@ -15,6 +15,14 @@ class BlockNode extends Node {
     return count($this->stmts) === 0;
   }
 
+  public function to_children(): array {
+    return $this->stmts;
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($nodes);
+  }
+
   public function build(): Builder {
     $is_empty = (new Builder)
       ->comment('empty');

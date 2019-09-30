@@ -15,6 +15,26 @@ class IfStmt extends Stmt {
     $this->else_block = $else_block;
   }
 
+  public function to_children(): array {
+    if ($this->else_block) {
+      return [
+        $this->cond,
+        $this->if_block,
+        $this->else_block
+      ];
+    } else {
+      return [
+        $this->cond,
+        $this->if_block
+      ];
+    }
+  }
+
+  public function from_children(array $nodes): Node {
+    $else_block = count($nodes) >= 3 ? $nodes[2] : null;
+    return new self($nodes[0], $nodes[1], $else_block);
+  }
+
   public function build(): Builder {
     $else_block = $this->else_block
       ? (new Builder)

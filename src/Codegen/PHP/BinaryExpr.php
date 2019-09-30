@@ -19,6 +19,14 @@ class BinaryExpr extends Expr {
     $this->right = $right;
   }
 
+  public function to_children(): array {
+    return [ $this->left, $this->right ];
+  }
+
+  public function from_children(array $nodes): Node {
+    return new self($this->operator, $nodes[0], $nodes[1]);
+  }
+
   public function precedence(): int {
     switch ($this->operator) {
       case '<':
