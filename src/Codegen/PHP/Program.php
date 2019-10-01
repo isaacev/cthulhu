@@ -24,12 +24,11 @@ class Program extends Node {
   public function build(): Builder {
     return (new Builder)
       ->opening_php_tag()
+      ->newline()
       ->each($this->modules, (new Builder)
         ->newline()
         ->newline())
       ->newline()
-      ->newline()
-      ->comment('call to main function')
       ->newline()
       ->keyword('namespace')
       ->space()
