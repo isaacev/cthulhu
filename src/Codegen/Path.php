@@ -17,6 +17,10 @@ class Path {
     return $this->has_changed;
   }
 
+  function rebuild(PHP\Node $new_node): Path {
+    return new Path($this->parent, $new_node);
+  }
+
   function replace_with(PHP\Node $replacement): void {
     $this->has_changed = true;
     $this->replacement = $replacement;
@@ -38,7 +42,7 @@ class Path {
 
     $new_children = [];
     foreach ($this->node->to_children() as $child_node) {
-      if ($this->node instanceof PHP\BlockNode) {
+      if ($this->node instanceof PHP\BlockNode || $this->node instanceof PHP\Program) {
         $new_children = array_merge(
           $new_children,
           (new StmtPath($this, $child_node))->edit($table)
@@ -52,14 +56,20 @@ class Path {
       return $this->replacement;
     }
 
-    $table->postorder($this);
-    return $this->has_changed()
-      ? $this->replacement
-      : $this->node->from_children($new_children);
+    $new_node = $this->node->from_children($new_children);
+    $new_path = $this->rebuild($new_node);
+    $table->postorder($new_path);
+    return $new_path->has_changed()
+      ? $new_path->replacement
+      : $new_node;
   }
 }
 
 class StmtPath extends Path {
+  function rebuild(PHP\Node $new_node): Path {
+    return new StmtPath($this->parent, $new_node);
+  }
+
   function replace_with(PHP\Node $replacement): void {
     $this->has_changed = true;
     $this->replacement = [$replacement];

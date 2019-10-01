@@ -20,6 +20,10 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
     $php = \Cthulhu\Codegen\Optimizations\ConstFolding::apply($php);
   }
 
+  if ($flags->get('tree-shake')) {
+    $php = \Cthulhu\Codegen\Optimizations\TreeShaking::apply($php);
+  }
+
   $str = $php->build()->write(new fmt\StringFormatter());
   echo $str . PHP_EOL;
 }
