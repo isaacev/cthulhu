@@ -11,6 +11,8 @@ class NumExpr extends Expr {
     $this->value = $value;
   }
 
+  use Traits\Atomic;
+
   public function build(): Builder {
     return (new Builder)
       ->int_literal($this->value);

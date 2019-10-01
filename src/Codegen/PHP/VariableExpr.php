@@ -11,6 +11,8 @@ class VariableExpr extends Expr {
     $this->variable = $variable;
   }
 
+  use Traits\Atomic;
+
   public function build(): Builder {
     return (new Builder)
       ->then($this->variable);

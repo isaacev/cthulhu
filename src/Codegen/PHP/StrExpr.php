@@ -11,6 +11,8 @@ class StrExpr extends Expr {
     $this->value = $value;
   }
 
+  use Traits\Atomic;
+
   public function build(): Builder {
     return (new Builder)
       ->string_literal($this->value);

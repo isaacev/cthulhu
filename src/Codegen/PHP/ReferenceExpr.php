@@ -11,6 +11,8 @@ class ReferenceExpr extends Expr {
     $this->reference = $reference;
   }
 
+  use Traits\Atomic;
+
   public function build(): Builder {
     return (new Builder)
       ->backslash()

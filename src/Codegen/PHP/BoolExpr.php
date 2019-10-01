@@ -11,6 +11,8 @@ class BoolExpr extends Expr {
     $this->value = $value;
   }
 
+  use Traits\Atomic;
+
   public function build(): Builder {
     return (new Builder)
       ->bool_literal($this->value);
