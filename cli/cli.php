@@ -73,6 +73,7 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
   ->bool_flag('inline', 'Optimize program by inlining some function calls')
+  ->bool_flag('fold', 'Perform basic constant folding')
   ->single_argument('file', 'Path to the source file')
   ->callback('command_compile');
 
