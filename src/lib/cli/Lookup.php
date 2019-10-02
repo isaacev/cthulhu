@@ -8,6 +8,14 @@ class Lookup {
   }
 
   function get(string $id, $fallback = null) {
+    if (array_key_exists($id, $this->table) && !empty($this->table[$id])) {
+      return end($this->table[$id]);
+    } else {
+      return $fallback;
+    }
+  }
+
+  function get_all(string $id, $fallback = null) {
     if (array_key_exists($id, $this->table)) {
       return $this->table[$id];
     } else {
@@ -18,7 +26,11 @@ class Lookup {
   static function from_flat_array(array $list): self {
     $table = [];
     foreach ($list as $flag) {
-      $table[$flag->id] = $flag->value;
+      if (\array_key_exists($flag->id, $table)) {
+        $table[$flag->id][] = $flag->value;
+      } else {
+        $table[$flag->id] = [ $flag->value ];
+      }
     }
     return new self($table);
   }
