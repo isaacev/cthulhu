@@ -21,12 +21,14 @@ class ProgramGrammar {
 
     $this->flags_grammar->add(new ShortCircuitFlagGrammar(
       'help',
+      'h',
       'Show this message',
       [$this, 'print_help']
     ));
 
     $this->flags_grammar->add(new ShortCircuitFlagGrammar(
       'version',
+      'v',
       'Show version number',
       [$this, 'print_version']
     ));

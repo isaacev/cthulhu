@@ -5,17 +5,27 @@ namespace Cthulhu\lib\cli\internals;
 class StrFlagGrammar extends FlagGrammar {
   public $pattern;
 
-  function __construct(string $id, string $description, ?array $pattern) {
-    parent::__construct($id, $description);
+  function __construct(string $id, ?string $short, string $description, ?array $pattern) {
+    parent::__construct($id, $short, $description);
     $this->pattern = $pattern;
   }
 
   function completions(): array {
-    return [ "--$this->id" ];
+    if ($this->has_short_form()) {
+      return [
+        "-$this->short",
+        "--$this->id"
+      ];
+    } else {
+      return [ "--$this->id" ];
+    }
   }
 
   function matches(string $token): bool {
-    return $token === $this->id;
+    return (
+      $token === $this->id ||
+      $token === $this->short
+    );
   }
 
   function parse(string $token, Scanner $scanner): FlagResult {
@@ -36,9 +46,5 @@ class StrFlagGrammar extends FlagGrammar {
     }
 
     return new FlagResult($this->id, $value);
-  }
-
-  function full_name(): string {
-    return "--$this->id";
   }
 }

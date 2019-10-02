@@ -23,6 +23,7 @@ class SubcommandGrammar implements Describeable {
 
     $this->add_flag(new ShortCircuitFlagGrammar(
       'help',
+      'h',
       'Show this message',
       [$this, 'print_help']
     ));

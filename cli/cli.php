@@ -72,15 +72,15 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
-  ->bool_flag('inline', 'Optimize program by inlining some function calls')
-  ->bool_flag('fold', 'Perform basic constant folding')
-  ->bool_flag('tree-shake', 'Perform tree shaking to remove uncalled functions')
+  ->bool_flag('--inline', 'Optimize program by inlining some function calls')
+  ->bool_flag('--fold', 'Perform basic constant folding')
+  ->bool_flag('--tree-shake', 'Perform tree shaking to remove uncalled functions')
   ->single_argument('file', 'Path to the source file')
   ->callback('command_compile');
 
 require_once __DIR__ . '/command_test.php';
 $root->subcommand('test', 'Run all of the available tests')
-  ->bool_flag('bless', 'Update any stdout/stderr files for failing tests')
+  ->bool_flag('--bless', 'Update any stdout/stderr files for failing tests')
   ->callback('command_test');
 
 $root->parse($argv);

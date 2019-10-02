@@ -9,14 +9,16 @@ class Program {
     $this->grammar = new internals\ProgramGrammar($name, $version);
   }
 
-  function bool_flag(string $id, string $description): self {
-    $flag_grammar = new internals\BoolFlagGrammar($id, $description);
+  function bool_flag(string $name, string $description): self {
+    list($id, $short) = self::parse_flag_name($name);
+    $flag_grammar = new internals\BoolFlagGrammar($id, $short, $description);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }
 
-  function short_circuit_flag(string $id, string $description, callable $callback): self {
-    $flag_grammar = new internals\ShortCircuitFlagGrammar($id, $description, $callback);
+  function short_circuit_flag(string $name, string $description, callable $callback): self {
+    list($id, $short) = self::parse_flag_name($name);
+    $flag_grammar = new internals\ShortCircuitFlagGrammar($id, $short, $description, $callback);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }
@@ -41,6 +43,17 @@ class Program {
       $result->grammar->dispatch($flags);
     } else {
       $result->subcommand->grammar->dispatch($result);
+    }
+  }
+
+  protected static function parse_flag_name(string $name): array {
+    if (preg_match('/^-([a-zA-Z0-9]) --(\S+)$/', $name, $match)) {
+      return [$match[2], $match[1]];
+    } else if (preg_match('/^--(\S+)$/', $name, $match)) {
+      return [$match[1], null];
+    } else {
+      $fmt = 'cannot parse flag named `%s`';
+      internals\Scanner::fatal_error($fmt, $name);
     }
   }
 }

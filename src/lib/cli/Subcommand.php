@@ -9,14 +9,16 @@ class Subcommand {
     $this->grammar = new internals\SubcommandGrammar($program_name, $id, $description);
   }
 
-  function bool_flag(string $id, string $description): self {
-    $flag_grammar = new internals\BoolFlagGrammar($id, $description);
+  function bool_flag(string $name, string $description): self {
+    list($id, $short) = self::parse_flag_name($name);
+    $flag_grammar = new internals\BoolFlagGrammar($id, $short, $description);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }
 
-  function str_flag(string $id, string $description, ?array $pattern = null) {
-    $flag_grammar = new internals\StrFlagGrammar($id, $description, $pattern);
+  function str_flag(string $name, string $description, ?array $pattern = null) {
+    list($id, $short) = self::parse_flag_name($name);
+    $flag_grammar = new internals\StrFlagGrammar($id, $short, $description, $pattern);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }
@@ -36,5 +38,16 @@ class Subcommand {
   function callback(callable $callback): self {
     $this->grammar->add_callback($callback);
     return $this;
+  }
+
+  protected static function parse_flag_name(string $name): array {
+    if (preg_match('/^-([a-zA-Z0-9]) --(\S+)$/', $name, $match)) {
+      return [$match[2], $match[1]];
+    } else if (preg_match('/^--(\S+)$/', $name, $match)) {
+      return [$match[1], null];
+    } else {
+      $fmt = 'cannot parse flag named `%s`';
+      internals\Scanner::fatal_error($fmt, $name);
+    }
   }
 }

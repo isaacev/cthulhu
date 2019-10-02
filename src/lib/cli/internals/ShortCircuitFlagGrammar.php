@@ -16,25 +16,31 @@ namespace Cthulhu\lib\cli\internals;
 class ShortCircuitFlagGrammar extends FlagGrammar {
   public $callback;
 
-  function __construct(string $id, string $description, callable $callback) {
-    parent::__construct($id, $description);
+  function __construct(string $id, ?string $short, string $description, callable $callback) {
+    parent::__construct($id, $short, $description);
     $this->callback = $callback;
   }
 
   function completions(): array {
-    return ["--$this->id"];
+    if ($this->has_short_form()) {
+      return [
+        "-$this->short",
+        "--$this->id"
+      ];
+    } else {
+      return [ "--$this->id" ];
+    }
   }
 
   function matches(string $token): bool {
-    return $token === $this->id;
+    return (
+      $token === $this->id ||
+      $token === $this->short
+    );
   }
 
   function parse(string $token, Scanner $scanner): FlagResult {
     call_user_func($this->callback);
     exit(0);
-  }
-
-  function full_name(): string {
-    return "--$this->id";
   }
 }

@@ -109,14 +109,14 @@ class Completions {
 
   private static function trace_flag(FlagGrammar $flag, Node $after) {
     if ($flag instanceof BoolFlagGrammar) {
-      return new LiteralNode($after, ["--no-$flag->id", "--$flag->id"]);
+      return new LiteralNode($after, $flag->completions());
     } else if ($flag instanceof StrFlagGrammar) {
       $arg = is_array($flag->pattern)
         ? new LiteralNode($after, $flag->pattern)
         : new PatternNode($after, '/\S/');
-      return new LiteralNode($arg, ["--$flag->id"]);
+      return new LiteralNode($arg, $flag->completions());
     } else if ($flag instanceof ShortCircuitFlagGrammar) {
-      return new LiteralNode($after, ["--$flag->id"]);
+      return new LiteralNode($after, $flag->completions());
     } else {
       throw new \Exception('unknown flag type: ' . get_class($flag));
     }
