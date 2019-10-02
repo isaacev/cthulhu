@@ -8,7 +8,7 @@ class NamespaceNode extends Stmt {
   public $name;
   public $block;
 
-  function __construct(Reference $name, BlockNode $block) {
+  function __construct(?Reference $name, BlockNode $block) {
     $this->name = $name;
     $this->block = $block;
   }
@@ -25,8 +25,9 @@ class NamespaceNode extends Stmt {
     return (new Builder)
       ->keyword('namespace')
       ->space()
-      ->then($this->name)
-      ->space()
+      ->then($this->name
+        ? (new Builder)->then($this->name)->space()
+        : (new Builder))
       ->then($this->block);
   }
 }

@@ -20,7 +20,17 @@ class Codegen {
     $ctx->pop_namespace();
     $ctx->renamer->pop_scope();
 
-    return new PHP\Program(array_merge($builtin_namespaces, $ctx->namespaces), $main_ref);
+    $namespaces = array_merge($builtin_namespaces, $ctx->namespaces);
+    $namespaces[] = new PHP\NamespaceNode(null, new PHP\BlockNode([
+      new PHP\SemiStmt(
+        new PHP\CallExpr(
+          new PHP\ReferenceExpr($main_ref),
+          []
+        )
+      )
+    ]));
+
+    return new PHP\Program($namespaces);
   }
 
   private static function items(Context $ctx, array $items): void {
@@ -64,7 +74,7 @@ class Codegen {
 
     $body = self::block($ctx, $item->body);
     $ctx->renamer->pop_scope();
-    $ctx->push_stmt_to_namespace(new PHP\FuncStmt($fn_name, $params, $body));
+    $ctx->push_stmt_to_namespace(new PHP\FuncStmt($fn_name, $params, $body, $item->attrs));
   }
 
   private static function block(Context $ctx, IR\BlockNode $block): PHP\BlockNode {

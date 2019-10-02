@@ -7,7 +7,7 @@ use Cthulhu\Codegen\{ Path, PHP, Visitor };
 class TreeShaking {
   public static function apply(PHP\Program $prog): PHP\Program {
     $declared = [];
-    $used = [ $prog->main_fn->symbol->id ];
+    $used = [ /* $prog->main_fn->symbol->id */ ]; // TODO
 
     Visitor::walk($prog, [
       'ReferenceExpr' => function (Path $path) use (&$used) {
