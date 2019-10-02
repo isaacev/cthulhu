@@ -76,12 +76,12 @@ function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string 
     ->print($desc)
     ->spaces(2)
     ->print('( ')
-    ->apply_styles(fmt\Foreground::RED)
-    ->print('-found')
+    ->apply_styles(fmt\Foreground::GREEN)
+    ->print('-expected')
     ->reset_styles()
     ->print(' / ')
-    ->apply_styles(fmt\Foreground::GREEN)
-    ->print('+expected')
+    ->apply_styles(fmt\Foreground::RED)
+    ->print('+found')
     ->reset_styles()
     ->print(' )')
     ->newline();
@@ -90,14 +90,14 @@ function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string 
   foreach ($diff_lines as $diff_line) {
     if ($diff_line instanceof diff\DeleteLine) {
       $f->tab()
-        ->apply_styles(fmt\Foreground::RED)
+        ->apply_styles(fmt\Foreground::GREEN)
         ->print('- ')
         ->print($diff_line->text())
         ->reset_styles()
         ->newline();
     } else if ($diff_line instanceof diff\InsertLine) {
       $f->tab()
-        ->apply_styles(fmt\Foreground::GREEN)
+        ->apply_styles(fmt\Foreground::RED)
         ->print('+ ')
         ->print($diff_line->text())
         ->reset_styles()
