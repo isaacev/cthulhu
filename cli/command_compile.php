@@ -10,17 +10,18 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
     exit(1);
   }
 
+  $optimization_passes = $flags->get_all('optimize', []);
   $php = codegen(check(parse($abspath)));
 
-  if ($flags->get('inline')) {
+  if (in_array('inline', $optimization_passes)) {
     $php = \Cthulhu\Codegen\Optimizations\Inline::apply($php);
   }
 
-  if ($flags->get('fold')) {
+  if (in_array('fold', $optimization_passes)) {
     $php = \Cthulhu\Codegen\Optimizations\ConstFolding::apply($php);
   }
 
-  if ($flags->get('tree-shake')) {
+  if (in_array('tree-shake', $optimization_passes)) {
     $php = \Cthulhu\Codegen\Optimizations\TreeShaking::apply($php);
   }
 
