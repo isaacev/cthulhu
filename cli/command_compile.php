@@ -27,5 +27,5 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
   }
 
   $str = $php->build()->write(new fmt\StringFormatter());
-  echo $str . PHP_EOL;
+  echo $str;
 }

@@ -25,6 +25,7 @@ class Program extends Node {
       ->newline()
       ->each($this->modules, (new Builder)
         ->newline()
-        ->newline());
+        ->newline())
+      ->newline();
   }
 }
