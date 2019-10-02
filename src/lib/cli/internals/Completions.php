@@ -110,6 +110,11 @@ class Completions {
   private static function trace_flag(FlagGrammar $flag, Node $after) {
     if ($flag instanceof BoolFlagGrammar) {
       return new LiteralNode($after, ["--no-$flag->id", "--$flag->id"]);
+    } else if ($flag instanceof StrFlagGrammar) {
+      $arg = is_array($flag->pattern)
+        ? new LiteralNode($after, $flag->pattern)
+        : new PatternNode($after, '/\S/');
+      return new LiteralNode($arg, ["--$flag->id"]);
     } else if ($flag instanceof ShortCircuitFlagGrammar) {
       return new LiteralNode($after, ["--$flag->id"]);
     } else {

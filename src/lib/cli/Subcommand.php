@@ -15,6 +15,12 @@ class Subcommand {
     return $this;
   }
 
+  function str_flag(string $id, string $description, ?array $pattern = null) {
+    $flag_grammar = new internals\StrFlagGrammar($id, $description, $pattern);
+    $this->grammar->add_flag($flag_grammar);
+    return $this;
+  }
+
   function single_argument(string $id, string $description): self {
     $arg_grammar = new internals\SingleArgumentGrammar($id, $description);
     $this->grammar->add_argument($arg_grammar);
