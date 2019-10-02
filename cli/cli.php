@@ -72,6 +72,17 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
+  ->short_circuit_flag('--list-optimizations', 'List available optimization passes', function () {
+    $passes = [
+      ['inline',     'Replace function call sites with function body'],
+      ['fold',       'Evaluate some constant expressions at compile time'],
+      ['tree-shake', 'Remove function and namespace definitions that are never used']
+    ];
+
+    foreach ($passes as list($name, $desc)) {
+      printf("%-16s %s\n", $name, $desc);
+    }
+  })
   ->str_flag('-o --optimize', 'Apply an optimization pass', [
     'inline',
     'fold',
