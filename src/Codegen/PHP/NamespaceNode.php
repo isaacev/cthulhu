@@ -4,7 +4,7 @@ namespace Cthulhu\Codegen\PHP;
 
 use Cthulhu\Codegen\Builder;
 
-class NamespaceNode extends Stmt {
+class NamespaceNode extends Node {
   public $name;
   public $block;
 

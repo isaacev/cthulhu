@@ -41,9 +41,16 @@ class Path {
     );
   }
 
+  protected function not_stmt_or_namespace(): bool {
+    return !(
+      $this->node instanceof PHP\Stmt ||
+      $this->node instanceof PHP\NamespaceNode
+    );
+  }
+
   function remove(): void {
-    if (($this->node instanceof PHP\Stmt) === false) {
-      throw new \Exception('Path#remove can only be called on statement nodes');
+    if ($this->not_stmt_or_namespace()) {
+      throw new \Exception('can only remove PHP\Stmt and PHP\NamespaceNode nodes');
     }
 
     $this->was_changed = true;
@@ -60,8 +67,8 @@ class Path {
   }
 
   function after(array $nodes) {
-    if (($this->node instanceof PHP\Stmt) === false) {
-      throw new \Exception('Path#remove can only be called on statement nodes');
+    if ($this->not_stmt_or_namespace()) {
+      throw new \Exception('can only add siblings after PHP\Stmt and PHP\NamespaceNode nodes');
     } else if ($this->was_removed()) {
       throw new \Exception('cannot add sibilngs to a node after it was removed');
     }
@@ -70,8 +77,8 @@ class Path {
   }
 
   function replace_with_multiple(array $nodes) {
-    if (($this->node instanceof PHP\Stmt) === false) {
-      throw new \Exception('Path#remove can only be called on statement nodes');
+    if ($this->not_stmt_or_namespace()) {
+      throw new \Exception('can only replace PHP\Stmt and PHP\NamespaceNode with multiple nodes');
     } else if (empty($nodes)) {
       $this->remove();
     } else {
