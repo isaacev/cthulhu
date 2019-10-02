@@ -9,6 +9,13 @@ class Subcommand {
     $this->grammar = new internals\SubcommandGrammar($program_name, $id, $description);
   }
 
+  function short_circuit_flag(string $name, string $description, callable $callback): self {
+    list($id, $short) = self::parse_flag_name($name);
+    $flag_grammar = new internals\ShortCircuitFlagGrammar($id, $short, $description, $callback);
+    $this->grammar->add_flag($flag_grammar);
+    return $this;
+  }
+
   function bool_flag(string $name, string $description): self {
     list($id, $short) = self::parse_flag_name($name);
     $flag_grammar = new internals\BoolFlagGrammar($id, $short, $description);
