@@ -107,7 +107,16 @@ class Analyzer {
       throw Errors::function_returns_nothing($ctx->file, $block_span, $wanted_span, $wanted_type, $last_stmt, $last_semi);
     }
 
-    return new IR\FnItem($symbol, $param_symbols, $type, $ctx->pop_block_scope(), $body, $item->attrs);
+    $attrs = self::attrs($item->attrs);
+    return new IR\FnItem($symbol, $param_symbols, $type, $ctx->pop_block_scope(), $body, $attrs);
+  }
+
+  private static function attrs(array $attr_nodes): array {
+    $attrs = [];
+    foreach ($attr_nodes as $attr_node) {
+      $attrs[$attr_node->name] = true;
+    }
+    return $attrs;
   }
 
   private static function block(Context $ctx, AST\BlockNode $block): IR\BlockNode {
