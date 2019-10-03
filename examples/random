@@ -1,0 +1,11 @@
+ use IO;
+use Random;
+
+#[inline]
+fn main() -> Void {
+  IO::println(if Random::int(-10, 10) > 0 {
+    "FIRST BRANCH"
+  } else {
+    "SECOND BRANCH"
+  })
+}
