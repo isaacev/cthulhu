@@ -3,6 +3,7 @@
 namespace Cthulhu\Codegen;
 
 use Cthulhu\IR;
+use Cthulhu\Types;
 
 class Codegen {
   public static function generate(IR\Program $prog): PHP\Program {
@@ -127,12 +128,25 @@ class Codegen {
   }
 
   private static function return_stmt(Context $ctx, IR\ReturnStmt $stmt): void {
-    $expr = self::expr($ctx, $stmt->expr);
-    $ctx->push_stmt_to_block(new PHP\ReturnStmt($expr));
+    if ($stmt->expr->type() instanceof Types\VoidType) {
+      if ($stmt->expr instanceof IR\IfExpr) {
+        self::if_stmt($ctx, $stmt->expr);
+      } else {
+        $expr = self::expr($ctx, $stmt->expr);
+        $ctx->push_stmt_to_block(new PHP\SemiStmt($expr));
+      }
+    } else {
+      $expr = self::expr($ctx, $stmt->expr);
+      $ctx->push_stmt_to_block(new PHP\ReturnStmt($expr));
+    }
   }
 
   private static function semi_stmt(Context $ctx, IR\SemiStmt $stmt): void {
-    $ctx->push_stmt_to_block(new PHP\SemiStmt(self::expr($ctx, $stmt->expr)));
+    if ($stmt->expr instanceof IR\IfExpr) {
+      self::if_stmt($ctx, $stmt->expr);
+    } else {
+      $ctx->push_stmt_to_block(new PHP\SemiStmt(self::expr($ctx, $stmt->expr)));
+    }
   }
 
   private static function expr(Context $ctx, IR\Expr $expr): PHP\Expr {
@@ -156,6 +170,15 @@ class Codegen {
       default:
         throw new \Exception('unknown expression: ' . get_class($expr));
     }
+  }
+
+  private static function if_stmt(Context $ctx, IR\IfExpr $expr): void {
+    $cond = self::expr($ctx, $expr->condition);
+    $if_true = self::block($ctx, $expr->if_block);
+    $if_false = $expr->else_block
+      ? self::block($ctx, $expr->else_block)
+      : null;
+    $ctx->push_stmt_to_block(new PHP\IfStmt($cond, $if_true, $if_false));
   }
 
   private static function if_expr(Context $ctx, IR\IfExpr $expr): PHP\Expr {
