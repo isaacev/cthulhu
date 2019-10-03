@@ -1,0 +1,7 @@
+fn main() -> Void {
+  if true {
+    -- do thing
+  } else {
+    -- do other thing
+  }
+}

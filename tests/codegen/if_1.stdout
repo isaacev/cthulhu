@@ -1,0 +1,15 @@
+<?php
+
+namespace if_1 {
+  function main() {
+    if (true) {
+      // empty
+    } else {
+      // empty
+    }
+  }
+}
+
+namespace {
+  \if_1\main();
+}
