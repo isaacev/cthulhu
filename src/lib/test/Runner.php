@@ -64,6 +64,7 @@ class Runner {
 
     $tests = [];
     foreach ($test_mapping as $test_dir => $tests_in_dir) {
+      $test_group = str_replace($root_path . '/', '', $test_dir);
       foreach ($tests_in_dir as $test_name => $test_files) {
         $has_input = array_key_exists('input', $test_files);
         $has_stderr = array_key_exists('stderr', $test_files);
@@ -78,7 +79,7 @@ class Runner {
         }
 
         $expected = new TestOutput($stdout, $stderr);
-        $tests[] = new Test($test_dir, $test_name, $input, $expected);
+        $tests[] = new Test($test_dir, $test_group, $test_name, $input, $expected);
       }
     }
     return $tests;

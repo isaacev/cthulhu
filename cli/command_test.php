@@ -29,7 +29,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
         ->print("✓")
         ->reset_styles()
         ->space()
-        ->print($test->name)
+        ->printf('%s/%s', $test->group, $test->name)
         ->newline();
     } else {
       $stats['failed']++;
@@ -38,7 +38,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
         ->print("✗")
         ->reset_styles()
         ->space()
-        ->print($test->name)
+        ->printf('%s/%s', $test->group, $test->name)
         ->newline();
     }
   }

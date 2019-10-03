@@ -15,8 +15,9 @@ class Test {
   public $input;
   public $expected;
 
-  function __construct(string $dir, string $name, string $input, TestOutput $expected) {
+  function __construct(string $dir, string $group, string $name, string $input, TestOutput $expected) {
     $this->dir = $dir;
+    $this->group = $group;
     $this->name = $name;
     $this->input = $input;
     $this->expected = $expected;
