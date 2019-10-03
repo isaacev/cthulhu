@@ -208,6 +208,8 @@ class Parser {
     switch ($next->type) {
       case TokenType::KEYWORD_IF:
         return $this->if_expr($next);
+      case TokenType::DASH:
+        return $this->unary_prefix_expr($next);
       case TokenType::IDENT:
         return $this->path_expr($next);
       case TokenType::LITERAL_STR:
@@ -248,6 +250,12 @@ class Parser {
     $right = $this->expr($this->infix_token_precedence($this->lexer->peek()));
     $span = $left->span->extended_to($right->span);
     return new AST\BinaryExpr($span, $operator->lexeme, $left, $right);
+  }
+
+  private function unary_prefix_expr(Token $operator): AST\UnaryExpr {
+    $operand = self::expr(Precedence::UNARY);
+    $span = $operator->span->extended_to($operand->span);
+    return new AST\UnaryExpr($span, $operator->lexeme, $operand);
   }
 
   private function if_expr(Token $if_keyword): AST\IfExpr {

@@ -29,6 +29,14 @@ class NumType extends Type {
     return parent::binary_operator($operator, $right);
   }
 
+  public function unary_operator(string $operator): Type {
+    switch ($operator) {
+      case '-':
+        return new NumType();
+    }
+    return parent::unary_operator($operator);
+  }
+
   public function __toString(): string {
     return 'Num';
   }

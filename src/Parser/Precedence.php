@@ -7,5 +7,6 @@ abstract class Precedence {
   const RELATION = 10;
   const SUM      = 20;
   const PRODUCT  = 30;
+  const UNARY    = 35;
   const ACCESS   = 40;
 }

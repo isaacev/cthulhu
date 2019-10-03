@@ -10,6 +10,10 @@ abstract class Type implements \JsonSerializable {
     throw new Errors\UnsupportedOperator($this, $operator, $right);
   }
 
+  public function unary_operator(string $operator): Type {
+    throw new Errors\UnsupportedOperator($this, $operator);
+  }
+
   public function member(string $property): Type {
     throw new Errors\UnsupportedMember($this, $property);
   }

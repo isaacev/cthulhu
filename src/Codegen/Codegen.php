@@ -143,6 +143,8 @@ class Codegen {
         return self::call_expr($ctx, $expr);
       case $expr instanceof IR\BinaryExpr:
         return self::binary_expr($ctx, $expr);
+      case $expr instanceof IR\UnaryExpr:
+        return self::unary_expr($ctx, $expr);
       case $expr instanceof IR\ReferenceExpr:
         return self::reference_expr($ctx, $expr);
       case $expr instanceof IR\StrExpr:
@@ -179,6 +181,11 @@ class Codegen {
     $left = self::expr($ctx, $expr->left);
     $right = self::expr($ctx, $expr->right);
     return new PHP\BinaryExpr($expr->operator, $left, $right);
+  }
+
+  private static function unary_expr(Context $ctx, IR\UnaryExpr $expr): PHP\UnaryExpr {
+    $operand = self::expr($ctx, $expr->operand);
+    return new PHP\UnaryExpr($expr->operator, $operand);
   }
 
   private static function reference_expr(Context $ctx, IR\ReferenceExpr $expr): PHP\Expr {

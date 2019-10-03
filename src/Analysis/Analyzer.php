@@ -178,6 +178,8 @@ class Analyzer {
         return self::call_expr($ctx, $expr);
       case $expr instanceof AST\BinaryExpr:
         return self::binary_expr($ctx, $expr);
+      case $expr instanceof AST\UnaryExpr:
+        return self::unary_expr($ctx, $expr);
       case $expr instanceof AST\PathExpr:
         return self::path_expr($ctx, $expr);
       case $expr instanceof AST\StrExpr:
@@ -294,6 +296,12 @@ class Analyzer {
     $right = self::expr($ctx, $expr->right);
     $type = $left->type()->binary_operator($expr->operator, $right->type());
     return new IR\BinaryExpr($type, $expr->operator, $left, $right);
+  }
+
+  private static function unary_expr(Context $ctx, AST\UnaryExpr $expr): IR\UnaryExpr {
+    $operand = self::expr($ctx, $expr->operand);
+    $type = $operand->type()->unary_operator($expr->operator);
+    return new IR\UnaryExpr($type, $expr->operator, $operand);
   }
 
   private static function path_expr(Context $ctx, AST\PathExpr $expr): IR\ReferenceExpr {
