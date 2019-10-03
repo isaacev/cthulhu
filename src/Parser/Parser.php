@@ -225,6 +225,16 @@ class Parser {
     switch ($next->type) {
       case TokenType::PAREN_LEFT:
         return $this->call_expr($left, $next);
+      case TokenType::PLUS:
+      case TokenType::DASH:
+      case TokenType::STAR:
+      case TokenType::SLASH:
+      case TokenType::PAREN_LEFT:
+      case TokenType::LESS_THAN:
+      case TokenType::LESS_THAN_EQ:
+      case TokenType::GREATER_THAN:
+      case TokenType::GREATER_THAN_EQ:
+        return $this->binary_infix_expr($left, $next);
       default:
         // This condition *should* be unreachable unless there's a bug in the
         // parser where the `Parser::infix_token_precedence` method thinks a
@@ -232,6 +242,12 @@ class Parser {
         // token as an operator.
         throw new \Exception('binary operator disagreement: ' . $next->type);
     }
+  }
+
+  private function binary_infix_expr(AST\Expr $left, Token $operator): AST\BinaryExpr {
+    $right = $this->expr($this->infix_token_precedence($this->lexer->peek()));
+    $span = $left->span->extended_to($right->span);
+    return new AST\BinaryExpr($span, $operator->lexeme, $left, $right);
   }
 
   private function if_expr(Token $if_keyword): AST\IfExpr {
