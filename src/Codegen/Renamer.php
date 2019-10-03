@@ -30,6 +30,11 @@ class Renamer {
     return new PHP\Reference($symbol, array_reverse($segments));
   }
 
+  public function get_php_global(string $builtin_name): PHP\Reference {
+    $symbol = new IR\Symbol($builtin_name, null, null);
+    return $this->get_reference($symbol);
+  }
+
   public function get_variable(IR\Symbol $symbol): PHP\Variable {
     return new PHP\Variable($symbol, $this->resolve($symbol));
   }

@@ -19,6 +19,7 @@ class Context {
     $this->file = $file;
     $this->used_builtins = [];
     $this->builtin_cache = [
+      'Random' => Kernel::Random(),
       'IO' => Kernel::IO()
     ];
 
@@ -50,6 +51,9 @@ class Context {
 
   function resolve_module_scope(string $name): IR\ModuleScope {
     switch ($name) {
+      case 'Random':
+        $this->used_builtins[] = $this->builtin_cache['Random'];
+        return $this->builtin_cache['Random']->scope;
       case 'IO':
         $this->used_builtins[] = $this->builtin_cache['IO'];
         return $this->builtin_cache['IO']->scope;

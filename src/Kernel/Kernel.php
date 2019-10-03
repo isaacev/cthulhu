@@ -30,6 +30,36 @@ class Kernel {
     ]);
   }
 
+  public static function Random(): IR\NativeModule {
+    return self::module('Random', [
+      self::fn([
+        'name' => 'int',
+        'signature' => new Types\FnType([
+          new Types\NumType(),
+          new Types\NumType()
+        ], new Types\NumType()),
+        'stmt' => function (Renamer $renamer, IR\Symbol $symbol) {
+          $ref = new PHP\Reference($symbol, [ $renamer->resolve($symbol) ]);
+          $a = $renamer->allocate_variable('a');
+          $b = $renamer->allocate_variable('b');
+          $params = [ $a, $b ];
+          $body = new PHP\BlockNode([
+            new PHP\ReturnStmt(
+              new PHP\CallExpr(
+                new PHP\ReferenceExpr($renamer->get_php_global('mt_rand')),
+                [
+                  new PHP\VariableExpr($a),
+                  new PHP\VariableExpr($b),
+                ]
+              )
+            )
+          ]);
+          return new PHP\FuncStmt($ref, $params, $body, ['inline' => true]);
+        }
+      ])
+    ]);
+  }
+
   private static function module(string $name, array $items): IR\NativeModule {
     $module = new IR\NativeModule($name);
     foreach ($items as $item) {
