@@ -8,8 +8,6 @@ use Cthulhu\Debug\Report;
 use Cthulhu\Errors\Error;
 use Cthulhu\IR;
 use Cthulhu\Source;
-use Cthulhu\Types;
-use Cthulhu\Types\Type;
 
 class Errors {
   public static function no_entry_point(Source\File $file): Error {
@@ -19,19 +17,24 @@ class Errors {
         "Without a main function the program won't run.",
         "A main function can be as simple as the following:"
       )
-      ->example("fn main() -> Void {\n  -- more code here\n}");
+      ->example("fn main() -> () {\n  -- more code here\n}");
   }
 
-  public static function unknown_named_type(AST\NamedAnnotation $note): Error {
-    // TODO
+  public static function unknown_named_type(Source\File $file, AST\NamedAnnotation $note): Error {
+    $title = 'unknown type';
+    return (new Error($file, $title, $note->span))
+      ->paragraph(
+        "No type in scope named `$note->path`."
+      )
+      ->snippet($note->span);
   }
 
   public static function incorrect_return_type(
     Source\File $file,
     Source\Span $found_span,
-    Type $found_type,
+    IR\Types\Type $found_type,
     Source\Span $wanted_span,
-    Type $wanted_type,
+    IR\Types\Type $wanted_type,
     ?IR\Node $last_stmt = null
   ): Error {
     $title = 'incorrect return type';
@@ -51,11 +54,29 @@ class Errors {
       ->snippet($found_span, "should return `$wanted_type` instead of `$found_type`");
   }
 
+  public static function binding_disagrees_with_expr(
+    Source\File $file,
+    IR\Types\Type $note_type,
+    Source\Span $note_span,
+    IR\Types\Type $expr_type,
+    Source\Span $expr_span
+  ): Error {
+    $title = 'expression disagrees with type annotation';
+    return (new Error($file, $title, $expr_span))
+      ->paragraph("The expression returns the type `$expr_type`:")
+      ->snippet($expr_span)
+      ->paragraph("But the variable binding expected a type compatible with `$note_type`:")
+      ->snippet($note_span, null, [
+        'color' => Foreground::BLUE,
+        'underline' => '~',
+      ]);
+  }
+
   public static function function_returns_nothing(
     Source\File $file,
     Source\Span $block_span,
     Source\Span $wanted_span,
-    Type $wanted_type,
+    IR\Types\Type $wanted_type,
     ?IR\Node $last_stmt = null,
     ?Source\Span $last_semi = null
   ): Error {
@@ -74,7 +95,7 @@ class Errors {
       )
       ->snippet($block_span);
 
-    if ($last_stmt && $last_semi && $last_stmt instanceof IR\SemiStmt && $wanted_type->accepts($last_stmt->expr->type())) {
+    if ($last_stmt && $last_semi && $last_stmt instanceof IR\SemiStmt && $wanted_type->equals($last_stmt->expr->return_type())) {
       $err
         ->paragraph(
           "However the last statement in the block might return the correct value if it wasn't followed by a semicolon:"
@@ -90,7 +111,7 @@ class Errors {
   public static function condition_not_bool(
     Source\File $file,
     Source\Span $found_span,
-    Type $found_type
+    IR\Types\Type $found_type
   ): Error {
     $title = 'non-boolean condition';
     return (new Error($file, $title, $found_span))
@@ -103,9 +124,9 @@ class Errors {
   public static function incompatible_if_and_else_types(
     Source\File $file,
     Source\Span $if_true_span,
-    Type $if_true_type,
+    IR\Types\Type $if_true_type,
     Source\Span $if_false_span,
-    Type $if_false_type
+    IR\Types\Type $if_false_type
   ): Error {
     $title = 'incompatible if and else types';
     return (new Error($file, $title, $if_false_span))
@@ -125,7 +146,7 @@ class Errors {
   public static function if_block_incompatible_with_void(
     Source\File $file,
     Source\Span $if_true_span,
-    Type $if_true_type,
+    IR\Types\Type $if_true_type,
     Source\Span $if_true_block_span
   ): Error {
     $title = 'if expression missing an else clause';
@@ -133,7 +154,7 @@ class Errors {
     $if_true_height = $if_true_block_span->to->line - $if_true_block_span->from->line;
     return (new Error($file, $title, $if_true_span))
       ->paragraph(
-        "If expressions with the else clause evaluate to the type `Void`.",
+        "If expressions with the else clause evaluate to the type `()`.",
         "The if clause returned the type `$if_true_type` on line $if_true_line:"
       )
       ->snippet($if_true_span, null, [
@@ -141,7 +162,7 @@ class Errors {
         'lines_below' => $if_true_block_span->to->line - $if_true_line,
       ])
       ->paragraph(
-        "The type `$if_true_type` is incompatible with `Void`.",
+        "The type `$if_true_type` is incompatible with `()`.",
         "Try adding an else clause that returns the type `$if_true_type`:"
       )
       ->snippet($if_true_block_span->to->to_span(), 'consider adding an else block here', [
@@ -173,6 +194,17 @@ class Errors {
       ->snippet($child_span);
   }
 
+  public static function unknown_external_module(
+    Source\File $file,
+    Source\Span $span,
+    string $name
+  ): Error {
+    $title = 'unknown external module';
+    return (new Error($file, $title, $span))
+      ->paragraph("No known external module named `$name`.")
+      ->snippet($span);
+  }
+
   public static function unknown_module_field(
     Source\File $file,
     IR\Symbol $parent_module,
@@ -189,7 +221,7 @@ class Errors {
     Source\File $file,
     Source\Span $value_span,
     IR\Symbol $value_symbol,
-    Types\Type $value_type,
+    IR\Types\Type $value_type,
     Source\Span $submodule_span
   ): Error {
     $title = 'value referenced as module';
@@ -202,10 +234,10 @@ class Errors {
     Source\File $file,
     Source\Span $call_site,
     int $num_args_given,
-    Types\FnType $callee_type
+    IR\Types\FunctionType $callee_type
   ): Error {
     $title = 'wrong number of arguments';
-    $num_args_expected = count($callee_type->params);
+    $num_args_expected = count($callee_type->inputs);
     $s = $num_args_expected === 1 ? '' : 's';
     return (new Error($file, $title, $call_site))
       ->paragraph("The expected $num_args_expected argument${s}, $num_args_given given:")

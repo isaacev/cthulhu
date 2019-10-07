@@ -88,10 +88,10 @@ class Parser {
 
   private function use_item(array $attrs): AST\UseItem {
     $keyword = $this->next(TokenType::KEYWORD_USE);
-    $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $path = $this->path_node();
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
-    return new AST\UseItem($span, $name, $attrs);
+    return new AST\UseItem($span, $path, $attrs);
   }
 
   private function mod_item(): AST\ModItem {
@@ -172,11 +172,19 @@ class Parser {
   private function let_stmt(array $attrs): AST\LetStmt {
     $keyword = $this->next(TokenType::KEYWORD_LET);
     $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+
+    if ($this->lexer->peek()->type === TokenType::COLON) {
+      $this->next(TokenType::COLON);
+      $annotation = $this->type_annotation();
+    } else {
+      $annotation = null;
+    }
+
     $this->next(TokenType::EQUALS);
     $expr = $this->expr();
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
-    return new AST\LetStmt($span, $name, $expr, $attrs);
+    return new AST\LetStmt($span, $name, $annotation, $expr, $attrs);
   }
 
   private function expr_stmt(array $attrs): AST\Stmt {
@@ -204,21 +212,23 @@ class Parser {
   }
 
   private function prefix_expr(): AST\Expr {
-    $next = $this->lexer->next();
-    switch ($next->type) {
+    $peek = $this->lexer->peek();
+    switch ($peek->type) {
       case TokenType::KEYWORD_IF:
-        return $this->if_expr($next);
+        return $this->if_expr($this->lexer->next());
       case TokenType::DASH:
-        return $this->unary_prefix_expr($next);
+        return $this->unary_prefix_expr($this->lexer->next());
       case TokenType::IDENT:
-        return $this->path_expr($next);
+      case TokenType::DOUBLE_COLON:
+        return $this->path_expr();
       case TokenType::LITERAL_STR:
-        return $this->str_expr($next);
+        return $this->str_expr($this->lexer->next());
       case TokenType::LITERAL_NUM:
-        return $this->num_expr($next);
+        return $this->num_expr($this->lexer->next());
       case TokenType::LITERAL_BOOL:
-        return $this->bool_expr($next);
+        return $this->bool_expr($this->lexer->next());
       default:
+        $next = $this->lexer->next();
         throw Errors::exepcted_expression($this->file, $next);
     }
   }
@@ -293,18 +303,9 @@ class Parser {
     return new AST\CallExpr($span, $callee, $args);
   }
 
-  private function path_expr(Token $ident): AST\PathExpr {
-    $segments = [ AST\IdentNode::from_token($ident) ];
-    while (true) {
-      $peek = $this->lexer->peek();
-      if ($peek === null || $peek->type !== TokenType::DOUBLE_COLON) {
-        break;
-      }
-      $this->next(TokenType::DOUBLE_COLON);
-      $ident = $this->next(TokenType::IDENT);
-      $segments[] = AST\IdentNode::from_token($ident);
-    }
-    return new AST\PathExpr($segments);
+  private function path_expr(): AST\PathExpr {
+    $path = $this->path_node();
+    return new AST\PathExpr($path);
   }
 
   private function str_expr(Token $str): AST\StrExpr {
@@ -320,6 +321,29 @@ class Parser {
   private function bool_expr(Token $bool) : AST\BoolExpr {
     $value = $bool->lexeme === 'true';
     return new AST\BoolExpr($bool->span, $value, $bool->lexeme);
+  }
+
+  /**
+   * Other nodes
+   */
+
+  private function path_node(): AST\PathNode {
+    $extern = false;
+    if ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
+      $extern = true;
+      $extern_colons = $this->next(TokenType::DOUBLE_COLON);
+    }
+
+    $segments = [ AST\IdentNode::from_token($this->next(TokenType::IDENT)) ];
+    while ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
+      $this->next(TokenType::DOUBLE_COLON);
+      $segments[] = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    }
+
+    $from = ($extern ? $extern_colons : $segments[0])->span->from;
+    $to = end($segments)->span->to;
+    $span = new Source\Span($from, $to);
+    return new AST\PathNode($span, $extern, $segments);
   }
 
   /**
@@ -368,8 +392,6 @@ class Parser {
       case TokenType::GREATER_THAN:
       case TokenType::GREATER_THAN_EQ:
         return Precedence::RELATION;
-      case TokenType::DOUBLE_COLON:
-        return Precedence::ACCESS;
       default:
         return Precedence::LOWEST;
     }
@@ -379,10 +401,31 @@ class Parser {
     $peek = $this->lexer->peek();
     switch ($peek->type) {
       case TokenType::IDENT:
-        $ident = $this->next(TokenType::IDENT);
-        return new AST\NamedAnnotation($ident->span, $ident->lexeme);
+      case TokenType::DOUBLE_COLON:
+        return $this->named_annotation();
+      case TokenType::PAREN_LEFT:
+        return $this->unit_annotation();
+      case TokenType::GENERIC:
+        return $this->generic_annotation();
       default:
         throw Errors::expected_annotation($this->file, $peek);
     }
+  }
+
+  private function named_annotation(): AST\NamedAnnotation {
+    $path = $this->path_node();
+    return new AST\NamedAnnotation($path);
+  }
+
+  private function unit_annotation(): AST\UnitAnnotation {
+    $paren_left = $this->next(TokenType::PAREN_LEFT);
+    $paren_right = $this->next(TokenType::PAREN_RIGHT);
+    $span = $paren_left->span->extended_to($paren_right->span);
+    return new AST\UnitAnnotation($span);
+  }
+
+  private function generic_annotation(): AST\GenericAnnotation {
+    $gen = $this->next(TokenType::GENERIC);
+    return new AST\GenericAnnotation($gen->span, substr($gen->lexeme, 1));
   }
 }

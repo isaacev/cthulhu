@@ -1,7 +1,7 @@
 
   INCOMPATIBLE IF AND ELSE TYPES  --------------------------------------------
 
-  Expected `Void` because of the return type of the if clause:
+  Expected `()` because of the return type of the if clause:
 
   2 |   if true {
     |           ^
@@ -10,8 +10,8 @@
   4 |   } else {
     |   ^
 
-  Expected the else clause to return a type compatible with `Void`. Instead it
-  returned `Str`:
+  Expected the else clause to return a type compatible with `()`. Instead it
+  returned `Types::Str`:
 
   5 |     "def"
     |     ^^^^^

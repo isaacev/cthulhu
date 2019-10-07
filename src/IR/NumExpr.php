@@ -2,23 +2,16 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Types;
-
 class NumExpr extends Expr {
+  public $type;
   public $value;
 
-  function __construct(int $value) {
+  function __construct(Types\Type $type, int $value) {
+    $this->type  = $type;
     $this->value = $value;
   }
 
-  public function type(): Types\Type {
-    return new Types\NumType();
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'NumExpr',
-      'value' => $this->value
-    ];
+  function return_type(): Types\Type {
+    return $this->type;
   }
 }

@@ -9,7 +9,7 @@ class Inline {
    * # Function inline optimization
    *
    * ## Current caveats:
-   * - If the function returns a non-Void value, the inline optimization will
+   * - If the function returns a non-unit value, the inline optimization will
    *   only be applied if the function body contains a single ReturnStmt.
    */
   public static function apply(PHP\Program $prog): PHP\Program {

@@ -1,2 +1,2 @@
-fn main() -> Void {
+fn main() -> () {
   let x =

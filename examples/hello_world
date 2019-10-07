@@ -1,6 +1,4 @@
-use IO;
-
 #[inline]
-fn main () -> Void {
-  IO::println("hello world");
+fn main () -> () {
+  ::IO::println("hello world");
 }

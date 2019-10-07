@@ -2,6 +2,5 @@
 
 namespace Cthulhu\IR;
 
-abstract class Node implements \JsonSerializable {
-  // empty
+abstract class Node {
 }

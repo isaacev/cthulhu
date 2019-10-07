@@ -4,7 +4,6 @@ namespace Cthulhu\Analysis;
 
 use Cthulhu\AST;
 use Cthulhu\IR;
-use Cthulhu\Types;
 
 class Analyzer {
   public static function ast_to_program(AST\File $file): IR\Program {
@@ -43,10 +42,9 @@ class Analyzer {
   }
 
   private static function use_item(Context $ctx, AST\UseItem $item): IR\UseItem {
-    $name = $item->name->ident;
-    $remote_scope = $ctx->resolve_module_scope($name);
-    $ctx->current_module_scope()->add($remote_scope->symbol, $remote_scope);
-    return new IR\UseItem($remote_scope->symbol, $item->attrs);
+    $binding = self::path_to_binding($ctx, $item->path);
+    $ctx->current_module_scope()->add_binding($binding);
+    return new IR\UseItem($binding->symbol, $item->attrs);
   }
 
   private static function mod_item(Context $ctx, AST\ModItem $item): IR\ModItem {
@@ -71,8 +69,8 @@ class Analyzer {
     }
     $return_origin = $item->returns->span;
     $return_type = self::annotation_to_type($ctx, $item->returns);
-    $type = new Types\FnType($param_types, $return_type);
-    $ctx->current_module_scope()->add($symbol, $type);
+    $type = new IR\Types\FunctionType($param_types, $return_type);
+    $ctx->current_module_scope()->add_binding(IR\Binding::for_value($symbol, $type));
 
     // Build new block scope and add parameters to the scope
     $ctx->push_block_scope();
@@ -89,14 +87,14 @@ class Analyzer {
     // Verify that the function body returns the correct type
     $ctx->push_expected_return($item, $return_type);
     $body = self::block($ctx, $item->body);
-    $found_type = $body->type();
+    $found_type = $body->return_type();
     $ctx->pop_expected_return();
 
-    if ($return_type->accepts($found_type) === false) {
+    if ($return_type->equals($found_type) === false) {
       // This condition is necessary because even though the `$return_type` was
       // pushed onto the expected return stack, that stack is only read when an
       // `AST\SemiStmt` (implicit return) is encountered. If the block is has
-      // a branch that returns *nothing* and the return type is not `Void`, this
+      // a branch that returns *nothing* and the return type is not `()`, this
       // check will catch and report those errors.
       $block_span = $item->body->span;
       $wanted_span = $item->returns->span;
@@ -126,7 +124,19 @@ class Analyzer {
     foreach ($block->stmts as $stmt) {
       $stmts[] = self::stmt($ctx, $stmt);
     }
-    return new IR\BlockNode($ctx->pop_block_scope(), $stmts);
+
+    if (empty($stmts)) {
+      $type = new IR\Types\UnitType();
+    } else {
+      $last_stmt = end($stmts);
+      if ($last_stmt instanceof IR\ReturnStmt) {
+        $type = $last_stmt->expr->return_type();
+      } else {
+        $type = new IR\Types\UnitType();
+      }
+    }
+
+    return new IR\BlockNode($type, $ctx->pop_block_scope(), $stmts);
   }
 
   private static function stmt(Context $ctx, AST\Stmt $stmt): IR\Stmt {
@@ -146,8 +156,21 @@ class Analyzer {
     $name = $stmt->name->ident;
     $origin = $stmt->name->span;
     $symbol = new IR\Symbol($name, $origin, null);
+    $note_type = $stmt->note ? self::annotation_to_type($ctx, $stmt->note) : null;
     $expr = self::expr($ctx, $stmt->expr);
-    $ctx->current_block_scope()->add($symbol, $expr->type());
+    $expr_type = $expr->return_type();
+
+    if ($note_type !== null && $note_type->equals($expr_type) === false) {
+      throw Errors::binding_disagrees_with_expr(
+        $ctx->file,
+        $note_type,
+        $stmt->note->span,
+        $expr_type,
+        $stmt->expr->span
+      );
+    }
+
+    $ctx->current_block_scope()->add_binding(IR\Binding::for_value($symbol, $expr->return_type()));
     return new IR\AssignStmt($symbol, $expr);
   }
 
@@ -158,15 +181,6 @@ class Analyzer {
 
   private static function expr_stmt(Context $ctx, AST\ExprStmt $stmt): IR\Stmt {
     $expr = self::expr($ctx, $stmt->expr);
-
-    // list($fn_node, $return_type) = $ctx->current_expected_return();
-    // $found_type = $expr->type();
-    // if ($return_type->accepts($found_type) === false) {
-    //   $found_span = $stmt->span;
-    //   $wanted_span = $fn_node->returns->span;
-    //   throw Errors::incorrect_return_type($ctx->file, $found_span, $found_type, $wanted_span, $return_type);
-    // }
-
     return new IR\ReturnStmt($expr);
   }
 
@@ -203,19 +217,19 @@ class Analyzer {
    */
   private static function if_expr(Context $ctx, AST\IfExpr $expr): IR\Expr {
     $cond = self::expr($ctx, $expr->condition);
-    if (($cond->type() instanceof Types\BoolType) === false) {
+    if ($ctx->raw_path_to_type('Types', 'Bool')->equals($cond->return_type()) === false) {
       $found_span = $expr->condition->span;
-      $found_type = $cond->type();
+      $found_type = $cond->return_type();
       throw Errors::condition_not_bool($ctx->file, $found_span, $found_type);
     }
 
     $if_true = self::block($ctx, $expr->if_clause);
-    $if_true_type = $if_true->type();
+    $if_true_type = $if_true->return_type();
 
     if ($expr->else_clause !== null) {
       $if_false = self::block($ctx, $expr->else_clause);
-      $if_false_type = $if_false->type();
-      if ($if_true_type->accepts($if_false_type) === false) {
+      $if_false_type = $if_false->return_type();
+      if ($if_true_type->equals($if_false_type) === false) {
         $if_true_span = $expr->if_clause->span;
 
         // When determining which span to use for both blocks, if the block
@@ -239,9 +253,9 @@ class Analyzer {
       }
     } else {
       // The if-expression doesn't have a false-block, this means the block
-      // implicitly returns the Void type. If the true-block returns a non-Void
+      // implicitly returns the unit type. If the true-block returns a non-unit
       // type, throw an error because of type incompatibility.
-      if (($if_true_type instanceof Types\VoidType) === false) {
+      if (($if_true_type instanceof IR\Types\UnitType) === false) {
         // When determining which span to use for both blocks, if the block
         // implicitly returns its last statement, use the span from that
         // statement. If the block is empty or doesn't have an implicit return,
@@ -265,26 +279,26 @@ class Analyzer {
 
   private static function call_expr(Context $ctx, AST\CallExpr $expr): IR\CallExpr {
     $callee = self::expr($ctx, $expr->callee);
-    if (($callee->type() instanceof Types\FnType) === false) {
-      throw new Types\Errors\TypeMismatch('function', $callee->type());
+    if (($callee->return_type() instanceof IR\Types\FunctionType) === false) {
+      throw new Types\Errors\TypeMismatch('function', $callee->return_type());
     }
     $args = [];
-    $wanted_num_args = count($callee->type()->params);
+    $wanted_num_args = count($callee->return_type()->inputs);
     $given_num_args = count($expr->args);
     if ($wanted_num_args !== $given_num_args) {
       throw Errors::func_called_with_wrong_num_or_args(
         $ctx->file,
         $expr->span,
         $given_num_args,
-        $callee->type()
+        $callee->return_type()
       );
     } else {
       $args = [];
       for ($i = 0; $i < $wanted_num_args; $i++) {
-        $wanted_type = $callee->type()->params[$i];
+        $wanted_type = $callee->return_type()->inputs[$i];
         $args[] = $given_expr = self::expr($ctx, $expr->args[$i]);
-        if (($wanted_type->accepts($given_expr->type())) === false) {
-          throw new Types\Errors\TypeMismatch($wanted_type, $given_expr->type());
+        if (($wanted_type->equals($given_expr->return_type())) === false) {
+          throw new Types\Errors\TypeMismatch($wanted_type, $given_expr->return_type());
         }
       }
       return new IR\CallExpr($callee, $args);
@@ -294,84 +308,34 @@ class Analyzer {
   private static function binary_expr(Context $ctx, AST\BinaryExpr $expr): IR\BinaryExpr {
     $left = self::expr($ctx, $expr->left);
     $right = self::expr($ctx, $expr->right);
-    $type = $left->type()->binary_operator($expr->operator, $right->type());
+    $type = $left->return_type()->binary_operator($expr->operator, $right->return_type()); // FIXME
     return new IR\BinaryExpr($type, $expr->operator, $left, $right);
   }
 
   private static function unary_expr(Context $ctx, AST\UnaryExpr $expr): IR\UnaryExpr {
     $operand = self::expr($ctx, $expr->operand);
-    $type = $operand->type()->unary_operator($expr->operator);
+    $type = $operand->return_type()->unary_operator($expr->operator); // FIXME
     return new IR\UnaryExpr($type, $expr->operator, $operand);
   }
 
   private static function path_expr(Context $ctx, AST\PathExpr $expr): IR\ReferenceExpr {
-    if ($expr->length() === 1) {
-      // Treat path as a reference to a name within the local scope
-      $name = $expr->nth(0)->ident;
-      $symbol = $ctx->current_block_scope()->to_symbol($name);
-      if ($symbol === null) {
-        throw Errors::unknown_local_variable($ctx->file, $expr->span, $name);
-      }
-      $type = $ctx->current_block_scope()->lookup($symbol);
-      return new IR\ReferenceExpr($symbol, $type);
-    }
-
-    // Treat path as a reference to a name within a module
-    $module_segments = array_slice($expr->segments, 0, -1);
-    $value_segment = end($expr->segments);
-
-    // Get the reference to the last module in the path
-    $current_module = $ctx->current_module_scope();
-    foreach ($module_segments as $index => $module_segment) {
-      $module_symbol = $current_module->to_symbol($module_segment->ident);
-      if ($module_symbol === null) {
-        throw Errors::unknown_submodule(
-          $ctx->file,
-          $current_module->symbol,
-          $module_segment->span,
-          $module_segment->ident
-        );
-      }
-
-      $lookup_result = $current_module->lookup($module_symbol);
-      if ($lookup_result instanceof IR\ModuleScope) {
-        $current_module = $lookup_result;
-        continue;
-      }
-
-      $next_segment = $expr->segments[$index + 1];
-      throw Errors::value_referenced_as_module(
-        $ctx->file,
-        $expr->span->extended_to($module_segment->span),
-        $module_symbol,
-        $lookup_result,
-        $expr->span->extended_to($next_segment->span)
-      );
-    }
-
-    $value_symbol = $current_module->to_symbol($value_segment->ident);
-    if ($value_symbol === null) {
-      throw Errors::unknown_module_field(
-        $ctx->file,
-        $current_module->symbol,
-        $value_segment->span,
-        $value_segment->ident
-      );
-    }
-    $type = $current_module->lookup($value_symbol);
-    return new IR\ReferenceExpr($value_symbol, $type);
+    $binding = self::path_to_binding($ctx, $expr->path);
+    return new IR\ReferenceExpr($binding->as_value(), $binding->symbol);
   }
 
   private static function str_expr(Context $ctx, AST\StrExpr $expr): IR\StrExpr {
-    return new IR\StrExpr($expr->value);
+    $type = $ctx->raw_path_to_type('Types', 'Str');
+    return new IR\StrExpr($type, $expr->value);
   }
 
   private static function num_expr(Context $ctx, AST\NumExpr $expr): IR\NumExpr {
-    return new IR\NumExpr($expr->value);
+    $type = $ctx->raw_path_to_type('Types', 'Num');
+    return new IR\NumExpr($type, $expr->value);
   }
 
   private static function bool_expr(Context $ctx, AST\BoolExpr $expr): IR\BoolExpr {
-    return new IR\BoolExpr($expr->value);
+    $type = $ctx->raw_path_to_type('Types', 'Bool');
+    return new IR\BoolExpr($type, $expr->value);
   }
 
   // int_expr
@@ -379,27 +343,86 @@ class Analyzer {
   /**
    * Utility methods
    */
-  private static function annotation_to_type(Context $ctx, AST\Annotation $note): Types\Type {
+  private static function annotation_to_type(Context $ctx, AST\Annotation $note): IR\Types\Type {
     switch (true) {
+      case $note instanceof AST\UnitAnnotation:
+        return new IR\Types\UnitType();
       case $note instanceof AST\NamedAnnotation:
         return self::named_annotation_to_type($ctx, $note);
+      case $note instanceof AST\GenericAnnotation:
+        throw new \Exception('unsupported generic annotation');
       default:
         throw new \Exception('unknown annotation type');
     }
   }
 
-  private static function named_annotation_to_type(Context $ctx, AST\NamedANnotation $note): Types\Type {
-    switch ($note->name) {
-      case 'Str':
-        return new Types\StrType();
-      case 'Num':
-        return new Types\NumType();
-      case 'Bool':
-        return new Types\BoolType();
-      case 'Void':
-        return new Types\VoidType();
-      default:
-        throw Errors::unknown_named_type($note);
+  private static function named_annotation_to_type(Context $ctx, AST\NamedAnnotation $note): IR\Types\Type {
+    $binding = self::path_to_binding($ctx, $note->path);
+    return $binding->as_type();
+  }
+
+  private static function path_to_binding(Context $ctx, AST\PathNode $path): IR\Binding {
+    if ($path->extern) {
+      $starting_scope = $ctx->extern_scope();
+    } else if ($ctx->has_block_scopes()) {
+      $starting_scope = $ctx->current_block_scope();
+    } else {
+      $starting_scope = $ctx->current_module_scope();
+    }
+
+    $total_segments = count($path->segments);
+    $intermediate_scope = $starting_scope;
+    for ($i = 0; $i < $total_segments; $i++) {
+      $segment = $path->segments[$i];
+      $is_last_segment = $i + 1 === $total_segments;
+
+      if ($is_last_segment) {
+        if ($binding = $intermediate_scope->resolve_name($segment->ident)) {
+          return $binding;
+        } else if ($intermediate_scope instanceof IR\BlockScope) {
+          throw Errors::unknown_local_variable(
+            $ctx->file,
+            $segment->span,
+            $segment->ident
+          );
+        } else if ($intermediate_scope instanceof IR\ExternScope) {
+          throw Errors::unknown_external_module(
+            $ctx->file,
+            $segment->span,
+            $segment->ident
+          );
+        } else {
+          throw Errors::unknown_module_field(
+            $ctx->file,
+            $intermediate_scope->symbol,
+            $segment->span,
+            $segment->ident
+          );
+        }
+      }
+
+      $binding = $intermediate_scope->resolve_name($segment->ident);
+      if ($binding === null) {
+        throw Errors::unknown_submodule(
+          $ctx->file,
+          $intermediate_scope->symbol,
+          $segment->span,
+          $segment->ident
+        );
+      }
+
+      if ($binding->kind === 'module') {
+        $intermediate_scope = $binding->as_scope();
+        continue;
+      }
+
+      throw Errors::value_referenced_as_module(
+        $ctx->file,
+        $path->span->extended_to($segment->span),
+        $binding->symbol,
+        $binding->as_value(),
+        $path->span
+      );
     }
   }
 }

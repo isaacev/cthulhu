@@ -2,26 +2,16 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Types;
-
 class ReferenceExpr extends Expr {
-  public $symbol;
   public $type;
+  public $symbol;
 
-  function __construct(Symbol $symbol, Types\Type $type) {
+  function __construct(Types\Type $type, Symbol $symbol) {
+    $this->type   = $type;
     $this->symbol = $symbol;
-    $this->type = $type;
   }
 
-  public function type(): Types\Type {
+  function return_type(): Types\Type {
     return $this->type;
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'ReferenceExpr',
-      'datatype' => $this->type,
-      'symbol' => $this->symbol
-    ];
   }
 }

@@ -23,6 +23,10 @@ class IdentNode extends Node {
     }
   }
 
+  public function __toString(): string {
+    return $this->ident;
+  }
+
   public function jsonSerialize() {
     return [
       'type' => 'IdentNode',

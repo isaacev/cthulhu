@@ -5,11 +5,11 @@ namespace Cthulhu\AST;
 use Cthulhu\Source;
 
 class UseItem extends Item {
-  public $name;
+  public $path;
 
-  function __construct(Source\Span $span, IdentNode $name, array $attrs) {
+  function __construct(Source\Span $span, PathNode $path, array $attrs) {
     parent::__construct($span, $attrs);
-    $this->name = $name;
+    $this->path = $path;
   }
 
   public function visit(array $visitor_table): void {
@@ -17,12 +17,13 @@ class UseItem extends Item {
       $visitor_table['UseItem']($this);
     }
 
-    $this->name->visit($visitor_table);
+    $this->path->visit($visitor_table);
   }
 
   public function jsonSerialize() {
     return [
-      // TODO
+      'type' => 'UseItem',
+      'path' => $this->path
     ];
   }
 }

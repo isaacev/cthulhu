@@ -5,23 +5,25 @@ namespace Cthulhu\AST;
 use Cthulhu\Source;
 
 class NamedAnnotation extends Annotation {
-  public $name;
+  public $path;
 
-  function __construct(Source\Span $span, string $name) {
-    parent::__construct($span);
-    $this->name = $name;
+  function __construct(PathNode $path) {
+    parent::__construct($path->span);
+    $this->path = $path;
   }
 
   public function visit(array $visitor_table): void {
     if (array_key_exists('NamedAnnotation', $visitor_table)) {
       $visitor_table['NamedAnnotation']($this);
     }
+
+    $this->path->visit($visitor_table);
   }
 
   public function jsonSerialize() {
     return [
       'type' => 'NamedAnnotation',
-      'name' => $this->name
+      'path' => $this->path
     ];
   }
 }

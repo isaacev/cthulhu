@@ -25,4 +25,10 @@ class Errors {
       )
       ->snippet($location);
   }
+
+  public static function unnamed_type_param(Source\File $file, Source\Span $location): Error {
+    $title = 'unnamed type parameter';
+    return (new Error($file, $title, $location))
+      ->snippet($location);
+  }
 }

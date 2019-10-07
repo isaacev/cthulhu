@@ -1,7 +1,7 @@
 
   NON-BOOLEAN CONDITION  -----------------------------------------------------
 
-  Conditions need to have the type `Bool`, found type `Str` instead:
+  Conditions need to have the type `Bool`, found type `Types::Str` instead:
 
   2 |   if "abc" {
     |      ^^^^^

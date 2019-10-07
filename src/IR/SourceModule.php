@@ -4,7 +4,7 @@ namespace Cthulhu\IR;
 
 use Cthulhu\Source;
 
-class SourceModule {
+class SourceModule implements Module {
   public $file;
   public $builtins;
   public $scope;

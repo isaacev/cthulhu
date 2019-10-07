@@ -2,39 +2,20 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Types\Type;
-
-class BlockScope {
+class BlockScope extends Scope {
   public $parent;
-  private $table;
 
-  function __construct($parent) {
+  function __construct(Scope $parent) {
     $this->parent = $parent;
-    $this->table = [];
   }
 
-  public function add(Symbol $symbol, Type $type): void {
-    $this->table[$symbol->id] = [$symbol, $type];
-  }
-
-  public function has(Symbol $symbol): bool {
-    return array_key_exists($symbol->id, $this->table);
-  }
-
-  public function to_symbol(string $name): ?Symbol {
-    foreach ($this->table as $id => list($symbol, $type)) {
-      if ($symbol->name === $name) {
-        return $symbol;
-      }
-    }
-    return $this->parent->to_symbol($name);
-  }
-
-  public function lookup(Symbol $symbol): Type {
-    if ($this->has($symbol)) {
-      return $this->table[$symbol->id][1];
+  function resolve_name(string $name): ?Binding {
+    if ($binding = parent::resolve_name($name)) {
+      return $binding;
+    } else if ($this->parent) {
+      return $this->parent->resolve_name($name);
     } else {
-      return $this->parent->lookup($symbol);
+      return null;
     }
   }
 }

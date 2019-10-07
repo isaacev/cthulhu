@@ -1,5 +1,5 @@
-use IO;
+use ::IO;
 
-fn main() -> Void {
+fn main() -> () {
   IO::fmt::println();
 }

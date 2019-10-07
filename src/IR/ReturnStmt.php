@@ -8,11 +8,4 @@ class ReturnStmt extends Stmt {
   function __construct(Expr $expr) {
     $this->expr = $expr;
   }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'ReturnStmt',
-      'expr' => $this->expr
-    ];
-  }
 }

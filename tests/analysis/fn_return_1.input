@@ -1,4 +1,4 @@
-fn main() -> Num {
+fn main() -> ::Types::Num {
   let x = 123;
   x;
 }

@@ -2,23 +2,16 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Types;
-
 class BoolExpr extends Expr {
+  public $type;
   public $value;
 
-  function __construct(bool $value) {
+  function __construct(Types\Type $type, bool $value) {
+    $this->type  = $type;
     $this->value = $value;
   }
 
-  public function type(): Types\Type {
-    return new Types\BoolType();
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'BoolExpr',
-      'value' => $this->value
-    ];
+  function return_type(): Types\Type {
+    return $this->type;
   }
 }

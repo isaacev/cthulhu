@@ -9,11 +9,4 @@ class UseItem extends Item {
     parent::__construct($attrs);
     $this->symbol = $symbol;
   }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'UseItem',
-      'symbol' => $this->symbol
-    ];
-  }
 }

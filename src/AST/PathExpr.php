@@ -3,20 +3,19 @@
 namespace Cthulhu\AST;
 
 class PathExpr extends Expr {
-  public $segments;
+  public $path;
 
-  function __construct(array $segments) {
-    $span = $segments[0]->span->extended_to(end($segments)->span);
-    parent::__construct($span);
-    $this->segments = $segments;
+  function __construct(PathNode $path) {
+    parent::__construct($path->span);
+    $this->path = $path;
   }
 
   public function length(): int {
-    return count($this->segments);
+    return count($this->path->segments);
   }
 
   public function nth(int $n): IdentNode {
-    return $this->segments[$n];
+    return $this->path->segments[$n];
   }
 
   public function visit(array $visitor_table): void {
@@ -24,15 +23,13 @@ class PathExpr extends Expr {
       $visitor_table['PathExpr']($this);
     }
 
-    foreach ($this->segments as $segment) {
-      $segment->visit($visitor_table);
-    }
+    $this->path->visit($visitor_table);
   }
 
   public function jsonSerialize() {
     return [
       'type' => 'PathExpr',
-      'segments' => array_map(function ($s) { return $s->jsonSerialize(); }, $this->segments)
+      'path' => $this->path
     ];
   }
 }

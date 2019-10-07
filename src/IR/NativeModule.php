@@ -6,9 +6,8 @@ use Cthulhu\Codegen\Buildable;
 use Cthulhu\Codegen\Builder;
 use Cthulhu\Codegen\PHP;
 use Cthulhu\Codegen\Renamer;
-use Cthulhu\Types;
 
-class NativeModule {
+class NativeModule implements Module {
   public $scope;
   public $stmts;
 
@@ -21,8 +20,12 @@ class NativeModule {
     return $this->scope;
   }
 
-  public function fn(Symbol $symbol, Types\FnType $signature, callable $callable): void {
-    $this->scope->add($symbol, $signature);
+  public function type(Symbol $symbol, ?Types\Type $hidden) {
+    $this->scope->add_binding(Binding::for_type($symbol, new Types\NamedType($symbol, $hidden)));
+  }
+
+  public function fn(Symbol $symbol, Types\FunctionType $signature, callable $callable): void {
+    $this->scope->add_binding(Binding::for_value($symbol, $signature));
     $this->stmts[] = [$symbol, $callable];
   }
 

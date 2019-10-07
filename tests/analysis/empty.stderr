@@ -4,7 +4,7 @@
   Without a main function the program won't run. A main function can be as
   simple as the following:
 
-    fn main() -> Void {
+    fn main() -> () {
       -- more code here
     }
 

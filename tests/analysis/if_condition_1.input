@@ -1,4 +1,4 @@
-fn main () -> Void {
+fn main () -> () {
   if "abc" {
     IO::println("should not compile");
   };

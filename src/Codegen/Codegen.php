@@ -3,7 +3,6 @@
 namespace Cthulhu\Codegen;
 
 use Cthulhu\IR;
-use Cthulhu\Types;
 
 class Codegen {
   public static function generate(IR\Program $prog): PHP\Program {
@@ -128,7 +127,7 @@ class Codegen {
   }
 
   private static function return_stmt(Context $ctx, IR\ReturnStmt $stmt): void {
-    if ($stmt->expr->type() instanceof Types\VoidType) {
+    if ($stmt->expr->return_type() instanceof IR\Types\UnitType) {
       if ($stmt->expr instanceof IR\IfExpr) {
         self::if_stmt($ctx, $stmt->expr);
       } else {

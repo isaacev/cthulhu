@@ -6,14 +6,23 @@ use Cthulhu\Codegen\Builder;
 use Cthulhu\Codegen\PHP;
 use Cthulhu\Codegen\Renamer;
 use Cthulhu\IR;
-use Cthulhu\Types;
 
 class Kernel {
-  public static function IO(): IR\NativeModule {
+  public static function Types(): IR\NativeModule {
+    return self::module('Types', [
+      self::type('Num', null),
+      self::type('Str', null),
+      self::type('Bool', null),
+    ]);
+  }
+
+  public static function IO(\Cthulhu\Analysis\Context $ctx): IR\NativeModule {
     return self::module('IO', [
       self::fn([
         'name' => 'println',
-        'signature' => new Types\FnType([ new Types\StrType() ], new Types\VoidType()),
+        'signature' => new IR\Types\FunctionType([
+          $ctx->raw_path_to_type('Types', 'Str')
+        ], new IR\Types\UnitType()),
         'stmt' => function (Renamer $renamer, IR\Symbol $symbol) {
           $ref = new PHP\Reference($symbol, [ $renamer->resolve($symbol) ]);
           $str = $renamer->allocate_variable('str');
@@ -30,14 +39,14 @@ class Kernel {
     ]);
   }
 
-  public static function Random(): IR\NativeModule {
+  public static function Random(\Cthulhu\Analysis\Context $ctx): IR\NativeModule {
     return self::module('Random', [
       self::fn([
         'name' => 'int',
-        'signature' => new Types\FnType([
-          new Types\NumType(),
-          new Types\NumType()
-        ], new Types\NumType()),
+        'signature' => new IR\Types\FunctionType([
+          $ctx->raw_path_to_type('Types', 'Num'),
+          $ctx->raw_path_to_type('Types', 'Num')
+        ], $ctx->raw_path_to_type('Types', 'Num')),
         'stmt' => function (Renamer $renamer, IR\Symbol $symbol) {
           $ref = new PHP\Reference($symbol, [ $renamer->resolve($symbol) ]);
           $a = $renamer->allocate_variable('a');
@@ -71,6 +80,11 @@ class Kernel {
           $stmt = $item['fields']['stmt'];
           $module->fn($symbol, $signature, $stmt);
           break;
+        case 'type':
+          $name = $item['name'];
+          $symbol = new IR\Symbol($name, null, $module->scope->symbol);
+          $module->type($symbol, $item['hidden']);
+          break;
       }
     }
     return $module;
@@ -80,6 +94,14 @@ class Kernel {
     return [
       'type' => 'fn',
       'fields' => $fields
+    ];
+  }
+
+  private static function type(string $name, ?IR\Types\Type $hidden) {
+    return [
+      'type'   => 'type',
+      'name'   => $name,
+      'hidden' => $hidden,
     ];
   }
 }

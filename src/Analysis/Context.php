@@ -6,32 +6,29 @@ use Cthulhu\AST;
 use Cthulhu\IR;
 use Cthulhu\Kernel\Kernel;
 use Cthulhu\Source;
-use Cthulhu\Types;
 
 class Context {
   public $file;
-  public $used_builtins;
-  private $builtin_cache;
-  private $module_scopes;
-  private $expected_return;
+  public $used_builtins = [];
+  private $module_scopes = [];
+  private $block_scopes = [];
+  private $expected_return = [];
 
   function __construct(Source\File $file) {
     $this->file = $file;
-    $this->used_builtins = [];
-    $this->builtin_cache = [
-      'Random' => Kernel::Random(),
-      'IO' => Kernel::IO()
-    ];
 
     $this->module_scopes = [
       new IR\ModuleScope(null, $file->basename())
     ];
 
-    $this->block_scopes = [
-      // empty
-    ];
+    $this->extern_scope = new IR\ExternScope();
+    $this->extern_scope->add_native_module(\Cthulhu\Kernel\Kernel::Types());
+    $this->extern_scope->add_native_module(\Cthulhu\Kernel\Kernel::IO($this));
+    $this->extern_scope->add_native_module(\Cthulhu\Kernel\Kernel::Random($this));
+  }
 
-    $this->expected_return = [];
+  function extern_scope(): IR\ExternScope {
+    return $this->extern_scope;
   }
 
   function current_module_scope(): IR\ModuleScope {
@@ -49,17 +46,8 @@ class Context {
     return array_pop($this->module_scopes);
   }
 
-  function resolve_module_scope(string $name): IR\ModuleScope {
-    switch ($name) {
-      case 'Random':
-        $this->used_builtins[] = $this->builtin_cache['Random'];
-        return $this->builtin_cache['Random']->scope;
-      case 'IO':
-        $this->used_builtins[] = $this->builtin_cache['IO'];
-        return $this->builtin_cache['IO']->scope;
-      default:
-          throw new \Exception('no known module named ' . $name);
-    }
+  function has_block_scopes(): bool {
+    return !empty($this->block_scopes);
   }
 
   function current_block_scope(): IR\BlockScope {
@@ -77,7 +65,7 @@ class Context {
     return array_pop($this->block_scopes);
   }
 
-  function push_expected_return(AST\Node $fn_node, Types\Type $return_type): void {
+  function push_expected_return(AST\Node $fn_node, IR\Types\Type $return_type): void {
     $this->expected_return[] = [$fn_node, $return_type];
   }
 
@@ -87,5 +75,42 @@ class Context {
 
   function pop_expected_return(): void {
     array_pop($this->expected_return);
+  }
+
+  function raw_path_to_binding(string ...$segments): IR\Binding {
+    $starting_scope = $this->extern_scope();
+    $total_segments = count($segments);
+    $intermediate_scope = $starting_scope;
+    for ($i = 0; $i < $total_segments; $i++) {
+      $segment = $segments[$i];
+      $is_last_segment = $i + 1 === $total_segments;
+
+      if ($is_last_segment) {
+        if ($binding = $intermediate_scope->resolve_name($segment)) {
+          return $binding;
+        } else {
+          goto fail;
+        }
+      }
+
+      $binding = $intermediate_scope->resolve_name($segment);
+      if ($binding === null) {
+        goto fail;
+      }
+
+      if ($binding->kind === 'module') {
+        $intermediate_scope = $binding->as_scope();
+        continue;
+      }
+
+      goto fail;
+    }
+
+    fail:
+    throw new \Exception('unknown path: `::' . implode('::', $segments) . '`');
+  }
+
+  function raw_path_to_type(string ...$segments): IR\Types\Type {
+    return $this->raw_path_to_binding(...$segments)->as_type();
   }
 }

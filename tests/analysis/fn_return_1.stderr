@@ -1,16 +1,16 @@
 
   INCORRECT RETURN TYPE  -----------------------------------------------------
 
-  Expected the function to return the type `Num` because of the type signature
-  on line 1:
+  Expected the function to return the type `Types::Num` because of the type
+  signature on line 1:
 
-  1 | fn main() -> Num {
-    |              ^^^
+  1 | fn main() -> ::Types::Num {
+    |              ~~~~~~~~~~~~
 
   But the function body returns nothing:
 
-  1 | fn main() -> Num {
-    |                  ^
+  1 | fn main() -> ::Types::Num {
+    |                           ^
   2 |   let x = 123;
     |   ^^^^^^^^^^^^
   3 |   x;

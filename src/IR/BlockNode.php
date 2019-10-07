@@ -2,13 +2,13 @@
 
 namespace Cthulhu\IR;
 
-use Cthulhu\Types;
-
 class BlockNode extends Node {
+  public $type;
   public $scope;
   public $stmts;
 
-  function __construct(BlockScope $scope, array $stmts) {
+  function __construct(Types\Type $type, BlockScope $scope, array $stmts) {
+    $this->type  = $type;
     $this->scope = $scope;
     $this->stmts = $stmts;
   }
@@ -24,22 +24,7 @@ class BlockNode extends Node {
     return null;
   }
 
-  public function type(): Types\Type {
-    if ($last_stmt = $this->last_stmt()) {
-      if ($last_stmt instanceof ReturnStmt) {
-        return $last_stmt->expr->type();
-      }
-    }
-
-    return new Types\VoidType();
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'BlockNode',
-      'stmts' => array_map(function ($stmt) {
-        return $stmt->jsonSerialize();
-      }, $this->stmts)
-    ];
+  public function return_type(): Types\Type {
+    return $this->type;
   }
 }

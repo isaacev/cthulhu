@@ -1,6 +1,6 @@
-use IO;
+use ::IO;
 
-fn main () -> Void {
+fn main () -> () {
   let name = if true {
     "is a string"
   } else {

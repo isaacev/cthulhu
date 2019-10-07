@@ -1,8 +1,8 @@
- use IO;
-use Random;
+use ::IO;
+use ::Random;
 
 #[inline]
-fn main() -> Void {
+fn main() -> () {
   IO::println(if Random::int(-10, 10) > 0 {
     "FIRST BRANCH"
   } else {
