@@ -164,7 +164,7 @@ class Snippet implements Reportable {
           : $focus_to->column - ($total_spaces + 1);
 
         $f->spaces($total_spaces)
-          ->repeat(self::UNDERLINE_CHAR, $total_underline);
+          ->repeat($this->get_option('underline', self::UNDERLINE_CHAR), $total_underline);
 
         // If this line contains the end of the focused region and if the note
         // includes a message, print that message after the underline.
