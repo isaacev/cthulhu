@@ -94,8 +94,14 @@ class Parser {
     return new AST\UseItem($span, $path, $attrs);
   }
 
-  private function mod_item(): AST\ModItem {
-    // TODO
+  private function mod_item(array $attrs): AST\ModItem {
+    $keyword = $this->next(TokenType::KEYWORD_MOD);
+    $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $left_brace = $this->next(TokenType::BRACE_LEFT);
+    $items = $this->items(true);
+    $right_brace = $this->next(TokenType::BRACE_RIGHT);
+    $span = $keyword->span->extended_to($right_brace->span);
+    return new AST\ModItem($span, $name, $items, $attrs);
   }
 
   private function fn_item(array $attrs): AST\FnItem {
