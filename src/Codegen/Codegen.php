@@ -219,8 +219,21 @@ class Codegen {
   }
 
   private static function if_expr(Context $ctx, IR\IfExpr $expr): PHP\Expr {
-    $variable = $ctx->renamer->allocate_variable('var');
     $cond = self::expr($ctx, $expr->condition);
+
+    if (
+      $expr->else_block &&
+      $expr->if_block->length() === 1 &&
+      $expr->if_block->stmts[0] instanceof IR\ReturnStmt &&
+      $expr->else_block->length() === 1 &&
+      $expr->else_block->stmts[0] instanceof IR\ReturnStmt
+    ) {
+      $if_true = self::expr($ctx, $expr->if_block->stmts[0]->expr);
+      $if_false = self::expr($ctx, $expr->else_block->stmts[0]->expr);
+      return new PHP\TernaryExpr($cond, $if_true, $if_false);
+    }
+
+    $variable = $ctx->renamer->allocate_variable('var');
     $if_true = self::block_with_trailing_assignment($ctx, $expr->if_block, $variable);
     $if_false = $expr->else_block
       ? self::block_with_trailing_assignment($ctx, $expr->else_block, $variable)
