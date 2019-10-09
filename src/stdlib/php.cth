@@ -1,0 +1,9 @@
+use ::kernel::Str;
+use ::kernel::Num;
+
+#[inline]
+#[construct]
+native fn print(Str) -> ();
+
+#[inline]
+native fn strval(Num) -> Str;

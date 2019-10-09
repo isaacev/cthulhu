@@ -1,4 +1,4 @@
 #[inline]
 fn main () -> () {
-  ::IO::println("hello world");
+  ::io::println("hello world");
 }

@@ -1,0 +1,6 @@
+use ::kernel::Str;
+
+fn println(str: Str) -> () {
+  ::php::print(str);
+  ::php::print("\n");
+}
