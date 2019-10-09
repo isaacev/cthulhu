@@ -256,6 +256,18 @@ class Errors {
       ->snippet($expr_span);
   }
 
+  public static function unsupported_unary_operator(
+    Source\File $file,
+    Source\Span $expr_span,
+    string $op,
+    IR\Types\Type $operand_type
+  ): Error {
+    $title = 'unsupported unary operator';
+    return (new Error($file, $title, $expr_span))
+      ->paragraph("The type `$operand_type` does not support the `$op` operator.")
+      ->snippet($expr_span);
+  }
+
   public static function unknown_generic_type(
     Source\File $file,
     Source\Span $span,

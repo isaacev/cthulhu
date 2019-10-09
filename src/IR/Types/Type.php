@@ -5,7 +5,19 @@ namespace Cthulhu\IR\Types;
 use Cthulhu\IR;
 
 abstract class Type {
+  protected $unops = [];
   protected $binops = [];
+
+  function add_unop(string $op, self $ret): void {
+    $this->unops[$op] = $ret;
+  }
+
+  function get_unop(string $op): ?self {
+    if (array_key_exists($op, $this->unops)) {
+      return $this->unops[$op];
+    }
+    return null;
+  }
 
   function add_binop(string $op, self $rhs, self $ret): void {
     if (array_key_exists($op, $this->binops)) {

@@ -360,8 +360,17 @@ class Analyzer {
 
   private static function unary_expr(Context $ctx, AST\UnaryExpr $expr): IR\UnaryExpr {
     $operand = self::expr($ctx, $expr->operand);
-    $type = $operand->return_type()->unary_operator($expr->operator); // FIXME
-    return new IR\UnaryExpr($type, $expr->operator, $operand);
+    $opr = $operand->return_type();
+    $ret = $opr->get_unop($expr->operator);
+    if ($ret === null) {
+      throw Errors::unsupported_unary_operator(
+        $ctx->file,
+        $expr->span,
+        $expr->operator,
+        $opr
+      );
+    }
+    return new IR\UnaryExpr($ret, $expr->operator, $operand);
   }
 
   private static function path_expr(Context $ctx, AST\PathExpr $expr): IR\ReferenceExpr {

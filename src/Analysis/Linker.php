@@ -57,6 +57,7 @@ class Linker extends IR\Scope {
     $int_type = new IR\Types\IntType();
     $scope->add_binding(IR\Binding::for_type($int_symbol, $int_type));
     $int_type->add_binop('+', $int_type, $int_type);
+    $int_type->add_unop('-', $int_type);
 
     $str_symbol = new IR\Symbol('Str', null, $scope->symbol);
     $str_type = new IR\Types\StrType();
