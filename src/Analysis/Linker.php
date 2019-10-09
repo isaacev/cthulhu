@@ -44,6 +44,9 @@ class Linker extends IR\Scope {
   protected const STDLIB_DIR = __DIR__ . '/../stdlib';
 
   protected static function name_in_stdlib(string $name) {
+    if (strtolower($name) != $name) {
+      return false;
+    }
     return realpath(self::STDLIB_DIR . '/' . $name . '.cth');
   }
 
