@@ -36,6 +36,7 @@ class BinaryExpr extends Expr {
         return PREC_COMP;
       case '+':
       case '-':
+      case '.':
         return PREC_ADD;
       case '*':
       case '/':

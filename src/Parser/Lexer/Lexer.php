@@ -99,7 +99,7 @@ class Lexer {
       case $next->is(')'):
         return $this->next_single_char(TokenType::PAREN_RIGHT, $next);
       case $next->is('+'):
-        return $this->next_single_char(TokenType::PLUS, $next);
+      return $this->next_single_or_double_char(TokenType::PLUS, '+', TokenType::PLUS_PLUS, $next);
       case $next->is('-'):
         return $this->starts_with_dash($next);
       case $next->is('*'):

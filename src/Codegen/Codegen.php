@@ -240,7 +240,15 @@ class Codegen {
   private static function binary_expr(Context $ctx, IR\BinaryExpr $expr): PHP\BinaryExpr {
     $left = self::expr($ctx, $expr->left);
     $right = self::expr($ctx, $expr->right);
-    return new PHP\BinaryExpr($expr->operator, $left, $right);
+    $op = self::translate_binops($expr->operator);
+    return new PHP\BinaryExpr($op, $left, $right);
+  }
+
+  private static function translate_binops(string $op): string {
+    switch ($op) {
+      case '++': return '.';
+      default:   return $op;
+    }
   }
 
   private static function unary_expr(Context $ctx, IR\UnaryExpr $expr): PHP\UnaryExpr {

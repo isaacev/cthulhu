@@ -256,6 +256,7 @@ class Parser {
       case TokenType::PAREN_LEFT:
         return $this->call_expr($left, $next);
       case TokenType::PLUS:
+      case TokenType::PLUS_PLUS:
       case TokenType::DASH:
       case TokenType::STAR:
       case TokenType::SLASH:
@@ -398,6 +399,7 @@ class Parser {
 
     switch ($token->type) {
       case TokenType::PLUS:
+      case TokenType::PLUS_PLUS:
       case TokenType::DASH:
         return Precedence::SUM;
       case TokenType::STAR:

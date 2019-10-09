@@ -2,6 +2,5 @@ use ::kernel::Str;
 
 #[inline]
 fn println(str: Str) -> () {
-  ::php::print(str);
-  ::php::print("\n");
+  ::php::print(str ++ "\n");
 }
