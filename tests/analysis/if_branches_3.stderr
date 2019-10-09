@@ -11,7 +11,7 @@
     |   ^
 
   Expected the else clause to return a type compatible with `()`. Instead it
-  returned `Types::Str`:
+  returned `Str`:
 
   5 |     "def"
     |     ^^^^^

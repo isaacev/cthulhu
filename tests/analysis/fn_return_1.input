@@ -1,4 +1,4 @@
-fn main() -> ::Types::Num {
+fn main() -> ::kernel::Num {
   let x = 123;
   x;
 }

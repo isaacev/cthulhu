@@ -1,13 +1,13 @@
 
   INCOMPATIBLE IF AND ELSE TYPES  --------------------------------------------
 
-  Expected `Types::Str` because of the return type of the if clause:
+  Expected `Str` because of the return type of the if clause:
 
   5 |     "is a string"
     |     ^^^^^^^^^^^^^
 
-  Expected the else clause to return a type compatible with `Types::Str`.
-  Instead it returned `Types::Num`:
+  Expected the else clause to return a type compatible with `Str`. Instead it
+  returned `Int`:
 
   7 |     123
     |     ^^^

@@ -1,8 +1,8 @@
 
   VALUE REFERENCED AS MODULE  ------------------------------------------------
 
-  The value `IO::println` has the type `Types::Str -> ()` but was referenced as
-  a module:
+  The value `IO::println` has the type `Str -> ()` but was referenced as a
+  module:
 
   4 |   IO::println::extra();
     |   ^^^^^^^^^^^^^^^^^^
