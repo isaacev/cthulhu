@@ -26,6 +26,7 @@ class Visitor {
 
   private static function _edit(Path $path, Table $table): array {
     $table->preorder($path);
+    $preorder_sibling_nodes = $path->new_sibling_nodes;
     if ($path->was_removed()) {
       // If the path was removed, immediately exit this call to the edit function because all subsequent steps would be operating on a non-
       // existant node.
@@ -62,7 +63,7 @@ class Visitor {
         return [];
       } else if ($node_before_editing_children !== $path->node) {
         // The child node replaced the current node so restart editing.
-        return self::_edit($path, $table);
+        return array_merge(self::_edit($path, $table), $preorder_sibling_nodes);
       }
 
       if ($child_path->was_removed()) {
