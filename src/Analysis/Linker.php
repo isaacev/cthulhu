@@ -53,6 +53,10 @@ class Linker extends IR\Scope {
   protected static function kernel(): IR\ModuleScope {
     $scope = new IR\ModuleScope(null, 'kernel');
 
+    $bool_symbol = new IR\Symbol('Bool', null, $scope->symbol);
+    $bool_type = new IR\Types\BoolType();
+    $scope->add_binding(IR\Binding::for_type($bool_symbol, $bool_type));
+
     $int_symbol = new IR\Symbol('Num', null, $scope->symbol);
     $int_type = new IR\Types\IntType();
     $scope->add_binding(IR\Binding::for_type($int_symbol, $int_type));
