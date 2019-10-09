@@ -59,6 +59,10 @@ class Linker extends IR\Scope {
     $str_type = new IR\Types\StrType();
     $scope->add_binding(IR\Binding::for_type($str_symbol, $str_type));
 
+    $bool_symbol = new IR\Symbol('Bool', null, $scope->symbol);
+    $bool_type = new IR\Types\BoolType();
+    $scope->add_binding(IR\Binding::for_type($bool_symbol, $bool_type));
+
     return $scope;
   }
 }
