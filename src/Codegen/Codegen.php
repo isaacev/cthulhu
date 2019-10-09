@@ -8,9 +8,8 @@ class Codegen {
   public static function generate(IR\Program $prog): PHP\Program {
     $ctx = new Context();
 
-    $builtin_namespaces = [];
-    foreach ($prog->root_module->builtins as $native_module) {
-      $builtin_namespaces[] = $native_module->codegen($ctx->renamer);
+    foreach ($prog->libraries as $module) {
+      self::module($ctx, $module);
     }
 
     $ctx->push_namespace($ctx->renamer->get_reference($prog->root_module->scope->symbol));
@@ -20,7 +19,7 @@ class Codegen {
     $ctx->pop_namespace();
     $ctx->renamer->pop_scope();
 
-    $namespaces = array_merge($builtin_namespaces, $ctx->namespaces);
+    $namespaces = $ctx->namespaces;
     $namespaces[] = new PHP\NamespaceNode(null, new PHP\BlockNode([
       new PHP\SemiStmt(
         new PHP\CallExpr(
@@ -31,6 +30,14 @@ class Codegen {
     ]));
 
     return new PHP\Program($namespaces);
+  }
+
+  private static function module(Context $ctx, IR\SourceModule $module): void {
+    $ctx->push_namespace($ctx->renamer->get_reference($module->scope()->symbol));
+    $ctx->renamer->push_scope(new PHP\NamespaceScope($ctx->renamer->current_scope()));
+    self::items($ctx, $module->items);
+    $ctx->pop_namespace();
+    $ctx->renamer->pop_scope();
   }
 
   private static function items(Context $ctx, array $items): void {
@@ -45,10 +52,13 @@ class Codegen {
         self::use_item($ctx, $item);
         break;
       case $item instanceof IR\ModItem:
-        self::use_item($ctx, $item);
+        self::mod_item($ctx, $item);
         break;
       case $item instanceof IR\FnItem:
         self::fn_item($ctx, $item);
+        break;
+      case $item instanceof IR\NativeItem:
+        self::native_item($ctx, $item);
         break;
       default:
         throw new \Exception('unknown item');
@@ -60,7 +70,10 @@ class Codegen {
   }
 
   private static function mod_item(Context $ctx, IR\ModItem $item): void {
-    // TODO
+    $ctx->push_namespace($ctx->renamer->get_reference($item->scope->symbol));
+    self::items($ctx, $item->items);
+    $ctx->pop_namespace();
+    $ctx->renamer->pop_scope();
   }
 
   private static function fn_item(Context $ctx, IR\FnItem $item): void {
@@ -75,6 +88,31 @@ class Codegen {
     $body = self::block($ctx, $item->body);
     $ctx->renamer->pop_scope();
     $ctx->push_stmt_to_namespace(new PHP\FuncStmt($fn_name, $params, $body, $item->attrs));
+  }
+
+  private static function native_item(Context $ctx, IR\NativeItem $item): void {
+    $internal_ref = new PHP\Reference($item->internal, [ $ctx->renamer->resolve($item->internal) ]);
+
+    $ctx->renamer->push_scope(new PHP\FunctionScope($ctx->renamer->current_scope()));
+    $params = $ctx->renamer->allocate_bulk_variables(count($item->type->inputs));
+    $ctx->push_block();
+    $vars = array_map(function ($param) { return new PHP\VariableExpr($param); }, $params);
+    if ($item->get_attr('construct')) {
+      $native_call = new PHP\BuiltinCallExpr($item->external->name, $vars);
+    } else {
+      $ref = new PHP\Reference($item->external, [ $item->external->name ]);
+      $callee = new PHP\ReferenceExpr($ref);
+      $native_call = new PHP\CallExpr($callee, $vars);
+    }
+    if (IR\Types\UnitType::is_equal_to($item->type->output)) {
+      $ctx->push_stmt_to_block(new PHP\SemiStmt($native_call));
+    } else {
+      $ctx->push_stmt_to_block(new PHP\ReturnStmt($native_call));
+    }
+    $body = $ctx->pop_block();
+    $ctx->renamer->pop_scope();
+
+    $ctx->push_stmt_to_namespace(new PHP\FuncStmt($internal_ref, $params, $body, $item->attrs));
   }
 
   private static function block(Context $ctx, IR\BlockNode $block): PHP\BlockNode {

@@ -44,6 +44,14 @@ class Renamer {
     return $this->get_variable($symbol);
   }
 
+  public function allocate_bulk_variables(int $total, string $initial_name = 'tmp'): array {
+    $vars = [];
+    for ($i = 0; $i < $total; $i++) {
+      $vars[] = $this->allocate_variable($initial_name);
+    }
+    return $vars;
+  }
+
   public function resolve(IR\Symbol $symbol): string {
     if (array_key_exists($symbol->id, $this->rename_cache)) {
       return $this->rename_cache[$symbol->id];

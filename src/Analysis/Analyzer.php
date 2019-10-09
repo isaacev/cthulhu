@@ -7,25 +7,26 @@ use Cthulhu\IR;
 
 class Analyzer {
   public static function ast_to_program(AST\File $file): IR\Program {
-    $root_module = self::ast_to_module($file);
+    $linker = new Linker();
+    $root_module = self::ast_to_module($linker, $file);
 
     // Check if the root module has a `main` function
     foreach ($root_module->items as $item) {
       if ($item instanceof IR\FnItem && $item->symbol->name === 'main') {
-        return new IR\Program($root_module, $item->symbol);
+        return new IR\Program($root_module, $linker->includes, $item->symbol);
       }
     }
 
     throw Errors::no_entry_point($file->file);
   }
 
-  public static function ast_to_module(AST\File $file): IR\SourceModule {
-    $ctx = new Context($file->file);
+  public static function ast_to_module(Linker $linker, AST\File $file): IR\SourceModule {
+    $ctx = new Context($linker, $file->file);
     $items = [];
     foreach ($file->items as $item) {
       $items[] = self::item($ctx, $item);
     }
-    return new IR\SourceModule($file->file, $ctx->used_builtins, $ctx->pop_module_scope(), $items);
+    return new IR\SourceModule($file->file, $ctx->pop_module_scope(), $items);
   }
 
   private static function item(Context $ctx, AST\Item $item): IR\Item {
@@ -36,6 +37,8 @@ class Analyzer {
         return self::mod_item($ctx, $item);
       case $item instanceof AST\FnItem:
         return self::fn_item($ctx, $item);
+      case $item instanceof AST\NativeItem:
+        return self::native_item($ctx, $item);
       default:
         throw new \Exception('illegal item in module');
     }
@@ -48,19 +51,30 @@ class Analyzer {
   }
 
   private static function mod_item(Context $ctx, AST\ModItem $item): IR\ModItem {
-    $name = $item->name->ident;
-    $ctx->push_module_scope();
+    $name = $item->name;
+    $ctx->push_module_scope($name);
     $items = [];
     foreach ($item->items as $item) {
       $items[] = self::item($ctx, $item);
     }
-    return new IR\ModItem($ctx->pop_module_scope(), $items);
+    $attrs = self::attrs($item->attrs);
+    $scope = $ctx->pop_module_scope();
+    $ctx->current_module_scope()->add_binding(IR\Binding::for_module($scope));
+    return new IR\ModItem($scope, $items, $attrs);
   }
 
   private static function fn_item(Context $ctx, AST\FnItem $item): IR\FnItem {
     $fn_name = $item->name->ident;
     $origin = $item->span->extended_to($item->returns->span);
     $symbol = new IR\Symbol($fn_name, $origin, $ctx->current_module_scope()->symbol);
+
+    $param_notes = array_map(function ($param) { return $param->note; }, $item->params);
+    $generic_names = self::find_all_generic_names($item->returns, ...$param_notes);
+    $generic_table = [];
+    foreach ($generic_names as $name) {
+      $generic_table[$name] = new IR\Types\GenericType($name);
+    }
+    $ctx->push_generic_table($generic_table);
 
     // Determine function type signature
     $param_types = [];
@@ -81,7 +95,7 @@ class Analyzer {
       $param_symbol = new IR\Symbol($param_name, $param_origin, null);
       $param_symbols[] = $param_symbol;
       $param_type = $param_types[$index];
-      $ctx->current_block_scope()->add($param_symbol, $param_type);
+      $ctx->current_block_scope()->add_binding(IR\Binding::for_value($param_symbol, $param_type));
     }
 
     // Verify that the function body returns the correct type
@@ -105,8 +119,19 @@ class Analyzer {
       throw Errors::function_returns_nothing($ctx->file, $block_span, $wanted_span, $wanted_type, $last_stmt, $last_semi);
     }
 
+    $ctx->pop_generic_table();
     $attrs = self::attrs($item->attrs);
     return new IR\FnItem($symbol, $param_symbols, $type, $ctx->pop_block_scope(), $body, $attrs);
+  }
+
+  private static function native_item(Context $ctx, AST\NativeItem $item): IR\NativeItem {
+    $name = $item->name->ident;
+    $internal = new IR\Symbol($name, $item->name->span, $ctx->current_module_scope()->symbol);
+    $external = new IR\Symbol($name, $item->name->span, null);
+    $type = self::annotation_to_type($ctx, $item->note);
+    $ctx->current_module_scope()->add_binding(IR\Binding::for_value($internal, $type));
+    $attrs = self::attrs($item->attrs);
+    return new IR\NativeItem($internal, $external, $type, $attrs);
   }
 
   private static function attrs(array $attr_nodes): array {
@@ -217,7 +242,7 @@ class Analyzer {
    */
   private static function if_expr(Context $ctx, AST\IfExpr $expr): IR\Expr {
     $cond = self::expr($ctx, $expr->condition);
-    if ($ctx->raw_path_to_type('Types', 'Bool')->equals($cond->return_type()) === false) {
+    if (IR\Types\BoolType::not_equal_to($cond->return_type())) {
       $found_span = $expr->condition->span;
       $found_type = $cond->return_type();
       throw Errors::condition_not_bool($ctx->file, $found_span, $found_type);
@@ -279,37 +304,58 @@ class Analyzer {
 
   private static function call_expr(Context $ctx, AST\CallExpr $expr): IR\CallExpr {
     $callee = self::expr($ctx, $expr->callee);
-    if (($callee->return_type() instanceof IR\Types\FunctionType) === false) {
+    $unbound_callee_type = $callee->return_type();
+    if (IR\Types\FunctionType::not_equal_to($unbound_callee_type)) {
       throw new Types\Errors\TypeMismatch('function', $callee->return_type());
+      throw Errors::called_a_non_function(
+        $ctx->file,
+        $expr->callee->span,
+        $callee->return_type()
+      );
     }
-    $args = [];
-    $wanted_num_args = count($callee->return_type()->inputs);
-    $given_num_args = count($expr->args);
-    if ($wanted_num_args !== $given_num_args) {
+
+    $num_args_wanted = count($unbound_callee_type->inputs);
+    $num_args_given = count($expr->args);
+    if ($num_args_wanted !== $num_args_given) {
       throw Errors::func_called_with_wrong_num_or_args(
         $ctx->file,
         $expr->span,
-        $given_num_args,
+        $num_args_given,
         $callee->return_type()
       );
-    } else {
-      $args = [];
-      for ($i = 0; $i < $wanted_num_args; $i++) {
-        $wanted_type = $callee->return_type()->inputs[$i];
-        $args[] = $given_expr = self::expr($ctx, $expr->args[$i]);
-        if (($wanted_type->equals($given_expr->return_type())) === false) {
-          throw new Types\Errors\TypeMismatch($wanted_type, $given_expr->return_type());
-        }
-      }
-      return new IR\CallExpr($callee, $args);
     }
+
+    $args = [];
+    for ($i = 0; $i < $num_args_wanted; $i++) {
+      $wanted_type = $callee->return_type()->inputs[$i];
+      $args[] = $given_expr = self::expr($ctx, $expr->args[$i]);
+      if (($wanted_type->equals($given_expr->return_type())) === false) {
+        throw Errors::type_mismatch(
+          $ctx->file,
+          $given_expr->return_type(),
+          $expr->args[$i]->span,
+          $wanted_type);
+      }
+    }
+
+    return new IR\CallExpr($callee, $args);
   }
 
-  private static function binary_expr(Context $ctx, AST\BinaryExpr $expr): IR\BinaryExpr {
+  private static function binary_expr(Context $ctx, AST\BinaryExpr $expr): IR\Expr {
     $left = self::expr($ctx, $expr->left);
     $right = self::expr($ctx, $expr->right);
-    $type = $left->return_type()->binary_operator($expr->operator, $right->return_type()); // FIXME
-    return new IR\BinaryExpr($type, $expr->operator, $left, $right);
+    $lhs = $left->return_type();
+    $rhs = $right->return_type();
+    $ret = $lhs->get_binop($expr->operator, $rhs);
+    if ($ret === null) {
+      throw Errors::unsupported_binary_operator(
+        $ctx->file,
+        $expr->span,
+        $expr->operator,
+        $left->return_type()
+      );
+    }
+    return new IR\BinaryExpr($ret, $expr->operator, $left, $right);
   }
 
   private static function unary_expr(Context $ctx, AST\UnaryExpr $expr): IR\UnaryExpr {
@@ -324,17 +370,17 @@ class Analyzer {
   }
 
   private static function str_expr(Context $ctx, AST\StrExpr $expr): IR\StrExpr {
-    $type = $ctx->raw_path_to_type('Types', 'Str');
+    $type = $ctx->raw_path_to_type('kernel', 'Str');
     return new IR\StrExpr($type, $expr->value);
   }
 
   private static function num_expr(Context $ctx, AST\NumExpr $expr): IR\NumExpr {
-    $type = $ctx->raw_path_to_type('Types', 'Num');
+    $type = $ctx->raw_path_to_type('kernel', 'Num');
     return new IR\NumExpr($type, $expr->value);
   }
 
   private static function bool_expr(Context $ctx, AST\BoolExpr $expr): IR\BoolExpr {
-    $type = $ctx->raw_path_to_type('Types', 'Bool');
+    $type = $ctx->raw_path_to_type('kernel', 'Bool');
     return new IR\BoolExpr($type, $expr->value);
   }
 
@@ -345,20 +391,55 @@ class Analyzer {
    */
   private static function annotation_to_type(Context $ctx, AST\Annotation $note): IR\Types\Type {
     switch (true) {
+      case $note instanceof AST\GroupedAnnotation:
+        return self::annotation_to_type($ctx, $note->inner);
+      case $note instanceof AST\FunctionAnnotation:
+        return self::function_annotation_to_type($ctx, $note);
       case $note instanceof AST\UnitAnnotation:
         return new IR\Types\UnitType();
       case $note instanceof AST\NamedAnnotation:
         return self::named_annotation_to_type($ctx, $note);
       case $note instanceof AST\GenericAnnotation:
-        throw new \Exception('unsupported generic annotation');
+        return self::generic_annotation_to_type($ctx, $note);
       default:
         throw new \Exception('unknown annotation type');
     }
   }
 
+  private static function function_annotation_to_type(Context $ctx, AST\FunctionAnnotation $note): IR\Types\Type {
+    $inputs = array_map(function ($note) use ($ctx) {
+      return self::annotation_to_type($ctx, $note);
+    }, $note->inputs);
+    $output = self::annotation_to_type($ctx, $note->output);
+    return new IR\Types\FunctionType($inputs, $output);
+  }
+
   private static function named_annotation_to_type(Context $ctx, AST\NamedAnnotation $note): IR\Types\Type {
     $binding = self::path_to_binding($ctx, $note->path);
     return $binding->as_type();
+  }
+
+  private static function generic_annotation_to_type(Context $ctx, AST\GenericAnnotation $note): IR\Types\Type {
+    if ($type = $ctx->lookup_generic($note->name)) {
+      return $type;
+    }
+    throw Error::unknown_generic_type(
+      $ctx->file,
+      $note->span,
+      $note->name
+    );
+  }
+
+  private static function find_all_generic_names(AST\Annotation ...$types): array {
+    $names = [];
+    while ($next = array_pop($types)) {
+      switch (true) {
+        case $next instanceof AST\GenericAnnotation:
+          $names[] = $next->name;
+          break;
+      }
+    }
+    return array_unique($names);
   }
 
   private static function path_to_binding(Context $ctx, AST\PathNode $path): IR\Binding {
@@ -385,7 +466,7 @@ class Analyzer {
             $segment->span,
             $segment->ident
           );
-        } else if ($intermediate_scope instanceof IR\ExternScope) {
+        } else if ($intermediate_scope instanceof Linker) {
           throw Errors::unknown_external_module(
             $ctx->file,
             $segment->span,
@@ -403,12 +484,26 @@ class Analyzer {
 
       $binding = $intermediate_scope->resolve_name($segment->ident);
       if ($binding === null) {
-        throw Errors::unknown_submodule(
-          $ctx->file,
-          $intermediate_scope->symbol,
-          $segment->span,
-          $segment->ident
-        );
+        if ($intermediate_scope instanceof Linker) {
+          throw Errors::unknown_external_module(
+            $ctx->file,
+            $segment->span,
+            $segment->ident
+          );
+        } else if ($intermediate_scope instanceof IR\ModuleScope) {
+          throw Errors::unknown_submodule(
+            $ctx->file,
+            $intermediate_scope->symbol,
+            $segment->span,
+            $segment->ident
+          );
+        } else {
+          throw Errors::unknown_local_variable(
+            $ctx->file,
+            $segment->span,
+            $segment->ident
+          );
+        }
       }
 
       if ($binding->kind === 'module') {

@@ -12,6 +12,6 @@ class File {
   }
 
   public function basename(): string {
-    return basename($this->filepath);
+    return basename($this->filepath, '.cth');
   }
 }

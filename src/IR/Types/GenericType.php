@@ -4,7 +4,7 @@ namespace Cthulhu\IR\Types;
 
 use Cthulhu\IR;
 
-class ParameterType extends Type {
+class GenericType extends Type {
   public $name;
 
   function __construct(string $name) {

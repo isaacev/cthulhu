@@ -207,6 +207,7 @@ class Lexer {
       case 'fn':      return new Token(TokenType::KEYWORD_FN, $span, 'fn');
       case 'use':     return new Token(TokenType::KEYWORD_USE, $span, 'use');
       case 'mod':     return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
+      case 'native':  return new Token(TokenType::KEYWORD_NATIVE, $span, 'native');
       case 'true':    return new Token(TokenType::LITERAL_BOOL, $span, 'true');
       case 'false':   return new Token(TokenType::LITERAL_BOOL, $span, 'false');
       default:        return new Token(TokenType::IDENT, $span, $lexeme);

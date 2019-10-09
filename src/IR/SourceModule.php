@@ -6,13 +6,11 @@ use Cthulhu\Source;
 
 class SourceModule implements Module {
   public $file;
-  public $builtins;
   public $scope;
   public $items;
 
-  function __construct(Source\File $file, array $builtins, ModuleScope $scope, array $items) {
+  function __construct(Source\File $file, ModuleScope $scope, array $items) {
     $this->file = $file;
-    $this->builtins = $builtins;
     $this->scope = $scope;
     $this->items = $items;
   }

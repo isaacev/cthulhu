@@ -17,6 +17,10 @@ class Symbol implements \JsonSerializable {
     $this->name   = $name;
     $this->origin = $origin;
     $this->parent = $parent;
+
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) {
+      throw new \Exception("illegal symbol name: `$name`");
+    }
   }
 
   public function equals(self $other): bool {

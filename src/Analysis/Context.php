@@ -4,31 +4,27 @@ namespace Cthulhu\Analysis;
 
 use Cthulhu\AST;
 use Cthulhu\IR;
-use Cthulhu\Kernel\Kernel;
 use Cthulhu\Source;
 
 class Context {
+  public $linker;
   public $file;
-  public $used_builtins = [];
   private $module_scopes = [];
   private $block_scopes = [];
+  private $generic_tables = [];
   private $expected_return = [];
 
-  function __construct(Source\File $file) {
+  function __construct(Linker $linker, Source\File $file) {
+    $this->linker = $linker;
     $this->file = $file;
 
     $this->module_scopes = [
       new IR\ModuleScope(null, $file->basename())
     ];
-
-    $this->extern_scope = new IR\ExternScope();
-    $this->extern_scope->add_native_module(\Cthulhu\Kernel\Kernel::Types());
-    $this->extern_scope->add_native_module(\Cthulhu\Kernel\Kernel::IO($this));
-    $this->extern_scope->add_native_module(\Cthulhu\Kernel\Kernel::Random($this));
   }
 
-  function extern_scope(): IR\ExternScope {
-    return $this->extern_scope;
+  function extern_scope(): Linker {
+    return $this->linker; // TODO
   }
 
   function current_module_scope(): IR\ModuleScope {
@@ -38,7 +34,7 @@ class Context {
   function push_module_scope(AST\IdentNode $name): IR\ModuleScope {
     $parent = $this->current_module_scope();
     $child = new IR\ModuleScope($parent, $name->ident);
-    $parent->add($child->symbol, $chidl);
+    $parent->add_binding(IR\Binding::for_module($child));
     return $this->module_scopes[] = $child;
   }
 
@@ -65,6 +61,28 @@ class Context {
     return array_pop($this->block_scopes);
   }
 
+  function can_access_generics(): bool {
+    return empty($this->generic_tables) === false;
+  }
+
+  function push_generic_table(array $table): void {
+    $this->generic_tables[] = $table;
+  }
+
+  function lookup_generic(string $name): ?IR\Types\Type {
+    for ($i = count($this->generic_tables) - 1; $i >= 0; $i--) {
+      $table = $this->generic_tables[$i];
+      if (array_key_exists($name, $table)) {
+        return $table[$name];
+      }
+    }
+    return null;
+  }
+
+  function pop_generic_table(): void {
+    array_pop($this->generic_tables);
+  }
+
   function push_expected_return(AST\Node $fn_node, IR\Types\Type $return_type): void {
     $this->expected_return[] = [$fn_node, $return_type];
   }
@@ -78,7 +96,7 @@ class Context {
   }
 
   function raw_path_to_binding(string ...$segments): IR\Binding {
-    $starting_scope = $this->extern_scope();
+    $starting_scope = $this->linker;
     $total_segments = count($segments);
     $intermediate_scope = $starting_scope;
     for ($i = 0; $i < $total_segments; $i++) {

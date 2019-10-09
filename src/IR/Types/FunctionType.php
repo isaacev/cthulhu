@@ -39,4 +39,12 @@ class FunctionType extends Type {
     }
     return sprintf('(%s) -> %s', implode(', ', $this->inputs), $this->output);
   }
+
+  static function is_equal_to(Type $other): bool {
+    return $other instanceof self;
+  }
+
+  static function not_equal_to(Type $other): bool {
+    return self::is_equal_to($other) === false;
+  }
 }

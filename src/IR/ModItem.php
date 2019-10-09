@@ -3,7 +3,12 @@
 namespace Cthulhu\IR;
 
 class ModItem extends Item {
-  function __construct(ModuleScope $scope, array $items) {
-    // TODO
+  public $scope;
+  public $items;
+
+  function __construct(ModuleScope $scope, array $items, array $attrs) {
+    parent::__construct($attrs);
+    $this->scope = $scope;
+    $this->items = $items;
   }
 }

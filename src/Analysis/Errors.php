@@ -243,4 +243,50 @@ class Errors {
       ->paragraph("The expected $num_args_expected argument${s}, $num_args_given given:")
       ->snippet($call_site);
   }
+
+  public static function unsupported_binary_operator(
+    Source\File $file,
+    Source\Span $expr_span,
+    string $op,
+    IR\Types\Type $lhs
+  ): Error {
+    $title = 'unsupported binary operator';
+    return (new Error($file, $title, $expr_span))
+      ->paragraph("The type `$lhs` does not support the `$op` operator.")
+      ->snippet($expr_span);
+  }
+
+  public static function unknown_generic_type(
+    Source\File $file,
+    Source\Span $span,
+    string $name
+  ): Error {
+    $title = 'unknown type parameter';
+    return (new Error($file, $title, $span))
+      ->paragraph("No type parameter named `$name` in scope.")
+      ->snippet($span);
+  }
+
+  public static function type_mismatch(
+    Source\File $file,
+    IR\Types\Type $found_type,
+    Source\Span $found_span,
+    IR\Types\Type $wanted_type
+  ): Error {
+    $title = 'type mismatch';
+    return (new Error($file, $title, $found_span))
+      ->paragraph("Expected the type `$wanted_type`, found `$found_type` instead.")
+      ->snippet($found_span);
+  }
+
+  public static function called_a_non_function(
+    Source\File $file,
+    Source\Span $span,
+    IR\Types\Type $type
+  ): Error {
+    $title = 'called non function';
+    return (new Error($file, $title, $span))
+      ->paragraph("Tried to call an expression with type `$type`, expected a function instead.")
+      ->snippet($span);
+  }
 }

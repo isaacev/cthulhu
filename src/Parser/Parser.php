@@ -64,6 +64,8 @@ class Parser {
         return $this->mod_item($attrs);
       case TokenType::KEYWORD_FN:
         return $this->fn_item($attrs);
+      case TokenType::KEYWORD_NATIVE:
+        return $this->native_item($attrs);
       default:
         throw Errors::expected_item($this->file, $this->lexer->next());
     }
@@ -102,6 +104,16 @@ class Parser {
     $right_brace = $this->next(TokenType::BRACE_RIGHT);
     $span = $keyword->span->extended_to($right_brace->span);
     return new AST\ModItem($span, $name, $items, $attrs);
+  }
+
+  private function native_item(array $attrs): AST\NativeItem {
+    $native = $this->next(TokenType::KEYWORD_NATIVE);
+    $fn     = $this->next(TokenType::KEYWORD_FN);
+    $name   = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $note   = $this->function_annotation($this->grouped_annotation());
+    $semi   = $this->next(TokenType::SEMICOLON);
+    $span   = $native->span->extended_to($semi->span);
+    return new AST\NativeItem($span, $name, $note, $attrs);
   }
 
   private function fn_item(array $attrs): AST\FnItem {
@@ -408,13 +420,27 @@ class Parser {
     switch ($peek->type) {
       case TokenType::IDENT:
       case TokenType::DOUBLE_COLON:
-        return $this->named_annotation();
+        $prefix = $this->named_annotation();
+        break;
       case TokenType::PAREN_LEFT:
-        return $this->unit_annotation();
+        $prefix = $this->grouped_annotation();
+        break;
       case TokenType::GENERIC:
-        return $this->generic_annotation();
+        $prefix = $this->generic_annotation();
+        break;
       default:
         throw Errors::expected_annotation($this->file, $peek);
+    }
+
+    while (true) {
+      $peek = $this->lexer->peek();
+      switch ($peek->type) {
+        case TokenType::THIN_ARROW:
+          $prefix = $this->function_annotation($prefix);
+          break;
+        default:
+          return $prefix;
+      }
     }
   }
 
@@ -423,15 +449,46 @@ class Parser {
     return new AST\NamedAnnotation($path);
   }
 
-  private function unit_annotation(): AST\UnitAnnotation {
+  private function grouped_annotation(): AST\Annotation {
     $paren_left = $this->next(TokenType::PAREN_LEFT);
+    $members = [];
+    if ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
+      while (true) {
+        $members[] = $this->type_annotation();
+        if ($this->lexer->peek()->type !== TokenType::COMMA) {
+          break;
+        }
+        $this->next(TokenType::COMMA);
+      }
+    }
     $paren_right = $this->next(TokenType::PAREN_RIGHT);
     $span = $paren_left->span->extended_to($paren_right->span);
-    return new AST\UnitAnnotation($span);
+    switch (count($members)) {
+      case 0:
+        return new AST\UnitAnnotation($span);
+      case 1:
+        return new AST\GroupedAnnotation($span, $members[0]);
+      default:
+        return new AST\TupleAnnotation($span, $members);
+    }
   }
 
   private function generic_annotation(): AST\GenericAnnotation {
     $gen = $this->next(TokenType::GENERIC);
     return new AST\GenericAnnotation($gen->span, substr($gen->lexeme, 1));
+  }
+
+  private function function_annotation(AST\Annotation $prefix): AST\FunctionAnnotation {
+    if ($prefix instanceof AST\GroupedAnnotation) {
+      $inputs = [ $prefix->inner ];
+    } else if ($prefix instanceof AST\TupleAnnotation) {
+      $inputs = $prefix->members;
+    } else {
+      $inputs = [ $prefix ];
+    }
+    $thin_arrow = $this->next(TokenType::THIN_ARROW);
+    $output = $this->type_annotation();
+    $span = $prefix->span->extended_to($output->span);
+    return new AST\FunctionAnnotation($span, $inputs, $output);
   }
 }
