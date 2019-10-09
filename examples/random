@@ -1,9 +1,9 @@
-use ::IO;
-use ::Random;
+use ::io;
+use ::rng;
 
 #[inline]
 fn main() -> () {
-  IO::println(if Random::int(-10, 10) > 0 {
+  io::println(if rng::integer(-2, 3) > 0 {
     "FIRST BRANCH"
   } else {
     "SECOND BRANCH"

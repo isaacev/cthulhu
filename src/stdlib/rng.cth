@@ -1,0 +1,6 @@
+use ::kernel::Num;
+
+#[inline]
+fn integer(min: Num, max: Num) -> Num {
+  ::php::mt_rand(min, max)
+}

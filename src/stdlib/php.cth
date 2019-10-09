@@ -7,3 +7,6 @@ native fn print(Str) -> ();
 
 #[inline]
 native fn strval(Num) -> Str;
+
+#[inline]
+native fn mt_rand(Num, Num) -> Num;
