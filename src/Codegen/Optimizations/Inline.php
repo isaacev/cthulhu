@@ -42,6 +42,12 @@ class Inline {
      * call. Replace the function call with the modified function body.
      */
     return Visitor::edit($prog, [
+      'postorder(FuncStmt)' => function (Path $path) use (&$inline_func_syms, &$inline_func_defs) {
+        $def_id = $path->node->name->symbol->id;
+        if (array_key_exists($def_id, $inline_func_defs)) {
+          $inline_func_defs[$def_id] = $path->node;
+        }
+      },
       'CallExpr' => function (Path $path) use (&$inline_func_syms, &$inline_func_defs) {
         if (($path->node->callee instanceof PHP\ReferenceExpr) === false) {
           // Function being called is a closure or something

@@ -28,8 +28,8 @@ class Visitor {
     $table->preorder($path);
     $preorder_sibling_nodes = $path->new_sibling_nodes;
     if ($path->was_removed()) {
-      // If the path was removed, immediately exit this call to the edit function because all subsequent steps would be operating on a non-
-      // existant node.
+      // If the path was removed, immediately exit this call to the edit function
+      // because all subsequent steps would be operating on a non-existant node.
       return [];
     }
 
