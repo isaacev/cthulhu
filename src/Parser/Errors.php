@@ -44,15 +44,11 @@ class Errors {
       ->example("[Int]");
   }
 
-  public static function expected_semicolon(Source\File $file, Token $prev, Token $found): Error {
+  public static function expected_semicolon(Source\File $file, Source\Span $expected_loc): Error {
     $title = 'expected semicolon';
-    return (new Error($file, $title, $found->span))
+    return (new Error($file, $title, $expected_loc))
       ->paragraph('Reached the end of a statement and didn\'t find a semicolon.')
-      ->snippet($found->span)
-      ->paragraph('Try adding a semicolon here:')
-      ->snippet($prev->span->to->to_span(), null, [
-        'color' => Foreground::BLUE,
-      ]);
+      ->snippet($expected_loc, 'try adding a semicolon here');
   }
 
   public static function expected_token(Source\File $file, Token $found, string $wanted_type): Error {

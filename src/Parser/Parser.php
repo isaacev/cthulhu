@@ -377,7 +377,7 @@ class Parser {
     if ($next->type === TokenType::SEMICOLON) {
       return $next;
     } else if ($prev !== null) {
-      throw Errors::expected_semicolon($this->file, $prev, $next);
+      throw Errors::expected_semicolon($this->file, $prev->span->to->to_span());
     } else {
       throw Errors::expected_token($this->file, $next, TokenType::SEMICOLON);
     }
