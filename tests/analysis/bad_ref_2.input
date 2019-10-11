@@ -1,5 +1,5 @@
-use ::IO;
+use ::io;
 
 fn main() -> () {
-  IO::doesNotExist();
+  io::doesNotExist();
 }

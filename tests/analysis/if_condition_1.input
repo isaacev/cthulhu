@@ -1,5 +1,5 @@
 fn main () -> () {
   if "abc" {
-    IO::println("should not compile");
+    io::println("should not compile");
   };
 }
