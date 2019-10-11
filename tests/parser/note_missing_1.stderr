@@ -3,6 +3,7 @@
 
   Found `{` instead.
 
+    : note_missing_1
   1 | fn x() -> {
     |           ^
 

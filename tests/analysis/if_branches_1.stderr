@@ -3,12 +3,14 @@
 
   Expected `Str` because of the return type of the if clause:
 
+    : if_branches_1
   5 |     "is a string"
     |     ^^^^^^^^^^^^^
 
   Expected the else clause to return a type compatible with `Str`. Instead it
   returned `Int`:
 
+    : if_branches_1
   7 |     123
     |     ^^^
 

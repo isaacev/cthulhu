@@ -3,6 +3,7 @@
 
   Expected `()` because of the return type of the if clause:
 
+    : if_branches_3
   2 |   if true {
     |           ^
   3 |     "abc";
@@ -13,6 +14,7 @@
   Expected the else clause to return a type compatible with `()`. Instead it
   returned `Str`:
 
+    : if_branches_3
   5 |     "def"
     |     ^^^^^
 

@@ -3,6 +3,7 @@
 
   File contains a symbol that is not part of the syntax. Try removing it?
 
+    : lex_unknown_char_1
   4 |   let x = %123;
     |           ^
 

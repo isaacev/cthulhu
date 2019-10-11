@@ -106,6 +106,13 @@ class Snippet implements Reportable {
     $gutter_focused_format   = "%${gutter_width}d | ";
     $gutter_underline_format = "%${gutter_width}s | ";
 
+    $f->newline_if_not_already()
+      ->tab()
+      ->apply_styles(Foreground::WHITE)
+      ->spaces($gutter_width)
+      ->printf(' : %s', $this->file->filepath)
+      ->reset_styles();
+
     // Now that the tokens have been filtered and grouped by line, iterate over
     // each line of tokens and print those tokens. If the line intersects with the
     // focused region, print an underline beneath the focused region.

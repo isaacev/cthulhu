@@ -4,6 +4,7 @@
   The value `io::println` has the type `Str -> ()` but was referenced as a
   module:
 
+    : bad_ref_4
   4 |   io::println::extra();
     |   ^^^^^^^^^^^^^^^^^^
 

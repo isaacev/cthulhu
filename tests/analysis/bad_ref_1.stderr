@@ -3,6 +3,7 @@
 
   Referenced `foo` before it was declared.
 
+    : bad_ref_1
   2 |   foo();
     |   ^^^
 

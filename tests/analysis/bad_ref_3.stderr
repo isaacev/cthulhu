@@ -3,6 +3,7 @@
 
   The `io` module doesn't have a submodule named `fmt`
 
+    : bad_ref_3
   4 |   io::fmt::println();
     |       ^^^
 
