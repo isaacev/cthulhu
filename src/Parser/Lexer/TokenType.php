@@ -18,6 +18,7 @@ abstract class TokenType {
   const KEYWORD_USE         = 'Use';
   const KEYWORD_MOD         = 'Mod';
   const KEYWORD_NATIVE      = 'Native';
+  const KEYWORD_TYPE        = 'Type';
   const POUND               = '#';
   const BRACE_LEFT          = '{';
   const BRACE_RIGHT         = '}';

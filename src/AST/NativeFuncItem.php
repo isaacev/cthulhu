@@ -4,7 +4,7 @@ namespace Cthulhu\AST;
 
 use Cthulhu\Source;
 
-class NativeItem extends Item {
+class NativeFuncItem extends Item {
   public $name;
   public $note;
 
@@ -15,8 +15,8 @@ class NativeItem extends Item {
   }
 
   public function visit(array $visitor_table): void {
-    if (array_key_exists('NativeItem', $visitor_table)) {
-      $visitor_table['NativeItem']($this);
+    if (array_key_exists('NativeFuncItem', $visitor_table)) {
+      $visitor_table['NativeFuncItem']($this);
     }
 
     $this->name->visit($visitor_table);
@@ -25,7 +25,7 @@ class NativeItem extends Item {
 
   public function jsonSerialize() {
     return [
-      'type' => 'NativeItem',
+      'type' => 'NativeFuncItem',
       'name' => $this->name,
       'note' => $this->note,
     ];

@@ -106,14 +106,26 @@ class Parser {
     return new AST\ModItem($span, $name, $items, $attrs);
   }
 
-  private function native_item(array $attrs): AST\NativeItem {
+  private function native_item(array $attrs): AST\Item {
     $native = $this->next(TokenType::KEYWORD_NATIVE);
-    $fn     = $this->next(TokenType::KEYWORD_FN);
-    $name   = AST\IdentNode::from_token($this->next(TokenType::IDENT));
-    $note   = $this->function_annotation($this->grouped_annotation());
-    $semi   = $this->next(TokenType::SEMICOLON);
-    $span   = $native->span->extended_to($semi->span);
-    return new AST\NativeItem($span, $name, $note, $attrs);
+
+    switch ($this->lexer->peek()->type) {
+      case TokenType::KEYWORD_FN: {
+        $fn     = $this->next(TokenType::KEYWORD_FN);
+        $name   = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $note   = $this->function_annotation($this->grouped_annotation());
+        $semi   = $this->next(TokenType::SEMICOLON);
+        $span   = $native->span->extended_to($semi->span);
+        return new AST\NativeFuncItem($span, $name, $note, $attrs);
+      }
+      default: {
+        $type = $this->next(TokenType::KEYWORD_TYPE);
+        $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $semi = $this->next(TokenType::SEMICOLON);
+        $span = $native->span->extended_to($semi->span);
+        return new AST\NativeTypeItem($span, $name, $attrs);
+      }
+    }
   }
 
   private function fn_item(array $attrs): AST\FnItem {
