@@ -1,0 +1,29 @@
+--
+-- NATIVE TYPES
+--
+-- The primitive types that are hard-coded into the language.
+--
+
+native type Str;
+
+native type Num;
+
+native type Bool;
+
+--
+-- PHP BUILTIN FUNCTIONS
+--
+-- Functions (and function-like constructs) that are provided by the PHP
+-- standard library. These functions shouldn't be called from user-code but
+-- should be wrapped inside of other functions in the Cthulhu standard library.
+--
+
+#[inline]
+#[construct]
+native fn print(Str) -> ();
+
+#[inline]
+native fn strval(Num) -> Str;
+
+#[inline]
+native fn mt_rand(Num, Num) -> Num;

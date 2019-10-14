@@ -2,18 +2,13 @@
 
 namespace Cthulhu\Parser;
 
-use Cthulhu\Debug;
-use Cthulhu\Debug\Report;
 use Cthulhu\Errors\Error;
 use Cthulhu\Parser\Lexer\Token;
-use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;
-use Cthulhu\lib\fmt\Foreground;
 
 class Errors {
-  public static function expected_item(Source\File $file, Token $found): Error {
-    $title = 'expected item';
-    return (new Error($file, $title, $found->span))
+  public static function expected_item(Token $found): Error {
+    return (new Error('expected item'))
       ->snippet($found->span)
       ->paragraph('An item can be like one of the following:')
       ->example("-- import another module\nuse IO;")
@@ -21,10 +16,9 @@ class Errors {
       ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n}");
   }
 
-  public static function exepcted_expression(Source\File $file, Token $found): Error {
-    $title = 'expected expression';
+  public static function exepcted_expression(Token $found): Error {
     $found_desc = $found->description();
-    return (new Error($file, $title, $found->span))
+    return (new Error('expected expression'))
       ->paragraph("Found $found_desc instead.")
       ->snippet($found->span)
       ->paragraph('An expression can be like one of the following:')
@@ -33,10 +27,9 @@ class Errors {
       ->example('if a { b; } else { c; }');
   }
 
-  public static function expected_annotation(Source\File $file, Token $found): Error {
-    $title = 'expected type annotation';
+  public static function expected_annotation(Token $found): Error {
     $found_desc = $found->description();
-    return (new Error($file, $title, $found->span))
+    return (new Error('expected type annotation'))
       ->paragraph("Found $found_desc instead.")
       ->snippet($found->span)
       ->paragraph('A type annotation can be like one of the following:')
@@ -44,16 +37,14 @@ class Errors {
       ->example("[Int]");
   }
 
-  public static function expected_semicolon(Source\File $file, Source\Span $expected_loc): Error {
-    $title = 'expected semicolon';
-    return (new Error($file, $title, $expected_loc))
+  public static function expected_semicolon(Source\Span $expected_loc): Error {
+    return (new Error('expected semicolon'))
       ->paragraph('Reached the end of a statement and didn\'t find a semicolon.')
       ->snippet($expected_loc, 'try adding a semicolon here');
   }
 
-  public static function expected_token(Source\File $file, Token $found, string $wanted_type): Error {
-    $title = 'expected token';
-    return (new Error($file, $title, $found->span))
+  public static function expected_token(Token $found, string $wanted_type): Error {
+    return (new Error('expected token'))
       ->snippet($found->span, "expected $wanted_type here");
   }
 }

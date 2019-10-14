@@ -1,16 +1,23 @@
 
-  INCOMPATIBLE IF AND ELSE TYPES  --------------------------------------------
+  INCOMPATIBLE IF AND ELSE BRANCHES  -----------------------------------------
 
   Expected `Str` because of the return type of the if clause:
 
     : if_branches_1
+  4 |   let name = if true {
+    |                      ^
   5 |     "is a string"
     |     ^^^^^^^^^^^^^
+  6 |   } else {
+    |   ^
 
-  Expected the else clause to return a type compatible with `Str`. Instead it
-  returned `Int`:
+  Instead the else clause returned the type `Num`:
 
     : if_branches_1
+  6 |   } else {
+    |          ^
   7 |     123
     |     ^^^
+  8 |   };
+    |   ^
 

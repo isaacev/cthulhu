@@ -6,7 +6,7 @@ use Cthulhu\Source;
 
 class Scanner {
   public static function from_file(Source\File $file): self {
-    return new self($file->contents);
+    return new self($file);
   }
 
   private $chars;
@@ -14,9 +14,9 @@ class Scanner {
   private $buffer;
   private $offset;
 
-  function __construct($text) {
-    $this->chars = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
-    $this->point = new Source\Point();
+  function __construct(Source\File $file) {
+    $this->chars = preg_split('//u', $file->contents, -1, PREG_SPLIT_NO_EMPTY);
+    $this->point = new Source\Point($file);
     $this->buffer = null;
     $this->offset = 0;
   }

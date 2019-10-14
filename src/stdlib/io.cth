@@ -1,6 +1,6 @@
-use ::kernel::Str;
+use ::kernel::*;
 
 #[inline]
 fn println(str: Str) -> () {
-  ::php::print(str ++ "\n");
+  print(str ++ "\n");
 }

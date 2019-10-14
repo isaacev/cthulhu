@@ -1,3 +1,4 @@
+#[entry]
 fn main() -> () {
   if true {
     -- do thing

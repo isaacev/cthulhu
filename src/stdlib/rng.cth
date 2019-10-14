@@ -1,6 +1,6 @@
-use ::kernel::Num;
+use ::kernel::*;
 
 #[inline]
 fn integer(min: Num, max: Num) -> Num {
-  ::php::mt_rand(min, max)
+  mt_rand(min, max)
 }

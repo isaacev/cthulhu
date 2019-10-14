@@ -1,7 +1,7 @@
 
-  UNKNOWN MODULE  ------------------------------------------------------------
+  UNKNOWN FIELD  -------------------------------------------------------------
 
-  The `io` module doesn't have a submodule named `fmt`
+  Reference to an unknown field in a namespace.
 
     : bad_ref_3
   4 |   io::fmt::println();

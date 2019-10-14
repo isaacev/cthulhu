@@ -1,7 +1,7 @@
 
-  UNKNOWN VARIABLE  ----------------------------------------------------------
+  UNKNOWN NAME  --------------------------------------------------------------
 
-  Referenced `foo` before it was declared.
+  There was a reference to a name that is not in the current scope.
 
     : bad_ref_1
   2 |   foo();

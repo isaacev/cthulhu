@@ -1,10 +1,9 @@
 
-  VALUE REFERENCED AS MODULE  ------------------------------------------------
+  UNKNOWN FIELD  -------------------------------------------------------------
 
-  The value `io::println` has the type `Str -> ()` but was referenced as a
-  module:
+  Reference to an unknown field in a namespace.
 
     : bad_ref_4
   4 |   io::println::extra();
-    |   ^^^^^^^^^^^^^^^^^^
+    |       ^^^^^^^
 

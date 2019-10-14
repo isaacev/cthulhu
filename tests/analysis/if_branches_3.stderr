@@ -1,5 +1,5 @@
 
-  INCOMPATIBLE IF AND ELSE TYPES  --------------------------------------------
+  INCOMPATIBLE IF AND ELSE BRANCHES  -----------------------------------------
 
   Expected `()` because of the return type of the if clause:
 
@@ -11,10 +11,13 @@
   4 |   } else {
     |   ^
 
-  Expected the else clause to return a type compatible with `()`. Instead it
-  returned `Str`:
+  Instead the else clause returned the type `Str`:
 
     : if_branches_3
+  4 |   } else {
+    |          ^
   5 |     "def"
     |     ^^^^^
+  6 |   };
+    |   ^
 

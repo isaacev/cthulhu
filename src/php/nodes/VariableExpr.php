@@ -1,0 +1,20 @@
+<?php
+
+namespace Cthulhu\php\nodes;
+
+use Cthulhu\php\Builder;
+
+class VariableExpr extends Expr {
+  public $variable;
+
+  function __construct(Variable $variable) {
+    $this->variable = $variable;
+  }
+
+  use traits\Atomic;
+
+  public function build(): Builder {
+    return (new Builder)
+      ->then($this->variable);
+  }
+}

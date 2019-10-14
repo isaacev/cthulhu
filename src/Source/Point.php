@@ -3,19 +3,21 @@
 namespace Cthulhu\Source;
 
 class Point {
+  public $file;
   public $line;
   public $column;
 
-  function __construct(int $line = 1, int $column = 1) {
+  function __construct(File $file, int $line = 1, int $column = 1) {
+    $this->file = $file;
     $this->line = $line;
     $this->column = $column;
   }
 
   public function next(string $char = ''): Point {
     if ($char === "\n") {
-      return new Point($this->line + 1, 1);
+      return new Point($this->file, $this->line + 1, 1);
     } else {
-      return new Point($this->line, $this->column + 1);
+      return new Point($this->file, $this->line, $this->column + 1);
     }
   }
 

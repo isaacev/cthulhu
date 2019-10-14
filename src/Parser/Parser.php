@@ -67,7 +67,7 @@ class Parser {
       case TokenType::KEYWORD_NATIVE:
         return $this->native_item($attrs);
       default:
-        throw Errors::expected_item($this->file, $this->lexer->next());
+        throw Errors::expected_item($this->lexer->next());
     }
   }
 
@@ -90,7 +90,7 @@ class Parser {
 
   private function use_item(array $attrs): AST\UseItem {
     $keyword = $this->next(TokenType::KEYWORD_USE);
-    $path = $this->path_node();
+    $path = $this->compound_path_node();
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
     return new AST\UseItem($span, $path, $attrs);
@@ -259,7 +259,7 @@ class Parser {
         return $this->bool_expr($this->lexer->next());
       default:
         $next = $this->lexer->next();
-        throw Errors::exepcted_expression($this->file, $next);
+        throw Errors::exepcted_expression($next);
     }
   }
 
@@ -358,6 +358,31 @@ class Parser {
    * Other nodes
    */
 
+  private function compound_path_node(): AST\CompoundPathNode {
+    $extern = false;
+    if ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
+      $extern = true;
+      $extern_colons = $this->next(TokenType::DOUBLE_COLON);
+    }
+
+    $segments = [ AST\IdentNode::from_token($this->next(TokenType::IDENT)) ];
+    while ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
+      $this->next(TokenType::DOUBLE_COLON);
+
+      if ($this->lexer->peek()->type === TokenType::STAR) {
+        $segments[] = AST\StarSegment::from_token($this->next(TokenType::STAR));
+        break;
+      }
+
+      $segments[] = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    }
+
+    $body = array_slice($segments, 0, -1);
+    $tail = end($segments);
+    $span = (($extern ? $extern_colons : $segments[0])->span)->extended_to($tail->span);
+    return new AST\CompoundPathNode($span, $extern, $body, $tail);
+  }
+
   private function path_node(): AST\PathNode {
     $extern = false;
     if ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
@@ -389,16 +414,16 @@ class Parser {
     if ($next->type === TokenType::SEMICOLON) {
       return $next;
     } else if ($prev !== null) {
-      throw Errors::expected_semicolon($this->file, $prev->span->to->to_span());
+      throw Errors::expected_semicolon($prev->span->to->to_span());
     } else {
-      throw Errors::expected_token($this->file, $next, TokenType::SEMICOLON);
+      throw Errors::expected_token($next, TokenType::SEMICOLON);
     }
   }
 
   private function next(string $type): Token {
     $next = $this->lexer->next();
     if ($next->type !== $type) {
-      throw Errors::expected_token($this->file, $next, $type);
+      throw Errors::expected_token($next, $type);
     } else {
       return $next;
     }
@@ -443,7 +468,7 @@ class Parser {
         $prefix = $this->generic_annotation();
         break;
       default:
-        throw Errors::expected_annotation($this->file, $peek);
+        throw Errors::expected_annotation($peek);
     }
 
     while (true) {

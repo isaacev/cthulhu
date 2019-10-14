@@ -1,6 +1,7 @@
 use ::io;
 use ::rng;
 
+#[entry]
 #[inline]
 fn main() -> () {
   io::println(if rng::integer(-2, 3) > 0 {

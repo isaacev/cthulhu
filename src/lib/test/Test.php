@@ -51,11 +51,14 @@ class Test {
 
   protected function eval(): TestOutput {
     try {
-      $file   = new Source\File($this->name, $this->input);
-      $ast    = Parser\Parser::file_to_ast($file);
-      $prog   = Analysis\Analyzer::ast_to_program($ast);
-      $php    = Codegen\Codegen::generate($prog);
-      $stdout = $php->build()->write(new fmt\StringFormatter());
+      $stdout = (new \Cthulhu\Workspace)
+        ->file(new Source\File($this->name, $this->input))
+        ->parse()
+        ->link()
+        ->resolve()
+        ->check()
+        ->codegen()
+        ->write();
       return new TestOutput($stdout, '');
     } catch (Errors\Error $err) {
       $stderr = new fmt\StringFormatter();

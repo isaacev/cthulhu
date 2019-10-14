@@ -1,7 +1,7 @@
 
-  UNKNOWN MODULE FIELD  ------------------------------------------------------
+  UNKNOWN FIELD  -------------------------------------------------------------
 
-  The `io` module doesn't have a field named `doesNotExist`
+  Reference to an unknown field in a namespace.
 
     : bad_ref_2
   4 |   io::doesNotExist();

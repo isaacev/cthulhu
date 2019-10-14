@@ -6,10 +6,9 @@ use Cthulhu\Source;
 
 class Lexer {
   public static function from_file(Source\File $file): self {
-    return new self($file, Scanner::from_file($file));
+    return new self(Scanner::from_file($file));
   }
 
-  private $file;
   public $scanner;
   private $prev = null;
   private $buffer = null;
@@ -18,8 +17,7 @@ class Lexer {
   public const RELAXED_ERRORS = 0x0001; // Return errors as tokens instead of throwing an error
   public const KEEP_COMMENTS  = 0x0010; // Return comments as tokens instead of ignoring
 
-  function __construct(Source\File $file, Scanner $scanner, int $settings = 0) {
-    $this->file = $file;
+  function __construct(Scanner $scanner, int $settings = 0) {
     $this->scanner = $scanner;
     $this->settings = $settings;
   }
@@ -124,7 +122,7 @@ class Lexer {
         if ($this->is_relaxed()) {
           return new Token(TokenType::ERROR, $next->point->to_span(), $next->char);
         } else {
-          throw Errors::unexpected_character($this->file, $next);
+          throw Errors::unexpected_character($next);
         }
     }
   }
@@ -168,7 +166,7 @@ class Lexer {
         return new Token(TokenType::ERROR, $span, $lexeme);
       } else {
         $span = $last->point->to_span();
-        throw Errors::unclosed_string($this->file, $span);
+        throw Errors::unclosed_string($span);
       }
     }
 
@@ -224,7 +222,7 @@ class Lexer {
     } else if ($this->is_relaxed()) {
       return new Token(TokenType::ERROR, $single_quote->point->to_span(), "'");
     } else {
-      throw Errors::unexpected_character($this->file, $single_quote);
+      throw Errors::unexpected_character($single_quote);
     }
   }
 
@@ -275,7 +273,7 @@ class Lexer {
   }
 
   public static function to_tokens(Source\File $file, int $settings): array {
-    $lexer = new Lexer($file, Scanner::from_file($file), $settings);
+    $lexer = new Lexer(Scanner::from_file($file), $settings);
     $tokens = [];
     while ($lexer->peek()->type !== TokenType::EOF) {
       $tokens[] = $lexer->next();
