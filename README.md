@@ -17,3 +17,5 @@
 - [ ] Pretty multiline error snippets
 - [ ] Operator overloading for arbitrary types
 - [x] Module dependency linearlization and cycle detection
+- [ ] The Maybe type
+- [ ] The List type
