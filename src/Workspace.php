@@ -3,15 +3,15 @@
 namespace Cthulhu;
 
 class Workspace {
-  public $file            = null;
-  public $syntax_tree     = null;
-  public $ir_tree         = null;
-  public $php_tree        = null;
-  public $ir_node_to_span = null;
-  public $name_to_symbol  = null;
-  public $symbol_to_name  = null;
-  public $expr_to_type    = null;
-  public $symbol_to_type  = null;
+  public $file;
+  public $syntax_tree;
+  public $ir_tree;
+  public $php_tree;
+  public $ir_node_to_span;
+  public $name_to_symbol;
+  public $symbol_to_name;
+  public $expr_to_type;
+  public $symbol_to_type;
 
   public function open(string $filepath): self {
     $contents = @file_get_contents($filepath);
