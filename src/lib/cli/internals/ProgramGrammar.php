@@ -47,6 +47,10 @@ class ProgramGrammar {
     echo "$this->name $this->version\n";
   }
 
+  function print_completion_script(): void {
+    echo file_get_contents(realpath(__DIR__ . '/completion.sh'));
+  }
+
   function subcommand_completions(): array {
     $comps = [];
     foreach ($this->subcommand_grammars as $subcommand_grammar) {
@@ -78,15 +82,52 @@ class ProgramGrammar {
   }
 
   function complete_callback(Lookup $flags, Lookup $args) {
-    $parts = $args->get('parts');
-    $parts = array_slice($parts, 1);
+    if (
+      !isset($_ENV['COMP_CWORD']) ||
+      !isset($_ENV['COMP_LINE']) ||
+      !isset($_ENV['COMP_POINT'])
+    ) {
+      $this->print_completion_script();
+      exit(0);
+    }
+
+    // command line input (with prompt and cursor on zsh): "> cthulhu foo b|ar"
+    $w             = (int)$_ENV['COMP_CWORD'];   // 2
+    $words         = $args->get('parts', []);    // [ "cthulhu", "foo", "bar" ]
+    $word          = $words[$w];                 // "bar"
+    $line          = $_ENV['COMP_LINE'];         // "cthulhu foo bar"
+    $point         = (int)$_ENV['COMP_POINT'];   // 17 (pretty sure this is a zsh 5.3 bug)
+    $partial_line  = substr($line, 0, $point);   // "cthulhu foo bar"
+    $partial_words = array_slice($words, 0, $w); // [ "cthulhu", "foo" ]
+
+    fprintf(STDERR, "w:             %d\n",     $w);
+    fprintf(STDERR, "words:         [ %s ]\n", implode(', ', $words));
+    fprintf(STDERR, "word:          %s\n",     $word);
+    fprintf(STDERR, "line:          %s\n",     $line);
+    fprintf(STDERR, "point:         %d\n",     $point);
+    fprintf(STDERR, "partial_line:  %s\n",     $partial_line);
+    fprintf(STDERR, "partial_words: %s\n",     implode(', ', $partial_words));
+
+    // Determine where in the last word the cursor point is in
+    $partial_word = $words[$w];
+    $i = strlen($partial_word);
+    while (substr($partial_word, 0, $i) !== substr($partial_line, -1 * $i) && $i > 0) {
+      $i--;
+    }
+    $partial_word = substr($partial_word, 0, $i);
+    $partial_words[] = $partial_word;
+    fprintf(STDERR, "partial_word:  %s\n",     $partial_word);
+    fprintf(STDERR, "partial_words: %s\n",     implode(', ', $partial_words));
+
+    $parts = array_slice($partial_words, 1);
     $last_part = end($parts);
     if ($last_part !== '') {
       array_pop($parts);
     }
     $scanner = new Scanner($parts);
     $completions = Completions::find($scanner, $this);
-    echo implode(' ', $completions);
+    fprintf(STDERR, "completions: %s\n", implode(', ', $completions));
+    echo implode(PHP_EOL, $completions);
   }
 
   function get_subcommand(string $token): ?SubcommandGrammar {
