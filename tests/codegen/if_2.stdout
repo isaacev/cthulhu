@@ -1,0 +1,33 @@
+<?php
+
+namespace kernel {
+  // #[inline]
+  // #[construct]
+  function _print($a) {
+    print($a);
+  }
+  // #[inline]
+  function strval($a) {
+    return \strval($a);
+  }
+  // #[inline]
+  function mt_rand($a, $b) {
+    return \mt_rand($a, $b);
+  }
+}
+
+namespace if_2 {
+  // #[entry]
+  function main() {
+    if (true) {
+      $a = "hello";
+    } else {
+      $a = "world";
+    }
+    return $a;
+  }
+}
+
+namespace {
+  \if_2\main();
+}

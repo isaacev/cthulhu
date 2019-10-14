@@ -110,7 +110,7 @@ class Renamer {
     return new php\nodes\Variable($this->allocate_tmp());
   }
 
-  protected function var_from_name(ir\nodes\Name $name): php\nodes\Variable {
+  public function var_from_name(ir\nodes\Name $name): php\nodes\Variable {
     $symbol = $this->name_to_symbol->get($name);
     $value = $this->allocate($symbol, $name);
     return new php\nodes\Variable($value);

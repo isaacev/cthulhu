@@ -1,0 +1,8 @@
+#[entry]
+fn main() -> () {
+  if true {
+    "hello"
+  } else {
+    "world"
+  };
+}

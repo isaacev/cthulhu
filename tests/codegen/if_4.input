@@ -1,0 +1,8 @@
+#[entry]
+fn main() -> () {
+  let x = if true {
+    "hello"
+  } else {
+    "world"
+  };
+}

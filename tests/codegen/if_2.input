@@ -1,0 +1,8 @@
+#[entry]
+fn main() -> ::kernel::Str {
+  if true {
+    "hello"
+  } else {
+    "world"
+  }
+}

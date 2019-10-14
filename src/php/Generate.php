@@ -49,10 +49,6 @@ class Generate {
     return new php\nodes\BlockNode(array_pop($this->stmt_stacks));
   }
 
-  private function has_expr(): bool {
-    return empty($this->expr_stack) === false;
-  }
-
   private function push_expr(php\nodes\Expr $expr): void {
     array_push($this->expr_stack, $expr);
   }
@@ -115,7 +111,10 @@ class Generate {
       'NativeFuncItem' => function (ir\nodes\NativeFuncItem $item) use ($ctx) {
         self::native_func_item($ctx, $item);
       },
-      'exit(SemiStmt)' => function (ir\nodes\Stmt $stmt) use ($ctx) {
+      'exit(LetStmt)' => function (ir\nodes\LetStmt $stmt) use ($ctx) {
+        self::exit_let_stmt($ctx, $stmt);
+      },
+      'exit(SemiStmt)' => function (ir\nodes\SemiStmt $stmt) use ($ctx) {
         self::exit_semi_stmt($ctx, $stmt);
       },
       'exit(ReturnStmt)' => function (ir\nodes\ReturnStmt $stmt) use ($ctx) {
@@ -200,9 +199,11 @@ class Generate {
       if ($does_return) {
         $expr = $ctx->pop_expr();
         $ctx->add_finished_stmt(new php\nodes\ReturnStmt($expr));
-      } else if ($ctx->has_expr()) {
+      } else {
         $expr = $ctx->pop_expr();
-        $ctx->add_finished_stmt(new php\nodes\SemiStmt($expr));
+        if (($expr instanceof php\nodes\NullLiteral) === false) {
+          $ctx->add_finished_stmt(new php\nodes\SemiStmt($expr));
+        }
       }
     });
   }
@@ -245,10 +246,19 @@ class Generate {
     $ctx->add_finished_stmt($stmt);
   }
 
+  private static function exit_let_stmt(self $ctx, ir\nodes\LetStmt $stmt): void {
+    $var = $ctx->renamer->var_from_name($stmt->name);
+    $expr = $ctx->pop_expr();
+    $stmt = new php\nodes\AssignStmt($var, $expr);
+    $ctx->add_finished_stmt($stmt);
+  }
+
   private static function exit_semi_stmt(self $ctx, ir\nodes\SemiStmt $stmt): void {
     $expr = $ctx->pop_expr();
-    $stmt = new php\nodes\SemiStmt($expr);
-    $ctx->add_finished_stmt($stmt);
+    if (($expr instanceof php\nodes\NullLiteral) === false) {
+      $stmt = new php\nodes\SemiStmt($expr);
+      $ctx->add_finished_stmt($stmt);
+    }
   }
 
   private static function exit_return_stmt(self $ctx): void {
@@ -259,6 +269,7 @@ class Generate {
     $parent_node = $path->parent->node;
     $return_type = $ctx->expr_to_type->get($expr);
     if ($parent_node instanceof ir\nodes\SemiStmt || ir\types\UnitType::matches($return_type)) {
+      $ctx->push_expr(new php\nodes\NullLiteral());
       $ctx->push_block_exit_handler(function () use ($ctx) {
         $expr = $ctx->pop_expr();
         $ctx->add_finished_stmt(new php\nodes\SemiStmt($expr));
