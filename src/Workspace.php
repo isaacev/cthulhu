@@ -72,6 +72,24 @@ class Workspace {
     return $this;
   }
 
+  public function optimize(array $passes = []): self {
+    $all = $passes['all'] === true;
+
+    if ($all || $passes['inline'] === true) {
+      $this->php_tree = \Cthulhu\php\passes\Inline::apply($this->php_tree);
+    }
+
+    if ($all || $passes['fold'] === true) {
+      $this->php_tree = \Cthulhu\php\passes\ConstFolding::apply($this->php_tree);
+    }
+
+    if ($all || $passes['tree-shake'] === true) {
+      $this->php_tree = \Cthulhu\php\passes\TreeShaking::apply($this->php_tree);
+    }
+
+    return $this;
+  }
+
   public function write(): string {
     return $this->php_tree->build()->write(new \Cthulhu\lib\fmt\StringFormatter());
   }
