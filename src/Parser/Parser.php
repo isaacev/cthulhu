@@ -253,8 +253,8 @@ class Parser {
         return $this->path_expr();
       case TokenType::LITERAL_STR:
         return $this->str_expr($this->lexer->next());
-      case TokenType::LITERAL_NUM:
-        return $this->num_expr($this->lexer->next());
+      case TokenType::LITERAL_INT:
+        return $this->int_expr($this->lexer->next());
       case TokenType::LITERAL_BOOL:
         return $this->bool_expr($this->lexer->next());
       default:
@@ -344,9 +344,9 @@ class Parser {
     return new AST\StrExpr($str->span, $value, $str->lexeme);
   }
 
-  private function num_expr(Token $num): AST\NumExpr {
-    $value = intval($num->lexeme, 10);
-    return new AST\NumExpr($num->span, $value, $num->lexeme);
+  private function int_expr(Token $int): AST\IntExpr {
+    $value = intval($int->lexeme, 10);
+    return new AST\IntExpr($int->span, $value, $int->lexeme);
   }
 
   private function bool_expr(Token $bool) : AST\BoolExpr {

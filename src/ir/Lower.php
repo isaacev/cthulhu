@@ -127,8 +127,8 @@ class Lower {
         return self::path_expr($spans, $expr);
       case $expr instanceof AST\StrExpr:
         return self::str_expr($spans, $expr);
-      case $expr instanceof AST\NumExpr:
-        return self::num_expr($spans, $expr);
+      case $expr instanceof AST\IntExpr:
+        return self::int_expr($spans, $expr);
       case $expr instanceof AST\BoolExpr:
         return self::bool_expr($spans, $expr);
       default:
@@ -175,9 +175,9 @@ class Lower {
     return $spans->set(new nodes\StrExpr($value), $expr->span);
   }
 
-  private static function num_expr(Table $spans, AST\NumExpr $expr): nodes\NumExpr {
+  private static function int_expr(Table $spans, AST\IntExpr $expr): nodes\IntExpr {
     $value = $expr->value;
-    return $spans->set(new nodes\NumExpr($value), $expr->span);
+    return $spans->set(new nodes\IntExpr($value), $expr->span);
   }
 
   private static function bool_expr(Table $spans, AST\BoolExpr $expr): nodes\BoolExpr {

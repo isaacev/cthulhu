@@ -93,8 +93,8 @@ class Check {
       'StrExpr' => function (nodes\StrExpr $expr) use ($ctx) {
         self::str_expr($ctx, $expr);
       },
-      'NumExpr' => function (nodes\NumExpr $expr) use ($ctx) {
-        self::num_expr($ctx, $expr);
+      'IntExpr' => function (nodes\IntExpr $expr) use ($ctx) {
+        self::int_expr($ctx, $expr);
       },
       'BoolExpr' => function (nodes\BoolExpr $expr) use ($ctx) {
         self::bool_expr($ctx, $expr);
@@ -167,8 +167,8 @@ class Check {
       case 'Str':
         $type = new StrType();
         break;
-      case 'Num':
-        $type = new NumType();
+      case 'Int':
+        $type = new IntType();
         break;
       case 'Bool':
         $type = new BoolType();
@@ -276,8 +276,8 @@ class Check {
     $ctx->set_type_for_expr($expr, $type);
   }
 
-  private static function num_expr(self $ctx, nodes\NumExpr $expr): void {
-    $type = new NumType();
+  private static function int_expr(self $ctx, nodes\IntExpr $expr): void {
+    $type = new IntType();
     $ctx->set_type_for_expr($expr, $type);
   }
 

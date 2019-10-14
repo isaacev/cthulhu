@@ -1,4 +1,4 @@
-fn main() -> ::kernel::Num {
+fn main() -> ::kernel::Int {
   let x = 123;
   x;
 }

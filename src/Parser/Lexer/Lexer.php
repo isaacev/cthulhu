@@ -74,7 +74,7 @@ class Lexer {
 
     switch (true) {
       case $next->is_digit():
-        return $this->next_num($next);
+        return $this->next_int($next);
       case $next->is('"'):
         return $this->next_str($next);
       case $next->is_letter():
@@ -127,7 +127,7 @@ class Lexer {
     }
   }
 
-  private function next_num(Character $start): Token {
+  private function next_int(Character $start): Token {
     $lexeme = $start->char;
     $from = $start->point;
     $to = $start->point;
@@ -143,7 +143,7 @@ class Lexer {
     }
 
     $span = new Source\Span($from, $to->next());
-    return new Token(TokenType::LITERAL_NUM, $span, $lexeme);
+    return new Token(TokenType::LITERAL_INT, $span, $lexeme);
   }
 
   private function next_str(Character $start): Token {

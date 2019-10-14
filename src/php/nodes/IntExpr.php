@@ -4,7 +4,7 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-class NumExpr extends Expr {
+class IntExpr extends Expr {
   public $value;
 
   function __construct(int $value) {

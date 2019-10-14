@@ -142,8 +142,8 @@ class Generate {
       'StrExpr' => function (ir\nodes\StrExpr $expr) use ($ctx) {
         self::str_expr($ctx, $expr);
       },
-      'NumExpr' => function (ir\nodes\NumExpr $expr) use ($ctx) {
-        self::num_expr($ctx, $expr);
+      'IntExpr' => function (ir\nodes\IntExpr $expr) use ($ctx) {
+        self::int_expr($ctx, $expr);
       },
       'BoolExpr' => function (ir\nodes\BoolExpr $expr) use ($ctx) {
         self::bool_expr($ctx, $expr);
@@ -328,8 +328,8 @@ class Generate {
     $ctx->push_expr(new php\nodes\StrExpr($expr->value));
   }
 
-  private static function num_expr(self $ctx, ir\nodes\NumExpr $expr): void {
-    $ctx->push_expr(new php\nodes\NumExpr($expr->value));
+  private static function int_expr(self $ctx, ir\nodes\IntExpr $expr): void {
+    $ctx->push_expr(new php\nodes\IntExpr($expr->value));
   }
 
   private static function bool_expr(self $ctx, ir\nodes\BoolExpr $expr): void {

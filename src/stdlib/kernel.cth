@@ -6,7 +6,7 @@
 
 native type Str;
 
-native type Num;
+native type Int;
 
 native type Bool;
 
@@ -23,7 +23,7 @@ native type Bool;
 native fn print(Str) -> ();
 
 #[inline]
-native fn strval(Num) -> Str;
+native fn strval(Int) -> Str;
 
 #[inline]
-native fn mt_rand(Num, Num) -> Num;
+native fn mt_rand(Int, Int) -> Int;

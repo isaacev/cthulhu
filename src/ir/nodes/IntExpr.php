@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-class NumExpr extends Expr {
+class IntExpr extends Expr {
   public $value;
 
   function __construct(int $value) {

@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\types;
 
-class NumType extends Type {
+class IntType extends Type {
   function apply(string $op, Type ...$operands): ?Type {
     if (empty($operands)) {
       switch ($op) {
@@ -31,7 +31,7 @@ class NumType extends Type {
   }
 
   function __toString(): string {
-    return 'Num';
+    return 'Int';
   }
 
   static function matches(Type $other): bool {

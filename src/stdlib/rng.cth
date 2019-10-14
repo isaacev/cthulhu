@@ -1,6 +1,6 @@
 use ::kernel::*;
 
 #[inline]
-fn integer(min: Num, max: Num) -> Num {
+fn integer(min: Int, max: Int) -> Int {
   mt_rand(min, max)
 }

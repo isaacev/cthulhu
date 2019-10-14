@@ -4,7 +4,7 @@ namespace Cthulhu\AST;
 
 use Cthulhu\Source;
 
-class NumExpr extends Expr {
+class IntExpr extends Expr {
   public $value;
   public $raw;
 
@@ -15,14 +15,14 @@ class NumExpr extends Expr {
   }
 
   public function visit(array $visitor_table): void {
-    if (array_key_exists('NumExpr', $visitor_table)) {
-      $visitor_table['NumExpr']($this);
+    if (array_key_exists('IntExpr', $visitor_table)) {
+      $visitor_table['IntExpr']($this);
     }
   }
 
   public function jsonSerialize() {
     return [
-      'type' => 'NumExpr',
+      'type' => 'IntExpr',
       'value' => $this->value,
       'raw' => $this->raw
     ];

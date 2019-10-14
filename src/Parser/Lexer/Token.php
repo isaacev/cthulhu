@@ -19,7 +19,7 @@ class Token {
     switch ($this->type) {
       case TokenType::ERROR:              return 'unknown symbol';
       case TokenType::EOF:                return 'the end of the file';
-      case TokenType::LITERAL_NUM:        return 'number literal';
+      case TokenType::LITERAL_INT:        return 'integer literal';
       case TokenType::LITERAL_STR:        return 'string literal';
       case TokenType::IDENT:              return "identifier `$this->lexeme`";
       case TokenType::KEYWORD_LET:        return 'keyword `let`';

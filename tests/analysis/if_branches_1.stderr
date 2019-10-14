@@ -11,7 +11,7 @@
   6 |   } else {
     |   ^
 
-  Instead the else clause returned the type `Num`:
+  Instead the else clause returned the type `Int`:
 
     : if_branches_1
   6 |   } else {
