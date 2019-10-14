@@ -5,8 +5,6 @@ namespace Cthulhu\Debug;
 use Cthulhu\lib\fmt\Formatter;
 
 class Paragraph implements Reportable {
-  const MAX_LINE_LENGTH = 80 - 4;
-
   public $sentences;
 
   function __construct(array $sentences) {
