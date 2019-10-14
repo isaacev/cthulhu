@@ -1,5 +1,8 @@
-fn identity(thing: 'a) -> 'a { thing }
+use ::kernel::*;
 
+fn id[A](thing: A) -> A { thing }
+
+#[entry]
 fn main() -> () {
-  ::io::println(identity("hello world"));
+  ::io::println(id[Str]("hello world"));
 }

@@ -14,8 +14,16 @@ class StrType extends Type {
     return parent::apply($op, ...$operands);
   }
 
+  function accepts(Type $other): bool {
+    return $this->equals($other);
+  }
+
   function equals(Type $other): bool {
     return self::matches($other);
+  }
+
+  function replace_generics(array $replacements): Type {
+    return $this;
   }
 
   function __toString(): string {

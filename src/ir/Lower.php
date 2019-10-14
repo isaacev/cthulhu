@@ -56,10 +56,11 @@ class Lower {
   private static function func_item(Table $spans, ast\FnItem $item): nodes\FuncItem {
     $attrs  = self::attrs($item->attrs);
     $name   = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
+    $polys  = self::func_polys($spans, $item->polys);
     $params = self::func_params($spans, $item->params);
     $output = self::note($spans, $item->returns);
     $body   = self::block($spans, $item->body);
-    return $spans->set(new nodes\FuncItem($name, $params, $output, $body, $attrs), $item->span);
+    return $spans->set(new nodes\FuncItem($name, $polys, $params, $output, $body, $attrs), $item->span);
   }
 
   private static function native_item(Table $spans, ast\NativeFuncItem $item): nodes\NativeFuncItem {
@@ -145,11 +146,15 @@ class Lower {
 
   private static function call_expr(Table $spans, ast\CallExpr $expr): nodes\CallExpr {
     $callee = self::expr($spans, $expr->callee);
+    $polys = [];
+    foreach ($expr->polys as $poly) {
+      $polys[] = self::note($spans, $poly);
+    }
     $args   = [];
     foreach ($expr->args as $arg) {
       $args[] = self::expr($spans, $arg);
     }
-    return $spans->set(new nodes\CallExpr($callee, $args), $expr->span);
+    return $spans->set(new nodes\CallExpr($callee, $polys, $args), $expr->span);
   }
 
   private static function binary_expr(Table $spans, ast\BinaryExpr $expr): nodes\BinaryExpr {
@@ -197,6 +202,8 @@ class Lower {
         return self::name_note($spans, $note);
       case $note instanceof ast\FunctionAnnotation:
         return self::func_note($spans, $note);
+      case $note instanceof ast\GenericAnnotation:
+        return self::generic_note($spans, $note);
       default:
         throw new \Exception('cannot lower unknown type annotation');
     }
@@ -220,6 +227,11 @@ class Lower {
     return $spans->set(new nodes\FuncNote($inputs, $output), $note->span);
   }
 
+  private static function generic_note(Table $spans, ast\GenericAnnotation $note): nodes\GenericNote {
+    $name = $spans->set(new nodes\Name("'$note->name"), $note->span);
+    return $spans->set(new nodes\GenericNote($name), $note->span);
+  }
+
   /**
    * Lower miscellaneous nodes
    */
@@ -230,6 +242,14 @@ class Lower {
       $hash[$attr->name] = true;
     }
     return $hash;
+  }
+
+  private static function func_polys(Table $spans, array $polys): array {
+    $_polys = [];
+    foreach ($polys as $poly) {
+      $_polys[] = $spans->set(new nodes\Name($poly->ident), $poly->span);
+    }
+    return $_polys;
   }
 
   private static function func_params(Table $spans, array $params): array {

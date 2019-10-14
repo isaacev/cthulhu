@@ -128,6 +128,12 @@ class Check {
   }
 
   private static function enter_func_item(self $ctx, nodes\FuncItem $item): void {
+    $polys = [];
+    foreach ($item->polys as $poly) {
+      $poly_symbol = $ctx->get_symbol_for_name($poly);
+      $polys[] = $poly_type = new GenericType($poly->value, $poly_symbol);
+      $ctx->set_type_for_symbol($poly_symbol, $poly_type);
+    }
     $inputs = [];
     foreach ($item->params as $param) {
       $inputs[] = $type = self::note_to_type($ctx, $param->note);
@@ -135,7 +141,7 @@ class Check {
       $ctx->set_type_for_symbol($symbol, $type);
     }
     $output = self::note_to_type($ctx, $item->output);
-    $type = new FuncType($inputs, $output);
+    $type = new FuncType($polys, $inputs, $output);
     $symbol = $ctx->get_symbol_for_name($item->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
@@ -218,28 +224,40 @@ class Check {
   }
 
   private static function exit_call_expr(self $ctx, nodes\CallExpr $expr): void {
-    $callee_type = $ctx->get_type_for_expr($expr->callee);
-    if (FuncType::does_not_match($callee_type)) {
+    $generic_callee_type = $ctx->get_type_for_expr($expr->callee);
+    if (FuncType::does_not_match($generic_callee_type)) {
       $span = $ctx->spans->get($expr->callee);
-      throw Errors::call_to_non_function($span, $callee_type);
+      throw Errors::call_to_non_function($span, $generic_callee_type);
     }
 
-    $total_expected_args = count($callee_type->inputs);
-    $total_found_args = count($expr->args);
-    if ($total_expected_args !== $total_found_args) {
+    $total_expected_notes = count($generic_callee_type->polys);
+    $total_found_notes = count($expr->concretes);
+    if ($total_found_notes !== $total_expected_notes) {
       $span = $ctx->spans->get($expr);
-      throw Errors::call_with_wrong_arg_num($span, $total_expected_args, $total_found_args);
+      throw Errors::call_with_wrong_poly_num($span, $total_expected_notes, $total_found_notes);
     }
+
+    $concrete_types = [];
+    foreach ($expr->concretes as $concrete) {
+      $concrete_types[] = self::note_to_type($ctx, $concrete);
+    }
+
+    $replacements = [];
+    foreach ($generic_callee_type->polys as $index => $poly) {
+      $replacements[$poly->symbol->get_id()] = $concrete_types[$index];
+    }
+    $concrete_callee_type = $generic_callee_type->replace_generics($replacements);
 
     foreach ($expr->args as $index => $arg) {
+      $expected_type = $concrete_callee_type->inputs[$index];
       $arg_type = $ctx->get_type_for_expr($arg);
-      $expected_type = $callee_type->inputs[$index];
-      if ($expected_type->equals($arg_type) === false) {
+      if ($expected_type->accepts($arg_type) === false) {
+        $span = $ctx->spans->get($arg);
         throw Errors::call_with_wrong_arg_type($span, $index, $expected_type, $arg_type);
       }
     }
 
-    $ctx->set_type_for_expr($expr, $callee_type->output);
+    $ctx->set_type_for_expr($expr, $concrete_callee_type->output);
   }
 
   private static function exit_binary_expr(self $ctx, nodes\BinaryExpr $expr): void {
@@ -315,7 +333,7 @@ class Check {
       $inputs[] = self::note_to_type($ctx, $input);
     }
     $output = self::note_to_type($ctx, $note->output);
-    return new FuncType($inputs, $output);
+    return new FuncType([], $inputs, $output);
   }
 
   private static function name_note_to_type(self $ctx, nodes\NameNote $note): Type {

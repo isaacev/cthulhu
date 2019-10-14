@@ -10,9 +10,10 @@ class FnItem extends Item {
   public $returns;
   public $body;
 
-  function __construct(Source\Span $span, IdentNode $name, array $params, Annotation $returns, BlockNode $body, array $attrs) {
+  function __construct(Source\Span $span, IdentNode $name, array $polys, array $params, Annotation $returns, BlockNode $body, array $attrs) {
     parent::__construct($span, $attrs);
     $this->name = $name;
+    $this->polys = $polys;
     $this->params = $params;
     $this->returns = $returns;
     $this->body = $body;
@@ -24,6 +25,9 @@ class FnItem extends Item {
     }
 
     $this->name->visit($visitor_table);
+    foreach ($this->polys as $poly) {
+      $poly->visit($visitor_table);
+    }
     foreach ($this->params as $param) {
       $param->visit($visitor_table);
     }
@@ -35,6 +39,7 @@ class FnItem extends Item {
     return [
       'type' => 'FnItem',
       'name' => $this->name,
+      'polys' => $this->polys,
       'params' => $this->params,
       'returns' => $this->returns,
       'body' => $this->body

@@ -41,6 +41,13 @@ class Resolve {
     return $symbol;
   }
 
+  private function make_type_symbol(nodes\Name $node): TypeSymbol {
+    $symbol = new TypeSymbol();
+    $this->name_to_symbol->set($node, $symbol);
+    $this->symbol_to_name->set($symbol, $node);
+    return $symbol;
+  }
+
   private function set_symbol(nodes\Name $node, Symbol $symbol): void {
     $this->name_to_symbol->set($node, $symbol);
   }
@@ -51,6 +58,10 @@ class Resolve {
 
   private function push_module_scope(Scope $scope): void {
     array_push($this->module_scopes, $scope);
+  }
+
+  private function has_func_scope(): bool {
+    return !empty($this->func_scopes);
   }
 
   private function current_func_scope(): Scope {
@@ -261,6 +272,11 @@ class Resolve {
 
     $func_scope = new Scope();
     $ctx->push_func_scope($func_scope);
+
+    foreach ($item->polys as $poly) {
+      $poly_symbol = $ctx->make_type_symbol($poly);
+      $func_scope->add_binding($poly->value, $poly_symbol);
+    }
   }
 
   private static function func_param(self $ctx, nodes\FuncParam $param): void {
@@ -317,13 +333,22 @@ class Resolve {
         // scope incase the name was a function parameter.
         $scopes = array_merge(
           array_reverse($ctx->block_scopes),
-          [ $ctx->current_func_scope()
-        ]);
+          [ $ctx->current_func_scope() ]
+        );
         foreach ($scopes as $scope) {
           if ($tail_symbol = $scope->get_name($tail_name)) {
             $ctx->set_symbol($tail_segment, $tail_symbol);
             return;
           }
+        }
+      }
+
+      if ($ctx->has_func_scope()) {
+        if ($tail_symbol = $ctx->current_func_scope()->get_name($tail_name)) {
+          // If the reference exists inside of a function signature or if the
+          // function body does not contain the name.
+          $ctx->set_symbol($tail_segment, $tail_symbol);
+          return;
         }
       }
 

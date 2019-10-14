@@ -80,8 +80,6 @@ class Lexer {
       case $next->is_letter():
       case $next->is('_'):
         return $this->next_word($next);
-      case $next->is("'"):
-        return $this->next_generic($next);
       case $next->is('#'):
         return $this->next_single_char(TokenType::POUND, $next);
       case $next->is('{'):
@@ -210,19 +208,6 @@ class Lexer {
       case 'true':    return new Token(TokenType::LITERAL_BOOL, $span, 'true');
       case 'false':   return new Token(TokenType::LITERAL_BOOL, $span, 'false');
       default:        return new Token(TokenType::IDENT, $span, $lexeme);
-    }
-  }
-
-  private function next_generic(Character $single_quote): Token {
-    $next = $this->scanner->next();
-    if ($next->is_letter() || $next->is('_')) {
-      $word = $this->next_word($next);
-      $span = new Source\Span($single_quote->point, $word->span->to);
-      return new Token(TokenType::GENERIC, $span, "'$word->lexeme");
-    } else if ($this->is_relaxed()) {
-      return new Token(TokenType::ERROR, $single_quote->point->to_span(), "'");
-    } else {
-      throw Errors::unexpected_character($single_quote);
     }
   }
 

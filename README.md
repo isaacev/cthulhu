@@ -13,7 +13,7 @@
 - [x] Basic dead-code elimination optimization
 - [x] Constant folding optimization'
 - [x] Type name resolution
-- [ ] Generic functions
+- [x] Generic functions
 - [ ] Pretty multiline error snippets
 - [ ] Operator overloading for arbitrary types
 - [x] Module dependency linearlization and cycle detection

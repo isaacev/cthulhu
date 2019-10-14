@@ -10,7 +10,6 @@ abstract class TokenType {
   const LITERAL_STR         = 'Str';
   const LITERAL_BOOL        = 'Bool';
   const IDENT               = 'Ident';
-  const GENERIC             = 'Generic';
   const KEYWORD_LET         = 'Let';
   const KEYWORD_IF          = 'If';
   const KEYWORD_ELSE        = 'Else';

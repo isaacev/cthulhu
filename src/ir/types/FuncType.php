@@ -10,9 +10,14 @@ class FuncType extends Type {
    * @param Type[] $inputs
    * @param Type   $output
    */
-  function __construct(array $inputs, Type $output) {
+  function __construct(array $polys, array $inputs, Type $output) {
+    $this->polys  = $polys;
     $this->inputs = $inputs;
     $this->output = $output;
+  }
+
+  function accepts(Type $other): bool {
+    return $this->equals($other);
   }
 
   function equals(Type $other): bool {
@@ -31,6 +36,14 @@ class FuncType extends Type {
     }
 
     return $this->output->equals($other->output);
+  }
+
+  function replace_generics(array $replacements): Type {
+    $inputs = array_map(function ($input) use ($replacements) {
+      return $input->replace_generics($replacements);
+    }, $this->inputs);
+    $output = $this->output->replace_generics($replacements);
+    return new self([], $inputs, $output);
   }
 
   function __toString(): string {
