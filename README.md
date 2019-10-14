@@ -16,4 +16,4 @@
 - [ ] Generic functions
 - [ ] Pretty multiline error snippets
 - [ ] Operator overloading for arbitrary types
-- [ ] Module dependency linearlization and cycle detection
+- [x] Module dependency linearlization and cycle detection
