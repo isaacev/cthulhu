@@ -9,6 +9,7 @@ class BuiltinCallExpr extends Expr {
   public $args;
 
   function __construct(string $name, array $args) {
+    parent::__construct();
     $this->name = $name;
     $this->args = $args;
   }

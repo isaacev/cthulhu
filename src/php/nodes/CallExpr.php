@@ -9,6 +9,7 @@ class CallExpr extends Expr {
   public $args;
 
   function __construct(Expr $callee, array $args) {
+    parent::__construct();
     $this->callee = $callee;
     $this->args = $args;
   }

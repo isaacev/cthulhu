@@ -8,6 +8,7 @@ class Program extends Node {
   public $namespaces;
 
   function __construct(array $namespaces) {
+    parent::__construct();
     $this->namespaces = $namespaces;
   }
 

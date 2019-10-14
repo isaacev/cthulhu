@@ -9,6 +9,7 @@ class AssignStmt extends Stmt {
   public $expr;
 
   function __construct(Variable $assignee, Expr $expr) {
+    parent::__construct();
     $this->assignee = $assignee;
     $this->expr = $expr;
   }

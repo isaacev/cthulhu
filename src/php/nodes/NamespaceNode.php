@@ -9,6 +9,7 @@ class NamespaceNode extends Node {
   public $block;
 
   function __construct(?Reference $name, BlockNode $block) {
+    parent::__construct();
     $this->name = $name;
     $this->block = $block;
   }

@@ -14,6 +14,7 @@ class BinaryExpr extends Expr {
   public $right;
 
   function __construct(string $operator, Expr $left, Expr $right) {
+    parent::__construct();
     $this->operator = $operator;
     $this->left = $left;
     $this->right = $right;

@@ -8,6 +8,7 @@ class ReferenceExpr extends Expr {
   public $reference;
 
   function __construct(Reference $reference) {
+    parent::__construct();
     $this->reference = $reference;
   }
 

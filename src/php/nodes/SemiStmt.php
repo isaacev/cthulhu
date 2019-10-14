@@ -8,6 +8,7 @@ class SemiStmt extends Stmt {
   public $expr;
 
   function __construct(Expr $expr) {
+    parent::__construct();
     $this->expr = $expr;
   }
 

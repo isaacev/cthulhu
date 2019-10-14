@@ -8,6 +8,7 @@ class BlockNode extends Node {
   public $stmts;
 
   function __construct(array $stmts) {
+    parent::__construct();
     $this->stmts = $stmts;
   }
 

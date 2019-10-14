@@ -10,6 +10,7 @@ class IfStmt extends Stmt {
   public $else_block;
 
   function __construct(Expr $cond, BlockNode $if_block, ?BlockNode $else_block) {
+    parent::__construct();
     $this->cond = $cond;
     $this->if_block = $if_block;
     $this->else_block = $else_block;

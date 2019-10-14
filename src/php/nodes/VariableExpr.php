@@ -8,6 +8,7 @@ class VariableExpr extends Expr {
   public $variable;
 
   function __construct(Variable $variable) {
+    parent::__construct();
     $this->variable = $variable;
   }
 
