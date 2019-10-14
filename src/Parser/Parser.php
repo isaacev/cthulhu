@@ -2,20 +2,20 @@
 
 namespace Cthulhu\Parser;
 
-use Cthulhu\AST;
+use Cthulhu\ast;
 use Cthulhu\Parser\Lexer\Lexer;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;
 
 class Parser {
-  public static function file_to_ast(Source\File $file): AST\File {
+  public static function file_to_ast(Source\File $file): ast\File {
     $lexer = Lexer::from_file($file);
     $parser = new self($file, $lexer);
     return $parser->file();
   }
 
-  public static function string_to_ast(string $str): AST\File {
+  public static function string_to_ast(string $str): ast\File {
     $file = new Source\File('<stdin>', $str);
     return self::file_to_ast($file);
   }
@@ -28,8 +28,8 @@ class Parser {
     $this->lexer = $lexer;
   }
 
-  public function file(): AST\File {
-    return new AST\File($this->file, $this->items(false));
+  public function file(): ast\File {
+    return new ast\File($this->file, $this->items(false));
   }
 
   /**
@@ -54,7 +54,7 @@ class Parser {
     return $items;
   }
 
-  private function item(): AST\Item {
+  private function item(): ast\Item {
     $attrs = $this->attributes();
 
     switch ($this->lexer->peek()->type) {
@@ -79,68 +79,68 @@ class Parser {
     return $attrs;
   }
 
-  private function attribute(): AST\Attribute {
+  private function attribute(): ast\Attribute {
     $pound         = $this->next(TokenType::POUND);
     $bracket_left  = $this->next(TokenType::BRACKET_LEFT);
     $name          = $this->next(TokenType::IDENT)->lexeme;
     $bracket_right = $this->next(TokenType::BRACKET_RIGHT);
     $span          = $pound->span->extended_to($bracket_right->span);
-    return new AST\Attribute($span, $name);
+    return new ast\Attribute($span, $name);
   }
 
-  private function use_item(array $attrs): AST\UseItem {
+  private function use_item(array $attrs): ast\UseItem {
     $keyword = $this->next(TokenType::KEYWORD_USE);
     $path = $this->compound_path_node();
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
-    return new AST\UseItem($span, $path, $attrs);
+    return new ast\UseItem($span, $path, $attrs);
   }
 
-  private function mod_item(array $attrs): AST\ModItem {
+  private function mod_item(array $attrs): ast\ModItem {
     $keyword = $this->next(TokenType::KEYWORD_MOD);
-    $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $name = ast\IdentNode::from_token($this->next(TokenType::IDENT));
     $left_brace = $this->next(TokenType::BRACE_LEFT);
     $items = $this->items(true);
     $right_brace = $this->next(TokenType::BRACE_RIGHT);
     $span = $keyword->span->extended_to($right_brace->span);
-    return new AST\ModItem($span, $name, $items, $attrs);
+    return new ast\ModItem($span, $name, $items, $attrs);
   }
 
-  private function native_item(array $attrs): AST\Item {
+  private function native_item(array $attrs): ast\Item {
     $native = $this->next(TokenType::KEYWORD_NATIVE);
 
     switch ($this->lexer->peek()->type) {
       case TokenType::KEYWORD_FN: {
         $fn     = $this->next(TokenType::KEYWORD_FN);
-        $name   = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $name   = ast\IdentNode::from_token($this->next(TokenType::IDENT));
         $note   = $this->function_annotation($this->grouped_annotation());
         $semi   = $this->next(TokenType::SEMICOLON);
         $span   = $native->span->extended_to($semi->span);
-        return new AST\NativeFuncItem($span, $name, $note, $attrs);
+        return new ast\NativeFuncItem($span, $name, $note, $attrs);
       }
       default: {
         $type = $this->next(TokenType::KEYWORD_TYPE);
-        $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $name = ast\IdentNode::from_token($this->next(TokenType::IDENT));
         $semi = $this->next(TokenType::SEMICOLON);
         $span = $native->span->extended_to($semi->span);
-        return new AST\NativeTypeItem($span, $name, $attrs);
+        return new ast\NativeTypeItem($span, $name, $attrs);
       }
     }
   }
 
-  private function fn_item(array $attrs): AST\FnItem {
+  private function fn_item(array $attrs): ast\FnItem {
     $fn_keyword = $this->next(TokenType::KEYWORD_FN);
-    $fn_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $fn_name = ast\IdentNode::from_token($this->next(TokenType::IDENT));
     $this->next(TokenType::PAREN_LEFT);
 
     $params = [];
     if ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
       while (true) {
-        $param_name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+        $param_name = ast\IdentNode::from_token($this->next(TokenType::IDENT));
         $this->next(TokenType::COLON);
         $param_note = $this->type_annotation();
         $param_span = new Source\Span($param_name->span->from, $param_note->span->to);
-        $params[] = new AST\ParamNode($param_span, $param_name, $param_note);
+        $params[] = new ast\ParamNode($param_span, $param_name, $param_note);
 
         if ($this->lexer->peek()->type === TokenType::COMMA) {
           $this->next(TokenType::COMMA);
@@ -156,7 +156,7 @@ class Parser {
     $returns = $this->type_annotation();
     $body = $this->block();
     $fn_span = $fn_keyword->span->extended_to($body->span);
-    return new AST\FnItem($fn_span, $fn_name, $params, $returns, $body, $attrs);
+    return new ast\FnItem($fn_span, $fn_name, $params, $returns, $body, $attrs);
   }
 
   /**
@@ -166,12 +166,12 @@ class Parser {
    * are children of either a function declaration or an if/else conditional.
    */
 
-  private function block(): AST\BlockNode {
+  private function block(): ast\BlockNode {
     $left = $this->next(TokenType::BRACE_LEFT);
     $stmts = $this->stmts();
     $right = $this->next(TokenType::BRACE_RIGHT);
     $span = $left->span->extended_to($right->span);
-    return new AST\BlockNode($span, $stmts);
+    return new ast\BlockNode($span, $stmts);
   }
 
   private function stmts(): array {
@@ -181,14 +181,14 @@ class Parser {
       if ($peek->type === TokenType::BRACE_RIGHT) {
         break;
       }
-      if (($stmts[] = $this->stmt()) instanceof AST\ExprStmt) {
+      if (($stmts[] = $this->stmt()) instanceof ast\ExprStmt) {
         break;
       }
     }
     return $stmts;
   }
 
-  private function stmt(): AST\Stmt {
+  private function stmt(): ast\Stmt {
     $attrs = $this->attributes();
 
     switch ($this->lexer->peek()->type) {
@@ -199,9 +199,9 @@ class Parser {
     }
   }
 
-  private function let_stmt(array $attrs): AST\LetStmt {
+  private function let_stmt(array $attrs): ast\LetStmt {
     $keyword = $this->next(TokenType::KEYWORD_LET);
-    $name = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+    $name = ast\IdentNode::from_token($this->next(TokenType::IDENT));
 
     if ($this->lexer->peek()->type === TokenType::COLON) {
       $this->next(TokenType::COLON);
@@ -214,16 +214,16 @@ class Parser {
     $expr = $this->expr();
     $semi = $this->semicolon();
     $span = $keyword->span->extended_to($semi->span);
-    return new AST\LetStmt($span, $name, $annotation, $expr, $attrs);
+    return new ast\LetStmt($span, $name, $annotation, $expr, $attrs);
   }
 
-  private function expr_stmt(array $attrs): AST\Stmt {
+  private function expr_stmt(array $attrs): ast\Stmt {
     $expr = $this->expr();
     if ($this->lexer->peek()->type === TokenType::SEMICOLON) {
       $semi = $this->semicolon();
-      return new AST\SemiStmt($expr, $semi, $attrs);
+      return new ast\SemiStmt($expr, $semi, $attrs);
     } else {
-      return new AST\ExprStmt($expr, $attrs);
+      return new ast\ExprStmt($expr, $attrs);
     }
   }
 
@@ -233,7 +233,7 @@ class Parser {
    * Expressions always produce a value and return it to the parent node.
    */
 
-  private function expr(int $threshold = Precedence::LOWEST): AST\Expr {
+  private function expr(int $threshold = Precedence::LOWEST): ast\Expr {
     $left = $this->prefix_expr();
     while ($threshold < $this->infix_token_precedence($this->lexer->peek())) {
       $left = $this->postfix_expr($left, $this->lexer->next());
@@ -241,7 +241,7 @@ class Parser {
     return $left;
   }
 
-  private function prefix_expr(): AST\Expr {
+  private function prefix_expr(): ast\Expr {
     $peek = $this->lexer->peek();
     switch ($peek->type) {
       case TokenType::KEYWORD_IF:
@@ -263,7 +263,7 @@ class Parser {
     }
   }
 
-  private function postfix_expr(AST\Expr $left, Token $next): AST\Expr {
+  private function postfix_expr(ast\Expr $left, Token $next): ast\Expr {
     switch ($next->type) {
       case TokenType::PAREN_LEFT:
         return $this->call_expr($left, $next);
@@ -287,19 +287,19 @@ class Parser {
     }
   }
 
-  private function binary_infix_expr(AST\Expr $left, Token $operator): AST\BinaryExpr {
+  private function binary_infix_expr(ast\Expr $left, Token $operator): ast\BinaryExpr {
     $right = $this->expr($this->infix_token_precedence($this->lexer->peek()));
     $span = $left->span->extended_to($right->span);
-    return new AST\BinaryExpr($span, $operator->lexeme, $left, $right);
+    return new ast\BinaryExpr($span, $operator->lexeme, $left, $right);
   }
 
-  private function unary_prefix_expr(Token $operator): AST\UnaryExpr {
+  private function unary_prefix_expr(Token $operator): ast\UnaryExpr {
     $operand = self::expr(Precedence::UNARY);
     $span = $operator->span->extended_to($operand->span);
-    return new AST\UnaryExpr($span, $operator->lexeme, $operand);
+    return new ast\UnaryExpr($span, $operator->lexeme, $operand);
   }
 
-  private function if_expr(Token $if_keyword): AST\IfExpr {
+  private function if_expr(Token $if_keyword): ast\IfExpr {
     $cond = $this->expr();
     $if_true = $this->block();
 
@@ -311,10 +311,10 @@ class Parser {
     }
 
     $span = $if_keyword->span->extended_to(($if_false ? $if_false : $if_true)->span);
-    return new AST\IfExpr($span, $cond, $if_true, $if_false);
+    return new ast\IfExpr($span, $cond, $if_true, $if_false);
   }
 
-  private function call_expr(AST\Expr $callee, Token $paren_left): AST\CallExpr {
+  private function call_expr(ast\Expr $callee, Token $paren_left): ast\CallExpr {
     $args = [];
     while (true) {
       $peek = $this->lexer->peek();
@@ -331,75 +331,75 @@ class Parser {
     }
     $paren_right = $this->next(TokenType::PAREN_RIGHT);
     $span = $callee->span->extended_to($paren_right->span);
-    return new AST\CallExpr($span, $callee, $args);
+    return new ast\CallExpr($span, $callee, $args);
   }
 
-  private function path_expr(): AST\PathExpr {
+  private function path_expr(): ast\PathExpr {
     $path = $this->path_node();
-    return new AST\PathExpr($path);
+    return new ast\PathExpr($path);
   }
 
-  private function str_expr(Token $str): AST\StrExpr {
+  private function str_expr(Token $str): ast\StrExpr {
     $value = substr($str->lexeme, 1, -1);
-    return new AST\StrExpr($str->span, $value, $str->lexeme);
+    return new ast\StrExpr($str->span, $value, $str->lexeme);
   }
 
-  private function int_expr(Token $int): AST\IntExpr {
+  private function int_expr(Token $int): ast\IntExpr {
     $value = intval($int->lexeme, 10);
-    return new AST\IntExpr($int->span, $value, $int->lexeme);
+    return new ast\IntExpr($int->span, $value, $int->lexeme);
   }
 
-  private function bool_expr(Token $bool) : AST\BoolExpr {
+  private function bool_expr(Token $bool) : ast\BoolExpr {
     $value = $bool->lexeme === 'true';
-    return new AST\BoolExpr($bool->span, $value, $bool->lexeme);
+    return new ast\BoolExpr($bool->span, $value, $bool->lexeme);
   }
 
   /**
    * Other nodes
    */
 
-  private function compound_path_node(): AST\CompoundPathNode {
+  private function compound_path_node(): ast\CompoundPathNode {
     $extern = false;
     if ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
       $extern = true;
       $extern_colons = $this->next(TokenType::DOUBLE_COLON);
     }
 
-    $segments = [ AST\IdentNode::from_token($this->next(TokenType::IDENT)) ];
+    $segments = [ ast\IdentNode::from_token($this->next(TokenType::IDENT)) ];
     while ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
       $this->next(TokenType::DOUBLE_COLON);
 
       if ($this->lexer->peek()->type === TokenType::STAR) {
-        $segments[] = AST\StarSegment::from_token($this->next(TokenType::STAR));
+        $segments[] = ast\StarSegment::from_token($this->next(TokenType::STAR));
         break;
       }
 
-      $segments[] = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+      $segments[] = ast\IdentNode::from_token($this->next(TokenType::IDENT));
     }
 
     $body = array_slice($segments, 0, -1);
     $tail = end($segments);
     $span = (($extern ? $extern_colons : $segments[0])->span)->extended_to($tail->span);
-    return new AST\CompoundPathNode($span, $extern, $body, $tail);
+    return new ast\CompoundPathNode($span, $extern, $body, $tail);
   }
 
-  private function path_node(): AST\PathNode {
+  private function path_node(): ast\PathNode {
     $extern = false;
     if ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
       $extern = true;
       $extern_colons = $this->next(TokenType::DOUBLE_COLON);
     }
 
-    $segments = [ AST\IdentNode::from_token($this->next(TokenType::IDENT)) ];
+    $segments = [ ast\IdentNode::from_token($this->next(TokenType::IDENT)) ];
     while ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
       $this->next(TokenType::DOUBLE_COLON);
-      $segments[] = AST\IdentNode::from_token($this->next(TokenType::IDENT));
+      $segments[] = ast\IdentNode::from_token($this->next(TokenType::IDENT));
     }
 
     $from = ($extern ? $extern_colons : $segments[0])->span->from;
     $to = end($segments)->span->to;
     $span = new Source\Span($from, $to);
-    return new AST\PathNode($span, $extern, $segments);
+    return new ast\PathNode($span, $extern, $segments);
   }
 
   /**
@@ -454,7 +454,7 @@ class Parser {
     }
   }
 
-  private function type_annotation(): AST\Annotation {
+  private function type_annotation(): ast\Annotation {
     $peek = $this->lexer->peek();
     switch ($peek->type) {
       case TokenType::IDENT:
@@ -483,12 +483,12 @@ class Parser {
     }
   }
 
-  private function named_annotation(): AST\NamedAnnotation {
+  private function named_annotation(): ast\NamedAnnotation {
     $path = $this->path_node();
-    return new AST\NamedAnnotation($path);
+    return new ast\NamedAnnotation($path);
   }
 
-  private function grouped_annotation(): AST\Annotation {
+  private function grouped_annotation(): ast\Annotation {
     $paren_left = $this->next(TokenType::PAREN_LEFT);
     $members = [];
     if ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
@@ -504,23 +504,23 @@ class Parser {
     $span = $paren_left->span->extended_to($paren_right->span);
     switch (count($members)) {
       case 0:
-        return new AST\UnitAnnotation($span);
+        return new ast\UnitAnnotation($span);
       case 1:
-        return new AST\GroupedAnnotation($span, $members[0]);
+        return new ast\GroupedAnnotation($span, $members[0]);
       default:
-        return new AST\TupleAnnotation($span, $members);
+        return new ast\TupleAnnotation($span, $members);
     }
   }
 
-  private function generic_annotation(): AST\GenericAnnotation {
+  private function generic_annotation(): ast\GenericAnnotation {
     $gen = $this->next(TokenType::GENERIC);
-    return new AST\GenericAnnotation($gen->span, substr($gen->lexeme, 1));
+    return new ast\GenericAnnotation($gen->span, substr($gen->lexeme, 1));
   }
 
-  private function function_annotation(AST\Annotation $prefix): AST\FunctionAnnotation {
-    if ($prefix instanceof AST\GroupedAnnotation) {
+  private function function_annotation(ast\Annotation $prefix): ast\FunctionAnnotation {
+    if ($prefix instanceof ast\GroupedAnnotation) {
       $inputs = [ $prefix->inner ];
-    } else if ($prefix instanceof AST\TupleAnnotation) {
+    } else if ($prefix instanceof ast\TupleAnnotation) {
       $inputs = $prefix->members;
     } else {
       $inputs = [ $prefix ];
@@ -528,6 +528,6 @@ class Parser {
     $thin_arrow = $this->next(TokenType::THIN_ARROW);
     $output = $this->type_annotation();
     $span = $prefix->span->extended_to($output->span);
-    return new AST\FunctionAnnotation($span, $inputs, $output);
+    return new ast\FunctionAnnotation($span, $inputs, $output);
   }
 }
