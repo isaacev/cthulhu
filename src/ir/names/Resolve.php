@@ -154,8 +154,11 @@ class Resolve {
       'exit(FuncItem)' => function (nodes\FuncItem $item) use ($ctx) {
         self::exit_func_item($ctx, $item);
       },
-      'NativeFuncItem' => function (nodes\NativeFuncItem $item) use ($ctx) {
-        self::native_func_item($ctx, $item);
+      'enter(NativeFuncItem)' => function (nodes\NativeFuncItem $item) use ($ctx) {
+        self::enter_native_func_item($ctx, $item);
+      },
+      'exit(NativeFuncItem)' => function (nodes\NativeFuncItem $item) use ($ctx) {
+        self::exit_native_func_item($ctx, $item);
       },
       'NativeTypeItem' => function (nodes\NativeTypeItem $item) use ($ctx) {
         self::native_type_item($ctx, $item);
@@ -289,10 +292,22 @@ class Resolve {
     $ctx->pop_func_scope();
   }
 
-  private static function native_func_item(self $ctx, nodes\NativeFuncItem $item): void {
+  private static function enter_native_func_item(self $ctx, nodes\NativeFuncItem $item): void {
     $func_name   = $item->name->value;
     $func_symbol = $ctx->make_ref_symbol($item->name, $ctx->current_ref_symbol());
     $ctx->current_module_scope()->add_binding($func_name, $func_symbol);
+
+    $func_scope = new Scope();
+    $ctx->push_func_scope($func_scope);
+
+    foreach ($item->polys as $poly) {
+      $poly_symbol = $ctx->make_type_symbol($poly);
+      $func_scope->add_binding($poly->value, $poly_symbol);
+    }
+  }
+
+  private static function exit_native_func_item(self $ctx): void {
+    $ctx->pop_func_scope();
   }
 
   private static function native_type_item(self $ctx, nodes\NativeTypeItem $item): void {

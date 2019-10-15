@@ -27,3 +27,7 @@ native fn strval(Int) -> Str;
 
 #[inline]
 native fn mt_rand(Int, Int) -> Int;
+
+#[inline]
+#[construct]
+native fn subscript[A]([A], Int) -> A;

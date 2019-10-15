@@ -1,0 +1,4 @@
+#[inline]
+fn nth[A](ls: [A], n: ::kernel::Int) -> A {
+  ::kernel::subscript[A](ls, n)
+}

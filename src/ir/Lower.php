@@ -66,8 +66,9 @@ class Lower {
   private static function native_item(Table $spans, ast\NativeFuncItem $item): nodes\NativeFuncItem {
     $attrs = self::attrs($item->attrs);
     $name  = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
+    $polys = self::func_polys($spans, $item->polys);
     $note  = self::func_note($spans, $item->note);
-    return $spans->set(new nodes\NativeFuncItem($name, $note, $attrs), $item->span);
+    return $spans->set(new nodes\NativeFuncItem($name, $polys, $note, $attrs), $item->span);
   }
 
   private static function native_type_item(Table $spans, ast\NativeTypeItem $item): nodes\NativeTypeItem {
@@ -124,6 +125,8 @@ class Lower {
         return self::binary_expr($spans, $expr);
       case $expr instanceof ast\UnaryExpr:
         return self::unary_expr($spans, $expr);
+      case $expr instanceof ast\ListExpr:
+        return self::list_expr($spans, $expr);
       case $expr instanceof ast\PathExpr:
         return self::path_expr($spans, $expr);
       case $expr instanceof ast\StrExpr:
@@ -170,6 +173,14 @@ class Lower {
     return $spans->set(new nodes\UnaryExpr($op, $right), $expr->span);
   }
 
+  private static function list_expr(Table $spans, ast\ListExpr $expr): nodes\ListExpr {
+    $elements = [];
+    foreach ($expr->elements as $element) {
+      $elements[] = self::expr($spans, $element);
+    }
+    return $spans->set(new nodes\ListExpr($elements), $expr->span);
+  }
+
   private static function path_expr(Table $spans, ast\PathExpr $expr): nodes\RefExpr {
     $ref = self::path($spans, $expr->path);
     return $spans->set(new nodes\RefExpr($ref), $expr->span);
@@ -202,6 +213,8 @@ class Lower {
         return self::name_note($spans, $note);
       case $note instanceof ast\FunctionAnnotation:
         return self::func_note($spans, $note);
+      case $note instanceof ast\ListAnnotation:
+        return self::list_note($spans, $note);
       default:
         throw new \Exception('cannot lower unknown type annotation');
     }
@@ -223,6 +236,11 @@ class Lower {
     }
     $output = self::note($spans, $note->output);
     return $spans->set(new nodes\FuncNote($inputs, $output), $note->span);
+  }
+
+  private static function list_note(Table $spans, ast\ListAnnotation $note): nodes\ListNote {
+    $elements = self::note($spans, $note->elements);
+    return $spans->set(new nodes\ListNote($elements), $note->span);
   }
 
   /**

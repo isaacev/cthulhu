@@ -87,6 +87,9 @@ class Check {
       'exit(UnaryExpr)' => function (nodes\UnaryExpr $expr) use ($ctx) {
         self::exit_unary_expr($ctx, $expr);
       },
+      'exit(ListExpr)' => function (nodes\ListExpr $expr) use ($ctx) {
+        self::exit_list_expr($ctx, $expr);
+      },
       'RefExpr' => function (nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
       },
@@ -163,8 +166,20 @@ class Check {
   }
 
   private static function exit_native_func_item(self $ctx, nodes\NativeFuncItem $item): void {
+    $polys = [];
+    foreach ($item->polys as $poly) {
+      $poly_symbol = $ctx->get_symbol_for_name($poly);
+      $polys[] = $poly_type = new GenericType($poly->value, $poly_symbol);
+      $ctx->set_type_for_symbol($poly_symbol, $poly_type);
+    }
+    $inputs = [];
+    foreach ($item->note->inputs as $input) {
+      $inputs[] = self::note_to_type($ctx, $input);
+    }
+    $output = self::note_to_type($ctx, $item->note->output);
+
     $symbol = $ctx->get_symbol_for_name($item->name);
-    $type = self::func_note_to_type($ctx, $item->note);
+    $type = new FuncType($polys, $inputs, $output);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
@@ -290,6 +305,32 @@ class Check {
     }
   }
 
+  private static function exit_list_expr(self $ctx, nodes\ListExpr $expr): void {
+    $unified_type = null;
+    foreach ($expr->elements as $element_expr) {
+      $element_type = $ctx->get_type_for_expr($element_expr);
+      if ($unified_type === null) {
+        $unified_type = $element_type;
+        continue;
+      }
+
+      if ($unified_type->accepts($element_type)) {
+        continue;
+      }
+
+      $span = $ctx->spans->get($element_expr);
+      throw Errors::mismatched_list_element_types($span, $unified_type, $element_type);
+    }
+
+    if ($unified_type === null) {
+      // ???
+      throw new \Exception('what type does an empty list have?');
+    }
+
+    $type = new ListType($unified_type);
+    $ctx->set_type_for_expr($expr, $type);
+  }
+
   private static function ref_expr(self $ctx, nodes\RefExpr $expr): void {
     $symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
     $type = $ctx->get_type_for_symbol($symbol);
@@ -329,6 +370,8 @@ class Check {
         return self::name_note_to_type($ctx, $note);
       case $note instanceof nodes\UnitNote:
         return self::unit_note_to_type($ctx, $note);
+      case $note instanceof nodes\ListNote:
+        return self::list_note_to_type($ctx, $note);
       default:
         throw new \Exception('cannot type-check unknown note node: ' . get_class($note));
     }
@@ -350,5 +393,10 @@ class Check {
 
   private static function unit_note_to_type(): Type {
     return new UnitType();
+  }
+
+  private static function list_note_to_type(self $ctx, nodes\ListNote $note): Type {
+    $elements = self::note_to_type($ctx, $note->elements);
+    return new ListType($elements);
   }
 }

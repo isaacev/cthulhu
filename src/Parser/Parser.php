@@ -113,10 +113,11 @@ class Parser {
       case TokenType::KEYWORD_FN: {
         $fn     = $this->next(TokenType::KEYWORD_FN);
         $name   = ast\IdentNode::from_token($this->next(TokenType::IDENT));
+        $polys  = $this->fn_polys();
         $note   = $this->function_annotation($this->grouped_annotation());
         $semi   = $this->next(TokenType::SEMICOLON);
         $span   = $native->span->extended_to($semi->span);
-        return new ast\NativeFuncItem($span, $name, $note, $attrs);
+        return new ast\NativeFuncItem($span, $name, $polys, $note, $attrs);
       }
       default: {
         $type = $this->next(TokenType::KEYWORD_TYPE);
@@ -132,19 +133,7 @@ class Parser {
     $fn_keyword = $this->next(TokenType::KEYWORD_FN);
     $fn_name = ast\IdentNode::from_token($this->next(TokenType::IDENT));
 
-    $polys = [];
-    if ($this->lexer->peek()->type === TokenType::BRACKET_LEFT) {
-      $this->next(TokenType::BRACKET_LEFT);
-      while (true) {
-        $polys[] = ast\IdentNode::from_token($this->next(TokenType::IDENT));
-        if ($this->lexer->peek()->type !== TokenType::COMMA) {
-          break;
-        } else {
-          $this->next(TokenType::COMMA);
-        }
-      }
-      $this->next(TokenType::BRACKET_RIGHT);
-    }
+    $polys = $this->fn_polys();
 
     $this->next(TokenType::PAREN_LEFT);
 
@@ -172,6 +161,23 @@ class Parser {
     $body = $this->block();
     $fn_span = $fn_keyword->span->extended_to($body->span);
     return new ast\FnItem($fn_span, $fn_name, $polys, $params, $returns, $body, $attrs);
+  }
+
+  private function fn_polys(): array {
+    $polys = [];
+    if ($this->lexer->peek()->type === TokenType::BRACKET_LEFT) {
+      $this->next(TokenType::BRACKET_LEFT);
+      while (true) {
+        $polys[] = ast\IdentNode::from_token($this->next(TokenType::IDENT));
+        if ($this->lexer->peek()->type !== TokenType::COMMA) {
+          break;
+        } else {
+          $this->next(TokenType::COMMA);
+        }
+      }
+      $this->next(TokenType::BRACKET_RIGHT);
+    }
+    return $polys;
   }
 
   /**
@@ -263,6 +269,8 @@ class Parser {
         return $this->if_expr($this->lexer->next());
       case TokenType::DASH:
         return $this->unary_prefix_expr($this->lexer->next());
+      case TokenType::BRACKET_LEFT:
+        return $this->list_expr($this->lexer->next());
       case TokenType::IDENT:
       case TokenType::DOUBLE_COLON:
         return $this->path_expr();
@@ -361,6 +369,24 @@ class Parser {
     $paren_right = $this->next(TokenType::PAREN_RIGHT);
     $span = $callee->span->extended_to($paren_right->span);
     return new ast\CallExpr($span, $callee, $polys, $args);
+  }
+
+  private function list_expr(Token $bracket_left): ast\ListExpr {
+    $elements = [];
+    while (true) {
+      if ($this->lexer->peek()->type === TokenType::BRACKET_RIGHT) {
+        break;
+      }
+
+      $elements[] = $this->expr();
+      if ($this->lexer->peek()->type !== TokenType::COMMA) {
+        break;
+      }
+      $this->next(TokenType::COMMA);
+    }
+    $bracket_right = $this->next(TokenType::BRACKET_RIGHT);
+    $span = $bracket_left->span->extended_to($bracket_right->span);
+    return new ast\ListExpr($span, $elements);
   }
 
   private function path_expr(): ast\PathExpr {
@@ -494,6 +520,9 @@ class Parser {
       case TokenType::PAREN_LEFT:
         $prefix = $this->grouped_annotation();
         break;
+      case TokenType::BRACKET_LEFT:
+        $prefix = $this->list_annotation();
+        break;
       default:
         throw Errors::expected_annotation($peek);
     }
@@ -537,6 +566,14 @@ class Parser {
       default:
         return new ast\TupleAnnotation($span, $members);
     }
+  }
+
+  private function list_annotation(): ast\ListAnnotation {
+    $bracket_left = $this->next(TokenType::BRACKET_LEFT);
+    $elements = $this->type_annotation();
+    $bracket_right = $this->next(TokenType::BRACKET_RIGHT);
+    $span = $bracket_left->span->extended_to($bracket_right->span);
+    return new ast\ListAnnotation($span, $elements);
   }
 
   private function function_annotation(ast\Annotation $prefix): ast\FunctionAnnotation {

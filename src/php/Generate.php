@@ -135,6 +135,9 @@ class Generate {
       'exit(UnaryExpr)' => function (ir\nodes\UnaryExpr $expr) use ($ctx) {
         self::exit_unary_expr($ctx, $expr);
       },
+      'exit(ListExpr)' => function (ir\nodes\ListExpr $expr) use ($ctx) {
+        self::exit_list_expr($ctx, $expr);
+      },
       'RefExpr' => function (ir\nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
       },
@@ -228,12 +231,15 @@ class Generate {
       return new php\nodes\VariableExpr($param);
     }, $params);
 
-    $ctx->push_expr($item->get_attr('construct', false)
-      ? new php\nodes\BuiltinCallExpr($item->name->value, $args)
-      : new php\nodes\CallExpr(
+    if ($item->get_attr('construct', false)) {
+      $ctx->push_expr(self::builtins($item->name->value, $args));
+    } else {
+      $ctx->push_expr(
+        new php\nodes\CallExpr(
           new php\nodes\ReferenceExpr(
             new php\nodes\Reference([ $item->name->value ])),
           $args));
+    }
 
     $symbol = $ctx->name_to_symbol->get($item->name);
     $type = $ctx->symbol_to_type->get($symbol);
@@ -331,6 +337,11 @@ class Generate {
     }
   }
 
+  private static function exit_list_expr(self $ctx, ir\nodes\ListExpr $expr): void {
+    $elements = $ctx->pop_exprs(count($expr->elements));
+    $ctx->push_expr(new nodes\FlatArrayExpr($elements));
+  }
+
   private static function ref_expr(self $ctx, ir\nodes\RefExpr $expr): void {
     $ctx->push_expr($ctx->renamer->resolve_ref_expr($expr));
   }
@@ -349,5 +360,16 @@ class Generate {
 
   private static function block_expr(self $ctx): void {
     $ctx->push_block();
+  }
+
+  private static function builtins(string $name, array $args): php\nodes\Expr {
+    switch ($name) {
+      case 'subscript':
+        return new php\nodes\SubscriptExpr($args[0], $args[1]);
+      case 'print':
+        return new php\nodes\BuiltinCallExpr('print', $args);
+      default:
+        throw new \Exception("unknown PHP construct: $name");
+    }
   }
 }
