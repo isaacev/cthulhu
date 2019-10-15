@@ -248,6 +248,13 @@ class Check {
     }
     $concrete_callee_type = $generic_callee_type->replace_generics($replacements);
 
+    $total_expected_args = count($concrete_callee_type->inputs);
+    $total_found_args = count($expr->args);
+    if ($total_expected_args !== $total_found_args) {
+      $span = $ctx->spans->get($expr);
+      throw Errors::call_with_wrong_arg_num($span, $total_expected_args, $total_found_args);
+    }
+
     foreach ($expr->args as $index => $arg) {
       $expected_type = $concrete_callee_type->inputs[$index];
       $arg_type = $ctx->get_type_for_expr($arg);
