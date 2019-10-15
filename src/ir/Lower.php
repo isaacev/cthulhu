@@ -202,8 +202,6 @@ class Lower {
         return self::name_note($spans, $note);
       case $note instanceof ast\FunctionAnnotation:
         return self::func_note($spans, $note);
-      case $note instanceof ast\GenericAnnotation:
-        return self::generic_note($spans, $note);
       default:
         throw new \Exception('cannot lower unknown type annotation');
     }
@@ -225,11 +223,6 @@ class Lower {
     }
     $output = self::note($spans, $note->output);
     return $spans->set(new nodes\FuncNote($inputs, $output), $note->span);
-  }
-
-  private static function generic_note(Table $spans, ast\GenericAnnotation $note): nodes\GenericNote {
-    $name = $spans->set(new nodes\Name("'$note->name"), $note->span);
-    return $spans->set(new nodes\GenericNote($name), $note->span);
   }
 
   /**
