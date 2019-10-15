@@ -4,12 +4,10 @@ namespace Cthulhu\ast;
 
 use Cthulhu\Source;
 
-abstract class Node implements \JsonSerializable {
+abstract class Node {
   public $span;
 
   function __construct(Source\Span $span) {
     $this->span = $span;
   }
-
-  abstract public function visit(array $visitor_table): void;
 }

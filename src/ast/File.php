@@ -16,21 +16,4 @@ class File extends Node {
     $this->file = $file;
     $this->items = $items;
   }
-
-  public function visit(array $visitor_table): void {
-    if (array_key_exists('File', $visitor_table)) {
-      $visitor_table['File']($this);
-    }
-
-    foreach ($this->items as $item) {
-      $item->visit($visitor_table);
-    }
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'File',
-      'items' => $this->items
-    ];
-  }
 }

@@ -17,19 +17,4 @@ class PathExpr extends Expr {
   public function nth(int $n): IdentNode {
     return $this->path->segments[$n];
   }
-
-  public function visit(array $visitor_table): void {
-    if (array_key_exists('PathExpr', $visitor_table)) {
-      $visitor_table['PathExpr']($this);
-    }
-
-    $this->path->visit($visitor_table);
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'PathExpr',
-      'path' => $this->path
-    ];
-  }
 }

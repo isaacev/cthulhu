@@ -13,23 +13,4 @@ class FunctionAnnotation extends Annotation {
     $this->inputs = $inputs;
     $this->output = $output;
   }
-
-  public function visit(array $visitor_table): void {
-    if (array_key_exists('FunctionAnnotation', $visitor_table)) {
-      $visitor_table['FunctionAnnotation']($this);
-    }
-
-    foreach ($this->inputs as $input) {
-      $input->visit($visitor_table);
-    }
-    $this->output->visit($visitor_table);
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'FunctionAnnotation',
-      'inputs' => $this->inputs,
-      'output' => $this->output,
-    ];
-  }
 }

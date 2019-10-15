@@ -18,31 +18,4 @@ class FnItem extends Item {
     $this->returns = $returns;
     $this->body = $body;
   }
-
-  public function visit(array $visitor_table): void {
-    if (array_key_exists('FnItem', $visitor_table)) {
-      $visitor_table['FnItem']($this);
-    }
-
-    $this->name->visit($visitor_table);
-    foreach ($this->polys as $poly) {
-      $poly->visit($visitor_table);
-    }
-    foreach ($this->params as $param) {
-      $param->visit($visitor_table);
-    }
-    $this->returns->visit($visitor_table);
-    $this->body->visit($visitor_table);
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'FnItem',
-      'name' => $this->name,
-      'polys' => $this->polys,
-      'params' => $this->params,
-      'returns' => $this->returns,
-      'body' => $this->body
-    ];
-  }
 }
