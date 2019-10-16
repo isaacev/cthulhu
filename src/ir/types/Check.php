@@ -60,8 +60,8 @@ class Check {
     $ctx = new self($spans, $name_to_symbol, $symbol_to_name);
 
     ir\Visitor::walk($prog, [
-      'enter(FuncItem)' => function (nodes\FuncItem $item) use ($ctx) {
-        self::enter_func_item($ctx, $item);
+      'enter(FuncHead)' => function (nodes\FuncHead $head) use ($ctx) {
+        self::enter_func_head($ctx, $head);
       },
       'exit(FuncItem)' => function (nodes\FuncItem $item) use ($ctx) {
         self::exit_func_item($ctx, $item);
@@ -130,27 +130,27 @@ class Check {
     ]);
   }
 
-  private static function enter_func_item(self $ctx, nodes\FuncItem $item): void {
+  private static function enter_func_head(self $ctx, nodes\FuncHead $head): void {
     $polys = [];
-    foreach ($item->polys as $poly) {
+    foreach ($head->polys as $poly) {
       $poly_symbol = $ctx->get_symbol_for_name($poly);
       $polys[] = $poly_type = new GenericType($poly->value, $poly_symbol);
       $ctx->set_type_for_symbol($poly_symbol, $poly_type);
     }
     $inputs = [];
-    foreach ($item->params as $param) {
+    foreach ($head->params as $param) {
       $inputs[] = $type = self::note_to_type($ctx, $param->note);
       $symbol = $ctx->get_symbol_for_name($param->name);
       $ctx->set_type_for_symbol($symbol, $type);
     }
-    $output = self::note_to_type($ctx, $item->output);
+    $output = self::note_to_type($ctx, $head->output);
     $type = new FuncType($polys, $inputs, $output);
-    $symbol = $ctx->get_symbol_for_name($item->name);
+    $symbol = $ctx->get_symbol_for_name($head->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
   private static function exit_func_item(self $ctx, nodes\FuncItem $item): void {
-    $symbol = $ctx->get_symbol_for_name($item->name);
+    $symbol = $ctx->get_symbol_for_name($item->head->name);
     $expected_return_type = $ctx->get_type_for_symbol($symbol)->output;
 
     $block_type = $ctx->get_type_for_expr($item->body);

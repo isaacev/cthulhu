@@ -40,27 +40,25 @@ class Renamer {
     return empty($this->function_scopes) ? null : end($this->function_scopes);
   }
 
-  public function enter_function(ir\nodes\Name $name, array $params): void {
-    $name = $this->name_from_name($name);
+  public function enter_function(ir\nodes\FuncHead $head): void {
+    $name = $this->name_from_name($head->name);
     $scope = new Scope();
     array_push($this->function_scopes, $scope);
     $params = array_map(function ($param) use ($scope) {
       $var = $this->var_from_name($param->name);
       $scope->use_name($var->value);
       return $var;
-    }, $params);
-    array_push($this->function_signatures, [
-      $name,
-      $params,
-    ]);
+    }, $head->params);
+    $head = new php\nodes\FuncHead($name, $params);
+    array_push($this->function_signatures, $head);
   }
 
-  public function exit_function(): array {
+  public function exit_function(): php\nodes\FuncHead {
     array_pop($this->function_scopes);
     return array_pop($this->function_signatures);
   }
 
-  public function native_function(ir\nodes\Name $name, int $num_params): array {
+  public function native_function(ir\nodes\Name $name, int $num_params): php\nodes\FuncHead {
     $name = $this->name_from_name($name);
     $scope = new Scope();
     array_push($this->function_scopes, $scope);
@@ -70,10 +68,7 @@ class Renamer {
       $params[] = new php\nodes\Variable($value);
     }
     array_pop($this->function_scopes);
-    return [
-      $name,
-      $params,
-    ];
+    return new php\nodes\FuncHead($name, $params);
   }
 
   public function name_to_ref_expr(ir\nodes\Name $name): php\nodes\Expr {

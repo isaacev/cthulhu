@@ -145,8 +145,8 @@ class Resolve {
       'UseItem' => function (nodes\UseItem $item) use ($ctx) {
         self::use_item($ctx, $item);
       },
-      'enter(FuncItem)' => function (nodes\FuncItem $item) use ($ctx) {
-        self::enter_func_item($ctx, $item);
+      'enter(FuncHead)' => function (nodes\FuncHead $head) use ($ctx) {
+        self::enter_func_head($ctx, $head);
       },
       'FuncParam' => function (nodes\FuncParam $param) use ($ctx) {
         self::func_param($ctx, $param);
@@ -268,15 +268,15 @@ class Resolve {
     }
   }
 
-  private static function enter_func_item(self $ctx, nodes\FuncItem $item): void {
-    $func_name   = $item->name->value;
-    $func_symbol = $ctx->make_ref_symbol($item->name, $ctx->current_ref_symbol());
+  private static function enter_func_head(self $ctx, nodes\FuncHead $head): void {
+    $func_name   = $head->name->value;
+    $func_symbol = $ctx->make_ref_symbol($head->name, $ctx->current_ref_symbol());
     $ctx->current_module_scope()->add_binding($func_name, $func_symbol);
 
     $func_scope = new Scope();
     $ctx->push_func_scope($func_scope);
 
-    foreach ($item->polys as $poly) {
+    foreach ($head->polys as $poly) {
       $poly_symbol = $ctx->make_type_symbol($poly);
       $func_scope->add_binding($poly->value, $poly_symbol);
     }

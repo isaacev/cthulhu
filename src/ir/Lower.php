@@ -60,7 +60,10 @@ class Lower {
     $params = self::func_params($spans, $item->params);
     $output = self::note($spans, $item->returns);
     $body   = self::block($spans, $item->body);
-    return $spans->set(new nodes\FuncItem($name, $polys, $params, $output, $body, $attrs), $item->span);
+    $head   = $spans->set(
+      new nodes\FuncHead($name, $polys, $params, $output),
+      $item->span->extended_to($item->returns->span));
+    return $spans->set(new nodes\FuncItem($head, $body, $attrs), $item->span);
   }
 
   private static function native_item(Table $spans, ast\NativeFuncItem $item): nodes\NativeFuncItem {

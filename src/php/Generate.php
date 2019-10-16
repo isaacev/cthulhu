@@ -195,9 +195,9 @@ class Generate {
   }
 
   private static function enter_func_item(self $ctx, ir\nodes\FuncItem $item): void {
-    $type = $ctx->symbol_to_type->get($ctx->name_to_symbol->get($item->name));
+    $type = $ctx->symbol_to_type->get($ctx->name_to_symbol->get($item->head->name));
     $does_return = ir\types\UnitType::does_not_match($type->output);
-    $ctx->renamer->enter_function($item->name, $item->params);
+    $ctx->renamer->enter_function($item->head);
     $ctx->push_block_exit_handler(function () use ($ctx, $does_return) {
       if ($does_return) {
         $expr = $ctx->pop_expr();
@@ -213,23 +213,23 @@ class Generate {
 
   private static function exit_func_item(self $ctx, ir\nodes\FuncItem $item): void {
     $ctx->pop_block_exit_handler();
-    list($name, $params) = $ctx->renamer->exit_function();
+    $head = $ctx->renamer->exit_function();
     $body = $ctx->pop_block();
-    $stmt = new php\nodes\FuncStmt($name, $params, $body, $item->attrs);
+    $stmt = new php\nodes\FuncStmt($head, $body, $item->attrs);
     $ctx->add_finished_stmt($stmt);
 
     if ($item->get_attr('entry', false)) {
-      $ctx->entry_points[] = $ctx->renamer->name_to_ref_expr($item->name);
+      $ctx->entry_points[] = $ctx->renamer->name_to_ref_expr($item->head->name);
     }
   }
 
   private static function native_func_item(self $ctx, ir\nodes\NativeFuncItem $item): void {
     $ctx->push_block();
-    list($name, $params) = $ctx->renamer->native_function($item->name, count($item->note->inputs));
+    $head = $ctx->renamer->native_function($item->name, count($item->note->inputs));
 
     $args = array_map(function ($param) {
       return new php\nodes\VariableExpr($param);
-    }, $params);
+    }, $head->params);
 
     if ($item->get_attr('construct', false)) {
       $ctx->push_expr(self::builtins($item->name->value, $args));
@@ -248,7 +248,7 @@ class Generate {
       : new php\nodes\ReturnSTmt($ctx->pop_expr()));
 
     $body = $ctx->pop_block();
-    $stmt = new php\nodes\FuncStmt($name, $params, $body, $item->attrs);
+    $stmt = new php\nodes\FuncStmt($head, $body, $item->attrs);
     $ctx->add_finished_stmt($stmt);
   }
 

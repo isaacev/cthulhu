@@ -5,25 +5,23 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class FuncStmt extends Stmt {
-  public $name;
-  public $params;
+  public $head;
   public $body;
   public $attrs;
 
-  function __construct(Name $name, array $params, BlockNode $body, array $attrs) {
+  function __construct(FuncHead $head, BlockNode $body, array $attrs) {
     parent::__construct();
-    $this->name = $name;
-    $this->params = $params;
+    $this->head = $head;
     $this->body = $body;
     $this->attrs = $attrs;
   }
 
   public function to_children(): array {
-    return [ $this->body ];
+    return [ $this->head, $this->body ];
   }
 
   public function from_children(array $nodes): Node {
-    return new self($this->name, $this->params, $nodes[0], $this->attrs);
+    return new self($nodes[0], $nodes[1], $this->attrs);
   }
 
   public function build(): Builder {
@@ -36,12 +34,7 @@ class FuncStmt extends Stmt {
 
     return (new Builder)
       ->each($commented_attrs)
-      ->keyword('function')
-      ->space()
-      ->then($this->name)
-      ->paren_left()
-      ->each($this->params, (new Builder)->comma()->space())
-      ->paren_right()
+      ->then($this->head)
       ->space()
       ->then($this->body);
   }
