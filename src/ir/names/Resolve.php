@@ -117,7 +117,11 @@ class Resolve {
   }
 
   private function get_namespace(Symbol $symbol): ?Scope {
-    return $this->namespaces[$symbol->get_id()];
+    if (array_key_exists($symbol->get_id(), $this->namespaces)) {
+      return $this->namespaces[$symbol->get_id()];
+    } else {
+      return null;
+    }
   }
 
   public static function names(ir\Table $spans, nodes\Program $prog): array {

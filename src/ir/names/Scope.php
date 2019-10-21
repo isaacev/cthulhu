@@ -14,6 +14,10 @@ class Scope {
   }
 
   public function get_name(string $name): ?Symbol {
-    return $this->table[$name];
+    if ($this->has_name($name)) {
+      return $this->table[$name];
+    } else {
+      return null;
+    }
   }
 }
