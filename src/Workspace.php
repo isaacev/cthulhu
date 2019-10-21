@@ -73,17 +73,20 @@ class Workspace {
   }
 
   public function optimize(array $passes = []): self {
-    $all = $passes['all'] === true;
+    $all        = array_key_exists('all',        $passes) && $passes['all']        === true;
+    $inline     = array_key_exists('inline',     $passes) && $passes['inline']     === true;
+    $fold       = array_key_exists('fold',       $passes) && $passes['fold']       === true;
+    $tree_shake = array_key_exists('tree-shake', $passes) && $passes['tree-shake'] === true;
 
-    if ($all || $passes['inline'] === true) {
+    if ($all || $inline) {
       $this->php_tree = \Cthulhu\php\passes\Inline::apply($this->php_tree);
     }
 
-    if ($all || $passes['fold'] === true) {
+    if ($all || $fold) {
       $this->php_tree = \Cthulhu\php\passes\ConstFolding::apply($this->php_tree);
     }
 
-    if ($all || $passes['tree-shake'] === true) {
+    if ($all || $tree_shake) {
       $this->php_tree = \Cthulhu\php\passes\TreeShaking::apply($this->php_tree);
     }
 
