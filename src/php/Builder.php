@@ -133,6 +133,10 @@ class Builder implements Buildable {
     return $this->push_str("// $message");
   }
 
+  public function block_comment(string $message): self {
+    return $this->push_str('/* ' . $message . ' */');
+  }
+
   /**
    * Whitespace and indentation
    */

@@ -62,7 +62,7 @@ class Workspace {
   }
 
   public function codegen(): self {
-    $this->php_tree = \Cthulhu\php\Generate::from(
+    $this->php_tree = \Cthulhu\php\Lower::from(
       $this->name_to_symbol,
       $this->symbol_to_name,
       $this->symbol_to_type,

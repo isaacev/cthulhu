@@ -111,7 +111,7 @@ class Visitor {
   static function replace_references(php\nodes\Node $node, array $mapping): php\nodes\Node {
     return self::edit($node, [
       'VariableExpr' => function (Path $path) use (&$mapping) {
-        $symbol_id = $path->node->variable->symbol->id;
+        $symbol_id = $path->node->variable->symbol->get_id();
         if (array_key_exists($symbol_id, $mapping)) {
           $path->replace_with($mapping[$symbol_id]);
         }

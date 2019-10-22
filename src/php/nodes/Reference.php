@@ -2,18 +2,23 @@
 
 namespace Cthulhu\php\nodes;
 
-use Cthulhu\php\Buildable;
 use Cthulhu\php\Builder;
+use Cthulhu\php\names;
 
-class Reference implements Buildable {
+class Reference extends Node {
   public $segments;
+  public $symbol;
 
-  function __construct(array $segments) {
+  function __construct(string $segments, names\Symbol $symbol) {
+    parent::__construct();
     $this->segments = $segments;
+    $this->symbol = $symbol;
   }
+
+  use traits\Atomic;
 
   public function build(): Builder {
     return (new Builder)
-      ->reference($this->segments);
+      ->keyword($this->segments);
   }
 }

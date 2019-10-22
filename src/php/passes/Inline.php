@@ -29,8 +29,9 @@ class Inline {
           : false;
 
         if ($should_inline) {
-          $inline_func_syms[] = $path->node->name->symbol->id;
-          $inline_func_defs[$path->node->name->symbol->id] = $path->node;
+          $symbol_id = $path->node->head->name->symbol->get_id();
+          $inline_func_syms[] = $symbol_id;
+          $inline_func_defs[$symbol_id] = $path->node;
         }
       },
     ]);
@@ -42,10 +43,9 @@ class Inline {
      * to params with the corresponding expression provided to the function
      * call. Replace the function call with the modified function body.
      */
-    printf("was called\n");
     return visitor\Visitor::edit($prog, [
       'postorder(FuncStmt)' => function (visitor\Path $path) use (&$inline_func_syms, &$inline_func_defs) {
-        $def_id = $path->node->name->symbol->id;
+        $def_id = $path->node->head->name->symbol->get_id();
         if (array_key_exists($def_id, $inline_func_defs)) {
           $inline_func_defs[$def_id] = $path->node;
         }
@@ -56,20 +56,19 @@ class Inline {
           return;
         }
 
-        $symbol = $path->node->callee->reference->symbol;
-        if (in_array($symbol->id, $inline_func_syms) === false) {
+        $call_id = $path->node->callee->reference->symbol->get_id();
+        if (in_array($call_id, $inline_func_syms) === false) {
           // Function being called isn't an inline candidate
           return;
         }
 
-        $func_def = $inline_func_defs[$symbol->id];
+        $func_def = $inline_func_defs[$call_id];
         if ($func_def->body->length() > 1 && !($path->parent->node instanceof php\nodes\SemiStmt)) {
           // Function body is too complex to be used inside of another expression
           return;
         }
 
-        $param_ids = array_map(function ($p) { return $p->symbol->id; }, $func_def->params);
-        var_dump($param_ids, $path->node->args);
+        $param_ids = array_map(function ($p) { return $p->symbol->get_id(); }, $func_def->head->params);
         $param_id_to_arg_expr = array_combine($param_ids, $path->node->args);
         $rewritten_body = visitor\Visitor::replace_references($func_def->body, $param_id_to_arg_expr);
 

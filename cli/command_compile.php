@@ -14,10 +14,10 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
       ->check()
       ->codegen()
       ->optimize([
-        // 'all'        => in_array('all', $passes),
-        // 'inline'     => in_array('inline', $passes),
-        // 'fold'       => in_array('fold', $passes),
-        // 'tree-shake' => in_array('tree-shake', $passes),
+        'all'        => in_array('all', $passes),
+        'inline'     => in_array('inline', $passes),
+        'fold'       => in_array('fold', $passes),
+        'tree-shake' => in_array('tree-shake', $passes),
       ])
       ->write();
   } catch (\Cthulhu\Errors\Error $err) {

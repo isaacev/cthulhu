@@ -12,16 +12,15 @@ class TreeShaking {
 
     visitor\Visitor::walk($prog, [
       'ReferenceExpr' => function (visitor\Path $path) use (&$used) {
-        var_dump($path->node);
-        $id = $path->node->reference->symbol->id;
-        if (!in_array($id, $used)) {
-          $used[] = $id;
+        $symbol_id = $path->node->reference->symbol->get_id();
+        if (!in_array($symbol_id, $used)) {
+          $used[] = $symbol_id;
         }
       },
       'FuncStmt' => function (visitor\Path $path) use (&$declared) {
-        $id = $path->node->name->symbol->id;
-        if (!in_array($id, $declared)) {
-          $declared[] = $id;
+        $symbol_id = $path->node->head->name->symbol->get_id();
+        if (!in_array($symbol_id, $declared)) {
+          $declared[] = $symbol_id;
         }
       },
     ]);
@@ -36,8 +35,8 @@ class TreeShaking {
 
     return visitor\Visitor::edit($prog, [
       'FuncStmt' => function (visitor\Path $path) use (&$to_remove) {
-        $id = $path->node->name->symbol->id;
-        if (in_array($id, $to_remove)) {
+        $symbol_id = $path->node->head->name->symbol->get_id();
+        if (in_array($symbol_id, $to_remove)) {
           $path->remove();
         }
       },
