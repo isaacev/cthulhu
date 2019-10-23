@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-class BoolExpr extends Expr {
+class BoolLiteral extends Literal {
   public $value;
 
   function __construct(bool $value) {

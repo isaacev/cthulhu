@@ -275,11 +275,11 @@ class Parser {
       case TokenType::DOUBLE_COLON:
         return $this->path_expr();
       case TokenType::LITERAL_STR:
-        return $this->str_expr($this->lexer->next());
+        return $this->str_literal($this->lexer->next());
       case TokenType::LITERAL_INT:
-        return $this->int_expr($this->lexer->next());
+        return $this->int_literal($this->lexer->next());
       case TokenType::LITERAL_BOOL:
-        return $this->bool_expr($this->lexer->next());
+        return $this->bool_literal($this->lexer->next());
       default:
         $next = $this->lexer->next();
         throw Errors::exepcted_expression($next);
@@ -394,19 +394,19 @@ class Parser {
     return new ast\PathExpr($path);
   }
 
-  private function str_expr(Token $str): ast\StrExpr {
+  private function str_literal(Token $str): ast\StrLiteral {
     $value = substr($str->lexeme, 1, -1);
-    return new ast\StrExpr($str->span, $value, $str->lexeme);
+    return new ast\StrLiteral($str->span, $value, $str->lexeme);
   }
 
-  private function int_expr(Token $int): ast\IntExpr {
+  private function int_literal(Token $int): ast\IntLiteral {
     $value = intval($int->lexeme, 10);
-    return new ast\IntExpr($int->span, $value, $int->lexeme);
+    return new ast\IntLiteral($int->span, $value, $int->lexeme);
   }
 
-  private function bool_expr(Token $bool) : ast\BoolExpr {
+  private function bool_literal(Token $bool) : ast\BoolLiteral {
     $value = $bool->lexeme === 'true';
-    return new ast\BoolExpr($bool->span, $value, $bool->lexeme);
+    return new ast\BoolLiteral($bool->span, $value, $bool->lexeme);
   }
 
   /**

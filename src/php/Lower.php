@@ -310,14 +310,14 @@ class Lower {
       'RefExpr' => function (ir\nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
       },
-      'StrExpr' => function (ir\nodes\StrExpr $expr) use ($ctx) {
-        self::str_expr($ctx, $expr);
+      'StrLiteral' => function (ir\nodes\StrLiteral $expr) use ($ctx) {
+        self::str_literal($ctx, $expr);
       },
-      'IntExpr' => function (ir\nodes\IntExpr $expr) use ($ctx) {
-        self::int_expr($ctx, $expr);
+      'IntLiteral' => function (ir\nodes\IntLiteral $expr) use ($ctx) {
+        self::int_literal($ctx, $expr);
       },
-      'BoolExpr' => function (ir\nodes\BoolExpr $expr) use ($ctx) {
-        self::bool_expr($ctx, $expr);
+      'BoolLiteral' => function (ir\nodes\BoolLiteral $expr) use ($ctx) {
+        self::bool_literal($ctx, $expr);
       },
       'Block' => function (ir\nodes\Block $block) use ($ctx) {
         self::block($ctx, $block);
@@ -536,18 +536,18 @@ class Lower {
     $ctx->push_expr($php_expr);
   }
 
-  private static function str_expr(self $ctx, ir\nodes\StrExpr $expr): void {
-    $php_expr = new nodes\StrExpr($expr->value);
+  private static function str_literal(self $ctx, ir\nodes\StrLiteral $expr): void {
+    $php_expr = new nodes\StrLiteral($expr->value);
     $ctx->push_expr($php_expr);
   }
 
-  private static function int_expr(self $ctx, ir\nodes\IntExpr $expr): void {
-    $php_expr = new nodes\IntExpr($expr->value);
+  private static function int_literal(self $ctx, ir\nodes\IntLiteral $expr): void {
+    $php_expr = new nodes\IntLiteral($expr->value);
     $ctx->push_expr($php_expr);
   }
 
-  private static function bool_expr(self $ctx, ir\nodes\BoolExpr $expr): void {
-    $php_expr = new nodes\BoolExpr($expr->value);
+  private static function bool_literal(self $ctx, ir\nodes\BoolLiteral $expr): void {
+    $php_expr = new nodes\BoolLiteral($expr->value);
     $ctx->push_expr($php_expr);
   }
 

@@ -93,14 +93,14 @@ class Check {
       'RefExpr' => function (nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
       },
-      'StrExpr' => function (nodes\StrExpr $expr) use ($ctx) {
-        self::str_expr($ctx, $expr);
+      'StrLiteral' => function (nodes\StrLiteral $expr) use ($ctx) {
+        self::str_literal($ctx, $expr);
       },
-      'IntExpr' => function (nodes\IntExpr $expr) use ($ctx) {
-        self::int_expr($ctx, $expr);
+      'IntLiteral' => function (nodes\IntLiteral $expr) use ($ctx) {
+        self::int_literal($ctx, $expr);
       },
-      'BoolExpr' => function (nodes\BoolExpr $expr) use ($ctx) {
-        self::bool_expr($ctx, $expr);
+      'BoolLiteral' => function (nodes\BoolLiteral $expr) use ($ctx) {
+        self::bool_literal($ctx, $expr);
       },
       'exit(Block)' => function (nodes\Block $block) use ($ctx) {
         self::exit_block($ctx, $block);
@@ -353,17 +353,17 @@ class Check {
     $ctx->set_type_for_expr($expr, $type);
   }
 
-  private static function str_expr(self $ctx, nodes\StrExpr $expr): void {
+  private static function str_literal(self $ctx, nodes\StrLiteral $expr): void {
     $type = new StrType();
     $ctx->set_type_for_expr($expr, $type);
   }
 
-  private static function int_expr(self $ctx, nodes\IntExpr $expr): void {
+  private static function int_literal(self $ctx, nodes\IntLiteral $expr): void {
     $type = new IntType();
     $ctx->set_type_for_expr($expr, $type);
   }
 
-  private static function bool_expr(self $ctx, nodes\BoolExpr $expr): void {
+  private static function bool_literal(self $ctx, nodes\BoolLiteral $expr): void {
     $type = new BoolType();
     $ctx->set_type_for_expr($expr, $type);
   }

@@ -8,7 +8,7 @@ use Cthulhu\php\visitor;
 class ConstFolding {
   protected static function is_const_expr(php\nodes\Expr $expr): bool {
     switch (true) {
-      case $expr instanceof php\nodes\StrExpr:
+      case $expr instanceof php\nodes\StrLiteral:
         return true;
       default:
         return false;
@@ -19,9 +19,9 @@ class ConstFolding {
     $left = $expr->left;
     $right = $expr->right;
 
-    if ($left instanceof php\nodes\StrExpr && $right instanceof php\nodes\StrExpr) {
+    if ($left instanceof php\nodes\StrLiteral && $right instanceof php\nodes\StrLiteral) {
       switch ($expr->operator) {
-        case '.': return new php\nodes\StrExpr($left->value . $right->value);
+        case '.': return new php\nodes\StrLiteral($left->value . $right->value);
         default:  return $expr;
       }
     }

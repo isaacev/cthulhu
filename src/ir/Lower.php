@@ -132,12 +132,12 @@ class Lower {
         return self::list_expr($spans, $expr);
       case $expr instanceof ast\PathExpr:
         return self::path_expr($spans, $expr);
-      case $expr instanceof ast\StrExpr:
-        return self::str_expr($spans, $expr);
-      case $expr instanceof ast\IntExpr:
-        return self::int_expr($spans, $expr);
-      case $expr instanceof ast\BoolExpr:
-        return self::bool_expr($spans, $expr);
+      case $expr instanceof ast\StrLiteral:
+        return self::str_literal($spans, $expr);
+      case $expr instanceof ast\IntLiteral:
+        return self::int_literal($spans, $expr);
+      case $expr instanceof ast\BoolLiteral:
+        return self::bool_literal($spans, $expr);
       default:
         throw new \Exception('cannot lower unknown ast expression');
     }
@@ -189,19 +189,19 @@ class Lower {
     return $spans->set(new nodes\RefExpr($ref), $expr->span);
   }
 
-  private static function str_expr(Table $spans, ast\StrExpr $expr): nodes\StrExpr {
+  private static function str_literal(Table $spans, ast\StrLiteral $expr): nodes\StrLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\StrExpr($value), $expr->span);
+    return $spans->set(new nodes\StrLiteral($value), $expr->span);
   }
 
-  private static function int_expr(Table $spans, ast\IntExpr $expr): nodes\IntExpr {
+  private static function int_literal(Table $spans, ast\IntLiteral $expr): nodes\IntLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\IntExpr($value), $expr->span);
+    return $spans->set(new nodes\IntLiteral($value), $expr->span);
   }
 
-  private static function bool_expr(Table $spans, ast\BoolExpr $expr): nodes\BoolExpr {
+  private static function bool_literal(Table $spans, ast\BoolLiteral $expr): nodes\BoolLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\BoolExpr($value), $expr->span);
+    return $spans->set(new nodes\BoolLiteral($value), $expr->span);
   }
 
   /**

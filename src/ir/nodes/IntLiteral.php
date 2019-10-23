@@ -2,10 +2,10 @@
 
 namespace Cthulhu\ir\nodes;
 
-class StrExpr extends Expr {
+class IntLiteral extends Literal {
   public $value;
 
-  function __construct(string $value) {
+  function __construct(int $value) {
     parent::__construct();
     $this->value = $value;
   }

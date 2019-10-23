@@ -4,7 +4,7 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-class StrExpr extends Expr {
+class StrLiteral extends Literal {
   public $value;
 
   function __construct(string $value) {

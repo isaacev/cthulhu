@@ -4,10 +4,10 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-class BoolExpr extends Expr {
+class IntLiteral extends Literal {
   public $value;
 
-  function __construct(bool $value) {
+  function __construct(int $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,6 +16,6 @@ class BoolExpr extends Expr {
 
   public function build(): Builder {
     return (new Builder)
-      ->bool_literal($this->value);
+      ->int_literal($this->value);
   }
 }
