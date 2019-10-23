@@ -4,7 +4,7 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-class FlatArrayExpr extends Expr {
+class OrderedArrayExpr extends Expr {
   public $elements;
 
   function __construct(array $elements) {

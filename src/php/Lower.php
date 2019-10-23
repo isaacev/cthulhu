@@ -519,7 +519,7 @@ class Lower {
 
   private static function exit_list_expr(self $ctx, ir\nodes\ListExpr $expr): void {
     $exprs = $ctx->pop_exprs(count($expr->elements));
-    $expr  = new nodes\FlatArrayExpr($exprs);
+    $expr  = new nodes\OrderedArrayExpr($exprs);
     $ctx->push_expr($expr);
   }
 
