@@ -204,7 +204,23 @@ class Check {
 
   private static function exit_let_stmt(self $ctx, nodes\LetStmt $stmt): void {
     $symbol = $ctx->get_symbol_for_name($stmt->name);
-    $type = $ctx->get_type_for_expr($stmt->expr);
+    $expr_type = $ctx->get_type_for_expr($stmt->expr);
+
+    if ($stmt->note !== null) {
+      $note_type = self::note_to_type($ctx, $stmt->note);
+      if ($note_type->accepts($expr_type) === false) {
+        throw Errors::let_note_does_not_match_expr(
+          $ctx->spans->get($stmt->note),
+          $note_type,
+          $ctx->spans->get($stmt->expr),
+          $expr_type
+        );
+      }
+      $type = $note_type;
+    } else {
+      $type = $expr_type;
+    }
+
     $ctx->set_type_for_symbol($symbol, $type);
   }
 

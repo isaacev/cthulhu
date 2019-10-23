@@ -44,6 +44,19 @@ class Errors {
       ->snippet($if_span);
   }
 
+  public static function let_note_does_not_match_expr(
+    Source\Span $note_span,
+    Type $note_type,
+    Source\Span $expr_span,
+    Type $expr_type
+  ): Error {
+    return (new Error('type mismatch'))
+      ->paragraph("The statement was marked as having the type `$note_type`:")
+      ->snippet($note_span, null, [ 'color' => Foreground::BLUE ])
+      ->paragraph("But the expression has the type `$expr_type`:")
+      ->snippet($expr_span);
+  }
+
   public static function call_to_non_function(Source\Span $span, Type $type): Error {
     return (new Error('call to non-function'))
       ->paragraph("Tried to call an expression with the type `$type`:")
