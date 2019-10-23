@@ -533,6 +533,9 @@ class Parser {
         case TokenType::THIN_ARROW:
           $prefix = $this->function_annotation($prefix);
           break;
+        case TokenType::PIPE:
+          $prefix = $this->union_annotation($prefix);
+          break;
         default:
           return $prefix;
       }
@@ -588,5 +591,11 @@ class Parser {
     $output = $this->type_annotation();
     $span = $prefix->span->extended_to($output->span);
     return new ast\FunctionAnnotation($span, $inputs, $output);
+  }
+
+  private function union_annotation(ast\Annotation $left): ast\UnionAnnotation {
+    $pipe = $this->next(TokenType::PIPE);
+    $right = $this->type_annotation();
+    return ast\UnionAnnotation::flatten($left, $right);
   }
 }

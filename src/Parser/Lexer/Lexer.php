@@ -94,6 +94,8 @@ class Lexer {
         return $this->next_single_char(TokenType::PAREN_LEFT, $next);
       case $next->is(')'):
         return $this->next_single_char(TokenType::PAREN_RIGHT, $next);
+      case $next->is('|'):
+        return $this->next_single_char(TokenType::PIPE, $next);
       case $next->is('+'):
       return $this->next_single_or_double_char(TokenType::PLUS, '+', TokenType::PLUS_PLUS, $next);
       case $next->is('-'):

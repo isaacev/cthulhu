@@ -388,6 +388,8 @@ class Check {
         return self::unit_note_to_type($ctx, $note);
       case $note instanceof nodes\ListNote:
         return self::list_note_to_type($ctx, $note);
+      case $note instanceof nodes\UnionNote:
+        return self::union_note_to_type($ctx, $note);
       default:
         throw new \Exception('cannot type-check unknown note node: ' . get_class($note));
     }
@@ -414,5 +416,13 @@ class Check {
   private static function list_note_to_type(self $ctx, nodes\ListNote $note): Type {
     $elements = self::note_to_type($ctx, $note->elements);
     return new ListType($elements);
+  }
+
+  private static function union_note_to_type(self $ctx, nodes\UnionNote $note): Type {
+    $members = [];
+    foreach ($note->members as $member) {
+      $members[] = self::note_to_type($ctx, $member);
+    }
+    return new UnionType($members);
   }
 }

@@ -25,6 +25,7 @@ abstract class TokenType {
   const BRACKET_RIGHT       = ']';
   const PAREN_LEFT          = '(';
   const PAREN_RIGHT         = ')';
+  const PIPE                = '|';
   const PLUS                = '+';
   const PLUS_PLUS           = '++';
   const DASH                = '-';
