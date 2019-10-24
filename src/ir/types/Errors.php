@@ -93,4 +93,10 @@ class Errors {
       ->paragraph("The type `$rhs` doesn't support the unary operator `$op`:")
       ->snippet($span);
   }
+
+  public static function mismatched_list_element_types(Source\Span $span, Type $unified, int $ord, Type $next): Error {
+    return (new Error('mismatched list types'))
+      ->paragraph("The previous list elements had the type `$unified` but element $ord has the type `$next`:")
+      ->snippet($span);
+  }
 }

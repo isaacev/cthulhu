@@ -326,7 +326,7 @@ class Check {
 
   private static function exit_list_expr(self $ctx, nodes\ListExpr $expr): void {
     $unified_type = null;
-    foreach ($expr->elements as $element_expr) {
+    foreach ($expr->elements as $index => $element_expr) {
       $element_type = $ctx->get_type_for_expr($element_expr);
       if ($unified_type === null) {
         $unified_type = $element_type;
@@ -338,7 +338,7 @@ class Check {
       }
 
       $span = $ctx->spans->get($element_expr);
-      throw Errors::mismatched_list_element_types($span, $unified_type, $element_type);
+      throw Errors::mismatched_list_element_types($span, $unified_type, $index + 1, $element_type);
     }
 
     if ($unified_type === null) {
