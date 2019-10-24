@@ -4,10 +4,6 @@ namespace Cthulhu\ir\types;
 
 class UnitType extends Type {
   function accepts(Type $other): bool {
-    return $this->equals($other);
-  }
-
-  function equals(Type $other): bool {
     return self::matches($other);
   }
 

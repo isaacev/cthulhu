@@ -160,7 +160,7 @@ class Check {
       $span = $ctx->spans->get($item->body);
     }
 
-    if ($expected_return_type->equals($block_type) === false) {
+    if ($expected_return_type->accepts($block_type) === false) {
       throw Errors::wrong_return_type($span, $expected_return_type, $block_type);
     }
   }
@@ -236,7 +236,7 @@ class Check {
       ? $ctx->get_type_for_expr($expr->if_false)
       : new UnitType();
 
-    if ($if_true_type->equals($if_false_type) === false) {
+    if ($if_true_type->accepts($if_false_type) === false) {
       $if_span = $ctx->spans->get($expr->if_true);
       if ($expr->if_false) {
         $else_span = $ctx->spans->get($expr->if_false);

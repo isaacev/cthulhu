@@ -17,10 +17,6 @@ class FuncType extends Type {
   }
 
   function accepts(Type $other): bool {
-    return $this->equals($other);
-  }
-
-  function equals(Type $other): bool {
     if (self::dooes_not_match($other)) {
       return false;
     }
@@ -30,12 +26,12 @@ class FuncType extends Type {
     }
 
     foreach (array_map(null, $this->inputs, $other->inputs) as list($p1, $p2)) {
-      if ($p1->equals($p2) === false) {
+      if ($p1->accepts($p2) === false) {
         return false;
       }
     }
 
-    return $this->output->equals($other->output);
+    return $this->output->accepts($other->output);
   }
 
   function replace_generics(array $replacements): Type {

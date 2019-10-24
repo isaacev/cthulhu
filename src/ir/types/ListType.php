@@ -16,13 +16,6 @@ class ListType extends Type {
     return false;
   }
 
-  function equals(Type $other): bool {
-    if ($other instanceof self) {
-      return $this->element->equals($other->element);
-    }
-    return false;
-  }
-
   function replace_generics(array $replacements): Type {
     return new self($this->element->replace_generics($replacements));
   }
