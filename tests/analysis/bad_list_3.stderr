@@ -1,0 +1,10 @@
+
+  MISMATCHED LIST TYPES  -----------------------------------------------------
+
+  The previous list elements had the type `Int` but element 2 has the type
+  `Str`:
+
+    : bad_list_3
+  3 |   [1, "abc"];
+    |       ^^^^^
+

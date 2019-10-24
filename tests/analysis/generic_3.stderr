@@ -1,0 +1,9 @@
+
+  WRONG ARGUMENT TYPE  -------------------------------------------------------
+
+  Expected argument 1 to have the type `Int`, found type `Str` instead:
+
+    : generic_3
+  9 |   let x = id[Int]("abc");
+    |                   ^^^^^
+

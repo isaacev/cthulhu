@@ -1,0 +1,6 @@
+use ::kernel::*;
+
+#[entry]
+fn main() -> [Str] {
+  [1, 2, 3]
+}

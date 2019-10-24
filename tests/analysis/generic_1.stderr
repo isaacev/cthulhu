@@ -1,0 +1,10 @@
+
+  INCORRECT RETURN TYPE  -----------------------------------------------------
+
+  Expected the function to return the type `A`. Instead the function body
+  returns the type `Int`:
+
+    : generic_1
+  4 |   123
+    |   ^^^
+

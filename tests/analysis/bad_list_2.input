@@ -1,0 +1,4 @@
+#[entry]
+fn main() -> [::kernel::Str] {
+  [1, 2, 3]
+}

@@ -1,0 +1,10 @@
+use ::kernel::*;
+
+fn id[A](a: A) -> A {
+  a
+}
+
+#[entry]
+fn main() -> () {
+  let x = id[Int]("abc");
+}

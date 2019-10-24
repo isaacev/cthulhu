@@ -1,0 +1,10 @@
+use ::kernel::*;
+
+fn id[A](a: [A]) -> A {
+  123
+}
+
+#[entry]
+fn main() -> () {
+  id[Int]([1, 2, 3]);
+}
