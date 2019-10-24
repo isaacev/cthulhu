@@ -160,7 +160,10 @@ class Check {
       $span = $ctx->spans->get($item->body);
     }
 
-    if ($expected_return_type->accepts($block_type) === false) {
+    $is_generic = $expected_return_type instanceof GenericType;
+    $equals_generic = $is_generic ? $expected_return_type->equals($block_type) : false;
+    $ret_accepts = $expected_return_type->accepts($block_type);
+    if (($is_generic ? $equals_generic : $ret_accepts) === false) {
       throw Errors::wrong_return_type($span, $expected_return_type, $block_type);
     }
   }
