@@ -218,8 +218,6 @@ class Lower {
         return self::func_note($spans, $note);
       case $note instanceof ast\ListAnnotation:
         return self::list_note($spans, $note);
-      case $note instanceof ast\UnionAnnotation:
-        return self::union_note($spans, $note);
       default:
         throw new \Exception('cannot lower unknown type annotation');
     }
@@ -246,14 +244,6 @@ class Lower {
   private static function list_note(Table $spans, ast\ListAnnotation $note): nodes\ListNote {
     $elements = self::note($spans, $note->elements);
     return $spans->set(new nodes\ListNote($elements), $note->span);
-  }
-
-  private static function union_note(Table $spans, ast\UnionAnnotation $note): nodes\UnionNote {
-    $members = [];
-    foreach ($note->members as $member) {
-      $members[] = self::note($spans, $member);
-    }
-    return $spans->set(new nodes\UnionNote($members), $note->span);
   }
 
   /**
