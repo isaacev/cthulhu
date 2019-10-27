@@ -9,7 +9,7 @@ class TupleAnnotation extends Annotation {
 
   function __construct(Source\Span $span, array $members) {
     parent::__construct($span);
-    assert(!empty($members));
+    assert(count($members) > 1);
     $this->members = $members;
   }
 }
