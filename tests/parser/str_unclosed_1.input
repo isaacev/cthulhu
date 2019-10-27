@@ -1,4 +1,4 @@
-use ::io;
+use ::Io;
 
 fn main() -> () {
   let y = "abc def

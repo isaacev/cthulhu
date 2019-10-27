@@ -1,5 +1,0 @@
-use ::io;
-
-fn main() -> () {
-  io::println::extra();
-}

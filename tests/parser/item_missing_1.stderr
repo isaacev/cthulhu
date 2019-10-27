@@ -8,7 +8,7 @@
   An item can be like one of the following:
 
     -- import another module
-    use IO;
+    use Io;
 
     -- declare a module
     mod Example {

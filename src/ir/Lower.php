@@ -300,12 +300,11 @@ class Lower {
   }
 
   private static function path(Table $spans, ast\PathNode $path): nodes\Ref {
-    $segments = [];
-    foreach ($path->segments as $segment) {
-      $segments[] = $spans->set(new nodes\Name($segment->ident), $segment->span);
+    $head = [];
+    foreach ($path->head as $segment) {
+      $head[] = $spans->set(new nodes\Name($segment->ident), $segment->span);
     }
-    $head_segments = array_slice($segments, 0, -1);
-    $tail_segment = end($segments);
-    return $spans->set(new nodes\Ref($path->extern, $head_segments, $tail_segment), $path->span);
+    $tail = $spans->set(new nodes\Name($path->tail->ident), $path->tail->span);
+    return $spans->set(new nodes\Ref($path->extern, $head, $tail), $path->span);
   }
 }

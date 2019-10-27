@@ -1,10 +1,10 @@
-use ::kernel::*;
-use ::list;
-use ::io;
+use ::Kernel::*;
+use ::List;
+use ::Io;
 
 #[entry]
 fn main() -> () {
   let words = [ "hello", "world" ];
-  io::println(list::nth[Str](words, 0));
-  io::println(list::nth[Str](words, 1));
+  Io::println(List::nth[Str](words, 0));
+  Io::println(List::nth[Str](words, 1));
 }

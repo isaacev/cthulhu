@@ -1,4 +1,4 @@
-use ::kernel::*;
+use ::Kernel::*;
 
 #[inline]
 fn integer(min: Int, max: Int) -> Int {

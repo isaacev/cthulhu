@@ -9,7 +9,8 @@ abstract class TokenType {
   const LITERAL_INT         = 'Int';
   const LITERAL_STR         = 'Str';
   const LITERAL_BOOL        = 'Bool';
-  const IDENT               = 'Ident';
+  const UPPER_NAME          = 'Upper-case Name';
+  const LOWER_NAME          = 'Lower-case Name';
   const KEYWORD_LET         = 'Let';
   const KEYWORD_IF          = 'If';
   const KEYWORD_ELSE        = 'Else';

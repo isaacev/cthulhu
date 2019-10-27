@@ -21,7 +21,8 @@ class Token {
       case TokenType::EOF:                return 'the end of the file';
       case TokenType::LITERAL_INT:        return 'integer literal';
       case TokenType::LITERAL_STR:        return 'string literal';
-      case TokenType::IDENT:              return "identifier `$this->lexeme`";
+      case TokenType::UPPER_NAME:         return "name `$this->lexeme`";
+      case TokenType::LOWER_NAME:         return "name `$this->lexeme`";
       case TokenType::KEYWORD_LET:        return 'keyword `let`';
       case TokenType::KEYWORD_IF:         return 'keyword `if`';
       case TokenType::KEYWORD_ELSE:       return 'keyword `else`';

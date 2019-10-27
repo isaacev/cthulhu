@@ -1,5 +1,5 @@
 #[entry]
-fn main() -> ::kernel::Str {
+fn main() -> ::Kernel::Str {
   if true {
     "hello"
   } else {

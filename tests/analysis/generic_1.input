@@ -1,4 +1,4 @@
-use ::kernel::*;
+use ::Kernel::*;
 
 fn id[A](a: [A]) -> A {
   123

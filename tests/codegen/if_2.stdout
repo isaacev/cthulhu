@@ -1,6 +1,6 @@
 <?php
 
-namespace kernel {
+namespace Kernel {
   // #[inline]
   // #[construct]
   function _print($a) {

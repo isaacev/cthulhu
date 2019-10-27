@@ -4,6 +4,6 @@
   Reference to an unknown field in a namespace.
 
     : bad_ref_3
-  4 |   io::fmt::println();
+  4 |   Io::Fmt::println();
     |       ^^^
 

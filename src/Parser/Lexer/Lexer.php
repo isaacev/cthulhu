@@ -207,8 +207,13 @@ class Lexer {
       case 'type':    return new Token(TokenType::KEYWORD_TYPE, $span, 'type');
       case 'true':    return new Token(TokenType::LITERAL_BOOL, $span, 'true');
       case 'false':   return new Token(TokenType::LITERAL_BOOL, $span, 'false');
-      default:        return new Token(TokenType::IDENT, $span, $lexeme);
     }
+
+    // For non-keyword names, determine the name's capitalization rules
+    $type = $start->is_between('A', 'Z')
+      ? TokenType::UPPER_NAME
+      : TokenType::LOWER_NAME;
+    return new Token($type, $span, $lexeme);
   }
 
   private function next_single_char(string $type, Character $start): Token {

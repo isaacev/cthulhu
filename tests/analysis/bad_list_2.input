@@ -1,4 +1,4 @@
 #[entry]
-fn main() -> [::kernel::Str] {
+fn main() -> [::Kernel::Str] {
   [1, 2, 3]
 }

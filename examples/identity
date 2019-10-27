@@ -1,8 +1,8 @@
-use ::kernel::*;
+use ::Kernel::*;
 
 fn id[A](thing: A) -> A { thing }
 
 #[entry]
 fn main() -> () {
-  ::io::println(id[Str]("hello world"));
+  ::Io::println(id[Str]("hello world"));
 }

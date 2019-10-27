@@ -2,6 +2,13 @@
 
 > A strongly-typed language that compiles into PHP
 
+## Name capitalization
+
+- Modules and types use PascalCase
+- Function and variable names use camelCase
+
+These capitalization rules are enforced by the language.
+
 ## TODO
 
 - [x] Basic parsing

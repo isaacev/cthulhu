@@ -79,7 +79,7 @@ class Linker {
   private const STDLIB_DIR = __DIR__ . '/../stdlib/';
 
   private static function resolve_name_in_stdlib(string $name) {
-    if (strtolower($name) != $name) {
+    if (!preg_match('/^[A-Z][a-zA-Z]*$/', $name)) {
       return false;
     }
     return realpath(self::STDLIB_DIR . $name . '.cth');

@@ -11,7 +11,7 @@ class Errors {
     return (new Error('expected item'))
       ->snippet($found->span)
       ->paragraph('An item can be like one of the following:')
-      ->example("-- import another module\nuse IO;")
+      ->example("-- import another module\nuse Io;")
       ->example("-- declare a module\nmod Example {\n  -- more stuff\n}")
       ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n}");
   }

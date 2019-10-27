@@ -1,9 +1,0 @@
-
-  UNKNOWN FIELD  -------------------------------------------------------------
-
-  Reference to an unknown field in a namespace.
-
-    : bad_ref_4
-  4 |   io::println::extra();
-    |       ^^^^^^^
-

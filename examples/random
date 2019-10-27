@@ -1,10 +1,10 @@
-use ::io;
-use ::rng;
+use ::Io;
+use ::Rng;
 
 #[entry]
 #[inline]
 fn main() -> () {
-  io::println(if rng::integer(-2, 3) > 0 {
+  Io::println(if Rng::integer(-2, 3) > 0 {
     "FIRST BRANCH"
   } else {
     "SECOND BRANCH"

@@ -4,6 +4,6 @@
   Reference to an unknown field in a namespace.
 
     : bad_ref_2
-  4 |   io::doesNotExist();
+  4 |   Io::doesNotExist();
     |       ^^^^^^^^^^^^
 
