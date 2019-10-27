@@ -17,7 +17,7 @@ class FuncType extends Type {
   }
 
   function accepts(Type $other): bool {
-    if (self::dooes_not_match($other)) {
+    if (self::does_not_match($other)) {
       return false;
     }
 
