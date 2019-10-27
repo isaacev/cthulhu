@@ -82,8 +82,14 @@ class FuncType extends Type {
   }
 
   function __toString(): string {
-    $inputs = implode(', ', $this->inputs);
-    return "($inputs) -> $this->output";
+    if (empty($this->inputs)) {
+      $inputs = '()';
+    } else if (count($this->inputs) === 1 && !($this->inputs[0] instanceof TupleType)) {
+      $inputs = (string)$this->inputs[0];
+    } else {
+      $inputs = '(' . implode(',', $this->inputs) . ')';
+    }
+    return $inputs . " -> $this->output";
   }
 
   static function matches(Type $other): bool {
