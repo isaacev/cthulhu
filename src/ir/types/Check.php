@@ -239,7 +239,9 @@ class Check {
       ? $ctx->get_type_for_expr($expr->if_false)
       : new UnitType();
 
-    if ($if_true_type->accepts($if_false_type) === false) {
+    if ($unified_type = $if_true_type->unify($if_false_type)) {
+      $ctx->set_type_for_expr($expr, $unified_type);
+    } else {
       $if_span = $ctx->spans->get($expr->if_true);
       if ($expr->if_false) {
         $else_span = $ctx->spans->get($expr->if_false);
@@ -253,8 +255,6 @@ class Check {
         throw Errors::if_branch_not_returning_unit($if_span, $if_true_type);
       }
     }
-
-    $ctx->set_type_for_expr($expr, $if_true_type);
   }
 
   private static function exit_call_expr(self $ctx, nodes\CallExpr $expr): void {
@@ -333,17 +333,18 @@ class Check {
         continue;
       }
 
-      if ($unified_type->accepts($element_type)) {
+      if ($candidate_type = $unified_type->unify($element_type)) {
+        $unified_type = $candidate_type;
         continue;
       }
 
       $span = $ctx->spans->get($element_expr);
-      throw Errors::mismatched_list_element_types($span, $unified_type, $index + 1, $element_type);
-    }
-
-    if ($unified_type === null) {
-      // ???
-      throw new \Exception('what type does an empty list have?');
+      throw Errors::mismatched_list_element_types(
+        $span,
+        $unified_type,
+        $index + 1,
+        $element_type
+      );
     }
 
     $type = new ListType($unified_type);

@@ -17,6 +17,13 @@ class GenericType extends Type {
     return true;
   }
 
+  function unify(Type $other): ?Type {
+    if ($this->equals($other)) {
+      return $this;
+    }
+    return null;
+  }
+
   function equals(Type $other): bool {
     if ($other instanceof self) {
       return (

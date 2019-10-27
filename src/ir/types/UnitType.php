@@ -7,6 +7,13 @@ class UnitType extends Type {
     return self::matches($other);
   }
 
+  function unify(Type $other): ?Type {
+    if ($other instanceof self) {
+      return new self();
+    }
+    return null;
+  }
+
   function replace_generics(array $replacements): Type {
     return $this;
   }

@@ -34,6 +34,45 @@ class FuncType extends Type {
     return $this->output->accepts($other->output);
   }
 
+  function unify(Type $other): ?Type {
+    if (($other instanceof self) === false) {
+      return null;
+    }
+
+    if (count($this->polys) !== count($other->polys)) {
+      return null;
+    }
+
+    $new_polys = [];
+    foreach (array_map(null, $this->polys, $other->polys) as list($p1, $p2)) {
+      if ($unification = $p1->unify($p2)) {
+        $new_polys[] = $unification;
+      } else {
+        return null;
+      }
+    }
+
+    if (count($this->inputs) !== count($other->inputs)) {
+      return null;
+    }
+
+    $new_inputs = [];
+    foreach (array_map(null, $this->inputs, $other->inputs) as list($p1, $p2)) {
+      if ($unification = $p1->unify($p2)) {
+        $new_inputs[] = $unification;
+      } else {
+        return null;
+      }
+    }
+
+    $new_output = $this->output->unify($other->output);
+    if (!$new_output) {
+      return null;
+    }
+
+    return new self($new_polys, $new_inputs, $new_output);
+  }
+
   function replace_generics(array $replacements): Type {
     $inputs = array_map(function ($input) use ($replacements) {
       return $input->replace_generics($replacements);

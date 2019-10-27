@@ -4,7 +4,14 @@ namespace Cthulhu\ir\types;
 
 class BoolType extends Type {
   function accepts(Type $other): bool {
-    return self::matches($other);
+    return $other instanceof self;
+  }
+
+  function unify(Type $other): ?Type {
+    if ($other instanceof self) {
+      return new self();
+    }
+    return null;
   }
 
   function replace_generics(array $replacements): Type {
