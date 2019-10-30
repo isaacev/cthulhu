@@ -65,7 +65,7 @@ class FuncType extends Type {
     } else if (count($this->inputs) === 1 && !($this->inputs[0] instanceof TupleType)) {
       $inputs = (string)$this->inputs[0];
     } else {
-      $inputs = '(' . implode(',', $this->inputs) . ')';
+      $inputs = '(' . implode(', ', $this->inputs) . ')';
     }
     return $inputs . " -> $this->output";
   }

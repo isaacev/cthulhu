@@ -46,6 +46,6 @@ class TupleType extends Type {
   }
 
   function __toString(): string {
-    return '(' . implode(',', $this->members) . ')';
+    return '(' . implode(', ', $this->members) . ')';
   }
 }
