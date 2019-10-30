@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu;
+namespace Cthulhu\workspace;
 
 use Cthulhu\Errors\Error;
 

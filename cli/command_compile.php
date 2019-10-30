@@ -1,13 +1,15 @@
 <?php
 
 use \Cthulhu\lib\cli;
+use \Cthulhu\lib\fmt\StreamFormatter;
+use \Cthulhu\workspace\ReadPhase;
 
 function command_compile(cli\Lookup $flags, cli\Lookup $args) {
   try {
-    $abspath = realpath($args->get('file'));
+    $relpath = $args->get('file');
+    $abspath = realpath($relpath);
     $passes = $flags->get_all('optimize', []);
-    echo (new \Cthulhu\Workspace)
-      ->open($abspath ? $abspath : $args->get('file'))
+    echo ReadPhase::from_file_system($abspath ? $abspath : $relpath)
       ->parse()
       ->link()
       ->resolve()
@@ -21,7 +23,7 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
       ])
       ->write();
   } catch (\Cthulhu\Errors\Error $err) {
-    $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
+    $f = new StreamFormatter(STDERR);
     $err->format($f);
     exit(1);
   }

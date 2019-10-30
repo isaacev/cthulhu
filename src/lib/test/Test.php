@@ -5,9 +5,9 @@ namespace Cthulhu\lib\test;
 use \Cthulhu\Analysis;
 use \Cthulhu\Codegen;
 use \Cthulhu\Errors;
-use \Cthulhu\Parser;
 use \Cthulhu\Source;
 use \Cthulhu\lib\fmt;
+use Cthulhu\workspace\ReadPhase;
 
 class Test {
   public $dir;
@@ -51,13 +51,14 @@ class Test {
 
   protected function eval(): TestOutput {
     try {
-      $stdout = (new \Cthulhu\Workspace)
-        ->file(new Source\File($this->name, $this->input))
+      $file = new Source\File($this->name, $this->input);
+      $stdout = ReadPhase::from_memory($file)
         ->parse()
         ->link()
         ->resolve()
         ->check()
         ->codegen()
+        ->optimize()
         ->write();
       return new TestOutput($stdout, '');
     } catch (Errors\Error $err) {

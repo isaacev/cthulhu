@@ -3,6 +3,8 @@
 ini_set('display_errors', 'stderr');
 
 use \Cthulhu\lib\cli;
+use Cthulhu\lib\fmt\StreamFormatter;
+use Cthulhu\workspace\ReadPhase;
 
 $root = (new cli\Program('cthulhu', '0.1.0'));
 
@@ -26,9 +28,9 @@ $root->subcommand('check', 'Check that a source file is free of errors')
   ->single_argument('file', 'Path to the source file')
   ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
     try {
-      $abspath = realpath($args->get('file'));
-      (new \Cthulhu\Workspace)
-        ->open($abspath ? $abspath : $args->get('file'))
+      $relpath = $args->get('file');
+      $abspath = realpath($relpath);
+      ReadPhase::from_file_system($abspath ? $abspath : $relpath)
         ->parse()
         ->link()
         ->resolve()
@@ -36,7 +38,7 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 
       echo "no errors in $abspath\n";
     } catch (\Cthulhu\Errors\Error $err) {
-      $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
+      $f = new StreamFormatter(STDERR);
       $err->format($f);
       exit(1);
     }
