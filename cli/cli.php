@@ -30,12 +30,12 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
-->str_flag('-o --optimize', 'Apply an optimization pass', [
-  'all',
-  'inline',
-  'fold',
-  'tree-shake'
-])
+  ->str_flag('-o --optimize', 'Apply an optimization pass', [
+    'all',
+    'inline',
+    'fold',
+    'tree-shake'
+  ])
   ->short_circuit_flag('--list-optimizations', 'List available optimization passes', function () {
     $passes = [
       ['all',        'Apply all optimizations'],
