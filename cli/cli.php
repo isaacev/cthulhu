@@ -8,22 +8,6 @@ use Cthulhu\workspace\ReadPhase;
 
 $root = (new cli\Program('cthulhu', '0.1.0'));
 
-$root->subcommand('ast', 'Convert source code to an abstract syntax tree')
-  ->single_argument('file', 'Path to the source file')
-  ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
-    try {
-      $abspath = realpath($args->get('file'));
-      $workspace = (new \Cthulhu\Workspace)
-        ->open($abspath ? $abspath : $args->get('file'))
-        ->parse();
-      echo json_encode($workspace->syntax_tree, JSON_PRETTY_PRINT) . PHP_EOL;
-    } catch (\Cthulhu\Errors\Error $err) {
-      $f = new \Cthulhu\lib\fmt\StreamFormatter(STDERR);
-      $err->format($f);
-      exit(1);
-    }
-  });
-
 $root->subcommand('check', 'Check that a source file is free of errors')
   ->single_argument('file', 'Path to the source file')
   ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
