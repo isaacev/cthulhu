@@ -12,7 +12,7 @@ These capitalization rules are enforced by the language.
 ## TODO
 
 - [x] Basic parsing
-- [x] Variable name resolution accross module boundries
+- [x] Variable name resolution across module boundaries
 - [x] Generate and output PHP code from IR
 - [x] Pretty error reporting
 - [x] PHP AST rewriter library
@@ -22,7 +22,6 @@ These capitalization rules are enforced by the language.
 - [x] Type name resolution
 - [x] Generic functions
 - [ ] Pretty multiline error snippets
-- [ ] Operator overloading for arbitrary types
-- [x] Module dependency linearlization and cycle detection
+- [x] Module dependency linearization and cycle detection
 - [ ] The Maybe type
-- [ ] The List type
+- [x] The List type
