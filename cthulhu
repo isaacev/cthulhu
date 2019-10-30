@@ -5,7 +5,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 try {
   require __DIR__ . '/cli/cli.php';
-} catch (\Exception $ex) {
+} catch (Exception $ex) {
   fwrite(STDERR, $ex . PHP_EOL);
   exit(1);
 }
