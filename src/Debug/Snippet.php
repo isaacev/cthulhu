@@ -193,6 +193,7 @@ class Snippet implements Reportable {
         return [Background::RED, Foreground::DEFAULT];
       case TokenType::LITERAL_INT:
       case TokenType::LITERAL_BOOL:
+      case TokenType::TYPE_PARAM:
         return [Foreground::MAGENTA];
       case TokenType::LITERAL_STR:
         return [Foreground::GREEN];

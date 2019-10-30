@@ -14,7 +14,7 @@ class TupleType extends Type {
     return count($this->members);
   }
 
-  function accepts(Type $other): bool {
+  function accepts_as_parameter(Type $other): bool {
     if ($other instanceof self) {
       if ($this->size() === $other->size()) {
         for ($i = 0; $i < $this->size(); $i++) {
@@ -43,14 +43,6 @@ class TupleType extends Type {
       }
     }
     return null;
-  }
-
-  function replace_generics(array $replacements): Type {
-    $new_members = [];
-    foreach ($this->members as $member) {
-      $new_members[] = $member->replace_generics($replacements);
-    }
-    return new self($new_members);
   }
 
   function __toString(): string {

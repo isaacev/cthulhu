@@ -5,6 +5,6 @@ use ::Io;
 #[entry]
 fn main() -> () {
   let words = [ "hello", "world" ];
-  Io::println(List::nth[Str](words, 0));
-  Io::println(List::nth[Str](words, 1));
+  Io::println(List::nth(words, 0));
+  Io::println(List::nth(words, 1));
 }

@@ -1,9 +1,10 @@
 
-  WRONG ARGUMENT TYPE  -------------------------------------------------------
+  UNKNOWN TYPE PARAMETER  ----------------------------------------------------
 
-  Expected argument 1 to have the type `Int`, found type `Str` instead:
+  The type parameter `'b` could not be derived from the inputs to the current
+  function.
 
     : generic_3
-  9 |   let x = id[Int]("abc");
-    |                   ^^^^^
+  3 | fn id(a: 'a) -> 'b {
+    |                 ^^
 

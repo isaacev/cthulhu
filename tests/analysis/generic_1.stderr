@@ -1,7 +1,7 @@
 
   INCORRECT RETURN TYPE  -----------------------------------------------------
 
-  Expected the function to return the type `A`. Instead the function body
+  Expected the function to return the type `'a`. Instead the function body
   returns the type `Int`:
 
     : generic_1

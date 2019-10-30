@@ -56,12 +56,11 @@ class Lower {
   private static function func_item(Table $spans, ast\FnItem $item): nodes\FuncItem {
     $attrs  = self::attrs($item->attrs);
     $name   = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    $polys  = self::func_polys($spans, $item->polys);
     $params = self::func_params($spans, $item->params);
     $output = self::note($spans, $item->returns);
     $body   = self::block($spans, $item->body);
     $head   = $spans->set(
-      new nodes\FuncHead($name, $polys, $params, $output),
+      new nodes\FuncHead($name, $params, $output),
       $item->span->extended_to($item->returns->span));
     return $spans->set(new nodes\FuncItem($head, $body, $attrs), $item->span);
   }
@@ -69,9 +68,8 @@ class Lower {
   private static function native_item(Table $spans, ast\NativeFuncItem $item): nodes\NativeFuncItem {
     $attrs = self::attrs($item->attrs);
     $name  = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    $polys = self::func_polys($spans, $item->polys);
     $note  = self::func_note($spans, $item->note);
-    return $spans->set(new nodes\NativeFuncItem($name, $polys, $note, $attrs), $item->span);
+    return $spans->set(new nodes\NativeFuncItem($name, $note, $attrs), $item->span);
   }
 
   private static function native_type_item(Table $spans, ast\NativeTypeItem $item): nodes\NativeTypeItem {
@@ -152,15 +150,11 @@ class Lower {
 
   private static function call_expr(Table $spans, ast\CallExpr $expr): nodes\CallExpr {
     $callee = self::expr($spans, $expr->callee);
-    $polys = [];
-    foreach ($expr->polys as $poly) {
-      $polys[] = self::note($spans, $poly);
-    }
     $args   = [];
     foreach ($expr->args as $arg) {
       $args[] = self::expr($spans, $arg);
     }
-    return $spans->set(new nodes\CallExpr($callee, $polys, $args), $expr->span);
+    return $spans->set(new nodes\CallExpr($callee, $args), $expr->span);
   }
 
   private static function binary_expr(Table $spans, ast\BinaryExpr $expr): nodes\BinaryExpr {
@@ -210,6 +204,8 @@ class Lower {
 
   private static function note(Table $spans, ast\Annotation $note): nodes\Note {
     switch (true) {
+      case $note instanceof ast\TypeParamAnnotation:
+        return self::param_note($spans, $note);
       case $note instanceof ast\UnitAnnotation:
         return self::unit_note($spans, $note);
       case $note instanceof ast\NamedAnnotation:
@@ -221,6 +217,11 @@ class Lower {
       default:
         throw new \Exception('cannot lower unknown type annotation');
     }
+  }
+
+  private static function param_note(Table $spans, ast\TypeParamAnnotation $note): nodes\ParamNote {
+    $name = $spans->set(new nodes\Name($note->name), $note->span); // TODO: this span should not include the left quote
+    return $spans->set(new nodes\ParamNote($name), $note->span);
   }
 
   private static function unit_note(Table $spans, ast\UnitAnnotation $note): nodes\UnitNote {
@@ -256,14 +257,6 @@ class Lower {
       $hash[$attr->name] = true;
     }
     return $hash;
-  }
-
-  private static function func_polys(Table $spans, array $polys): array {
-    $_polys = [];
-    foreach ($polys as $poly) {
-      $_polys[] = $spans->set(new nodes\Name($poly->ident), $poly->span);
-    }
-    return $_polys;
   }
 
   private static function func_params(Table $spans, array $params): array {

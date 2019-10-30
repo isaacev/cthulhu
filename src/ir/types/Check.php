@@ -8,18 +8,21 @@ use Cthulhu\ir\nodes;
 
 class Check {
   private $spans;
-  private $names;
+  private $name_to_symbol;
+  private $symbol_to_name;
   private $types;
+  private $exprs;
 
-  private function __construct(ir\Table $spans, ir\Table $names) {
+  private function __construct(ir\Table $spans, ir\Table $name_to_symbol, ir\Table $symbol_to_name) {
     $this->spans = $spans;
-    $this->names = $names;
+    $this->name_to_symbol = $name_to_symbol;
+    $this->symbol_to_name = $symbol_to_name;
     $this->types = new ir\Table(); // Symbols -> type
     $this->exprs = new ir\Table(); // Expression nodes -> type
   }
 
   private function get_symbol_for_name(nodes\Name $name): names\Symbol {
-    if ($symbol = $this->names->get($name)) {
+    if ($symbol = $this->name_to_symbol->get($name)) {
       return $symbol;
     }
     throw new \Exception('no known symbol for name');
@@ -131,12 +134,15 @@ class Check {
   }
 
   private static function enter_func_head(self $ctx, nodes\FuncHead $head): void {
-    $polys = [];
-    foreach ($head->polys as $poly) {
-      $poly_symbol = $ctx->get_symbol_for_name($poly);
-      $polys[] = $poly_type = new GenericType($poly->value, $poly_symbol);
-      $ctx->set_type_for_symbol($poly_symbol, $poly_type);
+    $type_param_names = [];
+    foreach ($head->params as $param) {
+      ir\Visitor::walk($param->note, [
+        'ParamNote' => function (nodes\ParamNote $note) use (&$type_param_names) {
+          $type_param_names[] = $note->name;
+        },
+      ]);
     }
+
     $inputs = [];
     foreach ($head->params as $param) {
       $inputs[] = $type = self::note_to_type($ctx, $param->note);
@@ -144,7 +150,7 @@ class Check {
       $ctx->set_type_for_symbol($symbol, $type);
     }
     $output = self::note_to_type($ctx, $head->output);
-    $type = new FuncType($polys, $inputs, $output);
+    $type = new FuncType($inputs, $output);
     $symbol = $ctx->get_symbol_for_name($head->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
@@ -162,19 +168,22 @@ class Check {
 
     $is_generic = $expected_return_type instanceof GenericType;
     $equals_generic = $is_generic ? $expected_return_type->equals($block_type) : false;
-    $ret_accepts = $expected_return_type->accepts($block_type);
+    $ret_accepts = $expected_return_type->accepts_as_return($block_type);
     if (($is_generic ? $equals_generic : $ret_accepts) === false) {
       throw Errors::wrong_return_type($span, $expected_return_type, $block_type);
     }
   }
 
   private static function exit_native_func_item(self $ctx, nodes\NativeFuncItem $item): void {
-    $polys = [];
-    foreach ($item->polys as $poly) {
-      $poly_symbol = $ctx->get_symbol_for_name($poly);
-      $polys[] = $poly_type = new GenericType($poly->value, $poly_symbol);
-      $ctx->set_type_for_symbol($poly_symbol, $poly_type);
+    $type_param_names = [];
+    foreach ($item->note->inputs as $note) {
+      ir\Visitor::walk($note, [
+        'ParamNote' => function (nodes\ParamNote $note) use (&$type_param_names) {
+          $type_param_names[] = $note->name;
+        },
+      ]);
     }
+
     $inputs = [];
     foreach ($item->note->inputs as $input) {
       $inputs[] = self::note_to_type($ctx, $input);
@@ -182,7 +191,7 @@ class Check {
     $output = self::note_to_type($ctx, $item->note->output);
 
     $symbol = $ctx->get_symbol_for_name($item->name);
-    $type = new FuncType($polys, $inputs, $output);
+    $type = new FuncType($inputs, $output);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
@@ -201,7 +210,7 @@ class Check {
         throw new \Exception('unknown native type');
     }
 
-    $symbol = $ctx->names->get($item->name);
+    $symbol = $ctx->name_to_symbol->get($item->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
@@ -211,7 +220,7 @@ class Check {
 
     if ($stmt->note !== null) {
       $note_type = self::note_to_type($ctx, $stmt->note);
-      if ($note_type->accepts($expr_type) === false) {
+      if ($note_type->accepts_as_parameter($expr_type) === false) {
         throw Errors::let_note_does_not_match_expr(
           $ctx->spans->get($stmt->note),
           $note_type,
@@ -258,47 +267,136 @@ class Check {
   }
 
   private static function exit_call_expr(self $ctx, nodes\CallExpr $expr): void {
-    $generic_callee_type = $ctx->get_type_for_expr($expr->callee);
-    if (FuncType::does_not_match($generic_callee_type)) {
+    /**
+     * 1.
+     * Determine the type of the callee expression and make sure that it is a FuncType.
+     */
+    $parameterized_callee_type = $ctx->get_type_for_expr($expr->callee);
+    if (FuncType::does_not_match($parameterized_callee_type)) {
       $span = $ctx->spans->get($expr->callee);
-      throw Errors::call_to_non_function($span, $generic_callee_type);
+      throw Errors::call_to_non_function($span, $parameterized_callee_type);
     }
+    assert($parameterized_callee_type instanceof FuncType);
 
-    $total_expected_notes = count($generic_callee_type->polys);
-    $total_found_notes = count($expr->concretes);
-    if ($total_found_notes !== $total_expected_notes) {
+    /**
+     * 2.
+     * Make sure that the correct number of arguments were passed to the callee.
+     */
+    $num_params = count($parameterized_callee_type->inputs);
+    $num_args = count($expr->args);
+    if ($num_params !== $num_args) {
       $span = $ctx->spans->get($expr);
-      throw Errors::call_with_wrong_poly_num($span, $total_expected_notes, $total_found_notes);
+      throw Errors::call_with_wrong_arg_num($span, $num_params, $num_args);
     }
 
-    $concrete_types = [];
-    foreach ($expr->concretes as $concrete) {
-      $concrete_types[] = self::note_to_type($ctx, $concrete);
-    }
-
-    $replacements = [];
-    foreach ($generic_callee_type->polys as $index => $poly) {
-      $replacements[$poly->symbol->get_id()] = $concrete_types[$index];
-    }
-    $concrete_callee_type = $generic_callee_type->replace_generics($replacements);
-
-    $total_expected_args = count($concrete_callee_type->inputs);
-    $total_found_args = count($expr->args);
-    if ($total_expected_args !== $total_found_args) {
-      $span = $ctx->spans->get($expr);
-      throw Errors::call_with_wrong_arg_num($span, $total_expected_args, $total_found_args);
-    }
-
+    $arg_types = [];
+    $param_components = []; // ParamSymbol -> Type[]
     foreach ($expr->args as $index => $arg) {
-      $expected_type = $concrete_callee_type->inputs[$index];
-      $arg_type = $ctx->get_type_for_expr($arg);
-      if ($expected_type->accepts($arg_type) === false) {
+      $arg_type = $arg_types[] = $ctx->exprs->get($arg);
+      $param_type = $parameterized_callee_type->inputs[$index];
+
+      /**
+       * 3.
+       * Make sure that the argument expressions have the correct types.
+       */
+      if ($param_type->accepts_as_parameter($arg_type)) {
+        /**
+         * 4.
+         * Using the argument types, find types for each callee type parameter that
+         * don't violate any of the callee signature's type relations.
+         */
+        self::find_type_param_components($ctx, $param_components, $param_type, $arg_type);
+      } else {
         $span = $ctx->spans->get($arg);
-        throw Errors::call_with_wrong_arg_type($span, $index, $expected_type, $arg_type);
+        throw Errors::call_with_wrong_arg_type($span, $index, $param_type, $arg_type);
       }
     }
 
+    $type_param_solutions = [];
+    foreach ($param_components as $symbol_id => $components) {
+      assert(!empty($components));
+      $unification = $components[0];
+      for ($i = 1; $i < count($components); $i++) {
+        $component = $components[$i];
+        if ($attempt = $unification->unify($component)) {
+          $unification = $attempt;
+        } else {
+          $span = $ctx->spans->get($expr);
+          $name = $ctx->symbol_to_name->get_by_id($symbol_id);
+          throw Errors::unsolvable_type_parameter($span, $name, $unification, $component);
+        }
+      }
+      $type_param_solutions[$symbol_id] = $unification;
+    }
+
+    $concrete_callee_type = self::bind_type_params($ctx, $parameterized_callee_type, $type_param_solutions);
     $ctx->set_type_for_expr($expr, $concrete_callee_type->output);
+  }
+
+  private static function find_type_param_components(self $ctx, array &$components, Type $param, Type $arg): void {
+    switch (true) {
+      case $param instanceof ParamType: {
+        $param_symbol = $ctx->get_symbol_for_name($param->name);
+        if (isset($components[$param_symbol->get_id()])) {
+          $components[$param_symbol->get_id()][] = $arg;
+        } else {
+          $components[$param_symbol->get_id()] = [ $arg ];
+        }
+        break;
+      }
+      case $param instanceof FuncType: {
+        assert($arg instanceof FuncType);
+        foreach ($param->inputs as $index => $param_input) {
+          self::find_type_param_components($ctx, $components, $param_input, $arg->inputs[$index]);
+        }
+        self::find_type_param_components($ctx, $components, $param->output, $arg->output);
+        break;
+      }
+      case $param instanceof ListType: {
+        assert($arg instanceof ListType);
+        if (isset($param->element)) {
+          self::find_type_param_components($ctx, $components, $param->element, $arg->element);
+        }
+        break;
+      }
+      case $param instanceof TupleType: {
+        assert($arg instanceof TupleType);
+        foreach ($param->members as $index => $param_member) {
+          self::find_type_param_components($ctx, $components, $param_member, $arg->members[$index]);
+        }
+        break;
+      }
+    }
+  }
+
+  private static function bind_type_params(self $ctx, Type $parameterized, array $solutions): Type {
+    switch (true) {
+      case $parameterized instanceof ParamType:
+        $symbol_id = $ctx->name_to_symbol->get($parameterized->name)->get_id();
+        return $solutions[$symbol_id];
+      case $parameterized instanceof FuncType:
+        $inputs = [];
+        foreach ($parameterized->inputs as $input) {
+          $inputs[] = self::bind_type_params($ctx, $input, $solutions);
+        }
+        $output = self::bind_type_params($ctx, $parameterized->output, $solutions);
+        return new FuncType($inputs, $output);
+      case $parameterized instanceof ListType:
+        if (isset($parameterized->element)) {
+          $element = self::bind_type_params($ctx, $parameterized->element, $solutions);
+          return new ListType($element);
+        } else {
+          return new ListType();
+        }
+      case $parameterized instanceof TupleType:
+        $members = [];
+        foreach ($parameterized->members as $member) {
+          $members[] = self::bind_type_params($ctx, $member, $solutions);
+        }
+        return new TupleType($members);
+      default:
+        return $parameterized;
+    }
   }
 
   private static function exit_binary_expr(self $ctx, nodes\BinaryExpr $expr): void {
@@ -392,6 +490,8 @@ class Check {
         return self::unit_note_to_type($ctx, $note);
       case $note instanceof nodes\ListNote:
         return self::list_note_to_type($ctx, $note);
+      case $note instanceof nodes\ParamNote:
+        return self::param_note_to_type($ctx, $note);
       default:
         throw new \Exception('cannot type-check unknown note node: ' . get_class($note));
     }
@@ -418,5 +518,9 @@ class Check {
   private static function list_note_to_type(self $ctx, nodes\ListNote $note): Type {
     $elements = self::note_to_type($ctx, $note->elements);
     return new ListType($elements);
+  }
+
+  private static function param_note_to_type(self $ctx, nodes\ParamNote $note): Type {
+    return new ParamType($note->name);
   }
 }

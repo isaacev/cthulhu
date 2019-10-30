@@ -5,6 +5,7 @@ namespace Cthulhu\ir\types;
 use Cthulhu\Errors\Error;
 use Cthulhu\Source;
 use Cthulhu\lib\fmt\Foreground;
+use Cthulhu\ir\nodes;
 
 class Errors {
   public static function wrong_return_type(Source\Span $span, Type $wanted, Type $found): Error {
@@ -79,6 +80,12 @@ class Errors {
     $ordinal = $offset + 1;
     return (new Error('wrong argument type'))
       ->paragraph("Expected argument $ordinal to have the type `$wanted`, found type `$found` instead:")
+      ->snippet($span);
+  }
+
+  public static function unsolvable_type_parameter(Source\Span $span, nodes\Name $name, Type $unified, Type $component): Error {
+    return (new Error('no solution for type parameter'))
+      ->paragraph("Type parameter `'$name->value` was already used with the type `$unified` but then was used with the incompatible type `$component`.")
       ->snippet($span);
   }
 

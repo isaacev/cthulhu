@@ -19,4 +19,10 @@ class Table {
       ? $this->table[$node->get_id()]
       : null;
   }
+
+  public function get_by_id(int $id) {
+    return array_key_exists($id, $this->table)
+      ? $this->table[$id]
+      : null;
+  }
 }

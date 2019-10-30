@@ -26,7 +26,7 @@ class IntType extends Type {
     return parent::apply($op, ...$operands);
   }
 
-  function accepts(Type $other): bool {
+  function accepts_as_parameter(Type $other): bool {
     return $other instanceof self;
   }
 
@@ -35,10 +35,6 @@ class IntType extends Type {
       return new self();
     }
     return null;
-  }
-
-  function replace_generics(array $replacements): Type {
-    return $this;
   }
 
   function __toString(): string {

@@ -10,13 +10,12 @@ class FuncType extends Type {
    * @param Type[] $inputs
    * @param Type   $output
    */
-  function __construct(array $polys, array $inputs, Type $output) {
-    $this->polys  = $polys;
+  function __construct(array $inputs, Type $output) {
     $this->inputs = $inputs;
     $this->output = $output;
   }
 
-  function accepts(Type $other): bool {
+  function accepts_as_parameter(Type $other): bool {
     if (self::does_not_match($other)) {
       return false;
     }
@@ -31,25 +30,12 @@ class FuncType extends Type {
       }
     }
 
-    return $this->output->accepts($other->output);
+    return $this->output->accepts_as_parameter($other->output);
   }
 
   function unify(Type $other): ?Type {
     if (($other instanceof self) === false) {
       return null;
-    }
-
-    if (count($this->polys) !== count($other->polys)) {
-      return null;
-    }
-
-    $new_polys = [];
-    foreach (array_map(null, $this->polys, $other->polys) as list($p1, $p2)) {
-      if ($unification = $p1->unify($p2)) {
-        $new_polys[] = $unification;
-      } else {
-        return null;
-      }
     }
 
     if (count($this->inputs) !== count($other->inputs)) {
@@ -70,15 +56,7 @@ class FuncType extends Type {
       return null;
     }
 
-    return new self($new_polys, $new_inputs, $new_output);
-  }
-
-  function replace_generics(array $replacements): Type {
-    $inputs = array_map(function ($input) use ($replacements) {
-      return $input->replace_generics($replacements);
-    }, $this->inputs);
-    $output = $this->output->replace_generics($replacements);
-    return new self([], $inputs, $output);
+    return new self($new_inputs, $new_output);
   }
 
   function __toString(): string {

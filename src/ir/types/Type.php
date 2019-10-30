@@ -7,11 +7,13 @@ abstract class Type {
     return null;
   }
 
-  abstract function accepts(self $other): bool;
+  abstract function accepts_as_parameter(self $other): bool;
+
+  function accepts_as_return(self $other): bool {
+    return $this->accepts_as_parameter($other);
+  }
 
   abstract function unify(self $other): ?self;
-
-  abstract function replace_generics(array $replacements): Type;
 
   abstract function __toString(): string;
 }

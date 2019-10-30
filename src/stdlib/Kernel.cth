@@ -30,4 +30,4 @@ native fn mt_rand(Int, Int) -> Int;
 
 #[inline]
 #[construct]
-native fn subscript[A]([A], Int) -> A;
+native fn subscript(['a], Int) -> 'a;

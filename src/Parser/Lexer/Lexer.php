@@ -77,6 +77,8 @@ class Lexer {
         return $this->next_int($next);
       case $next->is('"'):
         return $this->next_str($next);
+      case $next->is("'"):
+        return $this->next_type_param($next);
       case $next->is_letter():
       case $next->is('_'):
         return $this->next_word($next);
@@ -172,6 +174,30 @@ class Lexer {
     $to = $last->point;
     $span = new Source\Span($from, $to->next());
     return new Token(TokenType::LITERAL_STR, $span, $lexeme);
+  }
+
+  private function next_type_param(Character $single_quote): Token {
+    $lexeme = $single_quote->char;
+    $from = $single_quote->point;
+    $to = $single_quote->point->next();
+
+    if ($this->scanner->peek()->is_letter() === false) {
+      $span = new Source\Span($from, $to);
+      if ($this->is_relazed()) {
+        return new Token(TokenType::ERROR, $span, $lexeme);
+      } else {
+        throw Errors::unnamed_type_param($span);
+      }
+    }
+
+    while ($this->scanner->peek()->is_letter()) {
+      $next = $this->scanner->next();
+      $lexeme .= $next->char;
+      $to = $next->point->next();
+    }
+
+    $span = new Source\Span($from, $to);
+    return new Token(TokenType::TYPE_PARAM, $span, $lexeme);
   }
 
   private function next_word(Character $start): Token {

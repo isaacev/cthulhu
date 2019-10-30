@@ -113,11 +113,10 @@ class Parser {
       case TokenType::KEYWORD_FN: {
         $fn     = $this->next(TokenType::KEYWORD_FN);
         $name   = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
-        $polys  = $this->fn_polys();
         $note   = $this->function_annotation($this->grouped_annotation());
         $semi   = $this->next(TokenType::SEMICOLON);
         $span   = $native->span->extended_to($semi->span);
-        return new ast\NativeFuncItem($span, $name, $polys, $note, $attrs);
+        return new ast\NativeFuncItem($span, $name, $note, $attrs);
       }
       default: {
         $type = $this->next(TokenType::KEYWORD_TYPE);
@@ -132,8 +131,6 @@ class Parser {
   private function fn_item(array $attrs): ast\FnItem {
     $fn_keyword = $this->next(TokenType::KEYWORD_FN);
     $fn_name = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
-
-    $polys = $this->fn_polys();
 
     $this->next(TokenType::PAREN_LEFT);
 
@@ -160,24 +157,7 @@ class Parser {
     $returns = $this->type_annotation();
     $body = $this->block();
     $fn_span = $fn_keyword->span->extended_to($body->span);
-    return new ast\FnItem($fn_span, $fn_name, $polys, $params, $returns, $body, $attrs);
-  }
-
-  private function fn_polys(): array {
-    $polys = [];
-    if ($this->lexer->peek()->type === TokenType::BRACKET_LEFT) {
-      $this->next(TokenType::BRACKET_LEFT);
-      while (true) {
-        $polys[] = ast\IdentNode::from_token($this->next(TokenType::UPPER_NAME));
-        if ($this->lexer->peek()->type !== TokenType::COMMA) {
-          break;
-        } else {
-          $this->next(TokenType::COMMA);
-        }
-      }
-      $this->next(TokenType::BRACKET_RIGHT);
-    }
-    return $polys;
+    return new ast\FnItem($fn_span, $fn_name, $params, $returns, $body, $attrs);
   }
 
   /**
@@ -339,20 +319,6 @@ class Parser {
   }
 
   private function call_expr(ast\Expr $callee, Token $paren_or_bracket): ast\CallExpr {
-    $polys = [];
-    if ($paren_or_bracket->type === TokenType::BRACKET_LEFT) {
-      while (true) {
-        $polys[] = $this->type_annotation();
-        if ($this->lexer->peek()->type !== TokenType::COMMA) {
-          break;
-        } else {
-          $this->next(TokenType::COMMA);
-        }
-      }
-      $this->next(TokenType::BRACKET_RIGHT);
-      $this->next(TokenType::PAREN_LEFT);
-    }
-
     $args = [];
     while (true) {
       $peek = $this->lexer->peek();
@@ -369,7 +335,7 @@ class Parser {
     }
     $paren_right = $this->next(TokenType::PAREN_RIGHT);
     $span = $callee->span->extended_to($paren_right->span);
-    return new ast\CallExpr($span, $callee, $polys, $args);
+    return new ast\CallExpr($span, $callee, $args);
   }
 
   private function list_expr(Token $bracket_left): ast\ListExpr {
@@ -556,6 +522,9 @@ class Parser {
   private function type_annotation(): ast\Annotation {
     $peek = $this->lexer->peek();
     switch ($peek->type) {
+      case TokenType::TYPE_PARAM:
+        $prefix = $this->type_param_annotation();
+        break;
       case TokenType::UPPER_NAME:
       case TokenType::DOUBLE_COLON:
         $prefix = $this->named_annotation();
@@ -580,6 +549,12 @@ class Parser {
           return $prefix;
       }
     }
+  }
+
+  private function type_param_annotation(): ast\TypeParamAnnotation {
+    $token = $this->next(TokenType::TYPE_PARAM);
+    $name = substr($token->lexeme, 1);
+    return new ast\TypeParamAnnotation($token->span, $name);
   }
 
   private function named_annotation(): ast\NamedAnnotation {

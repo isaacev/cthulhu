@@ -18,6 +18,7 @@ class Resolve {
   private $namespaces    = [];
   private $module_scopes = [];
   private $func_scopes   = [];
+  private $param_scopes  = [];
   private $block_scopes  = [];
   private $ref_symbols   = [];
 
@@ -78,6 +79,22 @@ class Resolve {
 
   private function pop_func_scope(): Scope {
     return array_pop($this->func_scopes);
+  }
+
+  private function has_param_scope(): bool {
+    return !empty($this->param_scopes);
+  }
+
+  private function current_param_scope(): Scope {
+    return end($this->param_scopes);
+  }
+
+  private function push_param_scope(Scope $scope): void {
+    array_push($this->param_scopes, $scope);
+  }
+
+  private function pop_param_scope(): Scope {
+    return array_pop($this->param_scopes);
   }
 
   private function has_block_scope(): bool {
@@ -175,6 +192,9 @@ class Resolve {
       },
       'exit(Block)' => function (nodes\Block $block) use ($ctx) {
         self::exit_block($ctx, $block);
+      },
+      'ParamNote' => function (nodes\ParamNote $note) use ($ctx) {
+        self::param_note($ctx, $note);
       },
       'Ref' => function (nodes\Ref $ref) use ($ctx) {
         self::ref($ctx, $ref);
@@ -280,9 +300,17 @@ class Resolve {
     $func_scope = new Scope();
     $ctx->push_func_scope($func_scope);
 
-    foreach ($head->polys as $poly) {
-      $poly_symbol = $ctx->make_type_symbol($poly);
-      $func_scope->add_binding($poly->value, $poly_symbol);
+    $param_scope = new Scope();
+    $ctx->push_param_scope($param_scope);
+    foreach ($head->params as $param) {
+      ir\Visitor::walk($param->note, [
+        'ParamNote' => function (nodes\ParamNote $note) use ($ctx, $param_scope) {
+          if ($param_scope->has_name($note->name->value) === false) {
+            $type_symbol = $ctx->make_type_symbol($note->name);
+            $param_scope->add_binding($note->name->value, $type_symbol);
+          }
+        },
+      ]);
     }
   }
 
@@ -293,6 +321,7 @@ class Resolve {
   }
 
   private static function exit_func_item(self $ctx): void {
+    $ctx->pop_param_scope();
     $ctx->pop_func_scope();
   }
 
@@ -304,13 +333,22 @@ class Resolve {
     $func_scope = new Scope();
     $ctx->push_func_scope($func_scope);
 
-    foreach ($item->polys as $poly) {
-      $poly_symbol = $ctx->make_type_symbol($poly);
-      $func_scope->add_binding($poly->value, $poly_symbol);
+    $param_scope = new Scope();
+    $ctx->push_param_scope($param_scope);
+    foreach ($item->note->inputs as $input_note) {
+      ir\Visitor::walk($input_note, [
+        'ParamNote' => function (nodes\ParamNote $note) use ($ctx, $param_scope) {
+          if ($param_scope->has_name($note->name->value) === false) {
+            $type_symbol = $ctx->make_type_symbol($note->name);
+            $param_scope->add_binding($note->name->value, $type_symbol);
+          }
+        },
+      ]);
     }
   }
 
   private static function exit_native_func_item(self $ctx): void {
+    $ctx->pop_param_scope();
     $ctx->pop_func_scope();
   }
 
@@ -333,6 +371,22 @@ class Resolve {
 
   private static function exit_block(self $ctx): void {
     $ctx->pop_block_scope();
+  }
+
+  private static function param_note(self $ctx, nodes\ParamNote $note): void {
+    if ($ctx->has_param_scope() === false) {
+      $span = $ctx->spans->get($note);
+      throw Errors::type_param_used_outside_function($span);
+    }
+
+    $param_scope = $ctx->current_param_scope();
+    if ($param_symbol = $param_scope->get_name($note->name)) {
+      assert($param_symbol instanceof TypeSymbol);
+      $ctx->set_symbol($note->name, $param_symbol);
+    } else {
+      $span = $ctx->spans->get($note);
+      throw Errors::unknown_type_param($span, $note);
+    }
   }
 
   private static function ref(self $ctx, nodes\Ref $ref): void {

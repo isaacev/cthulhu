@@ -8,10 +8,9 @@ class CallExpr extends Expr {
   public $callee;
   public $args;
 
-  function __construct(Source\Span $span, Expr $callee, array $polys, array $args) {
+  function __construct(Source\Span $span, Expr $callee, array $args) {
     parent::__construct($span);
     $this->callee = $callee;
-    $this->polys = $polys;
     $this->args = $args;
   }
 }

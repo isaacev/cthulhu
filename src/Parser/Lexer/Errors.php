@@ -15,6 +15,12 @@ class Errors {
         ->snippet($char->point->to_span());
   }
 
+  public static function unnamed_type_param(Source\Span $location): Error {
+    return (new Error('unnamed type parameter'))
+      ->paragraph('Type parameters should look like `\'a`.')
+      ->snippet($location);
+  }
+
   public static function unclosed_string(Source\Span $location): Error {
     return (new Error('unclosed string'))
       ->paragraph(

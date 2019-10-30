@@ -13,14 +13,14 @@ class ListType extends Type {
     return $this->element === null;
   }
 
-  function accepts(Type $other): bool {
+  function accepts_as_parameter(Type $other): bool {
     if ($other instanceof self) {
       if ($this->is_empty()) {
         return $other->is_empty();
       } else if ($other->is_empty()) {
         return true;
       } else {
-        return $this->element->accepts($other->element);
+        return $this->element->accepts_as_parameter($other->element);
       }
     }
     return false;
@@ -37,13 +37,6 @@ class ListType extends Type {
       }
     }
     return null;
-  }
-
-  function replace_generics(array $replacements): Type {
-    if ($this->is_empty()) {
-      return new self();
-    }
-    return new self($this->element->replace_generics($replacements));
   }
 
   function __toString(): string {

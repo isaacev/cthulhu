@@ -1,10 +1,10 @@
 use ::Kernel::*;
 
-fn id[A](a: A) -> A {
+fn id(a: 'a) -> 'a {
   a
 }
 
 #[entry]
 fn main() -> () {
-  let x: Int = id[Str]("abc");
+  let x: Int = id("abc");
 }

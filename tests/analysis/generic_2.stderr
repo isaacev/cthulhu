@@ -4,12 +4,12 @@
   The statement was marked as having the type `Int`:
 
     : generic_2
-  9 |   let x: Int = id[Str]("abc");
+  9 |   let x: Int = id("abc");
     |          ^^^
 
   But the expression has the type `Str`:
 
     : generic_2
-  9 |   let x: Int = id[Str]("abc");
-    |                ^^^^^^^^^^^^^^
+  9 |   let x: Int = id("abc");
+    |                ^^^^^^^^^
 

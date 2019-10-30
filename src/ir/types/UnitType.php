@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\types;
 
 class UnitType extends Type {
-  function accepts(Type $other): bool {
+  function accepts_as_parameter(Type $other): bool {
     return self::matches($other);
   }
 
@@ -12,10 +12,6 @@ class UnitType extends Type {
       return new self();
     }
     return null;
-  }
-
-  function replace_generics(array $replacements): Type {
-    return $this;
   }
 
   function __toString(): string {
