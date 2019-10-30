@@ -9,7 +9,7 @@ class LetStmt extends Stmt {
   public $note;
   public $expr;
 
-  function __construct(Source\Span $span, IdentNode $name, ?Annotation $note, Expr $expr, array $attrs) {
+  function __construct(Source\Span $span, LowerNameNode $name, ?Annotation $note, Expr $expr, array $attrs) {
     parent::__construct($span, $attrs);
     $this->name = $name;
     $this->note = $note;

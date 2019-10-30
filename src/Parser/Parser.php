@@ -98,7 +98,7 @@ class Parser {
 
   private function mod_item(array $attrs): ast\ModItem {
     $keyword = $this->next(TokenType::KEYWORD_MOD);
-    $name = ast\IdentNode::from_token($this->next(TokenType::UPPER_NAME));
+    $name = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
     $left_brace = $this->next(TokenType::BRACE_LEFT);
     $items = $this->items(true);
     $right_brace = $this->next(TokenType::BRACE_RIGHT);
@@ -112,7 +112,7 @@ class Parser {
     switch ($this->lexer->peek()->type) {
       case TokenType::KEYWORD_FN: {
         $fn     = $this->next(TokenType::KEYWORD_FN);
-        $name   = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
+        $name   = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
         $note   = $this->function_annotation($this->grouped_annotation());
         $semi   = $this->next(TokenType::SEMICOLON);
         $span   = $native->span->extended_to($semi->span);
@@ -120,7 +120,7 @@ class Parser {
       }
       default: {
         $type = $this->next(TokenType::KEYWORD_TYPE);
-        $name = ast\IdentNode::from_token($this->next(TokenType::UPPER_NAME));
+        $name = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
         $semi = $this->next(TokenType::SEMICOLON);
         $span = $native->span->extended_to($semi->span);
         return new ast\NativeTypeItem($span, $name, $attrs);
@@ -130,14 +130,14 @@ class Parser {
 
   private function fn_item(array $attrs): ast\FnItem {
     $fn_keyword = $this->next(TokenType::KEYWORD_FN);
-    $fn_name = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
+    $fn_name = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
 
     $this->next(TokenType::PAREN_LEFT);
 
     $params = [];
     if ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
       while (true) {
-        $param_name = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
+        $param_name = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
         $this->next(TokenType::COLON);
         $param_note = $this->type_annotation();
         $param_span = new Source\Span($param_name->span->from, $param_note->span->to);
@@ -202,7 +202,7 @@ class Parser {
 
   private function let_stmt(array $attrs): ast\LetStmt {
     $keyword = $this->next(TokenType::KEYWORD_LET);
-    $name = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
+    $name = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
 
     if ($this->lexer->peek()->type === TokenType::COLON) {
       $this->next(TokenType::COLON);
@@ -394,7 +394,7 @@ class Parser {
 
     $body = [];
     while (true) {
-      $tail = ast\IdentNode::from_token($this->next(TokenType::UPPER_NAME));
+      $tail = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
       $span = isset($span)
         ? $span->extended_to($tail->span)
         : $tail->span;
@@ -417,7 +417,7 @@ class Parser {
         $tail = ast\StarSegment::from_token($this->next(TokenType::STAR));
         break;
       default:
-        $tail = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
+        $tail = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
         break;
     }
 
@@ -441,12 +441,12 @@ class Parser {
       $extern = true;
       $colons = $this->next(TokenType::DOUBLE_COLON);
       $span   = $colons->span;
-      $body[] = ast\IdentNode::from_token($this->next(TokenType::UPPER_NAME));
+      $body[] = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
       $colons = $this->next(TokenType::DOUBLE_COLON);
     }
 
     while ($this->lexer->peek()->type === TokenType::UPPER_NAME) {
-      $body[] = ast\IdentNode::from_token($this->next(TokenType::UPPER_NAME));
+      $body[] = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
       $span   = isset($span) ? $span : end($body)->span;
 
       if ($this->lexer->peek()->type === TokenType::DOUBLE_COLON) {
@@ -457,7 +457,7 @@ class Parser {
     }
 
     if ($this->lexer->peek()->type === TokenType::LOWER_NAME) {
-      $tail = ast\IdentNode::from_token($this->next(TokenType::LOWER_NAME));
+      $tail = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
     } else {
       $tail = array_pop($body);
     }

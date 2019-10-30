@@ -266,7 +266,7 @@ class Lower {
   private static function func_params(Table $spans, array $params): array {
     $_params = [];
     foreach ($params as $param) {
-      $name = $spans->set(new nodes\Name($param->name), $param->name->span);
+      $name = $spans->set(new nodes\Name($param->name->ident), $param->name->span);
       $note = self::note($spans, $param->note);
       $_params[] = $spans->set(new nodes\FuncParam($name, $note), $param->span);
     }

@@ -9,7 +9,14 @@ class PathNode extends Node {
   public $head;
   public $tail;
 
-  function __construct(Source\Span $span, bool $extern, array $head, IdentNode $tail) {
+  /**
+   * PathNode constructor.
+   * @param Source\Span $span
+   * @param bool $extern
+   * @param UpperNameNode[] $head
+   * @param UpperNameNode|LowerNameNode $tail
+   */
+  function __construct(Source\Span $span, bool $extern, array $head, $tail) {
     parent::__construct($span);
     $this->extern = $extern;
     $this->head = $head;

@@ -9,12 +9,4 @@ class PathExpr extends Expr {
     parent::__construct($path->span);
     $this->path = $path;
   }
-
-  public function length(): int {
-    return count($this->path->segments);
-  }
-
-  public function nth(int $n): IdentNode {
-    return $this->path->segments[$n];
-  }
 }
