@@ -243,7 +243,11 @@ class Lower {
   }
 
   private static function list_note(Table $spans, ast\ListAnnotation $note): nodes\ListNote {
-    $elements = self::note($spans, $note->elements);
+    if ($note->elements) {
+      $elements = self::note($spans, $note->elements);
+    } else {
+      $elements = null;
+    }
     return $spans->set(new nodes\ListNote($elements), $note->span);
   }
 

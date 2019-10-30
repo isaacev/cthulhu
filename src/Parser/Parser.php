@@ -588,7 +588,11 @@ class Parser {
 
   private function list_annotation(): ast\ListAnnotation {
     $bracket_left = $this->next(TokenType::BRACKET_LEFT);
-    $elements = $this->type_annotation();
+    if ($this->lexer->peek()->type === TokenType::BRACKET_RIGHT) {
+      $elements = null;
+    } else {
+      $elements = $this->type_annotation();
+    }
     $bracket_right = $this->next(TokenType::BRACKET_RIGHT);
     $span = $bracket_left->span->extended_to($bracket_right->span);
     return new ast\ListAnnotation($span, $elements);

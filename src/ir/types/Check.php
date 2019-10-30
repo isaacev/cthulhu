@@ -516,7 +516,9 @@ class Check {
   }
 
   private static function list_note_to_type(self $ctx, nodes\ListNote $note): Type {
-    $elements = self::note_to_type($ctx, $note->elements);
+    $elements = $note->elements
+      ? self::note_to_type($ctx, $note->elements)
+      : null;
     return new ListType($elements);
   }
 
