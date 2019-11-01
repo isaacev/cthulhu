@@ -58,7 +58,9 @@ class Test {
         ->resolve()
         ->check()
         ->codegen()
-        ->optimize()
+        ->optimize([
+          'shake' => true,
+        ])
         ->write();
       return new TestOutput($stdout, '');
     } catch (Errors\Error $err) {

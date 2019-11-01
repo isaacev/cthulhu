@@ -1,26 +1,5 @@
 <?php
 
-namespace Kernel {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-  // #[inline]
-  function strval($a) {
-    return \strval($a);
-  }
-  // #[inline]
-  function mt_rand($a, $b) {
-    return \mt_rand($a, $b);
-  }
-  // #[inline]
-  // #[construct]
-  function subscript($a, $b) {
-    return $a[$b];
-  }
-}
-
 namespace if_2 {
   // #[entry]
   function main() {

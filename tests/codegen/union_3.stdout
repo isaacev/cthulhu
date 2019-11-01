@@ -1,26 +1,5 @@
 <?php
 
-namespace Kernel {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-  // #[inline]
-  function strval($a) {
-    return \strval($a);
-  }
-  // #[inline]
-  function mt_rand($a, $b) {
-    return \mt_rand($a, $b);
-  }
-  // #[inline]
-  // #[construct]
-  function subscript($a, $b) {
-    return $a[$b];
-  }
-}
-
 namespace union_3 {
   abstract class Foo {}
   class Bar extends \union_3\Foo {
