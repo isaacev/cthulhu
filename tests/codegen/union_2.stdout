@@ -5,7 +5,7 @@ namespace union_2 {
   class Bar extends \union_2\Foo {
     public $fields;
     function __construct($a) {
-      $this->fields = [$a];
+      $this->fields = [ $a ];
     }
   }
   // #[entry]

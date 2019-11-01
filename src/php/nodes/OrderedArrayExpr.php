@@ -21,11 +21,28 @@ class OrderedArrayExpr extends Expr {
   }
 
   public function build(): Builder {
-    return (new Builder)
-      ->operator('[')
-      ->each($this->elements, (new Builder)
-        ->comma()
-        ->space())
-      ->operator(']');
+    if (empty($this->elements)) {
+      return (new Builder)
+        ->bracket_left()
+        ->bracket_right();
+    } else if (count($this->elements) === 1) {
+      return (new Builder)
+        ->bracket_left()
+        ->space()
+        ->then($this->elements[0])
+        ->space()
+        ->bracket_right();
+    } else {
+      return (new Builder)
+        ->bracket_left()
+        ->increase_indentation()
+        ->newline_then_indent()
+        ->each($this->elements, (new Builder)
+          ->comma()
+          ->newline_then_indent())
+        ->decrease_indentation()
+        ->newline_then_indent()
+        ->bracket_right();
+    }
   }
 }
