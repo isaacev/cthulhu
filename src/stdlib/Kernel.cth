@@ -25,11 +25,16 @@ native type Bool;
 native fn print(Str) -> ();
 
 #[inline]
-native fn strval(Int) -> Str;
-
-#[inline]
 native fn mt_rand(Int, Int) -> Int;
 
 #[inline]
 #[construct]
 native fn subscript(['a], Int) -> 'a;
+
+#[inline]
+#[construct]
+native fn cast_int_to_string(Int) -> Str;
+
+#[inline]
+#[construct]
+native fn cast_float_to_string(Float) -> Str;

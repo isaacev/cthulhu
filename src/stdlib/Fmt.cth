@@ -1,0 +1,11 @@
+use ::Kernel::*;
+
+#[inline]
+fn int(i: Int) -> Str {
+  cast_int_to_string(i)
+}
+
+#[inline]
+fn float(f: Float) -> Str {
+  cast_float_to_string(f)
+}

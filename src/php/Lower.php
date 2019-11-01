@@ -686,6 +686,9 @@ class Lower {
         return new nodes\SubscriptExpr($args[0], $args[1]);
       case 'print':
         return new nodes\BuiltinCallExpr('print', $args);
+      case 'cast_int_to_string':
+      case 'cast_float_to_string':
+        return new nodes\CastExpr('string', $args[0]);
       default:
         throw new \Exception("unknown PHP construct: $name");
     }
