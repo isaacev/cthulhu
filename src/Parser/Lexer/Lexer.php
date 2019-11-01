@@ -185,7 +185,7 @@ class Lexer {
 
     if ($this->scanner->peek()->is_letter() === false) {
       $span = new Source\Span($from, $to);
-      if ($this->is_relazed()) {
+      if ($this->is_relaxed()) {
         return new Token(TokenType::ERROR, $span, $lexeme);
       } else {
         throw Errors::unnamed_type_param($span);
