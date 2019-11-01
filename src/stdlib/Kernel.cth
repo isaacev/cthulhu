@@ -4,13 +4,15 @@
 -- The primitive types that are hard-coded into the language.
 --
 
-native type Str;
+mod Types {
+  native type Str;
 
-native type Float;
+  native type Float;
 
-native type Int;
+  native type Int;
 
-native type Bool;
+  native type Bool;
+}
 
 --
 -- PHP BUILTIN FUNCTIONS
@@ -20,21 +22,25 @@ native type Bool;
 -- should be wrapped inside of other functions in the Cthulhu standard library.
 --
 
-#[inline]
-#[construct]
-native fn print(Str) -> ();
+mod Builtins {
+  use ::Kernel::Types::*;
 
-#[inline]
-native fn mt_rand(Int, Int) -> Int;
+  #[inline]
+  #[construct]
+  native fn print(Str) -> ();
 
-#[inline]
-#[construct]
-native fn subscript(['a], Int) -> 'a;
+  #[inline]
+  native fn mt_rand(Int, Int) -> Int;
 
-#[inline]
-#[construct]
-native fn cast_int_to_string(Int) -> Str;
+  #[inline]
+  #[construct]
+  native fn subscript(['a], Int) -> 'a;
 
-#[inline]
-#[construct]
-native fn cast_float_to_string(Float) -> Str;
+  #[inline]
+  #[construct]
+  native fn cast_int_to_string(Int) -> Str;
+
+  #[inline]
+  #[construct]
+  native fn cast_float_to_string(Float) -> Str;
+}

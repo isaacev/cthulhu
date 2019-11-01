@@ -1,4 +1,4 @@
-use ::Kernel::*;
+use ::Kernel::Types::*;
 
 type Shape =
   | UnitCircle

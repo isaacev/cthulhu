@@ -1,6 +1,6 @@
-use ::Kernel::*;
+use ::Kernel::Types::*;
 
 #[inline]
 fn println(str: Str) -> () {
-  print(str ++ "\n");
+  ::Kernel::Builtins::print(str ++ "\n");
 }

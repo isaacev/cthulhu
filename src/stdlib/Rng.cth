@@ -1,6 +1,6 @@
-use ::Kernel::*;
+use ::Kernel::Types::*;
 
 #[inline]
 fn integer(min: Int, max: Int) -> Int {
-  mt_rand(min, max)
+  ::Kernel::Builtins::mt_rand(min, max)
 }
