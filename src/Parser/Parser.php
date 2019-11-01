@@ -323,6 +323,8 @@ class Parser {
         return $this->unary_prefix_expr($this->lexer->next());
       case TokenType::BRACKET_LEFT:
         return $this->list_expr($this->lexer->next());
+      case TokenType::PAREN_LEFT:
+        return $this->group_expr($this->lexer->next());
       case TokenType::UPPER_NAME:
       case TokenType::LOWER_NAME:
       case TokenType::DOUBLE_COLON:
@@ -428,6 +430,12 @@ class Parser {
     $bracket_right = $this->next(TokenType::BRACKET_RIGHT);
     $span = $bracket_left->span->extended_to($bracket_right->span);
     return new ast\ListExpr($span, $elements);
+  }
+
+  private function group_expr(Token $paren_left): ast\Expr {
+    $expr = $this->expr();
+    $this->next(TokenType::PAREN_RIGHT);
+    return $expr;
   }
 
   private function path_expr(): ast\Expr {
