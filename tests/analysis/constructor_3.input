@@ -1,5 +1,3 @@
-use ::Kernel::*;
-
 type Foo =
   | Bar(Str);
 

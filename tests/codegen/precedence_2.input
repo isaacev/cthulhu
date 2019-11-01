@@ -1,4 +1,4 @@
 #[entry]
 fn main() -> () {
-  let n: ::Kernel::Int = (3 * 2) ^ 2;
+  let n: Int = (3 * 2) ^ 2;
 }

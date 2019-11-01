@@ -1,5 +1,3 @@
-use ::Kernel::*;
-
 fn id(a: 'a) -> 'a {
   a
 }

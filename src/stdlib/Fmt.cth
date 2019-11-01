@@ -1,5 +1,3 @@
-use ::Kernel::Types::*;
-
 #[inline]
 fn int(i: Int) -> Str {
   ::Kernel::Builtins::cast_int_to_string(i)

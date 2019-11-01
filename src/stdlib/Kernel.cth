@@ -4,6 +4,7 @@
 -- The primitive types that are hard-coded into the language.
 --
 
+#[no_linked_kernel_types]
 mod Types {
   native type Str;
 
@@ -23,8 +24,6 @@ mod Types {
 --
 
 mod Builtins {
-  use ::Kernel::Types::*;
-
   #[inline]
   #[construct]
   native fn print(Str) -> ();

@@ -1,5 +1,3 @@
-use ::Kernel::Types::*;
-
 #[inline]
 fn integer(min: Int, max: Int) -> Int {
   ::Kernel::Builtins::mt_rand(min, max)

@@ -52,7 +52,7 @@ class Linker {
 
   protected static function find_dependencies(nodes\Library $root): array {
     $this_lib = $root->name->value;
-    $links_to = [];
+    $links_to = [ 'Kernel' ];
     Visitor::walk($root, [
       'CompoundRef' => function ($ref) use (&$this_lib, &$links_to) {
         if ($ref->extern) {

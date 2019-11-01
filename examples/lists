@@ -1,4 +1,3 @@
-use ::Kernel::Types::*;
 use ::List;
 use ::Io;
 

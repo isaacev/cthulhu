@@ -240,6 +240,11 @@ class Resolve {
     $lib_scope = new Scope();
     $ctx->add_namespace($lib_symbol, $lib_scope);
     $ctx->push_module_scope($lib_scope);
+
+    // Automatically add `use ::Kernel::Types::*;` to the top of all libraries.
+    if ($lib->name->value !== 'Kernel') {
+      self::link_kernel_types($ctx);
+    }
   }
 
   private static function exit_library(self $ctx): void {
@@ -256,6 +261,10 @@ class Resolve {
     $mod_scope = new Scope();
     $ctx->add_namespace($mod_symbol, $mod_scope);
     $ctx->push_module_scope($mod_scope);
+
+    if ($item->get_attr('no_linked_kernel_types', false) === false) {
+      self::link_kernel_types($ctx);
+    }
   }
 
   private static function exit_mod_item(self $ctx): void {
@@ -295,6 +304,16 @@ class Resolve {
       }
     } else {
       throw new \Exception('unknown reference tail segment');
+    }
+  }
+
+  private static function link_kernel_types(self $ctx): void {
+    // Simulates `use ::Kernel::Types::*;` at the top of a library or module.
+    $extern_namespace = $ctx->root_scope();
+    $kernel_namespace = $ctx->get_namespace($extern_namespace->get_name('Kernel'));
+    $types_namespace = $ctx->get_namespace($kernel_namespace->get_name('Types'));
+    foreach ($types_namespace->table as $name => $symbol) {
+      $ctx->current_module_scope()->add_binding($name, $symbol);
     }
   }
 

@@ -1,5 +1,3 @@
-use ::Kernel::Types::*;
-
 #[inline]
 fn println(str: Str) -> () {
   ::Kernel::Builtins::print(str ++ "\n");

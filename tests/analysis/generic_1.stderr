@@ -5,6 +5,6 @@
   returns the type `Int`:
 
     : generic_1
-  4 |   123
+  2 |   123
     |   ^^^
 

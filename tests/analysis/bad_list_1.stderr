@@ -5,6 +5,6 @@
   returns the type `[Int]`:
 
     : bad_list_1
-  5 |   [1, 2, 3]
+  3 |   [1, 2, 3]
     |   ^^^^^^^^^
 

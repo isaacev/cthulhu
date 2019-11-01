@@ -5,6 +5,6 @@
   Int }`.
 
     : constructor_2
-  8 |   Foo::Bar { x: 123 };
+  6 |   Foo::Bar { x: 123 };
     |   ^^^^^^^^^^^^^^^^^^^
 

@@ -1,5 +1,3 @@
-use ::Kernel::Types::*;
-
 #[inline]
 fn nth(ls: ['a], n: Int) -> 'a {
   ::Kernel::Builtins::subscript(ls, n)

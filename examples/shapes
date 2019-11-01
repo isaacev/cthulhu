@@ -1,5 +1,3 @@
-use ::Kernel::Types::*;
-
 type Shape =
   | UnitCircle
   | Circle(Float)

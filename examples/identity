@@ -1,5 +1,3 @@
-use ::Kernel::Types::*;
-
 fn id(thing: 'a) -> 'a { thing }
 
 #[entry]
