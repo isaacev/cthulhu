@@ -14,6 +14,9 @@ class Visitor {
   private static function _walk(Path $path, Table $table): void {
     $table->preorder($path);
     foreach ($path->node->to_children() as $child_node) {
+      if ($child_node === null) {
+        continue;
+      }
       self::_walk(new Path($path, $child_node), $table);
     }
     $table->postorder($path);
@@ -54,6 +57,10 @@ class Visitor {
     $node_before_editing_children = $path->node;
 
     while ($child_node = array_shift($unedited_child_nodes)) {
+      if ($child_node === null) {
+        $edited_child_nodes[] = null;
+      }
+
       $child_path = new Path($path, $child_node);
 
       // Recursively pass the child path to the edit method and capture any new

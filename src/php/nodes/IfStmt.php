@@ -17,23 +17,15 @@ class IfStmt extends Stmt {
   }
 
   public function to_children(): array {
-    if ($this->else_block) {
-      return [
-        $this->cond,
-        $this->if_block,
-        $this->else_block
-      ];
-    } else {
-      return [
-        $this->cond,
-        $this->if_block
-      ];
-    }
+    return [
+      $this->cond,
+      $this->if_block,
+      $this->else_block,
+    ];
   }
 
   public function from_children(array $nodes): Node {
-    $else_block = count($nodes) >= 3 ? $nodes[2] : null;
-    return new self($nodes[0], $nodes[1], $else_block);
+    return new self($nodes[0], $nodes[1], $nodes[2]);
   }
 
   public function build(): Builder {
