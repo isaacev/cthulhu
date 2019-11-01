@@ -593,6 +593,8 @@ class Lower {
     switch ($op) {
       case '++':
         return '.';
+      case '^':
+        return '**';
       default:
         return $op;
     }

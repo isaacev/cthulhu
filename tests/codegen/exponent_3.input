@@ -1,0 +1,4 @@
+#[entry]
+fn main() -> () {
+  let n: ::Kernel::Float = 0.5 ^ 0.5;
+}

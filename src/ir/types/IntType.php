@@ -14,12 +14,18 @@ class IntType extends Type {
         case '+':
         case '-':
         case '*':
+        case '^':
           return new self();
         case '<':
         case '<=':
         case '>':
         case '>=':
           return new BoolType();
+      }
+    } else if (count($operands) === 1 && $operands[0] instanceof FloatType) {
+      switch ($op) {
+        case '^':
+          return new FloatType();
       }
     }
 

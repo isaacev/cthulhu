@@ -8,5 +8,6 @@ abstract class Precedence {
   const SUM      = 20;
   const PRODUCT  = 30;
   const UNARY    = 35;
+  const EXPONENT = 38;
   const ACCESS   = 40;
 }

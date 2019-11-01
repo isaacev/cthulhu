@@ -7,6 +7,7 @@ use Cthulhu\php\Builder;
 const PREC_COMP = 10;
 const PREC_ADD = 20;
 const PREC_MULT = 30;
+const PREC_EXP = 40;
 
 class BinaryExpr extends Expr {
   public $operator;
@@ -42,6 +43,8 @@ class BinaryExpr extends Expr {
       case '*':
       case '/':
         return PREC_MULT;
+      case '**':
+        return PREC_EXP;
       default:
         return PHP_INT_MAX;
     }
