@@ -191,6 +191,7 @@ class Snippet implements Reportable {
     switch ($token->type) {
       case TokenType::ERROR:
         return [Background::RED, Foreground::DEFAULT];
+      case TokenType::LITERAL_FLOAT:
       case TokenType::LITERAL_INT:
       case TokenType::LITERAL_BOOL:
       case TokenType::TYPE_PARAM:
