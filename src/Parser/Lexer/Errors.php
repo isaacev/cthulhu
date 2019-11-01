@@ -28,4 +28,10 @@ class Errors {
       )
       ->snippet($location);
   }
+
+  public static function invalid_float(Source\Span $span): Error {
+    return (new Error('invalid floating point number'))
+      ->paragraph('Floating point numbers must have at least 1 whole digit and at least 1 decimal digit.')
+      ->snippet($span);
+  }
 }

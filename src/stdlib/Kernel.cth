@@ -6,6 +6,8 @@
 
 native type Str;
 
+native type Float;
+
 native type Int;
 
 native type Bool;

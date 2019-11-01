@@ -7,6 +7,7 @@ abstract class TokenType {
   const EOF                 = 'EOF';
   const COMMENT             = 'Comment';
   const LITERAL_INT         = 'Int';
+  const LITERAL_FLOAT       = 'Float';
   const LITERAL_STR         = 'Str';
   const LITERAL_BOOL        = 'Bool';
   const UPPER_NAME          = 'Upper-case Name';

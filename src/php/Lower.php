@@ -350,6 +350,9 @@ class Lower {
       'StrLiteral' => function (ir\nodes\StrLiteral $expr) use ($ctx) {
         self::str_literal($ctx, $expr);
       },
+      'FloatLiteral' => function (ir\nodes\FloatLiteral $expr) use ($ctx) {
+        self::float_literal($ctx, $expr);
+      },
       'IntLiteral' => function (ir\nodes\IntLiteral $expr) use ($ctx) {
         self::int_literal($ctx, $expr);
       },
@@ -653,6 +656,11 @@ class Lower {
 
   private static function str_literal(self $ctx, ir\nodes\StrLiteral $expr): void {
     $php_expr = new nodes\StrLiteral($expr->value);
+    $ctx->push_expr($php_expr);
+  }
+
+  private static function float_literal(self $ctx, ir\nodes\FloatLiteral $expr): void {
+    $php_expr = new nodes\FloatLiteral($expr->value, $expr->precision);
     $ctx->push_expr($php_expr);
   }
 

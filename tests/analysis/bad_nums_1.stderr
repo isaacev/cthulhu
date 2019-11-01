@@ -1,0 +1,9 @@
+
+  UNSUPPORTED BINARY OPERATOR  -----------------------------------------------
+
+  The type `Int` doesn't support the binary operator `+` with the type `Float`:
+
+    : bad_nums_1
+  3 |   2 + 1.2;
+    |   ^^^^^^^
+

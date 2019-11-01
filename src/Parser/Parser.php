@@ -329,6 +329,8 @@ class Parser {
         return $this->path_expr();
       case TokenType::LITERAL_STR:
         return $this->str_literal($this->lexer->next());
+      case TokenType::LITERAL_FLOAT:
+        return $this->float_literal($this->lexer->next());
       case TokenType::LITERAL_INT:
         return $this->int_literal($this->lexer->next());
       case TokenType::LITERAL_BOOL:
@@ -479,6 +481,12 @@ class Parser {
   private function str_literal(Token $str): ast\StrLiteral {
     $value = substr($str->lexeme, 1, -1);
     return new ast\StrLiteral($str->span, $value, $str->lexeme);
+  }
+
+  private function float_literal(Token $float): ast\FloatLiteral {
+    $value = floatval($float->lexeme);
+    $precision = strlen(explode('.', $float->lexeme)[1]);
+    return new ast\FloatLiteral($float->span, $value, $precision, $float->lexeme);
   }
 
   private function int_literal(Token $int): ast\IntLiteral {

@@ -105,6 +105,9 @@ class Check {
       'StrLiteral' => function (nodes\StrLiteral $expr) use ($ctx) {
         self::str_literal($ctx, $expr);
       },
+      'FloatLiteral' => function (nodes\FloatLiteral $expr) use ($ctx) {
+        self::float_literal($ctx, $expr);
+      },
       'IntLiteral' => function (nodes\IntLiteral $expr) use ($ctx) {
         self::int_literal($ctx, $expr);
       },
@@ -205,6 +208,9 @@ class Check {
     switch ($item->name->value) {
       case 'Str':
         $type = new StrType();
+        break;
+      case 'Float':
+        $type = new FloatType();
         break;
       case 'Int':
         $type = new IntType();
@@ -539,6 +545,11 @@ class Check {
 
   private static function str_literal(self $ctx, nodes\StrLiteral $expr): void {
     $type = new StrType();
+    $ctx->set_type_for_expr($expr, $type);
+  }
+
+  private static function float_literal(self $ctx, nodes\FloatLiteral $expr): void {
+    $type = new FloatType();
     $ctx->set_type_for_expr($expr, $type);
   }
 

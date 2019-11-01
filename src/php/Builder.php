@@ -135,6 +135,10 @@ class Builder implements Buildable {
     return $this->push_str('"' . $value . '"');
   }
 
+  public function float_literal(float $value, int $precision): self {
+    return $this->push_str(number_format($value, $precision, '.', ''));
+  }
+
   public function int_literal(int $value): self {
     return $this->push_str("$value");
   }

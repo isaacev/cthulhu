@@ -1,0 +1,17 @@
+
+  EXPECTED EXPRESSION  -------------------------------------------------------
+
+  Found `.` instead.
+
+    : bad_float_1
+  3 |   .123;
+    |   ^
+
+  An expression can be like one of the following:
+
+    a + b * c
+
+    myFunction("hello")
+
+    if a { b; } else { c; }
+

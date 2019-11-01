@@ -74,7 +74,7 @@ class Lexer {
 
     switch (true) {
       case $next->is_digit():
-        return $this->next_int($next);
+        return $this->next_int_or_float($next);
       case $next->is('"'):
         return $this->next_str($next);
       case $next->is("'"):
@@ -129,7 +129,7 @@ class Lexer {
     }
   }
 
-  private function next_int(Character $start): Token {
+  private function next_int_or_float(Character $start): Token {
     $lexeme = $start->char;
     $from = $start->point;
     $to = $start->point;
@@ -144,8 +144,40 @@ class Lexer {
       $to = $next->point;
     }
 
-    $span = new Source\Span($from, $to->next());
-    return new Token(TokenType::LITERAL_INT, $span, $lexeme);
+    if ($peek && $peek->is('.')) {
+      $dot = $this->scanner->next();
+      $lexeme .= $dot->char;
+      $to = $dot->point;
+
+      $next = $this->scanner->next();
+      if ($next === null || $next->is_digit() === false) {
+        $span = new Source\Span($from, ($next ? $next : $dot)->point);
+        if ($this->is_relaxed()) {
+          return new Token(TokenType::ERROR, $span, $lexeme);
+        } else {
+          throw Errors::invalid_float($span);
+        }
+      } else {
+        $lexeme .= $next->char;
+        $to = $next->point;
+      }
+
+      while ($peek = $this->scanner->peek()) {
+        if ($peek->is_digit() === false) {
+          break;
+        }
+
+        $next = $this->scanner->next();
+        $lexeme .= $next->char;
+        $to = $next->point;
+      }
+
+      $span = new Source\Span($from, $to->next());
+      return new Token(TokenType::LITERAL_FLOAT, $span, $lexeme);
+    } else {
+      $span = new Source\Span($from, $to->next());
+      return new Token(TokenType::LITERAL_INT, $span, $lexeme);
+    }
   }
 
   private function next_str(Character $start): Token {

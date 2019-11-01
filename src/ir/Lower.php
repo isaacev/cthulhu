@@ -185,6 +185,8 @@ class Lower {
         return self::path_expr($spans, $expr);
       case $expr instanceof ast\StrLiteral:
         return self::str_literal($spans, $expr);
+      case $expr instanceof ast\FloatLiteral:
+        return self::float_literal($spans, $expr);
       case $expr instanceof ast\IntLiteral:
         return self::int_literal($spans, $expr);
       case $expr instanceof ast\BoolLiteral:
@@ -275,6 +277,11 @@ class Lower {
   private static function str_literal(Table $spans, ast\StrLiteral $expr): nodes\StrLiteral {
     $value = $expr->value;
     return $spans->set(new nodes\StrLiteral($value), $expr->span);
+  }
+
+  private static function float_literal(Table $spans, ast\FloatLiteral $expr): nodes\FloatLiteral {
+    $value = $expr->value;
+    return $spans->set(new nodes\FloatLiteral($value, $expr->precision), $expr->span);
   }
 
   private static function int_literal(Table $spans, ast\IntLiteral $expr): nodes\IntLiteral {
