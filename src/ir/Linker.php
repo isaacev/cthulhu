@@ -73,7 +73,11 @@ class Linker {
         }
       },
     ]);
-    return array_unique($links_to);
+    $unique_links_to = array_unique($links_to);
+    if (in_array($root->name->value, $unique_links_to)) {
+      unset($unique_links_to[array_search($root->name->value, $unique_links_to)]);
+    }
+    return $unique_links_to;
   }
 
   private const STDLIB_DIR = __DIR__ . '/../stdlib/';
