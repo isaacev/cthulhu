@@ -52,6 +52,8 @@ class Linker {
 
   protected static function find_dependencies(nodes\Library $root): array {
     $this_lib = $root->name->value;
+    // All libraries and modules are automatically linked to the Kernel (except
+    // for the Kernel library itself).
     $links_to = [ 'Kernel' ];
     Visitor::walk($root, [
       'CompoundRef' => function ($ref) use (&$this_lib, &$links_to) {
@@ -74,6 +76,11 @@ class Linker {
       },
     ]);
     $unique_links_to = array_unique($links_to);
+
+    // TODO:
+    // This was added to allow libraries and modules to reference themselves. It
+    // would probably be better to replace this with a Rust-like `super` keyword
+    // that could climb the module hierarchy to reference nearby modules.
     if (in_array($root->name->value, $unique_links_to)) {
       unset($unique_links_to[array_search($root->name->value, $unique_links_to)]);
     }
