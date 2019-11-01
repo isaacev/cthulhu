@@ -21,7 +21,10 @@ These capitalization rules are enforced by the language.
 - [x] Constant folding optimization'
 - [x] Type name resolution
 - [x] Generic functions
-- [ ] Pretty multiline error snippets
-- [x] Module dependency linearization and cycle detection
+- [ ] Pretty multi-line error snippets
+- [x] Module dependency linearized and cycle detection
 - [ ] The Maybe type
 - [x] The List type
+- [ ] Floating point numbers
+- [ ] Pattern matching
+- [ ] Type casting
