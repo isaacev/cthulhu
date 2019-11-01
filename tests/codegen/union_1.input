@@ -1,0 +1,7 @@
+type Foo =
+  | Bar;
+
+#[entry]
+fn main() -> () {
+  Foo::Bar;
+}

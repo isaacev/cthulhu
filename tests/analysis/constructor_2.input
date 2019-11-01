@@ -1,0 +1,9 @@
+use ::Kernel::*;
+
+type Foo =
+  | Bar { x: Str };
+
+#[entry]
+fn main() -> () {
+  Foo::Bar { x: 123 };
+}

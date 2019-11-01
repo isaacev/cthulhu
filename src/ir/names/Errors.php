@@ -30,4 +30,14 @@ class Errors {
       ->paragraph("Reference to an unknown field in a namespace.")
       ->snippet($span);
   }
+
+  public static function unknown_constructor_form(Source\Span $span, nodes\Ref $name): Error {
+    return (new Error('unknown constructor form'))
+      ->snippet($span);
+  }
+
+  public static function unknown_constructor_field(Source\Span $span, nodes\Ref $variant_name, nodes\Name $field_name): Error {
+    return (new Error('unknown constructor field'))
+      ->snippet($span);
+  }
 }

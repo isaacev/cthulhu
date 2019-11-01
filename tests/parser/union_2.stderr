@@ -1,0 +1,15 @@
+
+  EXPECTED TYPE ANNOTATION  --------------------------------------------------
+
+  Found `)` instead.
+
+    : union_2
+  2 |   | Bar();
+    |         ^
+
+  A type annotation can be like one of the following:
+
+    Str
+
+    [Int]
+

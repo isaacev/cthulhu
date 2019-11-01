@@ -75,6 +75,9 @@ class Check {
       'exit(NativeTypeItem)' => function (nodes\NativeTypeItem $item) use ($ctx) {
         self::exit_native_type_item($ctx, $item);
       },
+      'exit(UnionItem)' => function (nodes\UnionItem $item) use ($ctx) {
+        self::exit_union_item($ctx, $item);
+      },
       'exit(LetStmt)' => function (nodes\LetStmt $stmt) use ($ctx) {
         self::exit_let_stmt($ctx, $stmt);
       },
@@ -92,6 +95,9 @@ class Check {
       },
       'exit(ListExpr)' => function (nodes\ListExpr $expr) use ($ctx) {
         self::exit_list_expr($ctx, $expr);
+      },
+      'exit(VariantConstructor)' => function (nodes\VariantConstructor $expr) use ($ctx) {
+        self::exit_variant_constructor($ctx, $expr);
       },
       'RefExpr' => function (nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
@@ -210,6 +216,38 @@ class Check {
         throw new \Exception('unknown native type');
     }
 
+    $symbol = $ctx->name_to_symbol->get($item->name);
+    $ctx->set_type_for_symbol($symbol, $type);
+  }
+
+  private static function exit_union_item(self $ctx, nodes\UnionItem $item): void {
+    $variants = [];
+    foreach ($item->variants as $variant) {
+      switch (true) {
+        case $variant instanceof nodes\NamedVariantNode: {
+          $fields = [];
+          foreach ($variant->fields as $field) {
+            $fields[$field->name->value] = self::note_to_type($ctx, $field->note);
+          }
+          $type = new RecordType($fields);
+          break;
+        }
+        case $variant instanceof nodes\UnnamedVariantNode: {
+          $members = [];
+          foreach ($variant->members as $member) {
+            $members[] = self::note_to_type($ctx, $member);
+          }
+          $type = count($members) > 1
+            ? new TupleType($members)
+            : $members[0];
+          break;
+        }
+        default:
+          $type = new UnitType();
+      }
+      $variants[$variant->name->value] = $type;
+    }
+    $type = new UnionType($item->name->value, $variants);
     $symbol = $ctx->name_to_symbol->get($item->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
@@ -447,6 +485,50 @@ class Check {
 
     $type = new ListType($unified_type);
     $ctx->set_type_for_expr($expr, $type);
+  }
+
+  private static function exit_variant_constructor(self $ctx, nodes\VariantConstructor $expr): void {
+    $variant_symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
+    $union_symbol   = $variant_symbol->parent;
+    $union_type     = $ctx->get_type_for_symbol($union_symbol);
+
+    assert($union_type instanceof UnionType);
+
+    $variant_name = $expr->ref->tail_segment->value;
+    if ($union_type->has_variant_named($variant_name)) {
+      switch (true) {
+        case $expr instanceof nodes\NamedVariantConstructor: {
+          $fields = [];
+          foreach ($expr->fields as $field) {
+            $fields[$field->name->value] = $ctx->get_type_for_expr($field->expr);
+          }
+          $arg_type = new RecordType($fields);
+          break;
+        }
+        case $expr instanceof nodes\UnnamedVariantConstructor: {
+          $members = [];
+          foreach ($expr->members as $member) {
+            $members[] = $ctx->get_type_for_expr($member);
+          }
+          $arg_type = count($members) > 1
+            ? new TupleType($members)
+            : $members[0];
+          break;
+        }
+        default:
+          $arg_type = new UnitType();
+      }
+      $param_type = $union_type->get_variant_arguments($variant_name);
+      if ($param_type->accepts_as_parameter($arg_type)) {
+        $ctx->set_type_for_expr($expr, $union_type);
+      } else {
+        $span = $ctx->spans->get($expr);
+        throw Errors::wrong_constructor_arguments($span, $variant_name, $param_type, $arg_type);
+      }
+    } else {
+      $span = $ctx->spans->get($expr->ref->tail_segment);
+      throw Errors::no_variant_with_name($span, $union_type, $variant_name);
+    }
   }
 
   private static function ref_expr(self $ctx, nodes\RefExpr $expr): void {

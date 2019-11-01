@@ -8,18 +8,21 @@ class AssignStmt extends Stmt {
   public $assignee;
   public $expr;
 
-  function __construct(Variable $assignee, Expr $expr) {
+  function __construct(Node $assignee, Expr $expr) {
     parent::__construct();
     $this->assignee = $assignee;
     $this->expr = $expr;
   }
 
   public function to_children(): array {
-    return [ $this->expr ];
+    return [
+      $this->assignee,
+      $this->expr,
+    ];
   }
 
   public function from_children(array $nodes): Node {
-    return new self($this->assignee, $nodes[0]);
+    return new self($nodes[0], $nodes[1]);
   }
 
   public function build(): Builder {

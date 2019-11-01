@@ -35,6 +35,8 @@ class Lower {
         return self::native_item($spans, $item);
       case $item instanceof ast\NativeTypeItem:
         return self::native_type_item($spans, $item);
+      case $item instanceof ast\UnionItem:
+        return self::union_item($spans, $item);
       default:
         throw new \Exception('cannot lower unknown ast item');
     }
@@ -76,6 +78,55 @@ class Lower {
     $attrs = self::attrs($item->attrs);
     $name  = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
     return $spans->set(new nodes\NativeTypeItem($name, $attrs), $item->span);
+  }
+
+  private static function union_item(Table $spans, ast\UnionItem $item): nodes\UnionItem {
+    $attrs    = self::attrs($item->attrs);
+    $name     = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
+    $variants = self::union_variants($spans, $item->variants);
+    return $spans->set(new nodes\UnionItem($attrs, $name, $variants), $item->span);
+  }
+
+  private static function union_variants(Table $spans, array $variants): array {
+    return array_map(function ($variant) use ($spans) {
+      return self::union_variant($spans, $variant);
+    }, $variants);
+  }
+
+  private static function union_variant(Table $spans, ast\VariantNode $variant): nodes\VariantNode {
+    switch (true) {
+      case $variant instanceof ast\NamedVariantNode:
+        return self::named_variant($spans, $variant);
+      case $variant instanceof ast\UnnamedVariantNode:
+        return self::unnamed_variant($spans, $variant);
+      default:
+        return self::unit_variant($spans, $variant);
+    }
+  }
+
+  private static function named_variant(Table $spans, ast\NamedVariantNode $variant): nodes\NamedVariantNode {
+    $name   = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
+    $fields = [];
+    foreach ($variant->fields as $field) {
+      $field_name = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
+      $field_note = self::note($spans, $field->note);
+      $fields[]   = $spans->set(new nodes\FieldDeclNode($field_name, $field_note), $field->span);
+    }
+    return $spans->set(new nodes\NamedVariantNode($name, $fields), $variant->span);
+  }
+
+  private static function unnamed_variant(Table $spans, ast\UnnamedVariantNode $variant): nodes\UnnamedVariantNode {
+    $name    = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
+    $members = [];
+    foreach ($variant->members as $member) {
+      $members[] = self::note($spans, $member);
+    }
+    return $spans->set(new nodes\UnnamedVariantNode($name, $members), $variant->span);
+  }
+
+  private static function unit_variant(Table $spans, ast\UnitVariantNode $variant): nodes\UnitVariantNode {
+    $name = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
+    return $spans->set(new nodes\UnitVariantNode($name), $variant->span);
   }
 
   /**
@@ -122,6 +173,8 @@ class Lower {
         return self::if_expr($spans, $expr);
       case $expr instanceof ast\CallExpr:
         return self::call_expr($spans, $expr);
+      case $expr instanceof ast\VariantConstructor:
+        return self::variant_constructor_expr($spans, $expr);
       case $expr instanceof ast\BinaryExpr:
         return self::binary_expr($spans, $expr);
       case $expr instanceof ast\UnaryExpr:
@@ -155,6 +208,42 @@ class Lower {
       $args[] = self::expr($spans, $arg);
     }
     return $spans->set(new nodes\CallExpr($callee, $args), $expr->span);
+  }
+
+  private static function variant_constructor_expr(Table $spans, ast\VariantConstructor $expr): nodes\VariantConstructor {
+    switch (true) {
+      case $expr instanceof ast\NamedVariantConstructor:
+        return self::named_variant_constructor_expr($spans, $expr);
+      case $expr instanceof ast\UnnamedVariantConstructor:
+        return self::unnamed_variant_constructor_expr($spans, $expr);
+      default:
+        return self::unit_variant_constructor_expr($spans, $expr);
+    }
+  }
+
+  private static function named_variant_constructor_expr(Table $spans, ast\NamedVariantConstructor $expr): nodes\NamedVariantConstructor {
+    $ref    = self::path($spans, $expr->path);
+    $fields = [];
+    foreach ($expr->fields as $field) {
+      $field_name = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
+      $field_expr = self::expr($spans, $field->expr);
+      $fields[] = $spans->set(new nodes\FieldExprNode($field_name, $field_expr), $field->span);
+    }
+    return $spans->set(new nodes\NamedVariantConstructor($ref, $fields), $expr->span);
+  }
+
+  private static function unnamed_variant_constructor_expr(Table $spans, ast\UnnamedVariantConstructor $expr): nodes\UnnamedVariantConstructor {
+    $ref     = self::path($spans, $expr->path);
+    $members = [];
+    foreach ($expr->members as $member) {
+      $members[] = self::expr($spans, $member);
+    }
+    return $spans->set(new nodes\UnnamedVariantConstructor($ref, $members), $expr->span);
+  }
+
+  private static function unit_variant_constructor_expr(Table $spans, ast\UnitVariantConstructor $expr): nodes\UnitVariantConstructor {
+    $ref = self::path($spans, $expr->path);
+    return $spans->set(new nodes\UnitVariantConstructor($ref), $expr->span);
   }
 
   private static function binary_expr(Table $spans, ast\BinaryExpr $expr): nodes\BinaryExpr {

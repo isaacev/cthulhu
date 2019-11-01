@@ -1,0 +1,7 @@
+
+  UNKNOWN CONSTRUCTOR FIELD  -------------------------------------------------
+
+    : constructor_1
+  8 |   Foo::Bar { y: 123 };
+    |              ^
+

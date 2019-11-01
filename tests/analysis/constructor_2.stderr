@@ -1,0 +1,10 @@
+
+  WRONG CONSTRUCTOR ARGUMENTS  -----------------------------------------------
+
+  The constructor for the `Bar` variant expected `{ x: Str }` but found `{ x:
+  Int }`.
+
+    : constructor_2
+  8 |   Foo::Bar { x: 123 };
+    |   ^^^^^^^^^^^^^^^^^^^
+

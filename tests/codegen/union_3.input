@@ -1,0 +1,7 @@
+type Foo =
+  | Bar { integer: ::Kernel::Int };
+
+#[entry]
+fn main() -> () {
+  Foo::Bar{ integer: 123 };
+}

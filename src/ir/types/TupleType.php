@@ -18,7 +18,7 @@ class TupleType extends Type {
     if ($other instanceof self) {
       if ($this->size() === $other->size()) {
         for ($i = 0; $i < $this->size(); $i++) {
-          if ($this->members[$i]->accepts($other->members[$i]) === false) {
+          if ($this->members[$i]->accepts_as_parameter($other->members[$i]) === false) {
             return false;
           }
         }

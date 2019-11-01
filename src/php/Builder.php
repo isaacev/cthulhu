@@ -3,6 +3,7 @@
 namespace Cthulhu\php;
 
 use Cthulhu\lib\fmt;
+use Cthulhu\php\nodes\Reference;
 
 class Builder implements Buildable {
   private $frames = [];
@@ -68,6 +69,14 @@ class Builder implements Buildable {
     return $this->push_str('}');
   }
 
+  public function bracket_left(): self {
+    return $this->push_str('[');
+  }
+
+  public function bracket_right(): self {
+    return $this->push_str(']');
+  }
+
   public function comma(): self {
     return $this->push_str(',');
   }
@@ -88,6 +97,14 @@ class Builder implements Buildable {
     return $this->push_str('.');
   }
 
+  public function fat_arrow(): self {
+    return $this->push_str('=>');
+  }
+
+  public function thin_arrow(): self {
+    return $this->push_str('->');
+  }
+
   /**
    * Variables, keywords, and other literals
    */
@@ -99,8 +116,10 @@ class Builder implements Buildable {
     return $this->push_str($ident);
   }
 
-  public function reference(array $segments): self {
-    return $this->push_str(implode('\\', $segments));
+  public function reference(Reference $ref): self {
+    return $this
+      ->backslash()
+      ->then($ref);
   }
 
   public function keyword(string $keyword): self {

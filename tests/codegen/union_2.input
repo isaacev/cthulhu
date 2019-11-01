@@ -1,0 +1,7 @@
+type Foo =
+  | Bar(::Kernel::Int);
+
+#[entry]
+fn main() -> () {
+  Foo::Bar(123);
+}

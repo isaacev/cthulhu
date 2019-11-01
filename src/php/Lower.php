@@ -3,6 +3,8 @@
 namespace Cthulhu\php;
 
 use Cthulhu\ir;
+use Cthulhu\php\nodes\AssignStmt;
+use Cthulhu\php\nodes\ThisExpr;
 
 class Lower {
   private $namespaces = [];
@@ -160,6 +162,24 @@ class Lower {
     }
   }
 
+  private function php_var_from_string(string $basis): nodes\Variable {
+    $current_scope = $this->current_scope();
+    $counter = 0;
+    while (true) {
+      $candidate = $counter === 0 ? $basis : "${basis}_$counter";
+      if ($this->is_name_unavailable($candidate, $current_scope)) {
+        $counter++;
+        continue;
+      } else {
+        $current_scope->use_name($candidate);
+        $php_symbol = new names\Symbol();
+        $php_var = new nodes\Variable($candidate, $php_symbol);
+        $this->php_symbol_table->set($php_var, $php_symbol);
+        return $php_var;
+      }
+    }
+  }
+
   private function rename_ir_name(ir\names\Symbol $ir_symbol, ir\nodes\Name $ir_name): string {
     $candidate = $ir_name->value;
     $counter = 0;
@@ -204,6 +224,17 @@ class Lower {
   private function exit_namespace(): nodes\Reference {
     array_pop($this->namespace_scopes);
     return array_pop($this->namespace_refs);
+  }
+
+  private function enter_method(): void {
+    array_push($this->function_scopes, new names\Scope());
+    $this->push_block();
+  }
+
+  private function exit_method(): nodes\BlockNode {
+    $block = $this->pop_block();
+    array_pop($this->function_scopes);
+    return $block;
   }
 
   private function enter_function(ir\nodes\FuncHead $ir_head): void {
@@ -280,6 +311,9 @@ class Lower {
       'NativeFuncItem' => function (ir\nodes\NativeFuncItem $item) use ($ctx) {
         self::native_func_item($ctx, $item);
       },
+      'UnionItem' => function (ir\nodes\UnionItem $item) use ($ctx) {
+        self::union_item($ctx, $item);
+      },
       'exit(LetStmt)' => function (ir\nodes\LetStmt $stmt) use ($ctx) {
         self::exit_let_stmt($ctx, $stmt);
       },
@@ -306,6 +340,9 @@ class Lower {
       },
       'exit(ListExpr)' => function (ir\nodes\ListExpr $expr) use ($ctx) {
         self::exit_list_expr($ctx, $expr);
+      },
+      'exit(VariantConstructor)' => function (ir\nodes\VariantConstructor $expr) use ($ctx) {
+        self::exit_variant_constructor($ctx, $expr);
       },
       'RefExpr' => function (ir\nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
@@ -430,6 +467,61 @@ class Lower {
     $ctx->push_stmt($php_func);
   }
 
+  private static function union_item(self $ctx, ir\nodes\UnionItem $item): void {
+    $php_base_name = $ctx->php_name_from_ir_name($item->name);
+    $php_base_ref = $ctx->php_ref_from_ir_name($item->name);
+    $php_base = new nodes\ClassStmt(true, $php_base_name, null, []);
+    $ctx->push_stmt($php_base);
+
+    foreach ($item->variants as $name => $variant) {
+      $php_variant_name = $ctx->php_name_from_ir_name($variant->name);
+      switch (true) {
+        case $variant instanceof ir\nodes\NamedVariantNode: {
+          $body = [];
+          $ctx->enter_method();
+          $params = [ $ctx->php_var_from_string('args') ];
+          foreach ($variant->fields as $field) {
+            $php_var = $ctx->php_var_from_ir_name($field->name);
+            $body[] = new nodes\PropertyNode(true, $php_var);
+            $ctx->push_stmt(new nodes\AssignStmt(
+              new nodes\PropertyAccessExpr(
+                new nodes\ThisExpr(),
+                $php_var),
+              new nodes\SubscriptExpr(
+                new nodes\VariableExpr($params[0]),
+                new nodes\StrLiteral($php_var->value))));
+          }
+          $body[] = new nodes\MagicMethodNode('__construct', $params, $ctx->exit_method());
+          break;
+        }
+        case $variant instanceof ir\nodes\UnnamedVariantNode: {
+          $body = [];
+          $ctx->enter_method();
+          $params = [];
+          $arr = [];
+          $php_prop = $ctx->php_var_from_string('fields');
+          for ($i = 0; $i < count($variant->members); $i++) {
+            $php_var = $params[] = $ctx->php_tmp_var();
+            $arr[] = new nodes\VariableExpr($php_var);
+          }
+          $ctx->push_stmt(new nodes\AssignStmt(
+            new nodes\PropertyAccessExpr(
+              new nodes\ThisExpr(),
+              $php_prop),
+            new nodes\OrderedArrayExpr($arr)));
+          $body[] = new nodes\PropertyNode(true, $php_prop);
+          $body[] = new nodes\MagicMethodNode('__construct', $params, $ctx->exit_method());
+          break;
+        }
+        default:
+          $body = [];
+      }
+
+      $php_variant = new nodes\ClassStmt(false, $php_variant_name, $php_base_ref, $body);
+      $ctx->push_stmt($php_variant);
+    }
+  }
+
   private static function exit_let_stmt(self $ctx, ir\nodes\LetStmt $stmt): void {
     $php_var = $ctx->php_var_from_ir_name($stmt->name);
     $php_expr = $ctx->pop_expr();
@@ -521,6 +613,29 @@ class Lower {
     $exprs = $ctx->pop_exprs(count($expr->elements));
     $expr  = new nodes\OrderedArrayExpr($exprs);
     $ctx->push_expr($expr);
+  }
+
+  private static function exit_variant_constructor(self $ctx, ir\nodes\VariantConstructor $expr): void {
+    $ref = new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($expr->ref->tail_segment));
+    switch (true) {
+      case $expr instanceof ir\nodes\NamedVariantConstructor: {
+        $fields = [];
+        $exprs = $ctx->pop_exprs(count($expr->fields));
+        foreach ($expr->fields as $index => $field) {
+          $field_name = $ctx->php_name_from_ir_name($field->name);
+          $field_expr = $exprs[$index];
+          $fields[] = new nodes\FieldNode($field_name, $field_expr);
+        }
+        $args = [ new nodes\AssociativeArrayExpr($fields) ];
+        break;
+      }
+      case $expr instanceof ir\nodes\UnnamedVariantConstructor:
+        $args = $ctx->pop_exprs(count($expr->members));
+        break;
+      default:
+        $args = [];
+    }
+    $ctx->push_expr(new nodes\NewExpr($ref, $args));
   }
 
   private static function ref_expr(self $ctx, ir\nodes\RefExpr $expr): void {

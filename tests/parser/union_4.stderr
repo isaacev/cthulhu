@@ -1,0 +1,7 @@
+
+  EXPECTED TOKEN  ------------------------------------------------------------
+
+    : union_4
+  2 |   | Bar { Thing: Int };
+    |           ^^^^^ expected Lower-case Name here
+

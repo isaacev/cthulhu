@@ -45,6 +45,18 @@ class Errors {
       ->snippet($if_span);
   }
 
+  public static function no_variant_with_name(Source\Span $span, UnionType $union, string $variant_name): Error {
+    return (new Error('unknown variant'))
+      ->paragraph("A constructor named '$variant_name' was used by the type `$union->name` has no variant with that name.")
+      ->snippet($span);
+  }
+
+  public static function wrong_constructor_arguments(Source\Span $span, string $name, Type $expected, Type $found): Error {
+    return (new Error('wrong constructor arguments'))
+      ->paragraph("The constructor for the `$name` variant expected `$expected` but found `$found`.")
+      ->snippet($span);
+  }
+
   public static function let_note_does_not_match_expr(
     Source\Span $note_span,
     Type $note_type,

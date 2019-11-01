@@ -1,0 +1,15 @@
+use ::Kernel::*;
+
+type Shape =
+  | UnitCircle
+  | Circle(Int)
+  | Square(Int)
+  | Rect { width: Int, height: Int };
+
+#[entry]
+fn main() -> () {
+  let u = Shape::UnitCircle;
+  let c = Shape::Circle(5);
+  let s = Shape::Square(3);
+  let r = Shape::Rect { width: 4, height: 3 };
+}

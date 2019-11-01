@@ -184,6 +184,9 @@ class Resolve {
       'NativeTypeItem' => function (nodes\NativeTypeItem $item) use ($ctx) {
         self::native_type_item($ctx, $item);
       },
+      'exit(UnionItem)' => function (nodes\UnionItem $item) use ($ctx) {
+        self::exit_union_item($ctx, $item);
+      },
       'LetStmt' => function (nodes\LetStmt $stmt) use ($ctx) {
         self::let_stmt($ctx, $stmt);
       },
@@ -192,6 +195,9 @@ class Resolve {
       },
       'exit(Block)' => function (nodes\Block $block) use ($ctx) {
         self::exit_block($ctx, $block);
+      },
+      'exit(NamedVariantConstructor)' => function (nodes\NamedVariantConstructor $expr) use ($ctx) {
+        self::exit_named_variant_constructor($ctx, $expr);
       },
       'ParamNote' => function (nodes\ParamNote $note) use ($ctx) {
         self::param_note($ctx, $note);
@@ -358,6 +364,32 @@ class Resolve {
     $ctx->current_module_scope()->add_binding($type_name, $type_symbol);
   }
 
+  private static function exit_union_item(self $ctx, nodes\UnionItem $item): void {
+    $union_name   = $item->name->value;
+    $union_symbol = $ctx->make_ref_symbol($item->name, $ctx->current_ref_symbol());
+    $ctx->current_module_scope()->add_binding($union_name, $union_symbol);
+
+    $union_scope = new Scope();
+    $ctx->add_namespace($union_symbol, $union_scope);
+    foreach ($item->variants as $variant) {
+      $variant_name   = $variant->name->value;
+      $variant_symbol = $ctx->make_ref_symbol($variant->name, $union_symbol);
+      $union_scope->add_binding($variant_name, $variant_symbol);
+
+      if ($variant instanceof nodes\NamedVariantNode) {
+        $variant_scope = new Scope();
+        $ctx->add_namespace($variant_symbol, $variant_scope);
+        foreach ($variant->fields as $field) {
+          $field_name   = $field->name->value;
+          $field_symbol = $ctx->make_var_symbol($field->name);
+          $variant_scope->add_binding($field_name, $field_symbol);
+        }
+      }
+    }
+
+    $ctx->add_namespace($union_symbol, $union_scope);
+  }
+
   private static function let_stmt(self $ctx, nodes\LetStmt $stmt): void {
     $let_name   = $stmt->name->value;
     $let_symbol = $ctx->make_var_symbol($stmt->name);
@@ -371,6 +403,23 @@ class Resolve {
 
   private static function exit_block(self $ctx): void {
     $ctx->pop_block_scope();
+  }
+
+  private static function exit_named_variant_constructor(self $ctx, nodes\NamedVariantConstructor $expr): void {
+    $ctor_symbol = $ctx->name_to_symbol->get($expr->ref->tail_segment);
+    if ($ctor_namespace = $ctx->get_namespace($ctor_symbol)) {
+      foreach ($expr->fields as $field) {
+        if ($field_symbol = $ctor_namespace->get_name($field->name->value)) {
+          $ctx->set_symbol($field->name, $field_symbol);
+        } else {
+          $span = $ctx->spans->get($field->name);
+          throw Errors::unknown_constructor_field($span, $expr->ref, $field->name);
+        }
+      }
+    } else {
+      $span = $ctx->spans->get($expr);
+      throw Errors::unknown_constructor_form($span, $expr->ref);
+    }
   }
 
   private static function param_note(self $ctx, nodes\ParamNote $note): void {
