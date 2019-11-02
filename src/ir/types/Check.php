@@ -175,10 +175,7 @@ class Check {
       $span = $ctx->spans->get($item->body);
     }
 
-    $is_generic = $expected_return_type instanceof GenericType;
-    $equals_generic = $is_generic ? $expected_return_type->equals($block_type) : false;
-    $ret_accepts = $expected_return_type->accepts_as_return($block_type);
-    if (($is_generic ? $equals_generic : $ret_accepts) === false) {
+    if ($expected_return_type->accepts_as_return($block_type) === false) {
       throw Errors::wrong_return_type($span, $expected_return_type, $block_type);
     }
   }
@@ -580,7 +577,7 @@ class Check {
       case $note instanceof nodes\NameNote:
         return self::name_note_to_type($ctx, $note);
       case $note instanceof nodes\UnitNote:
-        return self::unit_note_to_type($ctx, $note);
+        return self::unit_note_to_type();
       case $note instanceof nodes\ListNote:
         return self::list_note_to_type($ctx, $note);
       case $note instanceof nodes\ParamNote:
@@ -596,7 +593,7 @@ class Check {
       $inputs[] = self::note_to_type($ctx, $input);
     }
     $output = self::note_to_type($ctx, $note->output);
-    return new FuncType([], $inputs, $output);
+    return new FuncType($inputs, $output);
   }
 
   private static function name_note_to_type(self $ctx, nodes\NameNote $note): Type {

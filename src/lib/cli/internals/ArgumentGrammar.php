@@ -3,6 +3,9 @@
 namespace Cthulhu\lib\cli\internals;
 
 abstract class ArgumentGrammar implements Describeable {
+  public $id;
+  public $description;
+
   function __construct(string $id, string $description) {
     $this->id = $id;
     $this->description = $description;

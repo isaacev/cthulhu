@@ -2,8 +2,6 @@
 
 namespace Cthulhu\lib\test;
 
-use \Cthulhu\Analysis;
-use \Cthulhu\Codegen;
 use \Cthulhu\Errors;
 use \Cthulhu\Source;
 use \Cthulhu\lib\fmt;
@@ -11,6 +9,7 @@ use Cthulhu\workspace\ReadPhase;
 
 class Test {
   public $dir;
+  public $group;
   public $name;
   public $input;
   public $expected;

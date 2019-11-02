@@ -145,23 +145,23 @@ class Resolve {
     $ctx = new self($spans);
 
     ir\Visitor::walk($prog, [
-      'enter(Program)' => function (nodes\Program $prog) use ($ctx) {
-        self::enter_program($ctx, $prog);
+      'enter(Program)' => function () use ($ctx) {
+        self::enter_program($ctx);
       },
-      'exit(Program)' => function (nodes\Program $prog) use ($ctx) {
-        self::exit_program($ctx, $prog);
+      'exit(Program)' => function () use ($ctx) {
+        self::exit_program($ctx);
       },
       'enter(Library)' => function (nodes\Library $library) use ($ctx) {
         self::enter_library($ctx, $library);
       },
-      'exit(Library)' => function (nodes\Library $library) use ($ctx) {
-        self::exit_library($ctx, $library);
+      'exit(Library)' => function () use ($ctx) {
+        self::exit_library($ctx);
       },
       'enter(ModItem)' => function (nodes\ModItem $item) use ($ctx) {
         self::enter_mod_item($ctx, $item);
       },
-      'exit(ModItem)' => function (nodes\ModItem $item) use ($ctx) {
-        self::exit_mod_item($ctx, $item);
+      'exit(ModItem)' => function () use ($ctx) {
+        self::exit_mod_item($ctx);
       },
       'UseItem' => function (nodes\UseItem $item) use ($ctx) {
         self::use_item($ctx, $item);
@@ -172,14 +172,14 @@ class Resolve {
       'FuncParam' => function (nodes\FuncParam $param) use ($ctx) {
         self::func_param($ctx, $param);
       },
-      'exit(FuncItem)' => function (nodes\FuncItem $item) use ($ctx) {
-        self::exit_func_item($ctx, $item);
+      'exit(FuncItem)' => function () use ($ctx) {
+        self::exit_func_item($ctx);
       },
       'enter(NativeFuncItem)' => function (nodes\NativeFuncItem $item) use ($ctx) {
         self::enter_native_func_item($ctx, $item);
       },
-      'exit(NativeFuncItem)' => function (nodes\NativeFuncItem $item) use ($ctx) {
-        self::exit_native_func_item($ctx, $item);
+      'exit(NativeFuncItem)' => function () use ($ctx) {
+        self::exit_native_func_item($ctx);
       },
       'NativeTypeItem' => function (nodes\NativeTypeItem $item) use ($ctx) {
         self::native_type_item($ctx, $item);
@@ -190,11 +190,11 @@ class Resolve {
       'LetStmt' => function (nodes\LetStmt $stmt) use ($ctx) {
         self::let_stmt($ctx, $stmt);
       },
-      'enter(Block)' => function (nodes\Block $block) use ($ctx) {
-        self::enter_block($ctx, $block);
+      'enter(Block)' => function () use ($ctx) {
+        self::enter_block($ctx);
       },
-      'exit(Block)' => function (nodes\Block $block) use ($ctx) {
-        self::exit_block($ctx, $block);
+      'exit(Block)' => function () use ($ctx) {
+        self::exit_block($ctx);
       },
       'exit(NamedVariantConstructor)' => function (nodes\NamedVariantConstructor $expr) use ($ctx) {
         self::exit_named_variant_constructor($ctx, $expr);

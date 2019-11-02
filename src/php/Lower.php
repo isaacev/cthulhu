@@ -287,20 +287,20 @@ class Lower {
     );
 
     ir\Visitor::walk($prog, [
-      'exit(Program)' => function (ir\nodes\Program $prog) use ($ctx) {
-        self::exit_program($ctx, $prog);
+      'exit(Program)' => function () use ($ctx) {
+        self::exit_program($ctx);
       },
       'enter(Library)' => function (ir\nodes\Library $lib) use ($ctx) {
         self::enter_library($ctx, $lib);
       },
-      'exit(Library)' => function (ir\nodes\Library $lib) use ($ctx) {
-        self::exit_library($ctx, $lib);
+      'exit(Library)' => function () use ($ctx) {
+        self::exit_library($ctx);
       },
       'enter(ModItem)' => function (ir\nodes\ModItem $item) use ($ctx) {
         self::enter_mod_item($ctx, $item);
       },
-      'exit(ModItem)' => function (ir\nodes\ModItem $item) use ($ctx) {
-        self::exit_mod_item($ctx, $item);
+      'exit(ModItem)' => function () use ($ctx) {
+        self::exit_mod_item($ctx);
       },
       'enter(FuncItem)' => function (ir\nodes\FuncItem $item) use ($ctx) {
         self::enter_func_item($ctx, $item);
@@ -317,11 +317,11 @@ class Lower {
       'exit(LetStmt)' => function (ir\nodes\LetStmt $stmt) use ($ctx) {
         self::exit_let_stmt($ctx, $stmt);
       },
-      'exit(SemiStmt)' => function (ir\nodes\SemiStmt $stmt) use ($ctx) {
-        self::exit_semi_stmt($ctx, $stmt);
+      'exit(SemiStmt)' => function () use ($ctx) {
+        self::exit_semi_stmt($ctx);
       },
-      'exit(ReturnStmt)' => function (ir\nodes\ReturnSTmt $stmt) use ($ctx) {
-        self::exit_return_stmt($ctx, $stmt);
+      'exit(ReturnStmt)' => function () use ($ctx) {
+        self::exit_return_stmt($ctx);
       },
       'enter(IfExpr)' => function (ir\nodes\IfExpr $expr, ir\Path $path) use ($ctx) {
         self::enter_if_expr($ctx, $expr, $path);
@@ -359,8 +359,8 @@ class Lower {
       'BoolLiteral' => function (ir\nodes\BoolLiteral $expr) use ($ctx) {
         self::bool_literal($ctx, $expr);
       },
-      'Block' => function (ir\nodes\Block $block) use ($ctx) {
-        self::block($ctx, $block);
+      'Block' => function () use ($ctx) {
+        self::block($ctx);
       },
     ]);
 

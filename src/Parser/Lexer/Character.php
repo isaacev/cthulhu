@@ -15,10 +15,12 @@ class Character {
 
   public function is_whitespace(): bool {
     switch ($this->char) {
-      case " ":  return true;
-      case "\t": return true;
-      case "\n": return true;
-      default:   return false;
+      case " ":
+      case "\t":
+      case "\n":
+        return true;
+      default:
+        return false;
     }
   }
 

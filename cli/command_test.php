@@ -102,7 +102,7 @@ function mismatch_diff(fmt\Formatter $f, string $desc, string $expected, string 
         ->print($diff_line->text())
         ->reset_styles()
         ->newline();
-    } else {
+    } else if ($diff_line instanceof diff\KeepLine) {
       $f->tab()
         ->apply_styles(fmt\Foreground::WHITE)
         ->print('. ')
