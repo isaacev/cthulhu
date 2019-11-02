@@ -2,3 +2,8 @@
 fn nth(ls: ['a], n: Int) -> 'a {
   ::Kernel::Builtins::subscript(ls, n)
 }
+
+#[inline]
+fn length(ls: ['a]) -> Int {
+  ::Kernel::Builtins::count(ls)
+}

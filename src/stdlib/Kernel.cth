@@ -42,4 +42,7 @@ mod Builtins {
   #[inline]
   #[construct]
   native fn cast_float_to_string(Float) -> Str;
+
+  #[inline]
+  native fn count(['a]) -> Int;
 }
