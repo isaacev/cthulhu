@@ -25,7 +25,7 @@ class TernaryExpr extends Expr {
   }
 
   public function precedence(): int {
-    return 5;
+    return Precedence::TERNARY;
   }
 
   public function build(): Builder {

@@ -4,8 +4,6 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-const PREC_UNARY = 40;
-
 class UnaryExpr extends Expr {
   public $operator;
   public $operand;
@@ -27,9 +25,9 @@ class UnaryExpr extends Expr {
   public function precedence(): int {
     switch ($this->operator) {
       case '-':
-        return PREC_UNARY;
+        return Precedence::SUM;
       default:
-        return PHP_INT_MAX;
+        throw new \Exception("unknown precedence for `$this->operator` operator");
     }
   }
 

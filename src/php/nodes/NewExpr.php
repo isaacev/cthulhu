@@ -25,6 +25,10 @@ class NewExpr extends Expr {
     return new self($nodes[0], array_slice($nodes, 1));
   }
 
+  function precedence(): int {
+    return Precedence::CLONE_AND_NEW;
+  }
+
   function build(): Builder {
     return (new Builder)
       ->keyword('new')

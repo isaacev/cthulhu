@@ -22,6 +22,10 @@ class CastExpr extends Expr {
     return new self($this->to_type, $nodes[0]);
   }
 
+  public function precedence(): int {
+    return Precedence::CAST;
+  }
+
   public function build(): Builder {
     return (new Builder)
       ->paren_left()

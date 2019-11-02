@@ -4,11 +4,6 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-const PREC_COMP = 10;
-const PREC_ADD = 20;
-const PREC_MULT = 30;
-const PREC_EXP = 40;
-
 class BinaryExpr extends Expr {
   public $operator;
   public $left;
@@ -35,18 +30,19 @@ class BinaryExpr extends Expr {
       case '>':
       case '<=':
       case '>=':
-        return PREC_COMP;
+        return Precedence::ORDERED_COMPARISON;
       case '+':
       case '-':
+        return Precedence::SUM;
       case '.':
-        return PREC_ADD;
+        return Precedence::STRING_CONCAT;
       case '*':
       case '/':
-        return PREC_MULT;
+        return Precedence::PRODUCT;
       case '**':
-        return PREC_EXP;
+        return Precedence::EXPONENT;
       default:
-        return PHP_INT_MAX;
+        throw new \Exception("unknown precedence for `$this->operator` operator");
     }
   }
 
