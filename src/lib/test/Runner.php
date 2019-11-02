@@ -6,6 +6,10 @@ class Runner {
   const DEFAULT_DIR = './tests';
   const VALID_TEST_EXTENSIONS = ['input', 'stderr', 'stdout'];
 
+  /**
+   * @param string $starting_dir
+   * @return Test[]
+   */
   public static function find_tests(string $starting_dir = self::DEFAULT_DIR): array {
     $root_path = realpath($starting_dir);
     if ($root_path === false) {

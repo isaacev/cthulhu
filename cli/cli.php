@@ -54,6 +54,7 @@ $root->subcommand('compile', 'Convert source code to PHP')
 require_once __DIR__ . '/command_test.php';
 $root->subcommand('test', 'Run all of the available tests')
   ->bool_flag('--bless', 'Update any stdout/stderr files for failing tests')
+  ->optional_single_argument('filter', 'Only run tests that match the filter')
   ->callback('command_test');
 
 $root->parse($argv);

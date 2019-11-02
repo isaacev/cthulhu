@@ -22,6 +22,11 @@ class Test {
     $this->expected = $expected;
   }
 
+  public function name_matches(string $filter): bool {
+    $full_path = "$this->group/$this->name";
+    return strpos($full_path, $filter) === 0;
+  }
+
   public function run(): TestResult {
     $found = $this->eval();
 

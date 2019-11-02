@@ -7,15 +7,22 @@ use \Cthulhu\lib\test;
 
 function command_test(cli\Lookup $flags, cli\Lookup $args) {
   $is_blessed = $flags->get('bless');
+  $filter = $args->get('filter');
   $failed_results = [];
   $stats = [
-    'total'  => 0,
-    'passed' => 0,
-    'failed' => 0,
+    'total'   => 0,
+    'passed'  => 0,
+    'failed'  => 0,
+    'skipped' => 0,
   ];
 
   $f = new fmt\StreamFormatter(STDOUT);
   foreach (test\Runner::find_tests() as $test) {
+    if ($filter !== null && $test->name_matches($filter) === false) {
+      $stats['skipped']++;
+      continue;
+    }
+
     $stats['total']++;
     $result = $test->run();
 
@@ -58,9 +65,10 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
   }
 
   $f->newline()
-    ->printf('total  %d', $stats['total'])->newline()
-    ->printf('passed %d', $stats['passed'])->newline()
-    ->printf('failed %d', $stats['failed'])->newline();
+    ->printf('total   %d', $stats['total'])->newline()
+    ->printf('passed  %d', $stats['passed'])->newline()
+    ->printf('failed  %d', $stats['failed'])->newline()
+    ->printf('skipped %d', $stats['skipped'])->newline();
 
   exit(empty($failed_results) ? 0 : 1);
 }
