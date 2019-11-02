@@ -36,6 +36,12 @@ class Subcommand {
     return $this;
   }
 
+  function optional_single_argument(string $id, string $description): self {
+    $arg_grammar = new internals\OptionalSingleArgumentGrammar($id, $description);
+    $this->grammar->add_argument($arg_grammar);
+    return $this;
+  }
+
   function variadic_argument(string $id, string $description): self {
     $arg_grammar = new internals\VariadicArgumentGrammar($id, $description);
     $this->grammar->add_argument($arg_grammar);
