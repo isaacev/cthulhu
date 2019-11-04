@@ -30,7 +30,7 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
-  ->str_flag('-o --optimize', 'Apply an optimization pass', [
+  ->str_flag('-o --optimize', 'Apply an optimization pass', 'pass', [
     'all',
     'inline',
     'fold',

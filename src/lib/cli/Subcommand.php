@@ -23,9 +23,9 @@ class Subcommand {
     return $this;
   }
 
-  function str_flag(string $name, string $description, ?array $pattern = null) {
+  function str_flag(string $name, string $description, string $arg_name, ?array $pattern = null) {
     list($id, $short) = self::parse_flag_name($name);
-    $flag_grammar = new internals\StrFlagGrammar($id, $short, $description, $pattern);
+    $flag_grammar = new internals\StrFlagGrammar($id, $short, $description, $arg_name, $pattern);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }

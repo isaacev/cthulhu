@@ -3,10 +3,12 @@
 namespace Cthulhu\lib\cli\internals;
 
 class StrFlagGrammar extends FlagGrammar {
+  public $arg_name;
   public $pattern;
 
-  function __construct(string $id, ?string $short, string $description, ?array $pattern) {
+  function __construct(string $id, ?string $short, string $description, string $arg_name, ?array $pattern) {
     parent::__construct($id, $short, $description);
+    $this->arg_name = $arg_name;
     $this->pattern = $pattern;
   }
 
@@ -46,5 +48,9 @@ class StrFlagGrammar extends FlagGrammar {
     }
 
     return new FlagResult($this->id, $value);
+  }
+
+  function full_name(): string {
+    return parent::full_name() . ' <' . $this->arg_name . '>';
   }
 }
