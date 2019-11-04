@@ -17,6 +17,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
   ];
 
   $f = new fmt\StreamFormatter(STDOUT);
+  $f->push_tab_stop(32);
   foreach (test\Runner::find_tests() as $test) {
     if ($filter !== null && $test->name_matches($filter) === false) {
       $stats['skipped']++;
@@ -24,6 +25,13 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     }
 
     $stats['total']++;
+    $f->printf('%s/%s', $test->group, $test->name)
+      ->space()
+      ->apply_styles(fmt\Foreground::WHITE)
+      ->tab('.')
+      ->reset_styles()
+      ->space();
+
     $result = $test->run();
 
     if ($is_blessed && $result instanceof test\TestFailed) {
@@ -33,21 +41,17 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     if ($result instanceof test\TestPassed || $is_blessed) {
       $stats['passed']++;
       $f->apply_styles(fmt\Foreground::GREEN)
-        ->print("✓")
-        ->reset_styles()
-        ->space()
-        ->printf('%s/%s', $test->group, $test->name)
-        ->newline();
+        ->print('✓')
+        ->reset_styles();
     } else {
       $stats['failed']++;
       $failed_results[] = $result;
       $f->apply_styles(fmt\Foreground::RED)
-        ->print("✗")
-        ->reset_styles()
-        ->space()
-        ->printf('%s/%s', $test->group, $test->name)
-        ->newline();
+        ->print('✗')
+        ->reset_styles();
     }
+
+    $f->newline();
   }
 
   foreach ($failed_results as $index => $result) {
