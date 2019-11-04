@@ -38,18 +38,23 @@ class Test {
   }
 
   public function bless(TestOutput $blessed_output): void {
-    $stdout_filename = realpath("$this->dir/$this->name.stdout");
-    if ($stdout_filename !== false) {
-      $stdout_file = fopen($stdout_filename, 'w');
-      fwrite($stdout_file, $blessed_output->stdout);
-      fclose($stdout_file);
-    }
+    $this->bless_extension("$this->dir/$this->name.stdout", $blessed_output->stdout);
+    $this->bless_extension("$this->dir/$this->name.stderr", $blessed_output->stderr);
+  }
 
-    $stderr_filename = realpath("$this->dir/$this->name.stderr");
-    if ($stderr_filename !== false) {
-      $stderr_file = fopen($stderr_filename, 'w');
-      fwrite($stderr_file, $blessed_output->stderr);
-      fclose($stderr_file);
+  protected function bless_extension(string $filepath, string $contents): void {
+    $realpath = realpath($filepath);
+    if ($realpath !== false && empty($contents)) {
+      // Handles the case:
+      // - The file exists but is no longer needed for the test
+      \unlink($realpath);
+    } else if (!empty($contents)) {
+      // Handles the cases:
+      // - The file exists but the blessed contents are different
+      // - The file doesn't exist yet but is now needed for the test
+      $file = \fopen($filepath, 'w');
+      fwrite($file, $contents);
+      fclose($file);
     }
   }
 
