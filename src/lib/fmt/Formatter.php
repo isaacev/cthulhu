@@ -60,9 +60,9 @@ abstract class Formatter {
    * Write spaces until the cursor is at the given tab stop. Does not save the
    * tab stop. If the tab stop is left of the cursor, write nothing.
    */
-  public function tab_to(int $tab_stop): self {
-    $total_spaces = max(0, $tab_stop - $this->col);
-    return $this->spaces($total_spaces);
+  public function tab_to(int $tab_stop, string $char = ' '): self {
+    $total = max(0, $tab_stop - $this->col);
+    return $this->repeat($char, $total);
   }
 
   /**
@@ -70,8 +70,8 @@ abstract class Formatter {
    * spaces until the cursor is at the tab stop position. If the tab stop is
    * left of the cursor, write nothing.
    */
-  public function tab(): self {
-    return $this->tab_to($this->current_tab_stop());
+  public function tab(string $char = ' '): self {
+    return $this->tab_to($this->current_tab_stop(), $char);
   }
 
   /**
