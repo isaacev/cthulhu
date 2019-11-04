@@ -88,6 +88,14 @@ class SubcommandGrammar implements Describeable {
   function parse(ProgramGrammar $program, Scanner $scanner): SubcommandResult {
     $flags = $this->flags_grammar->parse($scanner);
     $args = $this->parse_args($scanner);
+
+    if ($scanner->not_empty()) {
+      if ($scanner->next_starts_with('-')) {
+        Scanner::fatal_error('flags must come before arguments: `%s`', $scanner->advance());
+      }
+      Scanner::fatal_error('extra argument: `%s`', $scanner->advance());
+    }
+
     return new SubcommandResult($this, $flags, $args);
   }
 

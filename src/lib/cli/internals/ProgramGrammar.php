@@ -167,6 +167,11 @@ class ProgramGrammar {
   function parse(Scanner $scanner): ProgramResult {
     $flags = $this->flags_grammar->parse($scanner);
     $subcommand = $this->parse_subcommand($scanner);
+
+    if ($scanner->not_empty()) {
+      Scanner::fatal_error('extra argument: `%s`', $scanner->advance());
+    }
+
     return new ProgramResult($this, $flags, $subcommand);
   }
 
