@@ -28,13 +28,16 @@ class Test {
   }
 
   public function run(): TestResult {
+    $time_before = microtime(true);
     $found = $this->eval();
+    $time_after = microtime(true);
+    $runtime_in_ms = ($time_after - $time_before) * 1000;
 
     if ($this->expected->equals($found)) {
-      return new TestPassed($this);
+      return new TestPassed($this, $runtime_in_ms);
     }
 
-    return new TestFailed($this, $found);
+    return new TestFailed($this, $found, $runtime_in_ms);
   }
 
   public function bless(TestOutput $blessed_output): void {

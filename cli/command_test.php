@@ -7,6 +7,7 @@ use \Cthulhu\lib\test;
 
 function command_test(cli\Lookup $flags, cli\Lookup $args) {
   $is_blessed = $flags->get('bless');
+  $show_time = $flags->get('time');
   $filter = $args->get('filter');
   $failed_results = [];
   $stats = [
@@ -48,6 +49,13 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
       $failed_results[] = $result;
       $f->apply_styles(fmt\Foreground::RED)
         ->print('✗')
+        ->reset_styles();
+    }
+
+    if ($show_time) {
+      $f->space()
+        ->apply_styles(fmt\Foreground::WHITE)
+        ->printf('%5.1f ms', $result->runtime_in_ms)
         ->reset_styles();
     }
 
