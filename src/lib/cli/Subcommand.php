@@ -23,6 +23,13 @@ class Subcommand {
     return $this;
   }
 
+  function int_flag(string $name, string $description, string $arg_name): self {
+    list($id, $short) = self::parse_flag_name($name);
+    $flag_grammar = new internals\IntFlagGrammar($id, $short, $description, $arg_name);
+    $this->grammar->add_flag($flag_grammar);
+    return $this;
+  }
+
   function str_flag(string $name, string $description, string $arg_name, ?array $pattern = null) {
     list($id, $short) = self::parse_flag_name($name);
     $flag_grammar = new internals\StrFlagGrammar($id, $short, $description, $arg_name, $pattern);
