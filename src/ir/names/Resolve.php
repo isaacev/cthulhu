@@ -412,7 +412,7 @@ class Resolve {
   private static function let_stmt(self $ctx, nodes\LetStmt $stmt): void {
     $let_name   = $stmt->name->value;
     $let_symbol = $ctx->make_var_symbol($stmt->name);
-    $ctx->current_module_scope()->add_binding($let_name, $let_symbol);
+    $ctx->current_block_scope()->add_binding($let_name, $let_symbol);
   }
 
   private static function enter_block(self $ctx): void {
