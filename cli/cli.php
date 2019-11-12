@@ -1,6 +1,7 @@
 <?php
 
 ini_set('display_errors', 'stderr');
+assert_options(ASSERT_BAIL, 1);
 
 use \Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
