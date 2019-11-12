@@ -56,9 +56,14 @@ class Visitor {
     // prevent recursing with stale nodes.
     $node_before_editing_children = $path->node;
 
-    while ($child_node = array_shift($unedited_child_nodes)) {
+    while (!empty($unedited_child_nodes)) {
+      // The `array_shift` call can't be the loop expression because it's
+      // possible that some of the unedited child nodes are `null` and if the
+      // call returns `null` the loop will exit prematurely.
+      $child_node = array_shift($unedited_child_nodes);
       if ($child_node === null) {
         $edited_child_nodes[] = null;
+        continue;
       }
 
       $child_path = new Path($path, $child_node);
