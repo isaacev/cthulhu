@@ -501,18 +501,18 @@ class Lower {
           $body = [];
           $ctx->enter_method();
           $params = [];
-          $arr = [];
-          $php_prop = $ctx->php_var_from_string('fields');
           for ($i = 0; $i < count($variant->members); $i++) {
             $php_var = $params[] = $ctx->php_tmp_var();
-            $arr[] = new nodes\VariableExpr($php_var);
+            $ctx->push_stmt(
+              new nodes\AssignStmt(
+                new nodes\DynamicPropertyAccessExpr(
+                  new nodes\ThisExpr(),
+                  new nodes\IntLiteral($i)
+                ),
+                new nodes\VariableExpr($php_var)
+              )
+            );
           }
-          $ctx->push_stmt(new nodes\AssignStmt(
-            new nodes\PropertyAccessExpr(
-              new nodes\ThisExpr(),
-              $php_prop),
-            new nodes\OrderedArrayExpr($arr)));
-          $body[] = new nodes\PropertyNode(true, $php_prop);
           $body[] = new nodes\MagicMethodNode('__construct', $params, $ctx->exit_method());
           break;
         }
