@@ -22,10 +22,6 @@ class SubscriptExpr extends Expr {
     return new self($nodes[0], $nodes[1]);
   }
 
-  public function precedence(): int {
-    return 50; // TODO: is this correct?
-  }
-
   public function build(): Builder {
     return (new Builder)
       ->expr($this->arr, $this->precedence())
