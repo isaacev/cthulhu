@@ -16,6 +16,17 @@ class Errors {
       ->cycle($index, $libraries);
   }
 
+  public static function redundant_named_fields(Source\Span $first, Source\Span $second, string $name): Error {
+    return (new Error('redundant named fields'))
+      ->paragraph(
+        "There are more than one fields named `$name`.",
+        "The first usage is here:"
+      )
+      ->snippet($first)
+      ->paragraph("The second usage is here:")
+      ->snippet($second);
+  }
+
   public static function redundant_pattern(Source\Span $span, patterns\Pattern $pattern): Error {
     return (new Error('redundant pattern'))
       ->paragraph("The pattern `$pattern` will never be matched because all values in its domain will be handled by prior patterns.")

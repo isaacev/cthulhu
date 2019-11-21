@@ -251,7 +251,9 @@ class Lower {
     foreach ($fields->mapping as $field) {
       $name = $field->name->ident;
       if (array_key_exists($name, $mapping)) {
-        throw new \Exception("more than one field named '$name'");
+        $first = $spans->get($mapping[$name]->name);
+        $second = $field->name->span;
+        throw Errors::redundant_named_fields($first, $second, $name);
       }
       $mapping[$name] = self::named_pattern_field($spans, $field);
     }
