@@ -91,12 +91,6 @@ class Errors {
       ->snippet($span);
   }
 
-  public static function call_with_wrong_poly_num(Source\Span $span, int $wanted, int $found): Error {
-    return (new Error('call with the wrong number of type parameters'))
-      ->paragraph("Expected $wanted total type paramters, found $found instead:")
-      ->snippet($span);
-  }
-
   public static function call_with_wrong_arg_num(Source\Span $span, int $wanted, int $found): Error {
     return (new Error('call with the wrong number of arguments'))
       ->paragraph("Expected $wanted total arguments, found $found instead:")

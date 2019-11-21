@@ -15,11 +15,6 @@ class Parser {
     return $parser->file();
   }
 
-  public static function string_to_ast(string $str): ast\File {
-    $file = new Source\File('<stdin>', $str);
-    return self::file_to_ast($file);
-  }
-
   private $file;
   private $lexer;
 

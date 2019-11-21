@@ -11,17 +11,4 @@ class Attribute extends Node {
     parent::__construct($span);
     $this->name = $name;
   }
-
-  public function visit(array $visitor_table): void {
-    if (array_key_exists('Attribute', $visitor_table)) {
-      $visitor_table['Attribute']($this);
-    }
-  }
-
-  public function jsonSerialize() {
-    return [
-      'type' => 'Attribute',
-      'name' => $this->name
-    ];
-  }
 }

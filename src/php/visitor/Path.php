@@ -36,13 +36,6 @@ class Path {
     }
   }
 
-  function allows_sibling_nodes(): bool {
-    return (
-      $this->node instanceof php\nodes\BlockNode ||
-      $this->node instanceof php\nodes\Program
-    );
-  }
-
   protected function not_stmt_or_namespace(): bool {
     return !(
       $this->node instanceof php\nodes\Stmt ||

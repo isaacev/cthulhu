@@ -23,12 +23,4 @@ class BlockNode extends Node {
       return end($this->stmts);
     }
   }
-
-  public function returns(): bool {
-    if ($this->empty()) {
-      return false;
-    }
-
-    return $this->last_stmt() instanceof ExprStmt;
-  }
 }
