@@ -405,8 +405,6 @@ class Parser {
     switch ($this->lexer->peek()->type) {
       case TokenType::UPPER_NAME:
         return $this->variant_pattern();
-      case TokenType::UNDERSCORE:
-        return $this->match_wildcard_pattern();
       case TokenType::LOWER_NAME:
         return $this->match_varible_pattern();
       case TokenType::LITERAL_STR:
@@ -416,7 +414,7 @@ class Parser {
       case TokenType::LITERAL_BOOL:
         return $this->match_bool_const_pattern();
       default:
-        assert(false, 'unreachable case');
+        return $this->match_wildcard_pattern();
     }
   }
 
