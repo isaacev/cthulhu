@@ -325,8 +325,8 @@ class Lower {
       $fields = $spans->set(new nodes\NamedVariantConstructorFields($pairs), $expr->fields->span);
     } else if ($expr->fields instanceof ast\OrderedVariantConstructorFields) {
       $order = [];
-      foreach ($expr->fields->order as $expr) {
-        $order[] = self::expr($spans, $expr);
+      foreach ($expr->fields->order as $sub_expr) {
+        $order[] = self::expr($spans, $sub_expr);
       }
       $fields = $spans->set(new nodes\OrderedVariantConstructorFields($order), $expr->fields->span);
     } else {
