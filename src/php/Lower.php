@@ -676,7 +676,7 @@ class Lower {
         $next_condition = new nodes\BinaryExpr(
           '==',
           end($accessors),
-          new nodes\FloatLiteral($node->value, 5), // TODO: floating point precision?
+          new nodes\FloatLiteral($node->value, 5) // TODO: floating point precision?
         );
         array_push($conditions, $next_condition);
       },
