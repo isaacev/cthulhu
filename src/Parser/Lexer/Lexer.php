@@ -112,7 +112,10 @@ class Lexer {
       case $next->is(';'):
         return $this->next_single_char(TokenType::SEMICOLON, $next);
       case $next->is('='):
-        return $this->next_single_or_double_char(TokenType::EQUALS, '>', TokenType::FAT_ARROW, $next);
+        return $this->next_chars($next, TokenType::EQUALS, [
+          '=' => TokenType::DOUBLE_EQUALS,
+          '>' => TokenType::FAT_ARROW,
+        ]);
       case $next->is(':'):
         return $this->next_single_or_double_char(TokenType::COLON, ':', TokenType::DOUBLE_COLON, $next);
       case $next->is(','):
@@ -312,6 +315,17 @@ class Lexer {
     } else {
       $span = new Source\Span($start->point, $start->point->next());
       return new Token(TokenType::DASH, $span, '-');
+    }
+  }
+
+  private function next_chars(Character $start, string $single, array $seconds): Token {
+    $peek = $this->scanner->peek();
+    if (array_key_exists($peek->char, $seconds)) {
+      $span = new Source\Span($start->point, $this->scanner->next()->point->next());
+      return new Token($seconds[$peek->char], $span, $start->char . $peek->char);
+    } else {
+      $span = new Source\Span($start->point, $start->point->next());
+      return new Token($single, $span, $start->char);
     }
   }
 

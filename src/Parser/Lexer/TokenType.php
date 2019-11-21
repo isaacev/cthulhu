@@ -37,6 +37,7 @@ abstract class TokenType {
   const DASH                = '-';
   const THIN_ARROW          = '->';
   const FAT_ARROW           = '=>';
+  const DOUBLE_EQUALS       = '==';
   const STAR                = '*';
   const SLASH               = '/';
   const SEMICOLON           = ';';

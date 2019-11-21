@@ -16,6 +16,7 @@ class IntType extends Type {
         case '*':
         case '^':
           return new self();
+        case '==':
         case '<':
         case '<=':
         case '>':

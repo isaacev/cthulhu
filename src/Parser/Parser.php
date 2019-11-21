@@ -355,6 +355,7 @@ class Parser {
       case TokenType::GREATER_THAN:
       case TokenType::GREATER_THAN_EQ:
       case TokenType::CARET:
+      case TokenType::DOUBLE_EQUALS:
         return $this->binary_infix_expr($left, $next);
       default:
         // This condition *should* be unreachable unless there's a bug in the
@@ -767,6 +768,7 @@ class Parser {
       case TokenType::PAREN_LEFT:
       case TokenType::BRACKET_LEFT:
         return Precedence::ACCESS;
+      case TokenType::DOUBLE_EQUALS:
       case TokenType::LESS_THAN:
       case TokenType::LESS_THAN_EQ:
       case TokenType::GREATER_THAN:
