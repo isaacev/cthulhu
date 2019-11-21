@@ -297,6 +297,9 @@ class Check {
       case $pattern instanceof nodes\StrConstPattern:
         self::check_str_pattern($ctx, $pattern, $type);
         break;
+      case $pattern instanceof nodes\FloatConstPattern:
+        self::check_float_pattern($ctx, $pattern, $type);
+      break;
       case $pattern instanceof nodes\IntConstPattern:
         self::check_int_pattern($ctx, $pattern, $type);
         break;
@@ -349,6 +352,12 @@ class Check {
 
   private static function check_str_pattern(self $ctx, nodes\StrConstPattern $pattern, Type $type): void {
     if (($type instanceof StrType) === false) {
+      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+    }
+  }
+
+  private static function check_float_pattern(self $ctx, nodes\FloatConstPattern $pattern, Type $type): void {
+    if (($type instanceof FloatType) === false) {
       throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
     }
   }

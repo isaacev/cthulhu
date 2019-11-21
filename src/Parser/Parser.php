@@ -409,6 +409,8 @@ class Parser {
         return $this->match_varible_pattern();
       case TokenType::LITERAL_STR:
         return $this->match_str_const_pattern();
+      case TokenType::LITERAL_FLOAT:
+        return $this->match_float_const_pattern();
       case TokenType::LITERAL_INT:
         return $this->match_int_const_pattern();
       case TokenType::LITERAL_BOOL:
@@ -486,6 +488,11 @@ class Parser {
 
   private function match_str_const_pattern(): ast\ConstPattern {
     $literal = $this->str_literal($this->next(TokenType::LITERAL_STR));
+    return new ast\ConstPattern($literal);
+  }
+
+  private function match_float_const_pattern(): ast\ConstPattern {
+    $literal = $this->float_literal($this->next(TokenType::LITERAL_FLOAT));
     return new ast\ConstPattern($literal);
   }
 
