@@ -17,6 +17,18 @@ class Errors {
       ->snippet($span);
   }
 
+  public static function incompatible_pattern(Source\Span $span, Type $disc_type): Error {
+    return (new Error('incompatible pattern'))
+      ->paragraph("Pattern is incompatible with the type `$disc_type`:")
+      ->snippet($span);
+  }
+
+  public static function match_arm_disagreement(Source\Span $span, Type $arm_type, Type $match_type): Error {
+    return (new Error('inconsistent match arm types'))
+      ->paragraph("Expected all match arms to return the type `$match_type` but found the type `$arm_type` instead:")
+      ->snippet($span);
+  }
+
   public static function if_cond_not_bool(Source\Span $span, Type $found): Error {
     return (new Error('non-boolean condition'))
       ->paragraph("Conditions need to have the type `Bool`, found type `$found` instead:")
@@ -51,9 +63,12 @@ class Errors {
       ->snippet($span);
   }
 
-  public static function wrong_constructor_arguments(Source\Span $span, string $name, Type $expected, Type $found): Error {
+  public static function wrong_constructor_arguments(Source\Span $span, string $name, VariantFields $expected, ConstructorFields $found): Error {
     return (new Error('wrong constructor arguments'))
-      ->paragraph("The constructor for the `$name` variant expected `$expected` but found `$found`.")
+      ->paragraph("The constructor for the `$name` variant expected:")
+      ->example(trim($expected))
+      ->paragraph("But found:")
+      ->example(trim($found))
       ->snippet($span);
   }
 

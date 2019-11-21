@@ -9,7 +9,7 @@ class UnionType extends Type {
   /**
    * UnionType constructor.
    * @param string $name
-   * @param array[string]Type $variants
+   * @param VariantFields[] $variants
    */
   function __construct(string $name, array $variants) {
     $this->name = $name;
@@ -20,7 +20,7 @@ class UnionType extends Type {
     return isset($this->variants[$name]);
   }
 
-  function get_variant_arguments(string $name): Type {
+  function get_variant_fields(string $name): VariantFields {
     return $this->variants[$name];
   }
 
@@ -35,17 +35,29 @@ class UnionType extends Type {
     return null;
   }
 
-  function __toString(): string {
+  function to_variant_string(): string {
     $variants = [];
-    foreach ($this->variants as $name => $type) {
-      if ($type instanceof UnitType) {
-        $variants[] = $name;
-      } else if ($type instanceof RecordType || $type instanceof TupleType) {
-        $variants[] = $name . "$type";
+    foreach ($this->variants as $name => $fields) {
+      $variants[] = "$name$fields";
+    }
+    return implode(' | ', $variants);
+  }
+
+  function __toString(): string {
+    return $this->name;
+  }
+
+  static function from_array(string $name, array $variants): self {
+    $new_variants = [];
+    foreach ($variants as $name => $fields) {
+      if ($fields === null) {
+        $new_variants[$name] = new UnitVariantFields();
+      } else if (array_keys($fields) !== range(0, count($fields) - 1)) {
+        $new_variants[$name] = new NamedVariantFields($fields);
       } else {
-        $variants[] = $name . "($type)";
+        $new_variants[$name] = new OrderedVariantFields($fields);
       }
     }
-    return "$this->name = " . implode(' | ', $variants);
+    return new self($name, $new_variants);
   }
 }

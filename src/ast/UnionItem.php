@@ -12,7 +12,7 @@ class UnionItem extends Item {
    * UnionItem constructor.
    * @param Source\Span $span
    * @param UpperNameNode $name
-   * @param VariantNode[] $variants
+   * @param VariantDeclNode[] $variants
    * @param array $attrs
    */
   function __construct(Source\Span $span, UpperNameNode $name, array $variants, array $attrs) {

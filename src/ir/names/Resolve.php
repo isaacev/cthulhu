@@ -196,8 +196,20 @@ class Resolve {
       'exit(Block)' => function () use ($ctx) {
         self::exit_block($ctx);
       },
-      'exit(NamedVariantConstructor)' => function (nodes\NamedVariantConstructor $expr) use ($ctx) {
-        self::exit_named_variant_constructor($ctx, $expr);
+      'enter(MatchArm)' => function () use ($ctx) {
+        self::enter_match_arm($ctx);
+      },
+      'exit(MatchArm)' => function () use ($ctx) {
+        self::exit_match_arm($ctx);
+      },
+      'exit(VariantPattern)' => function (nodes\VariantPattern $pattern) use ($ctx) {
+        self::exit_variant_pattern($ctx, $pattern);
+      },
+      'VariablePattern' => function (nodes\VariablePattern $pattern) use ($ctx) {
+        self::variable_pattern($ctx, $pattern);
+      },
+      'NamedVariantConstructorFields' => function (nodes\NamedVariantConstructorFields $fields, ir\Path $path) use ($ctx) {
+        self::named_variant_constructor_fields($ctx, $fields, $path);
       },
       'ParamNote' => function (nodes\ParamNote $note) use ($ctx) {
         self::param_note($ctx, $note);
@@ -217,7 +229,7 @@ class Resolve {
     ir\Visitor::walk($prog, [
       'Name' => function (nodes\Name $name) use ($names) {
         if ($names->has($name) === false) {
-          throw new \Exception('missing symbol binding for a name');
+          throw new \Exception('missing symbol binding for a name: ' . $name->value);
         }
       }
     ]);
@@ -395,7 +407,7 @@ class Resolve {
       $variant_symbol = $ctx->make_ref_symbol($variant->name, $union_symbol);
       $union_scope->add_binding($variant_name, $variant_symbol);
 
-      if ($variant instanceof nodes\NamedVariantNode) {
+      if ($variant instanceof nodes\NamedVariantDeclNode) {
         $variant_scope = new Scope();
         $ctx->add_namespace($variant_symbol, $variant_scope);
         foreach ($variant->fields as $field) {
@@ -424,10 +436,43 @@ class Resolve {
     $ctx->pop_block_scope();
   }
 
-  private static function exit_named_variant_constructor(self $ctx, nodes\NamedVariantConstructor $expr): void {
+  private static function enter_match_arm(self $ctx): void {
+    $block_scope = new Scope();
+    $ctx->push_block_scope($block_scope);
+  }
+
+  private static function exit_match_arm(self $ctx): void {
+    $ctx->pop_block_scope();
+  }
+
+  private static function exit_variant_pattern(self $ctx, nodes\VariantPattern $pattern): void {
+    $fields = $pattern->fields;
+    if ($fields instanceof nodes\NamedVariantPatternFields) {
+      $union_symbol = $ctx->name_to_symbol->get($pattern->ref->tail_segment);
+      // TODO: user error if this lookup fails
+      $union_namespace = $ctx->get_namespace($union_symbol);
+      foreach ($fields->mapping as $field) {
+        $field_name = $field->name->value;
+        $field_symbol = $union_namespace->get_name($field_name);
+        // TODO: user error if this lookup fails
+        assert($field_symbol !== null);
+        $ctx->set_symbol($field->name, $field_symbol);
+      }
+    }
+  }
+
+  private static function variable_pattern(self $ctx, nodes\VariablePattern $pattern): void {
+    $name   = $pattern->name->value;
+    $symbol = $ctx->make_var_symbol($pattern->name);
+    $ctx->current_block_scope()->add_binding($name, $symbol);
+  }
+
+  private static function named_variant_constructor_fields(self $ctx, nodes\NamedVariantConstructorFields $fields, ir\Path $path): void {
+    $expr = $path->parent->node;
+    assert($expr instanceof nodes\VariantConstructorExpr);
     $ctor_symbol = $ctx->name_to_symbol->get($expr->ref->tail_segment);
     if ($ctor_namespace = $ctx->get_namespace($ctor_symbol)) {
-      foreach ($expr->fields as $field) {
+      foreach ($fields->pairs as $field) {
         if ($field_symbol = $ctor_namespace->get_name($field->name->value)) {
           $ctx->set_symbol($field->name, $field_symbol);
         } else {

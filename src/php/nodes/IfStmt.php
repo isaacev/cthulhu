@@ -5,22 +5,27 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class IfStmt extends Stmt {
-  public $cond;
-  public $if_block;
-  public $else_block;
+  public $test;
+  public $consequent;
+  public $alternate;
 
-  function __construct(Expr $cond, BlockNode $if_block, ?BlockNode $else_block) {
+  /**
+   * @param Expr $test
+   * @param BlockNode $consequent
+   * @param null|IfStmt|BlockNode $alternate
+   */
+  function __construct(Expr $test, BlockNode $consequent, $alternate) {
     parent::__construct();
-    $this->cond = $cond;
-    $this->if_block = $if_block;
-    $this->else_block = $else_block;
+    $this->test = $test;
+    $this->consequent = $consequent;
+    $this->alternate = $alternate;
   }
 
   public function to_children(): array {
     return [
-      $this->cond,
-      $this->if_block,
-      $this->else_block,
+      $this->test,
+      $this->consequent,
+      $this->alternate,
     ];
   }
 
@@ -29,22 +34,23 @@ class IfStmt extends Stmt {
   }
 
   public function build(): Builder {
-    $else_block = $this->else_block
-      ? (new Builder)
+    $alternate = (new Builder);
+    if ($this->alternate !== null) {
+      $alternate = (new Builder)
         ->space()
         ->keyword('else')
         ->space()
-        ->then($this->else_block)
-      : (new Builder);
+        ->then($this->alternate);
+    }
 
     return (new Builder)
       ->keyword('if')
       ->space()
       ->paren_left()
-      ->expr($this->cond)
+      ->expr($this->test)
       ->paren_right()
       ->space()
-      ->then($this->if_block)
-      ->then($else_block);
+      ->then($this->consequent)
+      ->then($alternate);
   }
 }

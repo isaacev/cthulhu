@@ -81,6 +81,12 @@ class Check {
       'exit(LetStmt)' => function (nodes\LetStmt $stmt) use ($ctx) {
         self::exit_let_stmt($ctx, $stmt);
       },
+      'enter(MatchArm)' => function (nodes\MatchArm $arm, ir\Path $path) use ($ctx) {
+        self::enter_match_arm($ctx, $arm, $path);
+      },
+      'exit(MatchExpr)' => function (nodes\MatchExpr $expr) use ($ctx) {
+        self::exit_match_expr($ctx, $expr);
+      },
       'exit(IfExpr)' => function (nodes\IfExpr $expr) use ($ctx) {
         self::exit_if_expr($ctx, $expr);
       },
@@ -96,8 +102,8 @@ class Check {
       'exit(ListExpr)' => function (nodes\ListExpr $expr) use ($ctx) {
         self::exit_list_expr($ctx, $expr);
       },
-      'exit(VariantConstructor)' => function (nodes\VariantConstructor $expr) use ($ctx) {
-        self::exit_variant_constructor($ctx, $expr);
+      'exit(VariantConstructorExpr)' => function (nodes\VariantConstructorExpr $expr) use ($ctx) {
+        self::exit_variant_constructor_expr($ctx, $expr);
       },
       'RefExpr' => function (nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
@@ -226,29 +232,21 @@ class Check {
   private static function exit_union_item(self $ctx, nodes\UnionItem $item): void {
     $variants = [];
     foreach ($item->variants as $variant) {
-      switch (true) {
-        case $variant instanceof nodes\NamedVariantNode: {
-          $fields = [];
-          foreach ($variant->fields as $field) {
-            $fields[$field->name->value] = self::note_to_type($ctx, $field->note);
-          }
-          $type = new RecordType($fields);
-          break;
+      if ($variant instanceof nodes\NamedVariantDeclNode) {
+        $mapping = [];
+        foreach ($variant->fields as $field) {
+          $mapping[$field->name->value] = self::note_to_type($ctx, $field->note);
         }
-        case $variant instanceof nodes\UnnamedVariantNode: {
-          $members = [];
-          foreach ($variant->members as $member) {
-            $members[] = self::note_to_type($ctx, $member);
-          }
-          $type = count($members) > 1
-            ? new TupleType($members)
-            : $members[0];
-          break;
+        $variants[$variant->name->value] = new NamedVariantFields($mapping);
+      } else if ($variant instanceof nodes\OrderedVariantDeclNode) {
+        $order = [];
+        foreach ($variant->members as $member) {
+          $order[] = self::note_to_type($ctx, $member);
         }
-        default:
-          $type = new UnitType();
+        $variants[$variant->name->value] = new OrderedVariantFields($order);
+      } else {
+        $variants[$variant->name->value] = new UnitVariantFields();
       }
-      $variants[$variant->name->value] = $type;
     }
     $type = new UnionType($item->name->value, $variants);
     $symbol = $ctx->name_to_symbol->get($item->name);
@@ -275,6 +273,117 @@ class Check {
     }
 
     $ctx->set_type_for_symbol($symbol, $type);
+  }
+
+  private static function enter_match_arm(self $ctx, nodes\MatchArm $arm, ir\Path $path): void {
+    $match_expr = $path->parent->node;
+    assert($match_expr instanceof nodes\MatchExpr);
+    $disc_type = $ctx->get_type_for_expr($match_expr->disc->expr);
+    $pattern = $arm->pattern;
+    self::check_pattern($ctx, $pattern, $disc_type);
+  }
+
+  private static function check_pattern(self $ctx, nodes\Pattern $pattern, Type $type): void {
+    switch (true) {
+      case $pattern instanceof nodes\VariantPattern:
+        self::check_variant_pattern($ctx, $pattern, $type);
+        break;
+      case $pattern instanceof nodes\WildcardPattern:
+        self::check_wildcard_pattern($ctx, $pattern, $type);
+        break;
+      case $pattern instanceof nodes\VariablePattern:
+        self::check_variable_pattern($ctx, $pattern, $type);
+        break;
+      case $pattern instanceof nodes\StrConstPattern:
+        self::check_str_pattern($ctx, $pattern, $type);
+        break;
+      case $pattern instanceof nodes\IntConstPattern:
+        self::check_int_pattern($ctx, $pattern, $type);
+        break;
+      case $pattern instanceof nodes\BoolConstPattern:
+        self::check_bool_pattern($ctx, $pattern, $type);
+        break;
+      default:
+        assert(false, 'unreachable');
+    }
+  }
+
+  private static function check_variant_pattern(self $ctx, nodes\VariantPattern $pattern, Type $type): void {
+    assert($type instanceof UnionType);
+
+    $variant_symbol = $ctx->get_symbol_for_name($pattern->ref->tail_segment);
+    $union_symbol   = $variant_symbol->parent;
+    $union_type     = $ctx->get_type_for_symbol($union_symbol);
+
+    assert($union_type instanceof UnionType);
+
+    assert($union_type->accepts_as_parameter($type)); // ???
+
+    $arguments = $union_type->get_variant_fields($pattern->ref->tail_segment->value);
+    $fields = $pattern->fields;
+    if ($arguments instanceof UnitVariantFields) {
+      assert($fields === null);
+    } else if ($arguments instanceof NamedVariantFields) {
+      assert($fields instanceof nodes\NamedVariantPatternFields);
+      foreach ($fields->mapping as $field) {
+        self::check_pattern($ctx, $field->pattern, $arguments->mapping[$field->name->value]);
+      }
+    } else if ($arguments instanceof OrderedVariantFields) {
+      assert($fields instanceof nodes\OrderedVariantPatternFields);
+      foreach ($fields->order as $index => $field) {
+        self::check_pattern($ctx, $field->pattern, $arguments->order[$index]);
+      }
+    } else {
+      assert(false, 'unreachable');
+    }
+  }
+
+  private static function check_wildcard_pattern(self $ctx, nodes\WildcardPattern $pattern, Type $type): void {
+    // do nothing
+  }
+
+  private static function check_variable_pattern(self $ctx, nodes\VariablePattern $pattern, Type $type): void {
+    $symbol = $ctx->get_symbol_for_name($pattern->name);
+    $ctx->set_type_for_symbol($symbol, $type);
+  }
+
+  private static function check_str_pattern(self $ctx, nodes\StrConstPattern $pattern, Type $type): void {
+    if (($type instanceof StrType) === false) {
+      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+    }
+  }
+
+  private static function check_int_pattern(self $ctx, nodes\IntConstPattern $pattern, Type $type): void {
+    if (($type instanceof IntType) === false) {
+      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+    }
+  }
+
+  private static function check_bool_pattern(self $ctx, nodes\BoolConstPattern $pattern, Type $type): void {
+    if (($type instanceof BoolType) === false) {
+      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+    }
+  }
+
+  private static function exit_match_expr(self $ctx, nodes\MatchExpr $expr): void {
+    assert(empty($expr->arms) === false);
+
+    $match_type = $ctx->get_type_for_expr($expr->arms[0]->handler->stmt->expr);
+    foreach (array_slice($expr->arms, 1) as $arm) {
+      $arm_type = $ctx->get_type_for_expr($arm->handler->stmt->expr);
+      if ($unified_type = $match_type->unify($arm_type)) {
+        $match_type = $unified_type;
+      } else {
+        $arm_span = $ctx->spans->get($arm);
+        throw Errors::match_arm_disagreement(
+          $arm_span,
+          $arm_type,
+          $match_type
+        );
+      }
+    }
+
+    $ctx->set_type_for_expr($expr, $match_type);
   }
 
   private static function exit_if_expr(self $ctx, nodes\IfExpr $expr): void {
@@ -490,7 +599,7 @@ class Check {
     $ctx->set_type_for_expr($expr, $type);
   }
 
-  private static function exit_variant_constructor(self $ctx, nodes\VariantConstructor $expr): void {
+  private static function exit_variant_constructor_expr(self $ctx, nodes\VariantConstructorExpr $expr): void {
     $variant_symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
     $union_symbol   = $variant_symbol->parent;
     $union_type     = $ctx->get_type_for_symbol($union_symbol);
@@ -499,30 +608,23 @@ class Check {
 
     $variant_name = $expr->ref->tail_segment->value;
     if ($union_type->has_variant_named($variant_name)) {
-      switch (true) {
-        case $expr instanceof nodes\NamedVariantConstructor: {
-          $fields = [];
-          foreach ($expr->fields as $field) {
-            $fields[$field->name->value] = $ctx->get_type_for_expr($field->expr);
-          }
-          $arg_type = new RecordType($fields);
-          break;
+      if ($expr->fields instanceof nodes\NamedVariantConstructorFields) {
+        $mapping = [];
+        foreach ($expr->fields->pairs as $field) {
+          $mapping[$field->name->value] = $ctx->get_type_for_expr($field->expr);
         }
-        case $expr instanceof nodes\UnnamedVariantConstructor: {
-          $members = [];
-          foreach ($expr->members as $member) {
-            $members[] = $ctx->get_type_for_expr($member);
-          }
-          $arg_type = count($members) > 1
-            ? new TupleType($members)
-            : $members[0];
-          break;
+        $arg_type = new NamedConstructorFields($mapping);
+      } else if ($expr->fields instanceof nodes\OrderedVariantConstructorFields) {
+        $order = [];
+        foreach ($expr->fields->order as $child_expr) {
+          $order[] = $ctx->get_type_for_expr($child_expr);
         }
-        default:
-          $arg_type = new UnitType();
+        $arg_type = new OrderedConstructorFields($order);
+      } else {
+        $arg_type = new UnitConstructorFields();
       }
-      $param_type = $union_type->get_variant_arguments($variant_name);
-      if ($param_type->accepts_as_parameter($arg_type)) {
+      $param_type = $union_type->get_variant_fields($variant_name);
+      if ($param_type->accepts_constructor($arg_type)) {
         $ctx->set_type_for_expr($expr, $union_type);
       } else {
         $span = $ctx->spans->get($expr);

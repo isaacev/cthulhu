@@ -26,6 +26,13 @@ class BinaryExpr extends Expr {
 
   public function precedence(): int {
     switch ($this->operator) {
+      case '&&':
+        return Precedence::BOOLEAN_SYMBOL_AND;
+      case '==':
+      case '!=':
+      case '===':
+      case '!==':
+        return Precedence::EQUALITY_COMPARISON;
       case '<':
       case '>':
       case '<=':
@@ -39,6 +46,8 @@ class BinaryExpr extends Expr {
       case '*':
       case '/':
         return Precedence::PRODUCT;
+      case 'instanceof':
+        return Precedence::INSTANCE_OF;
       case '**':
         return Precedence::EXPONENT;
       default:

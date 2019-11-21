@@ -1,0 +1,19 @@
+
+  UNCOVERED PATTERNS  --------------------------------------------------------
+
+  The match expression does not handle all possible patterns.
+
+    : match_1
+  4 |   let m = match x {
+    |           ^^^^^^^^^
+  5 |     0 => "zero",
+    |     ^^^^^^^^^^^^
+  6 |     1 => "one",
+    |     ^^^^^^^^^^^
+  7 |   };
+    |   ^
+
+  The following pattern were not handled:
+
+    _
+

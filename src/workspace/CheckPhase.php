@@ -2,6 +2,7 @@
 
 namespace Cthulhu\workspace;
 
+use Cthulhu\ir\Flow;
 use Cthulhu\ir\nodes\Program;
 use Cthulhu\ir\Table;
 use Cthulhu\ir\types\Check;
@@ -31,6 +32,7 @@ class CheckPhase {
       $this->symbol_to_name,
       $this->ir_tree
     );
+    Flow::analyze($this->spans, $expr_to_type, $this->ir_tree);
     return new CodegenPhase(
       $this->name_to_symbol,
       $this->symbol_to_name,

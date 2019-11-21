@@ -89,22 +89,22 @@ class Lower {
 
   private static function union_variants(Table $spans, array $variants): array {
     return array_map(function ($variant) use ($spans) {
-      return self::union_variant($spans, $variant);
+      return self::union_variant_decl($spans, $variant);
     }, $variants);
   }
 
-  private static function union_variant(Table $spans, ast\VariantNode $variant): nodes\VariantNode {
+  private static function union_variant_decl(Table $spans, ast\VariantDeclNode $variant): nodes\VariantDeclNode {
     switch (true) {
-      case $variant instanceof ast\NamedVariantNode:
-        return self::named_variant($spans, $variant);
-      case $variant instanceof ast\UnnamedVariantNode:
-        return self::unnamed_variant($spans, $variant);
+      case $variant instanceof ast\NamedVariantDeclNode:
+        return self::named_variant_decl($spans, $variant);
+      case $variant instanceof ast\OrderedVariantDeclNode:
+        return self::ordered_variant_decl($spans, $variant);
       default:
-        return self::unit_variant($spans, $variant);
+        return self::unit_variant_decl($spans, $variant);
     }
   }
 
-  private static function named_variant(Table $spans, ast\NamedVariantNode $variant): nodes\NamedVariantNode {
+  private static function named_variant_decl(Table $spans, ast\NamedVariantDeclNode $variant): nodes\NamedVariantDeclNode {
     $name   = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
     $fields = [];
     foreach ($variant->fields as $field) {
@@ -112,21 +112,21 @@ class Lower {
       $field_note = self::note($spans, $field->note);
       $fields[]   = $spans->set(new nodes\FieldDeclNode($field_name, $field_note), $field->span);
     }
-    return $spans->set(new nodes\NamedVariantNode($name, $fields), $variant->span);
+    return $spans->set(new nodes\NamedVariantDeclNode($name, $fields), $variant->span);
   }
 
-  private static function unnamed_variant(Table $spans, ast\UnnamedVariantNode $variant): nodes\UnnamedVariantNode {
+  private static function ordered_variant_decl(Table $spans, ast\OrderedVariantDeclNode $variant): nodes\OrderedVariantDeclNode {
     $name    = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
     $members = [];
     foreach ($variant->members as $member) {
       $members[] = self::note($spans, $member);
     }
-    return $spans->set(new nodes\UnnamedVariantNode($name, $members), $variant->span);
+    return $spans->set(new nodes\OrderedVariantDeclNode($name, $members), $variant->span);
   }
 
-  private static function unit_variant(Table $spans, ast\UnitVariantNode $variant): nodes\UnitVariantNode {
+  private static function unit_variant_decl(Table $spans, ast\UnitVariantDeclNode $variant): nodes\UnitVariantDeclNode {
     $name = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
-    return $spans->set(new nodes\UnitVariantNode($name), $variant->span);
+    return $spans->set(new nodes\UnitVariantDeclNode($name), $variant->span);
   }
 
   /**
@@ -169,11 +169,13 @@ class Lower {
 
   private static function expr(Table $spans, ast\Expr $expr): nodes\Expr {
     switch (true) {
+      case $expr instanceof ast\MatchExpr:
+        return self::match_expr($spans, $expr);
       case $expr instanceof ast\IfExpr:
         return self::if_expr($spans, $expr);
       case $expr instanceof ast\CallExpr:
         return self::call_expr($spans, $expr);
-      case $expr instanceof ast\VariantConstructor:
+      case $expr instanceof ast\VariantConstructorExpr:
         return self::variant_constructor_expr($spans, $expr);
       case $expr instanceof ast\BinaryExpr:
         return self::binary_expr($spans, $expr);
@@ -183,17 +185,116 @@ class Lower {
         return self::list_expr($spans, $expr);
       case $expr instanceof ast\PathExpr:
         return self::path_expr($spans, $expr);
-      case $expr instanceof ast\StrLiteral:
-        return self::str_literal($spans, $expr);
-      case $expr instanceof ast\FloatLiteral:
-        return self::float_literal($spans, $expr);
-      case $expr instanceof ast\IntLiteral:
-        return self::int_literal($spans, $expr);
-      case $expr instanceof ast\BoolLiteral:
-        return self::bool_literal($spans, $expr);
+      case $expr instanceof ast\Literal:
+        return self::literal($spans, $expr);
       default:
         throw new \Exception('cannot lower unknown ast expression');
     }
+  }
+
+  private static function match_expr(Table $spans, ast\MatchExpr $expr): nodes\MatchExpr {
+    $disc = $spans->set(new nodes\MatchDiscriminant(self::expr($spans, $expr->disc)), $expr->disc->span);
+    $arms = [];
+    foreach ($expr->arms as $arm) {
+      $arms[] = self::match_arm($spans, $arm);
+    }
+    return $spans->set(new nodes\MatchExpr($disc, $arms), $expr->span);
+  }
+
+  private static function match_arm(Table $spans, ast\MatchArm $arm): nodes\MatchArm {
+    $pattern = self::pattern($spans, $arm->pattern);
+    $handler = $spans->set(
+      new nodes\MatchHandler(
+        new nodes\ReturnStmt(
+          self::expr($spans, $arm->handler)
+        )
+      ),
+      $arm->handler->span
+    );
+    return $spans->set(new nodes\MatchArm($pattern, $handler), $arm->span);
+  }
+
+  private static function pattern(Table $spans, ast\Pattern $pattern): nodes\Pattern {
+    switch (true) {
+      case $pattern instanceof ast\VariantPattern:
+        return self::variant_pattern($spans, $pattern);
+      case $pattern instanceof ast\VariablePattern:
+        return self::variable_pattern($spans, $pattern);
+      case $pattern instanceof ast\ConstPattern:
+        return self::const_pattern($spans, $pattern);
+      case $pattern instanceof ast\WildcardPattern:
+        return self::wildcard_pattern($spans, $pattern);
+      default:
+        assert(false, 'unreachable');
+    }
+  }
+
+  private static function variant_pattern(Table $spans, ast\VariantPattern $pattern): nodes\VariantPattern {
+    $ref = self::path($spans, $pattern->path);
+    $fields = self::variant_pattern_fields($spans, $pattern->fields);
+    return $spans->set(new nodes\VariantPattern($ref, $fields), $pattern->span);
+  }
+
+  private static function variant_pattern_fields(Table $spans, ?ast\VariantPatternFields $fields): ?nodes\VariantPatternFields {
+    switch (true) {
+      case $fields instanceof ast\NamedVariantPatternFields:
+        return self::named_variant_pattern_fields($spans, $fields);
+      case $fields instanceof ast\OrderedVariantPatternFields:
+        return self::ordered_variant_pattern_fields($spans, $fields);
+      default:
+        return null;
+    }
+  }
+
+  private static function named_variant_pattern_fields(Table $spans, ast\NamedVariantPatternFields $fields): nodes\NamedVariantPatternFields {
+    $mapping = [];
+    foreach ($fields->mapping as $field) {
+      $name = $field->name->ident;
+      if (array_key_exists($name, $mapping)) {
+        throw new \Exception("more than one field named '$name'");
+      }
+      $mapping[$name] = self::named_pattern_field($spans, $field);
+    }
+    return $spans->set(new nodes\NamedVariantPatternFields($mapping), $fields->span);
+  }
+
+  private static function named_pattern_field(Table $spans, ast\NamedPatternField $field): nodes\NamedPatternField {
+    $name = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
+    $pattern = self::pattern($spans, $field->pattern);
+    return $spans->set(new nodes\NamedPatternField($name, $pattern), $field->span);
+  }
+
+  private static function ordered_variant_pattern_fields(Table $spans, ast\OrderedVariantPatternFields $fields): nodes\OrderedVariantPatternFields {
+    $order = [];
+    foreach ($fields->order as $index => $pattern) {
+      $order[$index] = $spans->set(new nodes\OrderedVariantPatternField($index, self::pattern($spans, $pattern)), $pattern->span);
+    }
+    return $spans->set(new nodes\OrderedVariantPatternFields($order), $fields->span);
+  }
+
+  private static function variable_pattern(Table $spans, ast\VariablePattern $pattern): nodes\VariablePattern {
+    $name = $spans->set(new nodes\Name($pattern->name->ident), $pattern->name->span);
+    return $spans->set(new nodes\VariablePattern($name), $pattern->span);
+  }
+
+  private static function const_pattern(Table $spans, ast\ConstPattern $pattern): nodes\ConstPattern {
+    $literal = $pattern->literal;
+    switch (true) {
+      case $literal instanceof ast\StrLiteral:
+        return $spans->set(new nodes\StrConstPattern($literal->value), $pattern->span);
+      case $literal instanceof ast\FloatLiteral:
+        return $spans->set(new nodes\FloatConstPattern($literal->value), $pattern->span);
+      case $literal instanceof ast\IntLiteral:
+        return $spans->set(new nodes\IntConstPattern($literal->value), $pattern->span);
+      case $literal instanceof ast\BoolLiteral:
+        return $spans->set(new nodes\BoolConstPattern($literal->value), $pattern->span);
+      default:
+        assert(false, 'unreachable');
+    }
+  }
+
+  private static function wildcard_pattern(Table $spans, ast\WildcardPattern $pattern): nodes\WildcardPattern {
+    return $spans->set(new nodes\WildcardPattern(), $pattern->span);
   }
 
   private static function if_expr(Table $spans, ast\IfExpr $expr): nodes\IfExpr {
@@ -212,40 +313,31 @@ class Lower {
     return $spans->set(new nodes\CallExpr($callee, $args), $expr->span);
   }
 
-  private static function variant_constructor_expr(Table $spans, ast\VariantConstructor $expr): nodes\VariantConstructor {
-    switch (true) {
-      case $expr instanceof ast\NamedVariantConstructor:
-        return self::named_variant_constructor_expr($spans, $expr);
-      case $expr instanceof ast\UnnamedVariantConstructor:
-        return self::unnamed_variant_constructor_expr($spans, $expr);
-      default:
-        return self::unit_variant_constructor_expr($spans, $expr);
-    }
-  }
-
-  private static function named_variant_constructor_expr(Table $spans, ast\NamedVariantConstructor $expr): nodes\NamedVariantConstructor {
-    $ref    = self::path($spans, $expr->path);
-    $fields = [];
-    foreach ($expr->fields as $field) {
-      $field_name = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
-      $field_expr = self::expr($spans, $field->expr);
-      $fields[] = $spans->set(new nodes\FieldExprNode($field_name, $field_expr), $field->span);
-    }
-    return $spans->set(new nodes\NamedVariantConstructor($ref, $fields), $expr->span);
-  }
-
-  private static function unnamed_variant_constructor_expr(Table $spans, ast\UnnamedVariantConstructor $expr): nodes\UnnamedVariantConstructor {
-    $ref     = self::path($spans, $expr->path);
-    $members = [];
-    foreach ($expr->members as $member) {
-      $members[] = self::expr($spans, $member);
-    }
-    return $spans->set(new nodes\UnnamedVariantConstructor($ref, $members), $expr->span);
-  }
-
-  private static function unit_variant_constructor_expr(Table $spans, ast\UnitVariantConstructor $expr): nodes\UnitVariantConstructor {
+  private static function variant_constructor_expr(Table $spans, ast\VariantConstructorExpr $expr): nodes\VariantConstructorExpr {
     $ref = self::path($spans, $expr->path);
-    return $spans->set(new nodes\UnitVariantConstructor($ref), $expr->span);
+    if ($expr->fields instanceof ast\NamedVariantConstructorFields) {
+      $pairs = [];
+      foreach ($expr->fields->pairs as $field) {
+        $pairs[] = self::field_expr_node($spans, $field);
+      }
+      $fields = $spans->set(new nodes\NamedVariantConstructorFields($pairs), $expr->fields->span);
+    } else if ($expr->fields instanceof ast\OrderedVariantConstructorFields) {
+      $order = [];
+      foreach ($expr->fields->order as $expr) {
+        $order[] = self::expr($spans, $expr);
+      }
+      $fields = $spans->set(new nodes\OrderedVariantConstructorFields($order), $expr->fields->span);
+    } else {
+      $fields = null;
+    }
+
+    return $spans->set(new nodes\VariantConstructorExpr($ref, $fields), $expr->span);
+  }
+
+  private static function field_expr_node(Table $spans, ast\FieldExprNode $node): nodes\FieldExprNode {
+    $name = $spans->set(new nodes\Name($node->name->ident), $node->name->span);
+    $expr = self::expr($spans, $node->expr);
+    return $spans->set(new nodes\FieldExprNode($name, $expr), $node->span);
   }
 
   private static function binary_expr(Table $spans, ast\BinaryExpr $expr): nodes\BinaryExpr {
@@ -272,6 +364,21 @@ class Lower {
   private static function path_expr(Table $spans, ast\PathExpr $expr): nodes\RefExpr {
     $ref = self::path($spans, $expr->path);
     return $spans->set(new nodes\RefExpr($ref), $expr->span);
+  }
+
+  private static function literal(Table $spans, ast\Literal $literal): nodes\Literal {
+    switch (true) {
+      case $literal instanceof ast\StrLiteral:
+        return self::str_literal($spans, $literal);
+      case $literal instanceof ast\FloatLiteral:
+        return self::float_literal($spans, $literal);
+      case $literal instanceof ast\IntLiteral:
+        return self::int_literal($spans, $literal);
+      case $literal instanceof ast\BoolLiteral:
+        return self::bool_literal($spans, $literal);
+      default:
+        assert(false, 'unreachable');
+    }
   }
 
   private static function str_literal(Table $spans, ast\StrLiteral $expr): nodes\StrLiteral {

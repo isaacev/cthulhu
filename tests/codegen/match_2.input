@@ -1,0 +1,9 @@
+#[entry]
+fn main() -> () {
+  let x = match "abc" {
+    "" => 0,
+    "abc" => 3,
+    a => -1,
+  };
+  let y = x + 1;
+}

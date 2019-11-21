@@ -80,8 +80,9 @@ class Lexer {
       case $next->is("'"):
         return $this->next_type_param($next);
       case $next->is_letter():
-      case $next->is('_'):
         return $this->next_word($next);
+      case $next->is('_'):
+        return $this->next_single_char(TokenType::UNDERSCORE, $next);
       case $next->is('^'):
         return $this->next_single_char(TokenType::CARET, $next);
       case $next->is('|'):
@@ -111,7 +112,7 @@ class Lexer {
       case $next->is(';'):
         return $this->next_single_char(TokenType::SEMICOLON, $next);
       case $next->is('='):
-        return $this->next_single_char(TokenType::EQUALS, $next);
+        return $this->next_single_or_double_char(TokenType::EQUALS, '>', TokenType::FAT_ARROW, $next);
       case $next->is(':'):
         return $this->next_single_or_double_char(TokenType::COLON, ':', TokenType::DOUBLE_COLON, $next);
       case $next->is(','):
@@ -267,6 +268,7 @@ class Lexer {
       case 'mod':     return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
       case 'native':  return new Token(TokenType::KEYWORD_NATIVE, $span, 'native');
       case 'type':    return new Token(TokenType::KEYWORD_TYPE, $span, 'type');
+      case 'match':   return new Token(TokenType::KEYWORD_MATCH, $span, 'match');
       case 'true':    return new Token(TokenType::LITERAL_BOOL, $span, 'true');
       case 'false':   return new Token(TokenType::LITERAL_BOOL, $span, 'false');
     }

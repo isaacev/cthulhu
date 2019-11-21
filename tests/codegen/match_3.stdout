@@ -1,0 +1,52 @@
+<?php
+
+namespace Kernel\Builtins {
+  // #[inline]
+  // #[construct]
+  function _print($a) {
+    print($a);
+  }
+  // #[inline]
+  // #[construct]
+  function cast_int_to_string($a) {
+    return (string)$a;
+  }
+  // #[inline]
+  // #[construct]
+  function cast_float_to_string($a) {
+    return (string)$a;
+  }
+}
+
+namespace Io {
+  // #[inline]
+  function println($str) {
+    \Kernel\Builtins\_print($str . "\n");
+  }
+}
+
+namespace Fmt {
+  // #[inline]
+  function int($i) {
+    return \Kernel\Builtins\cast_int_to_string($i);
+  }
+}
+
+namespace match_3 {
+  // #[entry]
+  function main() {
+    $b = 5;
+    if ($b == 0) {
+      $a = 0;
+    } else if (true) {
+      $n = $b;
+      $a = $n + 1;
+    }
+    $next = $a;
+    \Io\println(\Fmt\int($next));
+  }
+}
+
+namespace {
+  \match_3\main();
+}

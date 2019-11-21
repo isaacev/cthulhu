@@ -20,6 +20,7 @@ class ResolvePhase {
       $this->spans,
       $this->ir_tree
     );
+    Resolve::validate($name_to_symbol, $this->ir_tree);
     return new CheckPhase(
       $this->spans,
       $name_to_symbol,

@@ -1,0 +1,9 @@
+#[entry]
+fn main() -> () {
+  match 2 + 2 {
+    0 => ::Io::println("zero"),
+    1 => ::Io::println("one"),
+    2 => ::Io::println("two"),
+    _ => ::Io::println("several"),
+  };
+}

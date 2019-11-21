@@ -21,6 +21,8 @@ abstract class TokenType {
   const KEYWORD_MOD         = 'Mod';
   const KEYWORD_NATIVE      = 'Native';
   const KEYWORD_TYPE        = 'Type';
+  const KEYWORD_MATCH       = 'Match';
+  const UNDERSCORE          = '_';
   const CARET               = '^';
   const PIPE                = '|';
   const POUND               = '#';
@@ -34,6 +36,7 @@ abstract class TokenType {
   const PLUS_PLUS           = '++';
   const DASH                = '-';
   const THIN_ARROW          = '->';
+  const FAT_ARROW           = '=>';
   const STAR                = '*';
   const SLASH               = '/';
   const SEMICOLON           = ';';

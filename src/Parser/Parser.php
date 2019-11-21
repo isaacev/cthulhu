@@ -143,20 +143,20 @@ class Parser {
     return new ast\UnionItem($span, $name, $variants, $attrs);
   }
 
-  private function variant_node(): ast\VariantNode {
+  private function variant_node(): ast\VariantDeclNode {
     $pipe = $this->next(TokenType::PIPE);
     $name = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
     switch ($this->lexer->peek()->type) {
       case TokenType::PAREN_LEFT:
-        return $this->unnamed_variant_node($name);
+        return $this->ordered_variant_decl_node($name);
       case TokenType::BRACE_LEFT:
-        return $this->named_variant_node($name);
+        return $this->named_variant_decl_node($name);
       default:
-        return $this->unit_variant_node($name);
+        return $this->unit_variant_decl_node($name);
     }
   }
 
-  private function unnamed_variant_node(ast\UpperNameNode $name): ast\UnnamedVariantNode {
+  private function ordered_variant_decl_node(ast\UpperNameNode $name): ast\OrderedVariantDeclNode {
     $paren_left = $this->next(TokenType::PAREN_LEFT);
     $members = [ $this->type_annotation() ];
     while ($this->lexer->peek()->type === TokenType::COMMA) {
@@ -165,10 +165,10 @@ class Parser {
     }
     $paren_right = $this->next(TokenType::PAREN_RIGHT);
     $span = $name->span->extended_to($paren_right->span);
-    return new ast\UnnamedVariantNode($span, $name, $members);
+    return new ast\OrderedVariantDeclNode($span, $name, $members);
   }
 
-  private function named_variant_node(ast\UpperNameNode $name): ast\NamedVariantNode {
+  private function named_variant_decl_node(ast\UpperNameNode $name): ast\NamedVariantDeclNode {
     $brace_left = $this->next(TokenType::BRACE_LEFT);
     $fields = [ $this->field_decl() ];
     while ($this->lexer->peek()->type === TokenType::COMMA) {
@@ -177,11 +177,11 @@ class Parser {
     }
     $brace_right = $this->next(TokenType::BRACE_RIGHT);
     $span = $name->span->extended_to($brace_right->span);
-    return new ast\NamedVariantNode($span, $name, $fields);
+    return new ast\NamedVariantDeclNode($span, $name, $fields);
   }
 
-  private function unit_variant_node(ast\UpperNameNode $name): ast\UnitVariantNode {
-    return new ast\UnitVariantNode($name);
+  private function unit_variant_decl_node(ast\UpperNameNode $name): ast\UnitVariantDeclNode {
+    return new ast\UnitVariantDeclNode($name);
   }
 
   private function field_decl(): ast\FieldDeclNode {
@@ -317,6 +317,8 @@ class Parser {
   private function prefix_expr(): ast\Expr {
     $peek = $this->lexer->peek();
     switch ($peek->type) {
+      case TokenType::KEYWORD_MATCH:
+        return $this->match_expr($this->lexer->next());
       case TokenType::KEYWORD_IF:
         return $this->if_expr($this->lexer->next());
       case TokenType::DASH:
@@ -378,6 +380,129 @@ class Parser {
     $operand = self::expr(Precedence::UNARY);
     $span = $operator->span->extended_to($operand->span);
     return new ast\UnaryExpr($span, $operator->lexeme, $operand);
+  }
+
+  private function match_expr(Token $match_keyword): ast\MatchExpr {
+    $disc       = $this->expr();
+    $brace_left = $this->next(TokenType::BRACE_LEFT);
+
+    $arms = [ $this->match_arm() ];
+    while ($this->lexer->peek()->type !== TokenType::BRACE_RIGHT) {
+      $arms[] = $this->match_arm();
+    }
+
+    $brace_right = $this->lexer->next(TokenType::BRACE_LEFT);
+    $span = $match_keyword->span->extended_to($brace_right->span);
+    return new ast\MatchExpr($span, $disc, $arms);
+  }
+
+  private function match_arm(): ast\MatchArm {
+    $pattern = $this->match_pattern();
+    $arrow   = $this->next(TokenType::FAT_ARROW);
+    $handler = $this->expr();
+    $comma   = $this->next(TokenType::COMMA);
+    $span    = $pattern->span->extended_to($comma->span);
+    return new ast\MatchArm($span, $pattern, $handler);
+  }
+
+  private function match_pattern(): ast\Pattern {
+    switch ($this->lexer->peek()->type) {
+      case TokenType::UPPER_NAME:
+        return $this->variant_pattern();
+      case TokenType::UNDERSCORE:
+        return $this->match_wildcard_pattern();
+      case TokenType::LOWER_NAME:
+        return $this->match_varible_pattern();
+      case TokenType::LITERAL_STR:
+        return $this->match_str_const_pattern();
+      case TokenType::LITERAL_INT:
+        return $this->match_int_const_pattern();
+      case TokenType::LITERAL_BOOL:
+        return $this->match_bool_const_pattern();
+      default:
+        assert(false, 'unreachable case');
+    }
+  }
+
+  private function variant_pattern(): ast\VariantPattern {
+    $path = $this->path_node();
+    assert($path->tail instanceof ast\UpperNameNode); // TODO: handle this with a proper error message
+    switch ($this->lexer->peek()->type) {
+      case TokenType::BRACE_LEFT:
+        $fields = $this->named_variant_pattern_fields();
+        break;
+      case TokenType::PAREN_LEFT:
+        $fields = $this->ordered_variant_pattern_fields();
+        break;
+      default:
+        $fields = null;
+    }
+
+    $span = $fields ? $path->span->extended_to($fields->span) : $path->span;
+    return new ast\VariantPattern($span, $path, $fields);
+  }
+
+  private function ordered_variant_pattern_fields(): ast\OrderedVariantPatternFields {
+    $paren_left = $this->next(TokenType::PAREN_LEFT);
+    $order = [];
+    while ($this->lexer->peek()->type !== TokenType::PAREN_RIGHT) {
+      $order[] = $this->match_pattern();
+      if ($this->lexer->peek()->type === TokenType::COMMA) {
+        $this->next(TokenType::COMMA);
+        continue;
+      } else {
+        break;
+      }
+    }
+    $paren_right = $this->next(TokenType::PAREN_RIGHT);
+    $span = $paren_left->span->extended_to($paren_right->span);
+    return new ast\OrderedVariantPatternFields($span, $order);
+  }
+
+  private function named_variant_pattern_fields(): ast\NamedVariantPatternFields {
+    $brace_left = $this->next(TokenType::BRACE_LEFT);
+    $mapping = [];
+    while ($this->lexer->peek()->type !== TokenType::BRACE_RIGHT) {
+      $name = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
+      $colon = $this->next(TokenType::COLON);
+      $pattern = $this->match_pattern();
+      $span = $name->span->extended_to($pattern->span);
+      $mapping[] = new ast\NamedPatternField($span, $name, $pattern);
+      if ($this->lexer->peek()->type === TokenType::COMMA) {
+        $this->next(TokenType::COMMA);
+        continue;
+      } else {
+        break;
+      }
+    }
+    $brace_right = $this->next(TokenType::BRACE_RIGHT);
+    $span = $brace_left->span->extended_to($brace_right->span);
+    return new ast\NamedVariantPatternFields($span, $mapping);
+  }
+
+  private function match_wildcard_pattern(): ast\WildcardPattern {
+    $underscore = $this->next(TokenType::UNDERSCORE);
+    return new ast\WildcardPattern($underscore->span);
+  }
+
+  private function match_varible_pattern(): ast\VariablePattern {
+    $name = ast\LowerNameNode::from_token($this->next(TokenType::LOWER_NAME));
+    return new ast\VariablePattern($name);
+  }
+
+  private function match_str_const_pattern(): ast\ConstPattern {
+    $literal = $this->str_literal($this->next(TokenType::LITERAL_STR));
+    return new ast\ConstPattern($literal);
+  }
+
+  private function match_int_const_pattern(): ast\ConstPattern {
+    $literal = $this->int_literal($this->next(TokenType::LITERAL_INT));
+    return new ast\ConstPattern($literal);
+  }
+
+  private function match_bool_const_pattern(): ast\ConstPattern {
+    $literal = $this->bool_literal($this->next(TokenType::LITERAL_BOOL));
+    return new ast\ConstPattern($literal);
   }
 
   private function if_expr(Token $if_keyword): ast\IfExpr {
@@ -448,43 +573,47 @@ class Parser {
     }
   }
 
-  private function variant_constructor(ast\PathNode $path): ast\VariantConstructor {
+  private function variant_constructor(ast\PathNode $path): ast\VariantConstructorExpr {
     switch ($this->lexer->peek()->type) {
       case TokenType::BRACE_LEFT:
         return $this->named_variant_constructor($path);
       case TokenType::PAREN_LEFT:
-        return $this->unnamed_variant_constructor($path);
+        return $this->ordered_variant_constructor($path);
       default:
         return $this->unit_variant_constructor($path);
     }
   }
 
-  private function named_variant_constructor(ast\PathNode $path): ast\NamedVariantConstructor {
+  private function named_variant_constructor(ast\PathNode $path): ast\VariantConstructorExpr {
     $brace_left = $this->next(TokenType::BRACE_LEFT);
-    $fields = [ $this->field_expr() ];
+    $pairs      = [ $this->field_expr() ];
     while ($this->lexer->peek()->type === TokenType::COMMA) {
       $this->next(TokenType::COMMA);
-      $fields[] = $this->field_expr();
+      $pairs[] = $this->field_expr();
     }
     $brace_right = $this->next(TokenType::BRACE_RIGHT);
-    $span = $path->span->extended_to($brace_right->span);
-    return new ast\NamedVariantConstructor($span, $path, $fields);
+    $span        = $brace_left->span->extended_to($brace_right->span);
+    $fields      = new ast\NamedVariantConstructorFields($span, $pairs);
+    $span        = $path->span->extended_to($fields->span);
+    return new ast\VariantConstructorExpr($span, $path, $fields);
   }
 
-  private function unnamed_variant_constructor(ast\PathNode $path): ast\UnnamedVariantConstructor {
-    $brace_left = $this->next(TokenType::PAREN_LEFT);
-    $members = [ $this->expr() ];
+  private function ordered_variant_constructor(ast\PathNode $path): ast\VariantConstructorExpr {
+    $paren_left = $this->next(TokenType::PAREN_LEFT);
+    $order      = [ $this->expr() ];
     while ($this->lexer->peek()->type === TokenType::COMMA) {
       $this->next(TokenType::COMMA);
-      $members[] = $this->expr();
+      $order[] = $this->expr();
     }
-    $brace_right = $this->next(TokenType::PAREN_RIGHT);
-    $span = $path->span->extended_to($brace_right->span);
-    return new ast\UnnamedVariantConstructor($span, $path, $members);
+    $paren_right = $this->next(TokenType::PAREN_RIGHT);
+    $span        = $paren_left->span->extended_to($paren_right->span);
+    $fields      = new ast\OrderedVariantConstructorFields($span, $order);
+    $span        = $path->span->extended_to($fields->span);
+    return new ast\VariantConstructorExpr($span, $path, $fields);
   }
 
-  private function unit_variant_constructor(ast\PathNode $path): ast\UnitVariantConstructor {
-    return new ast\UnitVariantConstructor($path);
+  private function unit_variant_constructor(ast\PathNode $path): ast\VariantConstructorExpr {
+    return new ast\VariantConstructorExpr($path->span, $path, null);
   }
 
   private function str_literal(Token $str): ast\StrLiteral {

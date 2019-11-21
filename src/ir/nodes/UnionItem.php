@@ -10,7 +10,7 @@ class UnionItem extends Item {
    * UnionItem constructor.
    * @param array $attrs
    * @param Name $name
-   * @param VariantNode[] $variants
+   * @param VariantDeclNode[] $variants
    */
   function __construct(array $attrs, Name $name, array $variants) {
     parent::__construct($attrs);

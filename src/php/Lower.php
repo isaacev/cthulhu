@@ -11,6 +11,10 @@ class Lower {
   private $stmt_stack = [];
   private $expr_stack = [];
   private $entry_refs = [];
+  private $match_out_vars = [];
+  private $match_in_vars = [];
+  private $match_arms = [];
+  private $match_tests = [];
 
   // Name resolution variables
   private $ir_name_to_ir_symbol;
@@ -57,6 +61,10 @@ class Lower {
 
   private function pop_block(): nodes\BlockNode {
     return new nodes\BlockNode(array_pop($this->stmt_stack));
+  }
+
+  private function peek_expr(): nodes\Expr {
+    return end($this->expr_stack);
   }
 
   private function push_expr(nodes\Expr $expr): void {
@@ -323,6 +331,27 @@ class Lower {
       'exit(ReturnStmt)' => function () use ($ctx) {
         self::exit_return_stmt($ctx);
       },
+      'enter(MatchExpr)' => function (ir\nodes\MatchExpr $expr, ir\Path $path) use ($ctx) {
+        self::enter_match_expr($ctx, $expr, $path);
+      },
+      'exit(MatchExpr)' => function (ir\nodes\MatchExpr $expr) use ($ctx) {
+        self::exit_match_expr($ctx, $expr);
+      },
+      'exit(MatchDiscriminant)' => function (ir\nodes\MatchDiscriminant $node) use ($ctx) {
+        self::exit_match_discriminant($ctx, $node);
+      },
+      'enter(MatchArm)' => function (ir\nodes\MatchArm $node) use ($ctx) {
+        self::enter_match_arm($ctx, $node);
+      },
+      'exit(MatchArm)' => function (ir\nodes\MatchArm $node) use ($ctx) {
+        self::exit_match_arm($ctx, $node);
+      },
+      'enter(MatchHandler)' => function (ir\nodes\MatchHandler $node) use ($ctx) {
+        self::enter_match_handler($ctx, $node);
+      },
+      'exit(MatchHandler)' => function (ir\nodes\MatchHandler $node) use ($ctx) {
+        self::exit_match_handler($ctx, $node);
+      },
       'enter(IfExpr)' => function (ir\nodes\IfExpr $expr, ir\Path $path) use ($ctx) {
         self::enter_if_expr($ctx, $expr, $path);
       },
@@ -341,8 +370,8 @@ class Lower {
       'exit(ListExpr)' => function (ir\nodes\ListExpr $expr) use ($ctx) {
         self::exit_list_expr($ctx, $expr);
       },
-      'exit(VariantConstructor)' => function (ir\nodes\VariantConstructor $expr) use ($ctx) {
-        self::exit_variant_constructor($ctx, $expr);
+      'exit(VariantConstructorExpr)' => function (ir\nodes\VariantConstructorExpr $expr) use ($ctx) {
+        self::exit_variant_constructor_expr($ctx, $expr);
       },
       'RefExpr' => function (ir\nodes\RefExpr $expr) use ($ctx) {
         self::ref_expr($ctx, $expr);
@@ -479,7 +508,7 @@ class Lower {
     foreach ($item->variants as $name => $variant) {
       $php_variant_name = $ctx->php_name_from_ir_name($variant->name);
       switch (true) {
-        case $variant instanceof ir\nodes\NamedVariantNode: {
+        case $variant instanceof ir\nodes\NamedVariantDeclNode: {
           $body = [];
           $ctx->enter_method();
           $params = [ $ctx->php_var_from_string('args') ];
@@ -497,7 +526,7 @@ class Lower {
           $body[] = new nodes\MagicMethodNode('__construct', $params, $ctx->exit_method());
           break;
         }
-        case $variant instanceof ir\nodes\UnnamedVariantNode: {
+        case $variant instanceof ir\nodes\OrderedVariantDeclNode: {
           $body = [];
           $ctx->enter_method();
           $params = [];
@@ -542,6 +571,175 @@ class Lower {
 
   private static function exit_return_stmt(self $ctx): void {
     $ctx->call_block_exit_handler();
+  }
+
+  private static function enter_match_expr(self $ctx, ir\nodes\MatchExpr $expr, ir\Path $path): void {
+    // This is the variable that all match arms will assign values to.
+    $php_var = $ctx->php_tmp_var();
+    $ctx->match_out_vars[] = $php_var;
+    $ctx->match_arms[] = [];
+
+    $parent_ir_node = $path->parent->node;
+    $return_type = $ctx->ir_expr_to_type->get($expr);
+    if ($parent_ir_node instanceof ir\nodes\SemiStmt || ir\types\UnitType::matches($return_type)) {
+      $ctx->push_expr(new nodes\NullLiteral());
+      $ctx->push_block_exit_handler(function () use ($ctx) {
+        $php_expr = $ctx->pop_expr();
+        $ctx->push_stmt(new nodes\SemiStmt($php_expr));
+      });
+    } else {
+      $ctx->push_expr(new nodes\VariableExpr($php_var));
+      $ctx->push_block_exit_handler(function () use ($ctx, $php_var) {
+        $php_expr = $ctx->pop_expr();
+        $ctx->push_stmt(new nodes\AssignStmt($php_var, $php_expr));
+      });
+    }
+  }
+
+  private static function exit_match_expr(self $ctx, ir\nodes\MatchExpr $expr): void {
+    $ctx->pop_block_exit_handler();
+    array_pop($ctx->match_in_vars);
+    $arms = array_pop($ctx->match_arms);
+    assert(!empty($arms));
+    $php_stmt = null;
+    for ($i = count($arms) - 1; $i >= 0; $i--) {
+      $if_stmt = $arms[$i];
+      assert($if_stmt instanceof nodes\IfStmt);
+      if ($php_stmt === null) {
+        $php_stmt = $if_stmt;
+      } else {
+        assert($php_stmt instanceof nodes\IfStmt);
+        $php_stmt = new nodes\IfStmt($if_stmt->test, $if_stmt->consequent, $php_stmt);
+      }
+    }
+
+    $ctx->push_stmt($php_stmt);
+
+    $ctx->pop_expr();
+    $ctx->push_expr(new nodes\VariableExpr(array_pop($ctx->match_out_vars)));
+  }
+
+  private static function exit_match_discriminant(self $ctx, ir\nodes\MatchDiscriminant $node): void {
+    $expr = $ctx->pop_expr();
+
+    if ($expr instanceof nodes\VariableExpr) {
+      $php_var = $expr->variable;
+    } else {
+      $php_var = $ctx->php_tmp_var();
+      $ctx->push_stmt(new nodes\AssignStmt($php_var, $expr));
+    }
+    array_push($ctx->match_in_vars, new nodes\VariableExpr($php_var));
+  }
+
+  private static function enter_match_arm(self $ctx, ir\nodes\MatchArm $node): void {
+    $ctx->push_block();
+    $accessors = [ end($ctx->match_in_vars) ];
+    $conditions = [];
+    ir\Visitor::walk($node->pattern, [
+      'VariantPattern' => function (ir\nodes\VariantPattern $node) use ($ctx, &$accessors, &$conditions) {
+        $next_condition = new nodes\BinaryExpr(
+          'instanceof',
+          end($accessors),
+          new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($node->ref->tail_segment))
+        );
+        array_push($conditions, $next_condition);
+      },
+      'enter(NamedPatternField)' => function (ir\nodes\NamedPatternField $node) use ($ctx, &$accessors) {
+        $next_accessor = new nodes\PropertyAccessExpr(
+          end($accessors),
+          $ctx->php_var_from_ir_name($node->name)
+        );
+        array_push($accessors, $next_accessor);
+      },
+      'exit(NamedPatternField)' => function () use (&$accessors) {
+        array_pop($accessors);
+      },
+      'enter(OrderedVariantPatternField)' => function (ir\nodes\OrderedVariantPatternField $node) use ($ctx, &$accessors) {
+        $next_accessor = new nodes\DynamicPropertyAccessExpr(
+          end($accessors),
+          new nodes\IntLiteral($node->position)
+        );
+        array_push($accessors, $next_accessor);
+      },
+      'exit(OrderedVariantPatternField)' => function () use (&$accessors) {
+        array_pop($accessors);
+      },
+      'StrConstPattern' => function (ir\nodes\StrConstPattern $node) use (&$accessors, &$conditions) {
+        $next_condition = new nodes\BinaryExpr(
+          '==',
+          end($accessors),
+          new nodes\StrLiteral($node->value)
+        );
+        array_push($conditions, $next_condition);
+      },
+      'FloatConstPattern' => function (ir\nodes\FloatConstPattern $node) use (&$accessors, &$conditions) {
+        $next_condition = new nodes\BinaryExpr(
+          '==',
+          end($accessors),
+          new nodes\FloatLiteral($node->value, 5), // TODO: floating point precision?
+        );
+        array_push($conditions, $next_condition);
+      },
+      'IntConstPattern' => function (ir\nodes\IntConstPattern $node) use (&$accessors, &$conditions) {
+        $next_condition = new nodes\BinaryExpr(
+          '==',
+          end($accessors),
+          new nodes\IntLiteral($node->value)
+        );
+        array_push($conditions, $next_condition);
+      },
+      'BoolConstPattern' => function (ir\nodes\BoolConstPattern $node) use (&$accessors, &$conditions) {
+        $next_condition = new nodes\BinaryExpr(
+          '==',
+          end($accessors),
+          new nodes\BoolLiteral($node->value)
+        );
+        array_push($conditions, $next_condition);
+      },
+      'VariablePattern' => function (ir\nodes\VariablePattern $node) use ($ctx, &$accessors) {
+        $next_stmt = new nodes\AssignStmt(
+          $ctx->php_var_from_ir_name($node->name),
+          end($accessors)
+        );
+        $ctx->push_stmt($next_stmt);
+      },
+    ]);
+
+    switch (count($conditions)) {
+      case 0:
+        $test = new nodes\BoolLiteral(true);
+        break;
+      case 1:
+        $test = $conditions[0];
+        break;
+      default:
+        $test = $conditions[0];
+        foreach (array_slice($conditions, 1) as $next) {
+          $test = new nodes\BinaryExpr(
+            '&&',
+            $test,
+            $next
+          );
+        }
+    }
+
+    array_push($ctx->match_tests, $test);
+  }
+
+  private static function exit_match_arm(self $ctx, ir\nodes\MatchArm $node): void {
+    $test = array_pop($ctx->match_tests);
+    $if_stmt = new nodes\IfStmt($test, $ctx->pop_block(), null);
+    array_push($ctx->match_arms[count($ctx->match_arms) - 1], $if_stmt);
+  }
+
+  private static function enter_match_handler(self $ctx, ir\nodes\MatchHandler $node): void {
+//    $ctx->push_block_exit_handler(function () {
+//
+//    });
+  }
+
+  private static function exit_match_handler(self $ctx, ir\nodes\MatchHandler $node): void {
+//    $ctx->push_stmt(new nodes\SemiStmt($ctx->pop_expr()));
   }
 
   private static function enter_if_expr(self $ctx, ir\nodes\IfExpr $expr, ir\Path $path): void {
@@ -620,25 +818,21 @@ class Lower {
     $ctx->push_expr($expr);
   }
 
-  private static function exit_variant_constructor(self $ctx, ir\nodes\VariantConstructor $expr): void {
+  private static function exit_variant_constructor_expr(self $ctx, ir\nodes\VariantConstructorExpr $expr): void {
     $ref = new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($expr->ref->tail_segment));
-    switch (true) {
-      case $expr instanceof ir\nodes\NamedVariantConstructor: {
-        $fields = [];
-        $exprs = $ctx->pop_exprs(count($expr->fields));
-        foreach ($expr->fields as $index => $field) {
-          $field_name = $ctx->php_name_from_ir_name($field->name);
-          $field_expr = $exprs[$index];
-          $fields[] = new nodes\FieldNode($field_name, $field_expr);
-        }
-        $args = [ new nodes\AssociativeArrayExpr($fields) ];
-        break;
+    if ($expr->fields instanceof ir\nodes\NamedVariantConstructorFields) {
+      $fields = [];
+      $exprs = $ctx->pop_exprs(count($expr->fields->pairs));
+      foreach ($expr->fields->pairs as $index => $field) {
+        $field_name = $ctx->php_name_from_ir_name($field->name);
+        $field_expr = $exprs[$index];
+        $fields[] = new nodes\FieldNode($field_name, $field_expr);
       }
-      case $expr instanceof ir\nodes\UnnamedVariantConstructor:
-        $args = $ctx->pop_exprs(count($expr->members));
-        break;
-      default:
-        $args = [];
+      $args = [ new nodes\AssociativeArrayExpr($fields) ];
+    } else if ($expr->fields instanceof ir\nodes\OrderedVariantConstructorFields) {
+      $args = $ctx->pop_exprs(count($expr->fields->order));
+    } else {
+      $args = [];
     }
     $ctx->push_expr(new nodes\NewExpr($ref, $args));
   }

@@ -1,0 +1,8 @@
+#[entry]
+fn main() -> () {
+  let x = 123;
+  let m = match x {
+    0 => "zero",
+    1 => "one",
+  };
+}
