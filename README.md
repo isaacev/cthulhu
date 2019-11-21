@@ -25,6 +25,6 @@ These capitalization rules are enforced by the language.
 - [x] Module dependency linearized and cycle detection
 - [ ] The Maybe type
 - [x] The List type
-- [ ] Floating point numbers
-- [ ] Pattern matching
+- [x] Floating point numbers
+- [x] Pattern matching
 - [ ] Type casting
