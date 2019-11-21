@@ -1,10 +1,10 @@
 use ::Io;
-use ::Rng;
+use ::Random;
 
 #[entry]
 #[inline]
 fn main() -> () {
-  Io::println(if Rng::integer(-2, 3) > 0 {
+  Io::println(if Random::integer(-2, 3) > 0 {
     "FIRST BRANCH"
   } else {
     "SECOND BRANCH"
