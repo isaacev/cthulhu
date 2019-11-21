@@ -206,9 +206,31 @@ class Builder implements Buildable {
       ->maybe($should_group, (new Builder)->paren_right());
   }
 
-  public function stmts(array $stmts): self {
+  public function block(nodes\BlockNode $block, ?Builder $spacer = null): self {
+    if ($spacer) {
+      $spacer = (new Builder)
+        ->newline()
+        ->then($spacer)
+        ->indent();
+    } else {
+      $spacer = (new Builder)
+        ->newline_then_indent();
+    }
+
+    $is_empty = (new Builder)
+      ->comment('empty');
+
+    $not_empty = (new Builder)
+      ->each($block->stmts, $spacer);
+
     return $this
-      ->each($stmts, (new Builder)->newline_then_indent());
+      ->brace_left()
+      ->increase_indentation()
+      ->newline_then_indent()
+      ->choose($block->is_empty(), $is_empty, $not_empty)
+      ->decrease_indentation()
+      ->newline_then_indent()
+      ->brace_right();
   }
 
   /**

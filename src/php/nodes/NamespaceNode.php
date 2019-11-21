@@ -29,6 +29,7 @@ class NamespaceNode extends Node {
       ->then($this->name
         ? (new Builder)->then($this->name)->space()
         : (new Builder))
-      ->then($this->block);
+      ->block($this->block, (new Builder)
+        ->newline());
   }
 }

@@ -6,11 +6,13 @@ namespace Kernel\Builtins {
   function _print($a) {
     print($a);
   }
+
   // #[inline]
   // #[construct]
   function cast_int_to_string($a) {
     return (string)$a;
   }
+
   // #[inline]
   // #[construct]
   function cast_float_to_string($a) {

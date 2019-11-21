@@ -6,11 +6,13 @@ namespace Kernel\Builtins {
   function _print($a) {
     print($a);
   }
+
   // #[inline]
   // #[construct]
   function cast_int_to_string($a) {
     return (string)$a;
   }
+
   // #[inline]
   // #[construct]
   function cast_float_to_string($a) {
@@ -34,17 +36,21 @@ namespace Fmt {
 
 namespace match_5 {
   abstract class Shape {}
+
   class UnitCircle extends \match_5\Shape {}
+
   class Circle extends \match_5\Shape {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
+
   class Square extends \match_5\Shape {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
+
   class Rect extends \match_5\Shape {
     public $width;
     public $height;
@@ -53,6 +59,7 @@ namespace match_5 {
       $this->height = $args["height"];
     }
   }
+
   function describe($sh) {
     if ($sh instanceof \match_5\UnitCircle) {
       $a = "unit circle";
@@ -69,6 +76,7 @@ namespace match_5 {
     }
     \Io\println($a);
   }
+
   // #[entry]
   function main() {
     \match_5\describe(new \match_5\UnitCircle());

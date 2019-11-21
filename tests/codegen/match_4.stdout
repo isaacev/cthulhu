@@ -17,17 +17,21 @@ namespace Io {
 
 namespace match_4 {
   abstract class Shape {}
+
   class UnitCircle extends \match_4\Shape {}
+
   class Circle extends \match_4\Shape {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
+
   class Square extends \match_4\Shape {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
+
   class Rect extends \match_4\Shape {
     public $width;
     public $height;
@@ -36,6 +40,7 @@ namespace match_4 {
       $this->height = $args["height"];
     }
   }
+
   function describe($sh) {
     if ($sh instanceof \match_4\UnitCircle) {
       $a = "unit circle";
@@ -48,6 +53,7 @@ namespace match_4 {
     }
     \Io\println($a);
   }
+
   // #[entry]
   function main() {
     \match_4\describe(new \match_4\UnitCircle());
