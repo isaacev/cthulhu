@@ -58,14 +58,14 @@ namespace match_5 {
       $a = "unit circle";
     } else if ($sh instanceof \match_5\Circle) {
       $r = $sh->{0};
-      $a = "circle with radius " . (\Fmt\float($r));
+      $a = "circle with radius " . \Fmt\float($r);
     } else if ($sh instanceof \match_5\Square) {
       $s = $sh->{0};
-      $a = "square with perimeter " . (\Fmt\float(4.0 * $s));
+      $a = "square with perimeter " . \Fmt\float(4.0 * $s);
     } else if ($sh instanceof \match_5\Rect) {
       $w = $sh->width;
       $h = $sh->height;
-      $a = "rectangle with area " . (\Fmt\float($w * $h));
+      $a = "rectangle with area " . \Fmt\float($w * $h);
     }
     \Io\println($a);
   }

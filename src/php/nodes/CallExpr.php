@@ -23,7 +23,7 @@ class CallExpr extends Expr {
   }
 
   public function precedence(): int {
-    return 40;
+    return Precedence::HIGHEST;
   }
 
   public function build(): Builder {
