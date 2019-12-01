@@ -14,4 +14,11 @@ class Span {
   public function extended_to(Span $other): Span {
     return new Span($this->from, $other->to);
   }
+
+  public function __debugInfo() {
+    return [
+      "from" => "$this->from",
+      "to" => "$this->to",
+    ];
+  }
 }

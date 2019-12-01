@@ -20,4 +20,10 @@ class File extends Node {
     $this->file = $file;
     $this->items = $items;
   }
+
+  public function __debugInfo() {
+    return [
+      "items" => $this->items,
+    ];
+  }
 }
