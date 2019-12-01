@@ -611,7 +611,15 @@ class Check {
   private static function exit_variant_constructor_expr(self $ctx, nodes\VariantConstructorExpr $expr): void {
     $variant_symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
     $union_symbol   = $variant_symbol->parent;
-    $union_type     = $ctx->get_type_for_symbol($union_symbol);
+    $union_type     = $ctx->types->get($union_symbol);
+
+    if ($union_type === null) {
+      $span = $ctx->spans->get(end($expr->ref->head_segments));
+      throw Errors::constructor_on_non_type($span);
+    } else if (($union_type instanceof UnionType) === false) {
+      $span = $ctx->spans->get(end($expr->ref->head_segments));
+      throw Errors::constructor_on_non_union_type($span, $union_type);
+    }
 
     assert($union_type instanceof UnionType);
 

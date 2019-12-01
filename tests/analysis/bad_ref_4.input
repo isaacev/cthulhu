@@ -1,0 +1,4 @@
+#[entry]
+fn main() -> () {
+  ::Fmt::Bool(true);
+}

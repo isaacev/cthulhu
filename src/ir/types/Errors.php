@@ -57,6 +57,18 @@ class Errors {
       ->snippet($if_span);
   }
 
+  public static function constructor_on_non_type(Source\Span $span): Error {
+    return (new Error('constructor on a module'))
+      ->paragraph("A constructor was called on the name of a module.")
+      ->snippet($span);
+  }
+
+  public static function constructor_on_non_union_type(Source\Span $span, Type $wrong_type): Error {
+    return (new Error('constructor on non-union type'))
+      ->paragraph("A constructor was called on a type `$wrong_type` instead of on a union type.")
+      ->snippet($span);
+  }
+
   public static function no_variant_with_name(Source\Span $span, UnionType $union, string $variant_name): Error {
     return (new Error('unknown variant'))
       ->paragraph("A constructor named '$variant_name' was used by the type `$union->name` has no variant with that name.")
