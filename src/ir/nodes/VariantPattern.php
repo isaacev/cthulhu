@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class VariantPattern extends Pattern {
-  public $ref;
-  public $fields;
+  public Ref $ref;
+  public ?VariantPatternFields $fields;
 
   function __construct(Ref $ref, ?VariantPatternFields $fields) {
     parent::__construct();

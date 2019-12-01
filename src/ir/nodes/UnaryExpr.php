@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class UnaryExpr extends Expr {
-  public $op;
-  public $right;
+  public string $op;
+  public Expr $right;
 
   function __construct(string $op, Expr $right) {
     parent::__construct();

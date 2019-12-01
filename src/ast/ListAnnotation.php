@@ -5,7 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class ListAnnotation extends Annotation {
-  public $elements;
+  public ?Annotation $elements;
 
   function __construct(Source\Span $span, ?Annotation $elements) {
     parent::__construct($span);

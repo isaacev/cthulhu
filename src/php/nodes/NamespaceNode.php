@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class NamespaceNode extends Node {
-  public $name;
-  public $block;
+  public ?Reference $name;
+  public BlockNode $block;
 
   function __construct(?Reference $name, BlockNode $block) {
     parent::__construct();

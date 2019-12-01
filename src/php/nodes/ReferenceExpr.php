@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class ReferenceExpr extends Expr {
-  public $reference;
+  public Reference $reference;
 
   function __construct(Reference $reference) {
     parent::__construct();

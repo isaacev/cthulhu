@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class OrderedVariantPatternField extends Node {
-  public $position;
-  public $pattern;
+  public int $position;
+  public Pattern $pattern;
 
   function __construct(int $position, Pattern $pattern) {
     parent::__construct();

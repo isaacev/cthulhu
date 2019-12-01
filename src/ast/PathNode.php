@@ -5,12 +5,11 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class PathNode extends Node {
-  public $extern;
-  public $head;
+  public bool $extern;
+  public array $head;
   public $tail;
 
   /**
-   * PathNode constructor.
    * @param Source\Span $span
    * @param bool $extern
    * @param UpperNameNode[] $head

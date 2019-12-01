@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class MatchDiscriminant extends Node {
-  public $expr;
+  public Expr $expr;
 
   function __construct(Expr $expr) {
     parent::__construct();

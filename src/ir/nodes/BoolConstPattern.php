@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class BoolConstPattern extends ConstPattern {
-  public $value;
+  public bool $value;
 
   function __construct(bool $value) {
     parent::__construct();

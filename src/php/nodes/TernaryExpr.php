@@ -5,9 +5,9 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class TernaryExpr extends Expr {
-  public $cond;
-  public $if_true;
-  public $if_false;
+  public Expr $cond;
+  public Expr $if_true;
+  public Expr $if_false;
 
   function __construct(Expr $cond, Expr $if_true, Expr $if_false) {
     parent::__construct();

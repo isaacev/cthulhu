@@ -3,10 +3,9 @@
 namespace Cthulhu\ir\nodes;
 
 class NamedVariantDeclNode extends VariantDeclNode {
-  public $fields;
+  public array $fields;
 
   /**
-   * NamedVariantNode constructor.
    * @param Name $name
    * @param FieldDeclNode[] $fields
    */

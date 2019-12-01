@@ -3,8 +3,11 @@
 namespace Cthulhu\ir\nodes;
 
 class ListExpr extends Expr {
-  public $elements;
+  public array $elements;
 
+  /**
+   * @param Expr[] $elements
+   */
   function __construct(array $elements) {
     parent::__construct();
     $this->elements = $elements;

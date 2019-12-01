@@ -3,10 +3,15 @@
 namespace Cthulhu\ir\nodes;
 
 class Ref extends Node {
-  public $extern;
-  public $head_segments;
-  public $tail_segment;
+  public bool $extern;
+  public array $head_segments;
+  public Name $tail_segment;
 
+  /**
+   * @param bool $extern
+   * @param Name[] $head_segments
+   * @param Name $tail_segment
+   */
   function __construct(bool $extern, array $head_segments, Name $tail_segment) {
     parent::__construct();
     $this->extern = $extern;

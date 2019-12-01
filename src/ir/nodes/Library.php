@@ -3,9 +3,13 @@
 namespace Cthulhu\ir\nodes;
 
 class Library extends Node {
-  public $name;
-  public $items;
+  public Name $name;
+  public array $items;
 
+  /**
+   * @param Name $name
+   * @param Item[] $items
+   */
   function __construct(Name $name, array $items) {
     parent::__construct();
     $this->name  = $name;

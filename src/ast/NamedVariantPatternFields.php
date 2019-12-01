@@ -5,7 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class NamedVariantPatternFields extends VariantPatternFields {
-  public $mapping;
+  public array $mapping;
 
   /**
    * @param Source\Span $span

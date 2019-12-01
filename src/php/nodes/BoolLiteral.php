@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class BoolLiteral extends Literal {
-  public $value;
+  public bool $value;
 
   function __construct(bool $value) {
     parent::__construct();

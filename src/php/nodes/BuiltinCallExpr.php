@@ -5,9 +5,13 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class BuiltinCallExpr extends Expr {
-  public $name;
-  public $args;
+  public string $name;
+  public array $args;
 
+  /**
+   * @param string $name
+   * @param Expr[] $args
+   */
   function __construct(string $name, array $args) {
     parent::__construct();
     $this->name = $name;

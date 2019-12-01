@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class AssignStmt extends Stmt {
-  public $assignee;
-  public $expr;
+  public Node $assignee;
+  public Expr $expr;
 
   function __construct(Node $assignee, Expr $expr) {
     parent::__construct();

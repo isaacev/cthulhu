@@ -3,10 +3,9 @@
 namespace Cthulhu\ir\nodes;
 
 class NamedVariantPatternFields extends VariantPatternFields {
-  public $mapping;
+  public array $mapping;
 
   /**
-   * OrderedVariantPatternFields constructor.
    * @param NamedPatternField[] $mapping
    */
   function __construct(array $mapping) {

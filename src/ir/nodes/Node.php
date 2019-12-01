@@ -2,8 +2,10 @@
 
 namespace Cthulhu\ir\nodes;
 
-abstract class Node implements \Cthulhu\ir\HasId {
-  use \Cthulhu\ir\GenerateId;
+use Cthulhu\ir;
+
+abstract class Node implements ir\HasId {
+  use ir\GenerateId;
 
   abstract function children(): array;
 }

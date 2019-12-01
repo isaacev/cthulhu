@@ -2,12 +2,10 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\ir\nodes;
-
 class ParamNote extends Note {
-  public $name;
+  public Name $name;
 
-  function __construct(nodes\Name $name) {
+  function __construct(Name $name) {
     parent::__construct();
     $this->name = $name;
   }

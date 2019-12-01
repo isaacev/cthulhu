@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class SemiStmt extends Stmt {
-  public $expr;
+  public Expr $expr;
 
   function __construct(Expr $expr) {
     parent::__construct();

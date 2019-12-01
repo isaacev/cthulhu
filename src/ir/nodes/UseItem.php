@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class UseItem extends Item {
-  public $ref;
+  public CompoundRef $ref;
 
   function __construct(CompoundRef $ref, array $attrs) {
     parent::__construct($attrs);

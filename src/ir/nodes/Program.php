@@ -3,8 +3,11 @@
 namespace Cthulhu\ir\nodes;
 
 class Program extends Node {
-  public $libs;
+  public array $libs;
 
+  /**
+   * @param Library[] $libs
+   */
   function __construct(array $libs) {
     parent::__construct();
     $this->libs = $libs;

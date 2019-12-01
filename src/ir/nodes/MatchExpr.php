@@ -3,9 +3,13 @@
 namespace Cthulhu\ir\nodes;
 
 class MatchExpr extends Expr {
-  public $disc;
-  public $arms;
+  public MatchDiscriminant $disc;
+  public array $arms;
 
+  /**
+   * @param MatchDiscriminant $disc
+   * @param MatchArm[] $arms
+   */
   function __construct(MatchDiscriminant $disc, array $arms) {
     parent::__construct();
     $this->disc = $disc;

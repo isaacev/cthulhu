@@ -5,9 +5,13 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class File extends Node {
-  public $file;
-  public $items;
+  public Source\File $file;
+  public array $items;
 
+  /**
+   * @param Source\File $file
+   * @param Item[] $items
+   */
   function __construct(Source\File $file, array $items) {
     $span = empty($items)
       ? new Source\Span(new Source\Point($file), new Source\Point($file))

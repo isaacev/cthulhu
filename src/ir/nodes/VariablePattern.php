@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class VariablePattern extends Pattern {
-  public $name;
+  public Name $name;
 
   function __construct(Name $name) {
     parent::__construct();

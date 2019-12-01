@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class ReturnStmt extends Stmt {
-  public $expr;
+  public Expr $expr;
 
   function __construct(Expr $expr) {
     parent::__construct();

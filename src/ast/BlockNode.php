@@ -5,7 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class BlockNode extends Node {
-  public $stmts;
+  public array $stmts;
 
   function __construct(Source\Span $span, array $stmts) {
     parent::__construct($span);

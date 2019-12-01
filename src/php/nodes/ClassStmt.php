@@ -5,13 +5,12 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class ClassStmt extends Stmt {
-  public $is_abstract;
-  public $name;
-  public $parent_class;
-  public $body;
+  public bool $is_abstract;
+  public Name $name;
+  public ?Reference $parent_class;
+  public array $body;
 
   /**
-   * ClassStmt constructor.
    * @param bool $is_abstract
    * @param Name $name
    * @param Reference|null $parent_class

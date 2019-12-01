@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class SubscriptExpr extends Expr {
-  public $arr;
-  public $index;
+  public Expr $arr;
+  public Expr $index;
 
   function __construct(Expr $arr, Expr $index) {
     parent::__construct();

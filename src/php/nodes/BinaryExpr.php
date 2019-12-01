@@ -5,9 +5,9 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class BinaryExpr extends Expr {
-  public $operator;
-  public $left;
-  public $right;
+  public string $operator;
+  public Expr $left;
+  public Expr $right;
 
   function __construct(string $operator, Expr $left, Expr $right) {
     parent::__construct();

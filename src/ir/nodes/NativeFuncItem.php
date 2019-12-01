@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class NativeFuncItem extends Item {
-  public $name;
-  public $note;
+  public Name $name;
+  public FuncNote $note;
 
   function __construct(Name $name, FuncNote $note, array $attrs) {
     parent::__construct($attrs);

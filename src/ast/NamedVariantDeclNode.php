@@ -5,10 +5,9 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class NamedVariantDeclNode extends VariantDeclNode {
-  public $fields;
+  public array $fields;
 
   /**
-   * NamedVariantNode constructor.
    * @param Source\Span $span
    * @param UpperNameNode $name
    * @param FieldDeclNode[] $fields

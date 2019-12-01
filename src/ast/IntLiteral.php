@@ -5,8 +5,8 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class IntLiteral extends Literal {
-  public $value;
-  public $raw;
+  public int $value;
+  public string $raw;
 
   function __construct(Source\Span $span, int $value, string $raw) {
     parent::__construct($span);

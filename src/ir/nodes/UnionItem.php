@@ -3,11 +3,10 @@
 namespace Cthulhu\ir\nodes;
 
 class UnionItem extends Item {
-  public $name;
-  public $variants;
+  public Name $name;
+  public array $variants;
 
   /**
-   * UnionItem constructor.
    * @param array $attrs
    * @param Name $name
    * @param VariantDeclNode[] $variants

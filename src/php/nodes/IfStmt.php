@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class IfStmt extends Stmt {
-  public $test;
-  public $consequent;
+  public Expr $test;
+  public BlockNode $consequent;
   public $alternate;
 
   /**

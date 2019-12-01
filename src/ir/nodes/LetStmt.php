@@ -3,9 +3,9 @@
 namespace Cthulhu\ir\nodes;
 
 class LetStmt extends Stmt {
-  public $name;
-  public $note;
-  public $expr;
+  public Name $name;
+  public ?Note $note;
+  public Expr $expr;
 
   function __construct(Name $name, ?Note $note, Expr $expr) {
     parent::__construct();

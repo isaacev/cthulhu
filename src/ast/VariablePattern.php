@@ -3,7 +3,7 @@
 namespace Cthulhu\ast;
 
 class VariablePattern extends Pattern {
-  public $name;
+  public LowerNameNode $name;
 
   function __construct(LowerNameNode $name) {
     parent::__construct($name->span);

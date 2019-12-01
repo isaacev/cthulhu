@@ -5,9 +5,13 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class FuncHead extends Node {
-  public $name;
-  public $params;
+  public Name $name;
+  public array $params;
 
+  /**
+   * @param Name $name
+   * @param Variable[] $params
+   */
   function __construct(Name $name, array $params) {
     parent::__construct();
     $this->name   = $name;

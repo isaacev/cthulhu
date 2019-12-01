@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class IntLiteral extends Literal {
-  public $value;
+  public int $value;
 
   function __construct(int $value) {
     parent::__construct();

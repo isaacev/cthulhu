@@ -3,8 +3,11 @@
 namespace Cthulhu\ir\nodes;
 
 class Block extends Expr {
-  public $stmts;
+  public array $stmts;
 
+  /**
+   * @param Stmt[] $stmts
+   */
   function __construct(array $stmts) {
     parent::__construct();
     $this->stmts = $stmts;

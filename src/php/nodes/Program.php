@@ -5,8 +5,11 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class Program extends Node {
-  public $namespaces;
+  public array $namespaces;
 
+  /**
+   * @param NamespaceNode[] $namespaces
+   */
   function __construct(array $namespaces) {
     parent::__construct();
     $this->namespaces = $namespaces;

@@ -3,9 +3,9 @@
 namespace Cthulhu\ir\nodes;
 
 class BinaryExpr extends Expr {
-  public $op;
-  public $left;
-  public $right;
+  public string $op;
+  public Expr $left;
+  public Expr $right;
 
   function __construct(string $op, Expr $left, Expr $right) {
     parent::__construct();

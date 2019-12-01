@@ -3,9 +3,13 @@
 namespace Cthulhu\ir\nodes;
 
 class FuncNote extends Note {
-  public $inputs;
-  public $output;
+  public array $inputs;
+  public Note $output;
 
+  /**
+   * @param Note[] $inputs
+   * @param Note $output
+   */
   function __construct(array $inputs, Note $output) {
     parent::__construct();
     $this->inputs = $inputs;

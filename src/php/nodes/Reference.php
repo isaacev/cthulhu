@@ -6,8 +6,8 @@ use Cthulhu\php\Builder;
 use Cthulhu\php\names;
 
 class Reference extends Node {
-  public $segments;
-  public $symbol;
+  public string $segments;
+  public names\Symbol $symbol;
 
   function __construct(string $segments, names\Symbol $symbol) {
     parent::__construct();

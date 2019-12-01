@@ -5,9 +5,9 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class FuncStmt extends Stmt {
-  public $head;
-  public $body;
-  public $attrs;
+  public FuncHead $head;
+  public BlockNode $body;
+  public array $attrs;
 
   function __construct(FuncHead $head, BlockNode $body, array $attrs) {
     parent::__construct();

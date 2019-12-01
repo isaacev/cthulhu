@@ -5,9 +5,9 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class BinaryExpr extends Expr {
-  public $operator;
-  public $left;
-  public $right;
+  public string $operator;
+  public Expr $left;
+  public Expr $right;
 
   function __construct(Source\Span $span, string $operator, Expr $left, Expr $right) {
     parent::__construct($span);

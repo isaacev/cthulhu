@@ -5,7 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class OrderedVariantConstructorFields extends VariantConstructorFields {
-  public $order;
+  public array $order;
 
   /**
    * @param Source\Span $span

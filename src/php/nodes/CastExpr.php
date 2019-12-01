@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class CastExpr extends Expr {
-  public $to_type;
-  public $expr;
+  public string $to_type;
+  public Expr $expr;
 
   function __construct(string $to_type, Expr $expr) {
     parent::__construct();

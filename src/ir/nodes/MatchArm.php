@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class MatchArm extends Node {
-  public $pattern;
-  public $handler;
+  public Pattern $pattern;
+  public MatchHandler $handler;
 
   function __construct(Pattern $pattern, MatchHandler $handler) {
     parent::__construct();

@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class StrLiteral extends Literal {
-  public $value;
+  public string $value;
 
   function __construct(string $value) {
     parent::__construct();

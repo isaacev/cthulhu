@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class OrderedVariantDeclNode extends VariantDeclNode {
-  public $members;
+  public array $members;
 
   /**
    * @param Name $name

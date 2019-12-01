@@ -7,7 +7,7 @@ use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;
 
 class LowerNameNode extends Node {
-  public $ident;
+  public string $ident;
 
   function __construct(Source\Span $span, string $value) {
     assert($value[0] >= 'a' && $value[0] <= 'z');

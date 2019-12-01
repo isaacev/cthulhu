@@ -5,8 +5,11 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class OrderedArrayExpr extends Expr {
-  public $elements;
+  public array $elements;
 
+  /**
+   * @param Expr[] $elements
+   */
   function __construct(array $elements) {
     parent::__construct();
     $this->elements = $elements;

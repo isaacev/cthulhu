@@ -3,10 +3,15 @@
 namespace Cthulhu\ir\nodes;
 
 class FuncHead extends Node {
-  public $name;
-  public $params;
-  public $output;
+  public Name $name;
+  public array $params;
+  public Note $output;
 
+  /**
+   * @param Name $name
+   * @param FuncParam[] $params
+   * @param Note $output
+   */
   function __construct(Name $name, array $params, Note $output) {
     parent::__construct();
     $this->name   = $name;

@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class MatchHandler extends Node {
-  public $stmt;
+  public ReturnStmt $stmt;
 
   function __construct(ReturnStmt $stmt) {
     parent::__construct();

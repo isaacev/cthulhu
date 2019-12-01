@@ -5,11 +5,19 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class FnItem extends Item {
-  public $name;
-  public $params;
-  public $returns;
-  public $body;
+  public LowerNameNode $name;
+  public array $params;
+  public Annotation $returns;
+  public BlockNode $body;
 
+  /**
+   * @param Source\Span $span
+   * @param LowerNameNode $name
+   * @param ParamNode[] $params
+   * @param Annotation $returns
+   * @param BlockNode $body
+   * @param Attribute[] $attrs
+   */
   function __construct(Source\Span $span, LowerNameNode $name, array $params, Annotation $returns, BlockNode $body, array $attrs) {
     parent::__construct($span, $attrs);
     $this->name = $name;

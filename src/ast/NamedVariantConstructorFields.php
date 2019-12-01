@@ -5,7 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class NamedVariantConstructorFields extends VariantConstructorFields {
-  public $pairs;
+  public array $pairs;
 
   /**
    * @param Source\Span $span

@@ -3,7 +3,7 @@
 namespace Cthulhu\ast;
 
 class PathExpr extends Expr {
-  public $path;
+  public PathNode $path;
 
   function __construct(PathNode $path) {
     parent::__construct($path->span);

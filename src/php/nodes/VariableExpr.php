@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class VariableExpr extends Expr {
-  public $variable;
+  public Variable $variable;
 
   function __construct(Variable $variable) {
     parent::__construct();

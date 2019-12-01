@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class FieldDeclNode extends Node {
-  public $name;
-  public $note;
+  public Name $name;
+  public Note $note;
 
   function __construct(Name $name, Note $note) {
     parent::__construct();

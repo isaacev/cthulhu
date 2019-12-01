@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class FieldNode extends Node {
-  public $name;
-  public $expr;
+  public Name $name;
+  public Expr $expr;
 
   function __construct(Name $name, Expr $expr) {
     parent::__construct();

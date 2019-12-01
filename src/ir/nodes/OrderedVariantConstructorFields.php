@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class OrderedVariantConstructorFields extends VariantConstructorFields {
-  public $order;
+  public array $order;
 
   /**
    * @param Expr[] $order

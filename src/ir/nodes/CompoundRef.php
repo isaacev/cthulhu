@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class CompoundRef extends Node {
-  public $extern;
-  public $body;
+  public bool $extern;
+  public array $body;
   public $tail;
 
   /**
@@ -12,7 +12,7 @@ class CompoundRef extends Node {
    * @param Name[]       $body
    * @param StarRef|Name $tail
    */
-  function __construct(bool $extern, $body, $tail) {
+  function __construct(bool $extern, array $body, $tail) {
     parent::__construct();
     $this->extern = $extern;
     $this->body = $body;

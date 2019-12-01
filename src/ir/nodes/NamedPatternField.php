@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class NamedPatternField extends Node {
-  public $name;
-  public $pattern;
+  public Name $name;
+  public Pattern $pattern;
 
   function __construct(Name $name, Pattern $pattern) {
     parent::__construct();

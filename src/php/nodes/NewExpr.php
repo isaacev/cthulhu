@@ -5,9 +5,13 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class NewExpr extends Expr {
-  public $ref;
-  public $args;
+  public ReferenceExpr $ref;
+  public array $args;
 
+  /**
+   * @param ReferenceExpr $ref
+   * @param Expr[] $args
+   */
   function __construct(ReferenceExpr $ref, array $args) {
     parent::__construct();
     $this->ref  = $ref;

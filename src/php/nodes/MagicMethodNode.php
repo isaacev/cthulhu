@@ -5,12 +5,11 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class MagicMethodNode extends Node {
-  public $name;
-  public $params;
-  public $body;
+  public string $name;
+  public array $params;
+  public BlockNode $body;
 
   /**
-   * MagicMethodNode constructor.
    * @param string $name
    * @param Variable[] $params
    * @param BlockNode $body

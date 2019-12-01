@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class StrConstPattern extends ConstPattern {
-  public $value;
+  public string $value;
 
   function __construct(string $value) {
     parent::__construct();

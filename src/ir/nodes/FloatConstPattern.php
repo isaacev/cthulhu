@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class FloatConstPattern extends ConstPattern {
-  public $value;
+  public float $value;
 
   function __construct(float $value) {
     parent::__construct();

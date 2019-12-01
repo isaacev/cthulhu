@@ -5,7 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class OrderedVariantDeclNode extends VariantDeclNode {
-  public $members;
+  public array $members;
 
   /**
    * @param Source\Span $span

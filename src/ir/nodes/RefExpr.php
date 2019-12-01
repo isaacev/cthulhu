@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class RefExpr extends Expr {
-  public $ref;
+  public Ref $ref;
 
   function __construct(Ref $ref) {
     parent::__construct();

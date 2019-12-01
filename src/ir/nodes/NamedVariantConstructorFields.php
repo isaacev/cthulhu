@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class NamedVariantConstructorFields extends VariantConstructorFields {
-  public $pairs;
+  public array $pairs;
 
   /**
    * @param FieldExprNode[] $pairs

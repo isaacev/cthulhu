@@ -2,14 +2,14 @@
 
 namespace Cthulhu\ir\nodes;
 
-/**
- * @property Expr   $callee
- * @property Expr[] $args
- */
 class CallExpr extends Expr {
-  public $callee;
-  public $args;
+  public Expr $callee;
+  public array $args;
 
+  /**
+   * @param Expr $callee
+   * @param Expr[] $args
+   */
   function __construct(Expr $callee, array $args) {
     parent::__construct();
     $this->callee = $callee;

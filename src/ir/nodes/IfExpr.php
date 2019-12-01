@@ -3,9 +3,9 @@
 namespace Cthulhu\ir\nodes;
 
 class IfExpr extends Expr {
-  public $cond;
-  public $if_true;
-  public $if_false;
+  public Expr $cond;
+  public Block $if_true;
+  public ?Block $if_false;
 
   function __construct(Expr $cond, Block $if_true, ?Block $if_false) {
     parent::__construct();

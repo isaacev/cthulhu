@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\nodes;
 
 class VariantConstructorExpr extends Expr {
-  public $ref;
-  public $fields;
+  public Ref $ref;
+  public ?VariantConstructorFields $fields;
 
   function __construct(Ref $ref, ?VariantConstructorFields $fields) {
     parent::__construct();

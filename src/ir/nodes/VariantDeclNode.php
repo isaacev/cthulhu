@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 abstract class VariantDeclNode extends Node {
-  public $name;
+  public Name $name;
 
   function __construct(Name $name) {
     parent::__construct();

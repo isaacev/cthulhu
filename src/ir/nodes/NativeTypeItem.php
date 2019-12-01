@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class NativeTypeItem extends Item {
-  public $name;
+  public Name $name;
 
   function __construct(Name $name, array $attrs) {
     parent::__construct($attrs);

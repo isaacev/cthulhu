@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class PropertyNode extends Node {
-  public $is_public;
-  public $name;
+  public bool $is_public;
+  public Variable $name;
 
   function __construct(bool $is_public, Variable $name) {
     parent::__construct();

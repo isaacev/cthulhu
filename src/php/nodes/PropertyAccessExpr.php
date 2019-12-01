@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class PropertyAccessExpr extends Expr {
-  public $expr;
-  public $prop;
+  public Expr $expr;
+  public Variable $prop;
 
   function __construct(Expr $expr, Variable $prop) {
     parent::__construct();

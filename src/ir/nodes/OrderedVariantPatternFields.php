@@ -3,10 +3,9 @@
 namespace Cthulhu\ir\nodes;
 
 class OrderedVariantPatternFields extends VariantPatternFields {
-  public $order;
+  public array $order;
 
   /**
-   * OrderedVariantPatternFields constructor.
    * @param OrderedVariantPatternField[] $order
    */
   function __construct(array $order) {

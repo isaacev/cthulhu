@@ -5,9 +5,9 @@ namespace Cthulhu\ast;
 use Cthulhu\Source;
 
 class FloatLiteral extends Literal {
-  public $value;
-  public $precision;
-  public $raw;
+  public float $value;
+  public int $precision;
+  public string $raw;
 
   function __construct(Source\Span $span, float $value, int $precision, string $raw) {
     parent::__construct($span);

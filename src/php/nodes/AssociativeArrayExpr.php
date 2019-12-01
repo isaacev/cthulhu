@@ -7,10 +7,9 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class AssociativeArrayExpr extends Expr {
-  public $fields;
+  public array $fields;
 
   /**
-   * AssociativeArrayExpr constructor.
    * @param FieldNode[] $fields
    */
   function __construct(array $fields) {

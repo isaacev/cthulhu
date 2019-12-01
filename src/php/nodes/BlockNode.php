@@ -5,8 +5,11 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class BlockNode extends Node {
-  public $stmts;
+  public array $stmts;
 
+  /**
+   * @param Stmt[] $stmts
+   */
   function __construct(array $stmts) {
     parent::__construct();
     $this->stmts = $stmts;

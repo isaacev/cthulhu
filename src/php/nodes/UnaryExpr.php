@@ -5,8 +5,8 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class UnaryExpr extends Expr {
-  public $operator;
-  public $operand;
+  public string $operator;
+  public Expr $operand;
 
   function __construct(string $operator, Expr $operand) {
     parent::__construct();
