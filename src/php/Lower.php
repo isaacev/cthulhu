@@ -3,8 +3,6 @@
 namespace Cthulhu\php;
 
 use Cthulhu\ir;
-use Cthulhu\php\nodes\AssignStmt;
-use Cthulhu\php\nodes\ThisExpr;
 
 class Lower {
   private $namespaces = [];
