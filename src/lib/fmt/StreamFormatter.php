@@ -2,13 +2,15 @@
 
 namespace Cthulhu\lib\fmt;
 
+use Exception;
+
 class StreamFormatter extends Formatter {
   protected $resource;
   protected $use_color;
 
   function __construct($resource, ?bool $use_color = null) {
     if (is_resource($resource) === false) {
-      throw new \Exception('StreamFormatter requires a resource object');
+      throw new Exception('StreamFormatter requires a resource object');
     }
 
     $this->resource  = $resource;

@@ -50,12 +50,12 @@ class Test {
     if ($realpath !== false && empty($contents)) {
       // Handles the case:
       // - The file exists but is no longer needed for the test
-      \unlink($realpath);
+      unlink($realpath);
     } else if (!empty($contents)) {
       // Handles the cases:
       // - The file exists but the blessed contents are different
       // - The file doesn't exist yet but is now needed for the test
-      $file = \fopen($filepath, 'w');
+      $file = fopen($filepath, 'w');
       fwrite($file, $contents);
       fclose($file);
     }

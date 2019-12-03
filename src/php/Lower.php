@@ -3,6 +3,7 @@
 namespace Cthulhu\php;
 
 use Cthulhu\ir;
+use Exception;
 
 class Lower {
   private $namespaces = [];
@@ -884,7 +885,7 @@ class Lower {
       case 'cast_float_to_string':
         return new nodes\CastExpr('string', $args[0]);
       default:
-        throw new \Exception("unknown PHP construct: $name");
+        throw new Exception("unknown PHP construct: $name");
     }
   }
 }

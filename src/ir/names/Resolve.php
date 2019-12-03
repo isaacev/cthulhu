@@ -4,6 +4,7 @@ namespace Cthulhu\ir\names;
 
 use Cthulhu\ir;
 use Cthulhu\ir\nodes;
+use Exception;
 
 /**
  * Scopes contain mappings from names (typeof string) -> Symbol
@@ -231,7 +232,7 @@ class Resolve {
     ir\Visitor::walk($prog, [
       'Name' => function (nodes\Name $name) use ($names) {
         if ($names->has($name) === false) {
-          throw new \Exception('missing symbol binding for a name: ' . $name->value);
+          throw new Exception('missing symbol binding for a name: ' . $name->value);
         }
       },
     ]);
@@ -317,7 +318,7 @@ class Resolve {
         throw Errors::unknown_namespace_field($ctx->spans->get($item->ref->tail), $item->ref->tail);
       }
     } else {
-      throw new \Exception('unknown reference tail segment');
+      throw new Exception('unknown reference tail segment');
     }
   }
 
@@ -402,7 +403,7 @@ class Resolve {
     $ctx->push_param_scope($param_scope);
     foreach ($item->params as $param) {
       if ($param_scope->has_name($param->name->value)) {
-        throw new \Exception('duplicate parameter');
+        throw new Exception('duplicate parameter');
       } else {
         $type_symbol = $ctx->make_type_symbol($param->name);
         $param_scope->add_binding($param->name->value, $type_symbol);

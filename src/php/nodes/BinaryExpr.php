@@ -3,6 +3,7 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Exception;
 
 class BinaryExpr extends Expr {
   public string $operator;
@@ -51,7 +52,7 @@ class BinaryExpr extends Expr {
       case '**':
         return Precedence::EXPONENT;
       default:
-        throw new \Exception("unknown precedence for `$this->operator` operator");
+        throw new Exception("unknown precedence for `$this->operator` operator");
     }
   }
 

@@ -3,6 +3,7 @@
 namespace Cthulhu\ir;
 
 use Cthulhu\ast;
+use Exception;
 
 class Lower {
   public static function file(Table $spans, ast\File $file): nodes\Library {
@@ -38,7 +39,7 @@ class Lower {
       case $item instanceof ast\UnionItem:
         return self::union_item($spans, $item);
       default:
-        throw new \Exception('cannot lower unknown ast item');
+        throw new Exception('cannot lower unknown ast item');
     }
   }
 
@@ -146,7 +147,7 @@ class Lower {
       case $stmt instanceof ast\ExprStmt:
         return self::expr_stmt($spans, $stmt);
       default:
-        throw new \Exception('cannot lower unknown ast statement');
+        throw new Exception('cannot lower unknown ast statement');
     }
   }
 
@@ -192,7 +193,7 @@ class Lower {
       case $expr instanceof ast\Literal:
         return self::literal($spans, $expr);
       default:
-        throw new \Exception('cannot lower unknown ast expression');
+        throw new Exception('cannot lower unknown ast expression');
     }
   }
 
@@ -426,7 +427,7 @@ class Lower {
       case $note instanceof ast\ParameterizedAnnotation:
         return self::parameterized_note($spans, $note);
       default:
-        throw new \Exception('cannot lower unknown type annotation');
+        throw new Exception('cannot lower unknown type annotation');
     }
   }
 

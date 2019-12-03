@@ -2,6 +2,8 @@
 
 namespace Cthulhu\php\visitor;
 
+use Exception;
+
 class Table {
   protected $postorder_callbacks = [];
   protected $preorder_callbacks = [];
@@ -54,7 +56,7 @@ class Table {
         explode('|', $complex_match[2]),
       ];
     } else {
-      throw new \Exception('unknown node selector');
+      throw new Exception('unknown node selector');
     }
   }
 }

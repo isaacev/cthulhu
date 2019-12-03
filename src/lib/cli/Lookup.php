@@ -28,7 +28,7 @@ class Lookup {
   static function from_flat_array(array $list): self {
     $table = [];
     foreach ($list as $flag) {
-      if (\array_key_exists($flag->id, $table)) {
+      if (array_key_exists($flag->id, $table)) {
         $table[$flag->id][] = $flag->value;
       } else {
         $table[$flag->id] = [ $flag->value ];

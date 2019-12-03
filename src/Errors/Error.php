@@ -5,8 +5,9 @@ namespace Cthulhu\Errors;
 use Cthulhu\Debug;
 use Cthulhu\lib\fmt\Formatter;
 use Cthulhu\Source;
+use Exception;
 
-class Error extends \Exception {
+class Error extends Exception {
   private $title;
   private $report;
 

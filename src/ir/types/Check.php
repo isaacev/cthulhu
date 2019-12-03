@@ -5,6 +5,7 @@ namespace Cthulhu\ir\types;
 use Cthulhu\ir;
 use Cthulhu\ir\names;
 use Cthulhu\ir\nodes;
+use Exception;
 
 class Check {
   private $spans;
@@ -25,14 +26,14 @@ class Check {
     if ($symbol = $this->name_to_symbol->get($name)) {
       return $symbol;
     }
-    throw new \Exception('no known symbol for name');
+    throw new Exception('no known symbol for name');
   }
 
   private function get_type_for_symbol(names\Symbol $symbol): Type {
     if ($type = $this->types->get($symbol)) {
       return $type;
     }
-    throw new \Exception('symbol has not been type-checked yet');
+    throw new Exception('symbol has not been type-checked yet');
   }
 
   private function set_type_for_symbol(names\Symbol $symbol, Type $type): void {
@@ -47,7 +48,7 @@ class Check {
     $span = $this->spans->get($expr);
     $line = $span->from->line;
     $file = $span->from->file->filepath;
-    throw new \Exception("expression has not been type-checked yet on line $line in $file");
+    throw new Exception("expression has not been type-checked yet on line $line in $file");
   }
 
   private function set_type_for_expr(nodes\Expr $expr, Type $type): void {
@@ -142,7 +143,7 @@ class Check {
     ir\Visitor::walk($prog, [
       'Expr' => function (nodes\Expr $expr) use ($exprs) {
         if ($exprs->has($expr) === false) {
-          throw new \Exception('missing type binding for an expression');
+          throw new Exception('missing type binding for an expression');
         }
       },
     ]);
@@ -222,7 +223,7 @@ class Check {
         $type = new BoolType();
         break;
       default:
-        throw new \Exception('unknown native type');
+        throw new Exception('unknown native type');
     }
 
     $symbol = $ctx->name_to_symbol->get($item->name);
@@ -672,7 +673,7 @@ class Check {
    * @param Type[] $params
    * @param Type[] $args
    * @return Type[]
-   * @throws \Exception
+   * @throws Exception
    */
   private static function infer_stuff(array $params, array $args): array {
     assert(count($params) === count($args));
@@ -692,7 +693,7 @@ class Check {
           $prev_solution = $inferences[$id];
           assert($prev_solution instanceof Type);
           if (!($inferences[$id] = $prev_solution->unify($arg))) {
-            throw new \Exception("unable to unify $prev_solution and $arg");
+            throw new Exception("unable to unify $prev_solution and $arg");
           }
         } else {
           $inferences[$id] = $arg;
@@ -766,7 +767,7 @@ class Check {
       case $note instanceof nodes\ParameterizedNote:
         return self::parameterized_note_to_type($ctx, $note);
       default:
-        throw new \Exception('cannot type-check unknown note node: ' . get_class($note));
+        throw new Exception('cannot type-check unknown note node: ' . get_class($note));
     }
   }
 
@@ -809,14 +810,14 @@ class Check {
 
     $inner_type = self::note_to_type($ctx, $note->inner);
     if (($inner_type instanceof TypeSupportingParameters) === false) {
-      throw new \Exception("cannot parameterize the type `$inner_type`");
+      throw new Exception("cannot parameterize the type `$inner_type`");
     }
 
     assert($inner_type instanceof UnionType);
     $wanted_total_params = $inner_type->total_parameters();
     $found_total_params  = count($note->params);
     if ($inner_type->total_parameters() !== count($note->params)) {
-      throw new \Exception("expected $wanted_total_params parameters, found $found_total_params");
+      throw new Exception("expected $wanted_total_params parameters, found $found_total_params");
     }
 
     $replacements = [];

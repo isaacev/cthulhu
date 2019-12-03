@@ -3,6 +3,7 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Exception;
 
 class UnaryExpr extends Expr {
   public string $operator;
@@ -27,7 +28,7 @@ class UnaryExpr extends Expr {
       case '-':
         return Precedence::SUM;
       default:
-        throw new \Exception("unknown precedence for `$this->operator` operator");
+        throw new Exception("unknown precedence for `$this->operator` operator");
     }
   }
 

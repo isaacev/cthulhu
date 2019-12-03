@@ -7,6 +7,7 @@ use Cthulhu\Parser\Lexer\Lexer;
 use Cthulhu\Parser\Lexer\Token;
 use Cthulhu\Parser\Lexer\TokenType;
 use Cthulhu\Source;
+use Exception;
 
 class Parser {
   public static function file_to_ast(Source\File $file): ast\File {
@@ -374,7 +375,7 @@ class Parser {
         // parser where the `Parser::infix_token_precedence` method thinks a
         // token is a binary operator but this method doesn't recognize that
         // token as an operator.
-        throw new \Exception('binary operator disagreement: ' . $next->type);
+        throw new Exception('binary operator disagreement: ' . $next->type);
     }
   }
 

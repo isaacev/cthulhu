@@ -2,6 +2,8 @@
 
 namespace Cthulhu\lib\cli\internals;
 
+use Exception;
+
 class Node {
   public $to_nodes = [];
 
@@ -118,7 +120,7 @@ class Completions {
     } else if ($flag instanceof ShortCircuitFlagGrammar) {
       return new LiteralNode($after, $flag->completions());
     } else {
-      throw new \Exception('unknown flag type: ' . get_class($flag));
+      throw new Exception('unknown flag type: ' . get_class($flag));
     }
   }
 
@@ -130,7 +132,7 @@ class Completions {
       $start->to_edges[] = new PatternNode($start, '/\S/');
       return $start;
     } else {
-      throw new \Exception('unknown argument type: ' . get_class($arg));
+      throw new Exception('unknown argument type: ' . get_class($arg));
     }
   }
 }

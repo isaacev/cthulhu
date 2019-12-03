@@ -3,6 +3,7 @@
 namespace Cthulhu\php\visitor;
 
 use Cthulhu\php;
+use Exception;
 
 class Path {
   public $parent;
@@ -45,7 +46,7 @@ class Path {
 
   function remove(): void {
     if ($this->not_stmt_or_namespace()) {
-      throw new \Exception('can only remove php\nodes\Stmt and php\nodes\NamespaceNode nodes');
+      throw new Exception('can only remove php\nodes\Stmt and php\nodes\NamespaceNode nodes');
     }
 
     $this->was_changed = true;
@@ -55,7 +56,7 @@ class Path {
 
   function replace_with(php\nodes\Node $node) {
     if ($this->was_removed()) {
-      throw new \Exception('cannot replace node after it was removed');
+      throw new Exception('cannot replace node after it was removed');
     }
     $this->was_changed = true;
     $this->node        = $node;
@@ -63,9 +64,9 @@ class Path {
 
   function after(array $nodes) {
     if ($this->not_stmt_or_namespace()) {
-      throw new \Exception('can only add siblings after php\nodes\Stmt and php\nodes\NamespaceNode nodes');
+      throw new Exception('can only add siblings after php\nodes\Stmt and php\nodes\NamespaceNode nodes');
     } else if ($this->was_removed()) {
-      throw new \Exception('cannot add sibilngs to a node after it was removed');
+      throw new Exception('cannot add sibilngs to a node after it was removed');
     }
     $this->was_changed       = true;
     $this->new_sibling_nodes = $nodes;
@@ -73,7 +74,7 @@ class Path {
 
   function replace_with_multiple(array $nodes) {
     if ($this->not_stmt_or_namespace()) {
-      throw new \Exception('can only replace php\nodes\Stmt and php\nodes\NamespaceNode with multiple nodes');
+      throw new Exception('can only replace php\nodes\Stmt and php\nodes\NamespaceNode with multiple nodes');
     } else if (empty($nodes)) {
       $this->remove();
     } else {

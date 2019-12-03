@@ -2,8 +2,10 @@
 
 namespace Cthulhu\ir\names;
 
-abstract class Symbol implements \Cthulhu\ir\HasId {
-  use \Cthulhu\ir\GenerateId;
+use Cthulhu\ir;
+
+abstract class Symbol implements ir\HasId {
+  use ir\GenerateId;
 
   function equals(Symbol $other): bool {
     return $this->get_id() === $other->get_id();

@@ -175,7 +175,7 @@ class ProgramGrammar {
     return new ProgramResult($this, $flags, $subcommand);
   }
 
-  function dispatch(\Cthulhu\lib\cli\Lookup $flags) {
+  function dispatch(Lookup $flags) {
     if ($this->callback) {
       call_user_func($this->callback, $flags);
     }
