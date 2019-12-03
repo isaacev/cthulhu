@@ -1,19 +1,19 @@
 <?php
 
-use \Cthulhu\lib\cli;
-use \Cthulhu\lib\diff;
-use \Cthulhu\lib\fmt;
-use \Cthulhu\lib\test;
+use Cthulhu\lib\cli;
+use Cthulhu\lib\diff;
+use Cthulhu\lib\fmt;
+use Cthulhu\lib\test;
 
 function command_test(cli\Lookup $flags, cli\Lookup $args) {
-  $is_blessed = $flags->get('bless');
-  $show_time = $flags->get('time');
-  $filter = $args->get('filter');
+  $is_blessed     = $flags->get('bless');
+  $show_time      = $flags->get('time');
+  $filter         = $args->get('filter');
   $failed_results = [];
-  $stats = [
-    'total'   => 0,
-    'passed'  => 0,
-    'failed'  => 0,
+  $stats          = [
+    'total' => 0,
+    'passed' => 0,
+    'failed' => 0,
     'skipped' => 0,
   ];
 
@@ -67,13 +67,13 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
       ->printf('%d) %s', $index + 1, $result->test->name)
       ->newline();
 
-      mismatch_diff($f, 'STDOUT',
-        $result->test->expected->stdout,
-        $result->found->stdout);
+    mismatch_diff($f, 'STDOUT',
+      $result->test->expected->stdout,
+      $result->found->stdout);
 
-      mismatch_diff($f, 'STDERR',
-        $result->test->expected->stderr,
-        $result->found->stderr);
+    mismatch_diff($f, 'STDERR',
+      $result->test->expected->stderr,
+      $result->found->stderr);
   }
 
   $f->newline()

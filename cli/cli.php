@@ -3,7 +3,7 @@
 ini_set('display_errors', 'stderr');
 assert_options(ASSERT_BAIL, 1);
 
-use \Cthulhu\lib\cli;
+use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\workspace\ReadPhase;
 
@@ -35,17 +35,17 @@ $root->subcommand('compile', 'Convert source code to PHP')
     'all',
     'inline',
     'fold',
-    'tree-shake'
+    'tree-shake',
   ])
   ->short_circuit_flag('--list-optimizations', 'List available optimization passes', function () {
     $passes = [
-      ['all',        'Apply all optimizations'],
-      ['inline',     'Replace function call sites with function body'],
-      ['fold',       'Evaluate some constant expressions at compile time'],
-      ['tree-shake', 'Remove function and namespace definitions that are never used']
+      [ 'all', 'Apply all optimizations' ],
+      [ 'inline', 'Replace function call sites with function body' ],
+      [ 'fold', 'Evaluate some constant expressions at compile time' ],
+      [ 'tree-shake', 'Remove function and namespace definitions that are never used' ],
     ];
 
-    foreach ($passes as list($name, $desc)) {
+    foreach ($passes as [$name, $desc]) {
       printf("%-16s %s\n", $name, $desc);
     }
   })
