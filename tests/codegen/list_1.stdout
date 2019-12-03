@@ -1,0 +1,37 @@
+<?php
+
+namespace Kernel\Builtins {
+  // #[inline]
+  // #[construct]
+  function subscript($a, $b) {
+    return $a[$b];
+  }
+
+  // #[inline]
+  function count($a) {
+    return \count($a);
+  }
+}
+
+namespace _List {
+  // #[inline]
+  function nth($ls, $n) {
+    return \Kernel\Builtins\subscript($ls, $n);
+  }
+}
+
+namespace list_1 {
+  // #[entry]
+  function main() {
+    $l = [
+      1,
+      2,
+      3
+    ];
+    $n = 4 + \_List\nth($l, 0);
+  }
+}
+
+namespace {
+  \list_1\main();
+}
