@@ -518,13 +518,6 @@ class Check {
         }
         break;
       }
-      case $param instanceof TupleType: {
-        assert($arg instanceof TupleType);
-        foreach ($param->members as $index => $param_member) {
-          self::find_type_param_components($ctx, $components, $param_member, $arg->members[$index]);
-        }
-        break;
-      }
     }
   }
 
