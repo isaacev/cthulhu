@@ -11,7 +11,7 @@ class BoolNode extends Node {
     return $this->has_wildcard || ($this->has_true && $this->has_false);
   }
 
-  function is_redundant(\patterns\Pattern $pattern): bool {
+  function is_redundant(Pattern $pattern): bool {
     if ($this->is_covered()) {
       return true;
     } else if ($pattern instanceof WildcardPattern) {
@@ -33,7 +33,7 @@ class BoolNode extends Node {
       if ($pattern->value) {
         $this->has_true = true;
       } else {
-        $this->has_false = false;
+        $this->has_false = true;
       }
     } else {
       assert(false, 'unreachable');
