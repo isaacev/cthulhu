@@ -20,6 +20,7 @@ class FuncType extends Type {
       return false;
     }
 
+    $other = $other->unwrap();
     if (count($this->inputs) !== count($other->inputs)) {
       return false;
     }
@@ -34,10 +35,11 @@ class FuncType extends Type {
   }
 
   function unify(Type $other): ?Type {
-    if (($other instanceof self) === false) {
+    if (self::matches($other) === false) {
       return null;
     }
 
+    $other = $other->unwrap();
     if (count($this->inputs) !== count($other->inputs)) {
       return null;
     }
@@ -59,6 +61,15 @@ class FuncType extends Type {
     return new self($new_inputs, $new_output);
   }
 
+  function bind_parameters(array $replacements): Type {
+    $new_inputs = [];
+    foreach ($this->inputs as $index => $input_type) {
+      $new_inputs[$index] = $input_type->bind_parameters($replacements);
+    }
+    $new_output = $this->output->bind_parameters($replacements);
+    return new self($new_inputs, $new_output);
+  }
+
   function __toString(): string {
     if (empty($this->inputs)) {
       $inputs = '()';
@@ -69,7 +80,7 @@ class FuncType extends Type {
   }
 
   static function matches(Type $other): bool {
-    return $other instanceof self;
+    return $other->unwrap() instanceof self;
   }
 
   static function does_not_match(Type $other): bool {

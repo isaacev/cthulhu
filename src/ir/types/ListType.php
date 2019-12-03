@@ -14,7 +14,8 @@ class ListType extends Type {
   }
 
   function accepts_as_parameter(Type $other): bool {
-    if ($other instanceof self) {
+    if (self::matches($other)) {
+      $other = $other->unwrap();
       if ($this->is_empty()) {
         return $other->is_empty();
       } else if ($other->is_empty()) {
@@ -27,7 +28,8 @@ class ListType extends Type {
   }
 
   function unify(Type $other): ?Type {
-    if ($other instanceof self) {
+    if (self::matches($other)) {
+      $other = $other->unwrap();
       if ($this->is_empty()) {
         return $other;
       } else if ($other->is_empty()) {
@@ -39,6 +41,13 @@ class ListType extends Type {
     return null;
   }
 
+  function bind_parameters(array $replacements): Type {
+    if ($this->element) {
+      return new self($this->element->bind_parameters($replacements));
+    }
+    return $this;
+  }
+
   function __toString(): string {
     if ($this->is_empty()) {
       return '[]';
@@ -47,7 +56,7 @@ class ListType extends Type {
   }
 
   static function matches(Type $other): bool {
-    return $other instanceof self;
+    return $other->unwrap() instanceof self;
   }
 
   static function does_not_match(Type $other): bool {

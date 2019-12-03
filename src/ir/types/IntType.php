@@ -23,7 +23,7 @@ class IntType extends Type {
         case '>=':
           return new BoolType();
       }
-    } else if (count($operands) === 1 && $operands[0] instanceof FloatType) {
+    } else if (count($operands) === 1 && FloatType::matches($operands[0])) {
       switch ($op) {
         case '^':
           return new FloatType();
@@ -34,11 +34,11 @@ class IntType extends Type {
   }
 
   function accepts_as_parameter(Type $other): bool {
-    return $other instanceof self;
+    return self::matches($other);
   }
 
   function unify(Type $other): ?Type {
-    if ($other instanceof self) {
+    if (self::matches($other)) {
       return new self();
     }
     return null;
@@ -49,7 +49,7 @@ class IntType extends Type {
   }
 
   static function matches(Type $other): bool {
-    return $other instanceof self;
+    return $other->unwrap() instanceof self;
   }
 
   static function does_not_match(Type $other): bool {

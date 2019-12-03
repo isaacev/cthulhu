@@ -1,0 +1,37 @@
+type Maybe('a) =
+  | Some('a)
+  | None;
+
+type Result('a, 'b) =
+  | Left('a)
+  | Right('b);
+
+fn ask(s: Str) -> Maybe(Str) {
+  if ::Random::bool() {
+    Maybe::Some(s)
+  } else {
+    Maybe::None
+  }
+}
+
+fn attempt(x: 'x) -> Result('x, Int) {
+  if ::Random::bool() {
+    Result::Left(x)
+  } else {
+    Result::Right(123)
+  }
+}
+
+#[entry]
+fn main() -> () {
+  match ask("hello") {
+    Maybe::Some(s) => ::Io::println("said: " ++ s),
+    Maybe::None => ::Io::println("said nothing"),
+  };
+
+  ::Io::println(match attempt(false) {
+    Result::Left(true) => "is true",
+    Result::Left(false) => "is false",
+    Result::Right(n) => "error code: " ++ ::Fmt::int(n),
+  });
+}

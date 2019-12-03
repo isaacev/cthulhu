@@ -4,11 +4,11 @@ namespace Cthulhu\ir\types;
 
 class BoolType extends Type {
   function accepts_as_parameter(Type $other): bool {
-    return $other instanceof self;
+    return self::matches($other);
   }
 
   function unify(Type $other): ?Type {
-    if ($other instanceof self) {
+    if (self::matches($other)) {
       return new self();
     }
     return null;
@@ -19,7 +19,7 @@ class BoolType extends Type {
   }
 
   static function matches(Type $other): bool {
-    return $other instanceof self;
+    return $other->unwrap() instanceof self;
   }
 
   static function does_not_match(Type $other): bool {

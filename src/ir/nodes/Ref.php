@@ -26,6 +26,10 @@ class Ref extends Node {
     );
   }
 
+  function equals(self $other): bool {
+    return "$this" === "$other";
+  }
+
   function __toString(): string {
     $segments = implode('::', array_merge(
       $this->head_segments,

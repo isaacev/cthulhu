@@ -7,6 +7,10 @@ class UnitVariantFields extends VariantFields {
     return $fields instanceof UnitConstructorFields;
   }
 
+  function bind_parameters(array $replacements): VariantFields {
+    return $this;
+  }
+
   function __toString(): string {
     return '';
   }

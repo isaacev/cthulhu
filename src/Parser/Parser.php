@@ -128,6 +128,16 @@ class Parser {
   private function union_item(array $attrs): ast\UnionItem {
     $type     = $this->next(TokenType::KEYWORD_TYPE);
     $name     = ast\UpperNameNode::from_token($this->next(TokenType::UPPER_NAME));
+    $params   = [];
+    if ($this->lexer->peek()->type === TokenType::PAREN_LEFT) {
+      $paren_left = $this->next(TokenType::PAREN_LEFT);
+      $params[] = $this->type_param_annotation();
+      while ($this->lexer->peek()->type === TokenType::COMMA) {
+        $comma = $this->next(TokenType::COMMA);
+        $params[] = $this->type_param_annotation();
+      }
+      $paren_right = $this->next(TokenType::PAREN_RIGHT);
+    }
     $equals   = $this->next(TokenType::EQUALS);
     $variants = [ $this->variant_node() ];
     while ($this->lexer->peek()->type === TokenType::PIPE) {
@@ -135,7 +145,7 @@ class Parser {
     }
     $semi = $this->next(TokenType::SEMICOLON);
     $span = $type->span->extended_to($semi->span);
-    return new ast\UnionItem($span, $name, $variants, $attrs);
+    return new ast\UnionItem($span, $name, $params, $variants, $attrs);
   }
 
   private function variant_node(): ast\VariantDeclNode {
@@ -810,6 +820,9 @@ class Parser {
         case TokenType::THIN_ARROW:
           $prefix = $this->function_annotation($prefix);
           break;
+        case TokenType::PAREN_LEFT:
+          $prefix = $this->parameterized_annotation($prefix);
+          break;
         default:
           return $prefix;
       }
@@ -875,5 +888,17 @@ class Parser {
     $output = $this->type_annotation();
     $span = $prefix->span->extended_to($output->span);
     return new ast\FunctionAnnotation($span, $inputs, $output);
+  }
+
+  private function parameterized_annotation(ast\Annotation $prefix): ast\ParameterizedAnnotation {
+    $paren_left = $this->next(TokenType::PAREN_LEFT);
+    $params = [ $this->type_annotation() ];
+    while ($this->lexer->peek()->type === TokenType::COMMA) {
+      $comma = $this->next(TokenType::COMMA);
+      $params[] = $this->type_annotation();
+    }
+    $paren_right = $this->next(TokenType::PAREN_RIGHT);
+    $span = $prefix->span->extended_to($paren_right->span);
+    return new ast\ParameterizedAnnotation($span, $prefix, $params);
   }
 }

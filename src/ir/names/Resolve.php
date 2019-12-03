@@ -184,6 +184,9 @@ class Resolve {
       'NativeTypeItem' => function (nodes\NativeTypeItem $item) use ($ctx) {
         self::native_type_item($ctx, $item);
       },
+      'enter(UnionItem)' => function (nodes\UnionItem $item) use ($ctx) {
+        self::enter_union_item($ctx, $item);
+      },
       'exit(UnionItem)' => function (nodes\UnionItem $item) use ($ctx) {
         self::exit_union_item($ctx, $item);
       },
@@ -395,7 +398,22 @@ class Resolve {
     $ctx->current_module_scope()->add_binding($type_name, $type_symbol);
   }
 
+  private static function enter_union_item(self $ctx, nodes\UnionItem $item): void {
+    $param_scope = new Scope();
+    $ctx->push_param_scope($param_scope);
+    foreach ($item->params as $param) {
+      if ($param_scope->has_name($param->name->value)) {
+        throw new \Exception('duplicate parameter');
+      } else {
+        $type_symbol = $ctx->make_type_symbol($param->name);
+        $param_scope->add_binding($param->name->value, $type_symbol);
+      }
+    }
+  }
+
   private static function exit_union_item(self $ctx, nodes\UnionItem $item): void {
+    $ctx->pop_param_scope();
+
     $union_name   = $item->name->value;
     $union_symbol = $ctx->make_ref_symbol($item->name, $ctx->current_ref_symbol());
     $ctx->current_module_scope()->add_binding($union_name, $union_symbol);

@@ -9,6 +9,10 @@ abstract class Pattern {
   abstract function __toString(): string;
 
   static function from(nodes\Pattern $pattern, types\Type $type): self {
+    $prev_kind = "$type";
+    $type = $type->unwrap();
+    $then_kind = "$type";
+    if ($prev_kind !== $then_kind) echo "$prev_kind // $then_kind\n";
     if ($pattern instanceof nodes\VariantPattern) {
       assert($type instanceof types\UnionType);
       $form = $type->variants[$pattern->ref->tail_segment->value];

@@ -9,7 +9,7 @@ class FloatType extends Type {
         case '-':
           return new self();
       }
-    } else if (count($operands) === 1 && $operands[0] instanceof self) {
+    } else if (count($operands) === 1 && self::matches($operands[0])) {
       switch ($op) {
         case '+':
         case '-':
@@ -22,7 +22,7 @@ class FloatType extends Type {
         case '>=':
           return new BoolType();
       }
-    } else if (count($operands) === 1 && $operands[0] instanceof IntType) {
+    } else if (count($operands) === 1 && IntType::matches($operands[0])) {
       switch ($op) {
         case '^':
           return new self();
@@ -33,11 +33,11 @@ class FloatType extends Type {
   }
 
   function accepts_as_parameter(Type $other): bool {
-    return $other instanceof self;
+    return self::matches($other);
   }
 
   function unify(Type $other): ?Type {
-    if ($other instanceof self) {
+    if (self::matches($other)) {
       return new self();
     }
     return null;
@@ -45,5 +45,9 @@ class FloatType extends Type {
 
   function __toString(): string {
     return 'Float';
+  }
+
+  static function matches(Type $other): bool {
+    return $other->unwrap() instanceof self;
   }
 }

@@ -83,8 +83,12 @@ class Lower {
   private static function union_item(Table $spans, ast\UnionItem $item): nodes\UnionItem {
     $attrs    = self::attrs($item->attrs);
     $name     = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
+    $params   = [];
+    foreach ($item->params as $param) {
+      $params[] = self::param_note($spans, $param);
+    }
     $variants = self::union_variants($spans, $item->variants);
-    return $spans->set(new nodes\UnionItem($attrs, $name, $variants), $item->span);
+    return $spans->set(new nodes\UnionItem($attrs, $name, $params, $variants), $item->span);
   }
 
   private static function union_variants(Table $spans, array $variants): array {
@@ -419,6 +423,8 @@ class Lower {
         return self::func_note($spans, $note);
       case $note instanceof ast\ListAnnotation:
         return self::list_note($spans, $note);
+      case $note instanceof ast\ParameterizedAnnotation:
+        return self::parameterized_note($spans, $note);
       default:
         throw new \Exception('cannot lower unknown type annotation');
     }
@@ -454,6 +460,15 @@ class Lower {
       $elements = null;
     }
     return $spans->set(new nodes\ListNote($elements), $note->span);
+  }
+
+  private static function parameterized_note(Table $spans, ast\ParameterizedAnnotation $note): nodes\ParameterizedNote {
+    $inner = self::note($spans, $note->inner);
+    $params = [];
+    foreach ($note->params as $param) {
+      $params[] = self::note($spans, $param);
+    }
+    return $spans->set(new nodes\ParameterizedNote($inner, $params), $note->span);
   }
 
   /**

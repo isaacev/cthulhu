@@ -34,6 +34,14 @@ class OrderedVariantFields extends VariantFields {
     return false;
   }
 
+  function bind_parameters(array $replacements): VariantFields {
+    $new_order = [];
+    foreach ($this->order as $index => $field_type) {
+      $new_order[$index] = $field_type->bind_parameters($replacements);
+    }
+    return new self($new_order);
+  }
+
   function __toString(): string {
     return '(' . implode(', ', $this->order) . ')';
   }

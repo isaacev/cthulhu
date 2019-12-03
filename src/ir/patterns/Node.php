@@ -14,6 +14,7 @@ abstract class Node {
   abstract function uncovered_patterns(): array;
 
   static function from_type(types\Type $type): self {
+    $type = $type->unwrap();
     switch (true) {
       case $type instanceof types\UnionType:
         return new UnionNode($type);

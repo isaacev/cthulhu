@@ -36,6 +36,14 @@ class NamedVariantFields extends VariantFields {
     return false;
   }
 
+  function bind_parameters(array $replacements): VariantFields {
+    $new_mapping = [];
+    foreach ($this->mapping as $field_name => $field_type) {
+      $new_mapping[$field_name] = $field_type->bind_parameters($replacements);
+    }
+    return new self($new_mapping);
+  }
+
   function __toString(): string {
     $out = '';
     foreach ($this->mapping as $name => $type) {
