@@ -14,6 +14,11 @@ namespace Kernel\Types {
 
 namespace Kernel\Builtins {
   // #[inline]
+  function array_key_exists($a, $b) {
+    return \array_key_exists($a, $b);
+  }
+
+  // #[inline]
   // #[construct]
   function subscript($a, $b) {
     return $a[$b];
@@ -28,11 +33,26 @@ namespace Kernel\Builtins {
 namespace _List {
   // #[inline]
   function nth($ls, $n) {
-    return \Kernel\Builtins\subscript($ls, $n);
+    if (\Kernel\Builtins\array_key_exists($n, $ls)) {
+      $a = new \Kernel\Types\Just(\Kernel\Builtins\subscript($ls, $n));
+    } else {
+      $a = new \Kernel\Types\None();
+    }
+    return $a;
   }
 }
 
 namespace list_1 {
+  function or_else($m, $f) {
+    if ($m instanceof \Kernel\Types\Just) {
+      $p = $m->{0};
+      $a = $p;
+    } else if ($m instanceof \Kernel\Types\None) {
+      $a = $f;
+    }
+    return $a;
+  }
+
   // #[entry]
   function main() {
     $l = [
@@ -40,7 +60,7 @@ namespace list_1 {
       2,
       3
     ];
-    $n = 4 + \_List\nth($l, 0);
+    $n = 4 + \list_1\or_else(\_List\nth($l, 0), -1);
   }
 }
 

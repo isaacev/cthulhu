@@ -36,6 +36,9 @@ mod Builtins {
   native fn mt_rand(Int, Int) -> Int;
 
   #[inline]
+  native fn array_key_exists(Int, ['a]) -> Bool;
+
+  #[inline]
   #[construct]
   native fn subscript(['a], Int) -> 'a;
 

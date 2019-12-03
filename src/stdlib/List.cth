@@ -1,6 +1,10 @@
 #[inline]
-fn nth(ls: ['a], n: Int) -> 'a {
-  ::Kernel::Builtins::subscript(ls, n)
+fn nth(ls: ['a], n: Int) -> Maybe('a) {
+  if ::Kernel::Builtins::array_key_exists(n, ls) {
+    Maybe::Just(::Kernel::Builtins::subscript(ls, n))
+  } else {
+    Maybe::None
+  }
 }
 
 #[inline]
