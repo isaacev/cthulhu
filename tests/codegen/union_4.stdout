@@ -1,5 +1,17 @@
 <?php
 
+namespace Kernel\Types {
+  abstract class Maybe {}
+
+  class Just extends \Kernel\Types\Maybe {
+    function __construct($a) {
+      $this->{0} = $a;
+    }
+  }
+
+  class None extends \Kernel\Types\Maybe {}
+}
+
 namespace Kernel\Builtins {
   // #[inline]
   // #[construct]
@@ -16,28 +28,18 @@ namespace Io {
 }
 
 namespace union_4 {
-  abstract class Maybe {}
-
-  class Just extends \union_4\Maybe {
-    function __construct($a) {
-      $this->{0} = $a;
-    }
-  }
-
-  class None extends \union_4\Maybe {}
-
   // #[entry]
   function main() {
     if (0 < 5) {
-      $a = new \union_4\Just("hello");
+      $a = new \Kernel\Types\Just("hello");
     } else {
-      $a = new \union_4\None();
+      $a = new \Kernel\Types\None();
     }
     $x = $a;
-    if ($x instanceof \union_4\Just) {
+    if ($x instanceof \Kernel\Types\Just) {
       $s = $x->{0};
       $b = $s;
-    } else if ($x instanceof \union_4\None) {
+    } else if ($x instanceof \Kernel\Types\None) {
       $b = "none";
     }
     \Io\println($b);

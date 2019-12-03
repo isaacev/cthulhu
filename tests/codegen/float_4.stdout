@@ -1,5 +1,17 @@
 <?php
 
+namespace Kernel\Types {
+  abstract class Maybe {}
+
+  class Just extends \Kernel\Types\Maybe {
+    function __construct($a) {
+      $this->{0} = $a;
+    }
+  }
+
+  class None extends \Kernel\Types\Maybe {}
+}
+
 namespace float_4 {
   // #[entry]
   function main() {

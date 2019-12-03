@@ -13,6 +13,10 @@ mod Types {
   native type Int;
 
   native type Bool;
+
+  type Maybe('a) =
+    | Just('a)
+    | None;
 }
 
 --
