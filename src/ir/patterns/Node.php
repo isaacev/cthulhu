@@ -26,6 +26,8 @@ abstract class Node {
         return new IntNode();
       case $type instanceof types\BoolType:
         return new BoolNode();
+      case $type instanceof types\ParamType:
+        return new ParamNode();
       default:
         echo get_class($type) . PHP_EOL;
         assert(false, 'unknown type');
