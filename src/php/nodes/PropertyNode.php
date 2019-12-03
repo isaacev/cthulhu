@@ -11,7 +11,7 @@ class PropertyNode extends Node {
   function __construct(bool $is_public, Variable $name) {
     parent::__construct();
     $this->is_public = $is_public;
-    $this->name = $name;
+    $this->name      = $name;
   }
 
   function to_children(): array {

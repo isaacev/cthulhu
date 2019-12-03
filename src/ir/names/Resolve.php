@@ -9,21 +9,20 @@ use Cthulhu\ir\nodes;
  * Scopes contain mappings from names (typeof string) -> Symbol
  * The names table contains a mapping of node ids (typeof int) -> Symbol
  */
-
 class Resolve {
   private $spans;
   private $name_to_symbol;
   private $symbol_to_name;
   private $root_scope;
-  private $namespaces    = [];
+  private $namespaces = [];
   private $module_scopes = [];
-  private $func_scopes   = [];
-  private $param_scopes  = [];
-  private $block_scopes  = [];
-  private $ref_symbols   = [];
+  private $func_scopes = [];
+  private $param_scopes = [];
+  private $block_scopes = [];
+  private $ref_symbols = [];
 
   private function __construct(ir\Table $spans) {
-    $this->spans = $spans;
+    $this->spans          = $spans;
     $this->name_to_symbol = new ir\Table();
     $this->symbol_to_name = new ir\Table();
   }
@@ -234,7 +233,7 @@ class Resolve {
         if ($names->has($name) === false) {
           throw new \Exception('missing symbol binding for a name: ' . $name->value);
         }
-      }
+      },
     ]);
   }
 
@@ -326,7 +325,7 @@ class Resolve {
     // Simulates `use ::Kernel::Types::*;` at the top of a library or module.
     $extern_namespace = $ctx->root_scope();
     $kernel_namespace = $ctx->get_namespace($extern_namespace->get_name('Kernel'));
-    $types_namespace = $ctx->get_namespace($kernel_namespace->get_name('Types'));
+    $types_namespace  = $ctx->get_namespace($kernel_namespace->get_name('Types'));
     foreach ($types_namespace->table as $name => $symbol) {
       $ctx->current_module_scope()->add_binding($name, $symbol);
     }
@@ -355,7 +354,7 @@ class Resolve {
   }
 
   private static function func_param(self $ctx, nodes\FuncParam $param): void {
-    $param_name = $param->name->value;
+    $param_name   = $param->name->value;
     $param_symbol = $ctx->make_var_symbol($param->name);
     $ctx->current_func_scope()->add_binding($param_name, $param_symbol);
   }
@@ -470,7 +469,7 @@ class Resolve {
       // TODO: user error if this lookup fails
       $union_namespace = $ctx->get_namespace($union_symbol);
       foreach ($fields->mapping as $field) {
-        $field_name = $field->name->value;
+        $field_name   = $field->name->value;
         $field_symbol = $union_namespace->get_name($field_name);
         // TODO: user error if this lookup fails
         assert($field_symbol !== null);
@@ -521,9 +520,9 @@ class Resolve {
   }
 
   private static function ref(self $ctx, nodes\Ref $ref): void {
-    $is_extern = $ref->extern;
+    $is_extern     = $ref->extern;
     $head_segments = $ref->head_segments;
-    $tail_segment = $ref->tail_segment;
+    $tail_segment  = $ref->tail_segment;
 
     // True iff the reference only has one segment and is not external.
     $is_nearby = $is_extern === false && empty($head_segments);

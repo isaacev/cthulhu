@@ -19,14 +19,14 @@ class CheckPhase {
     Table $symbol_to_name,
     Program $ir_tree
   ) {
-    $this->spans = $spans;
+    $this->spans          = $spans;
     $this->name_to_symbol = $name_to_symbol;
     $this->symbol_to_name = $symbol_to_name;
-    $this->ir_tree = $ir_tree;
+    $this->ir_tree        = $ir_tree;
   }
 
   function check(): CodegenPhase {
-    list($symbol_to_type, $expr_to_type) = Check::types(
+    [ $symbol_to_type, $expr_to_type ] = Check::types(
       $this->spans,
       $this->name_to_symbol,
       $this->symbol_to_name,

@@ -12,7 +12,7 @@ class Reference extends Node {
   function __construct(string $segments, names\Symbol $symbol) {
     parent::__construct();
     $this->segments = $segments;
-    $this->symbol = $symbol;
+    $this->symbol   = $symbol;
   }
 
   use traits\Atomic;

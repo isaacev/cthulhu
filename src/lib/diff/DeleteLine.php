@@ -2,4 +2,5 @@
 
 namespace Cthulhu\lib\diff;
 
-class DeleteLine extends Line {}
+class DeleteLine extends Line {
+}

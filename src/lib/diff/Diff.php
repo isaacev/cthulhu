@@ -4,10 +4,10 @@ namespace Cthulhu\lib\diff;
 
 class Diff {
   private static function internal_diff(array $before, array $after) {
-    $matrix = [];
-    $maxlen = 0;
+    $matrix     = [];
+    $maxlen     = 0;
     $before_max = 0;
-    $after_max = 0;
+    $after_max  = 0;
 
     foreach ($before as $before_index => $before_value) {
       $after_keys = array_keys($after, $before_value);
@@ -17,9 +17,9 @@ class Diff {
           : 1;
 
         if ($matrix[$before_index][$after_index] > $maxlen) {
-          $maxlen = $matrix[$before_index][$after_index];
+          $maxlen     = $matrix[$before_index][$after_index];
           $before_max = $before_index + 1 - $maxlen;
-          $after_max  = $after_index  + 1 - $maxlen;
+          $after_max  = $after_index + 1 - $maxlen;
         }
       }
     }

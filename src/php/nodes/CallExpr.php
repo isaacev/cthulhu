@@ -9,13 +9,13 @@ class CallExpr extends Expr {
   public array $args;
 
   /**
-   * @param Expr $callee
+   * @param Expr   $callee
    * @param Expr[] $args
    */
   function __construct(Expr $callee, array $args) {
     parent::__construct();
     $this->callee = $callee;
-    $this->args = $args;
+    $this->args   = $args;
   }
 
   public function to_children(): array {

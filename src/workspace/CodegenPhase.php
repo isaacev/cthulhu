@@ -23,8 +23,8 @@ class CodegenPhase {
     $this->name_to_symbol = $name_to_symbol;
     $this->symbol_to_name = $symbol_to_name;
     $this->symbol_to_type = $symbol_to_type;
-    $this->expr_to_type = $expr_to_type;
-    $this->ir_tree = $ir_tree;
+    $this->expr_to_type   = $expr_to_type;
+    $this->ir_tree        = $ir_tree;
   }
 
   function codegen(): OptimizePhase {

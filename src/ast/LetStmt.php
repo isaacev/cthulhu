@@ -10,11 +10,11 @@ class LetStmt extends Stmt {
   public Expr $expr;
 
   /**
-   * @param Source\Span $span
-   * @param LowerNameNode $name
+   * @param Source\Span     $span
+   * @param LowerNameNode   $name
    * @param Annotation|null $note
-   * @param Expr $expr
-   * @param Attribute[] $attrs
+   * @param Expr            $expr
+   * @param Attribute[]     $attrs
    */
   function __construct(Source\Span $span, LowerNameNode $name, ?Annotation $note, Expr $expr, array $attrs) {
     parent::__construct($span, $attrs);

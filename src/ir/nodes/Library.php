@@ -7,7 +7,7 @@ class Library extends Node {
   public array $items;
 
   /**
-   * @param Name $name
+   * @param Name   $name
    * @param Item[] $items
    */
   function __construct(Name $name, array $items) {

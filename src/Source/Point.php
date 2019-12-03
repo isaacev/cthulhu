@@ -8,8 +8,8 @@ class Point {
   public $column;
 
   function __construct(File $file, int $line = 1, int $column = 1) {
-    $this->file = $file;
-    $this->line = $line;
+    $this->file   = $file;
+    $this->line   = $line;
     $this->column = $column;
   }
 

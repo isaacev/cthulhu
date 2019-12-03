@@ -8,7 +8,7 @@ class MatchExpr extends Expr {
 
   /**
    * @param MatchDiscriminant $disc
-   * @param MatchArm[] $arms
+   * @param MatchArm[]        $arms
    */
   function __construct(MatchDiscriminant $disc, array $arms) {
     parent::__construct();

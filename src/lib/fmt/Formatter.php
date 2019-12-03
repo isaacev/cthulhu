@@ -6,11 +6,12 @@ abstract class Formatter {
   public const MAX_LINE_LENGTH = 80;
 
   private $col = null;
-  private $tab = [0];
+  private $tab = [ 0 ];
   private $applied_styles = [];
   private $stashed_styles = [];
 
   abstract protected function write(string $str): void;
+
   abstract protected function use_color(): bool;
 
   protected function write_escape_code(int ...$attrs): void {

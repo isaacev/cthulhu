@@ -8,7 +8,7 @@ class VariantConstructorExpr extends Expr {
 
   function __construct(Ref $ref, ?VariantConstructorFields $fields) {
     parent::__construct();
-    $this->ref = $ref;
+    $this->ref    = $ref;
     $this->fields = $fields;
   }
 

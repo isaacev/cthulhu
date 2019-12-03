@@ -11,6 +11,6 @@ class UnaryExpr extends Expr {
   function __construct(Source\Span $span, string $operator, Expr $operand) {
     parent::__construct($span);
     $this->operator = $operator;
-    $this->operand = $operand;
+    $this->operand  = $operand;
   }
 }

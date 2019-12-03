@@ -13,7 +13,7 @@ class Path {
 
   function __construct(?self $parent, php\nodes\Node $node) {
     $this->parent = $parent;
-    $this->node = $node;
+    $this->node   = $node;
   }
 
   function was_changed(): bool {
@@ -50,7 +50,7 @@ class Path {
 
     $this->was_changed = true;
     $this->was_removed = true;
-    $this->node = null;
+    $this->node        = null;
   }
 
   function replace_with(php\nodes\Node $node) {
@@ -58,7 +58,7 @@ class Path {
       throw new \Exception('cannot replace node after it was removed');
     }
     $this->was_changed = true;
-    $this->node = $node;
+    $this->node        = $node;
   }
 
   function after(array $nodes) {
@@ -67,7 +67,7 @@ class Path {
     } else if ($this->was_removed()) {
       throw new \Exception('cannot add sibilngs to a node after it was removed');
     }
-    $this->was_changed = true;
+    $this->was_changed       = true;
     $this->new_sibling_nodes = $nodes;
   }
 

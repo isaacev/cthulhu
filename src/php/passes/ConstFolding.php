@@ -16,13 +16,15 @@ class ConstFolding {
   }
 
   protected static function static_eval(php\nodes\BinaryExpr $expr): php\nodes\Expr {
-    $left = $expr->left;
+    $left  = $expr->left;
     $right = $expr->right;
 
     if ($left instanceof php\nodes\StrLiteral && $right instanceof php\nodes\StrLiteral) {
       switch ($expr->operator) {
-        case '.': return new php\nodes\StrLiteral($left->value . $right->value);
-        default:  return $expr;
+        case '.':
+          return new php\nodes\StrLiteral($left->value . $right->value);
+        default:
+          return $expr;
       }
     }
 

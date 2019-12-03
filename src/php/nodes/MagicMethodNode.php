@@ -10,15 +10,15 @@ class MagicMethodNode extends Node {
   public BlockNode $body;
 
   /**
-   * @param string $name
+   * @param string     $name
    * @param Variable[] $params
-   * @param BlockNode $body
+   * @param BlockNode  $body
    */
   function __construct(string $name, array $params, BlockNode $body) {
     parent::__construct();
-    $this->name = $name;
+    $this->name   = $name;
     $this->params = $params;
-    $this->body = $body;
+    $this->body   = $body;
   }
 
   function to_children(): array {

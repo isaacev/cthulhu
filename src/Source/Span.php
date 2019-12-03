@@ -8,7 +8,7 @@ class Span {
 
   function __construct(Point $from, Point $to) {
     $this->from = $from;
-    $this->to = $to;
+    $this->to   = $to;
   }
 
   public function extended_to(Span $other): Span {

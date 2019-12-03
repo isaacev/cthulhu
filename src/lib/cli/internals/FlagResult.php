@@ -7,7 +7,7 @@ class FlagResult {
   public $value;
 
   function __construct(string $id, $value) {
-    $this->id = $id;
+    $this->id    = $id;
     $this->value = $value;
   }
 }

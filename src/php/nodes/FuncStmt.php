@@ -11,8 +11,8 @@ class FuncStmt extends Stmt {
 
   function __construct(FuncHead $head, BlockNode $body, array $attrs) {
     parent::__construct();
-    $this->head = $head;
-    $this->body = $body;
+    $this->head  = $head;
+    $this->body  = $body;
     $this->attrs = $attrs;
   }
 

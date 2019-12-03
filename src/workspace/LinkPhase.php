@@ -15,8 +15,8 @@ class LinkPhase {
   }
 
   function link(): ResolvePhase {
-    $spans = new Table();
-    $lib = Lower::file($spans, $this->syntax_tree);
+    $spans   = new Table();
+    $lib     = Lower::file($spans, $this->syntax_tree);
     $ir_tree = Linker::link($spans, $lib);
     return new ResolvePhase($spans, $ir_tree);
   }

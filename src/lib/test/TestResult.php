@@ -7,7 +7,7 @@ abstract class TestResult {
   public $runtime_in_ms;
 
   function __construct(Test $test, float $runtime_in_ms) {
-    $this->test = $test;
+    $this->test          = $test;
     $this->runtime_in_ms = $runtime_in_ms;
   }
 }

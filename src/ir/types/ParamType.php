@@ -11,8 +11,8 @@ class ParamType extends Type {
   public ?Type $binding;
 
   function __construct(names\TypeSymbol $symbol, nodes\Name $name, ?Type $binding) {
-    $this->symbol = $symbol;
-    $this->name = $name;
+    $this->symbol  = $symbol;
+    $this->name    = $name;
     $this->binding = $binding;
   }
 

@@ -70,6 +70,6 @@ class Reserved {
     'var',
     'while',
     'xor',
-    'yield'
+    'yield',
   ];
 }

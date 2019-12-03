@@ -15,7 +15,7 @@ class Graph {
 
   public function add_edge(HasId $from, HasId $to): void {
     $this->lookup[$from_id = $from->get_id()] = $from;
-    $this->lookup[$to_id = $to->get_id()] = $to;
+    $this->lookup[$to_id = $to->get_id()]     = $to;
 
     if (array_key_exists($from_id, $this->edges)) {
       if (in_array($to_id, $this->edges[$from_id]) === false) {
@@ -48,7 +48,7 @@ class Graph {
     foreach ($this->edges_from($v) as $w) {
       if (in_array($w, $path)) {
         $path_ref_index = array_search($w, $path);
-        return [$path_ref_index, $path];
+        return [ $path_ref_index, $path ];
       } else if (in_array($w, $done) === false) {
         if ($found_cycle = $this->_find_cycle($w, $path, $done)) {
           return $found_cycle;
@@ -64,7 +64,7 @@ class Graph {
   public function get_cycle(): ?array {
     $path = [];
     $done = [];
-    if (list($index, $full_path) = $this->_find_cycle($this->root_id, $path, $done)) {
+    if ([ $index, $full_path ] = $this->_find_cycle($this->root_id, $path, $done)) {
       return [
         $index,
         $this->lookup_all($full_path),
@@ -88,7 +88,7 @@ class Graph {
 
   public function get_order(): array {
     $stack = [];
-    $done = [];
+    $done  = [];
     $this->_get_order($this->root_id, $stack, $done);
     return $this->lookup_all($stack);
   }

@@ -6,7 +6,7 @@ use Cthulhu\php;
 
 class Visitor {
   static function walk(php\nodes\Node $node, array $callbacks): void {
-    $path = new Path(null, $node);
+    $path  = new Path(null, $node);
     $table = new Table($callbacks);
     self::_walk($path, $table);
   }
@@ -23,7 +23,7 @@ class Visitor {
   }
 
   static function edit(php\nodes\Node $node, array $callbacks): php\nodes\Node {
-    $path = new Path(null, $node);
+    $path  = new Path(null, $node);
     $table = new Table($callbacks);
     self::_edit($path, $table);
     return $path->node;

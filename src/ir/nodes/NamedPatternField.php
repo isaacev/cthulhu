@@ -8,7 +8,7 @@ class NamedPatternField extends Node {
 
   function __construct(Name $name, Pattern $pattern) {
     parent::__construct();
-    $this->name = $name;
+    $this->name    = $name;
     $this->pattern = $pattern;
   }
 

@@ -34,7 +34,7 @@ class Errors {
   }
 
   public static function uncovered_patterns(Source\Span $span, array $patterns): Error {
-    $n = count($patterns);
+    $n   = count($patterns);
     $err = (new Error('uncovered patterns'))
       ->paragraph('The match expression does not handle all possible patterns.')
       ->snippet($span)

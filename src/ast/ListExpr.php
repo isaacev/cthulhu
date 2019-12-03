@@ -9,7 +9,7 @@ class ListExpr extends Expr {
 
   /**
    * @param Source\Span $span
-   * @param Expr[] $elements
+   * @param Expr[]      $elements
    */
   function __construct(Source\Span $span, array $elements) {
     parent::__construct($span);

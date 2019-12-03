@@ -14,18 +14,18 @@ class SubcommandGrammar implements Describeable {
   public $callback;
 
   function __construct(string $program_name, string $id, string $description) {
-    $this->program_name = $program_name;
-    $this->id = $id;
-    $this->description = $description;
-    $this->flags_grammar = new FlagsGrammar();
+    $this->program_name      = $program_name;
+    $this->id                = $id;
+    $this->description       = $description;
+    $this->flags_grammar     = new FlagsGrammar();
     $this->argument_grammars = [];
-    $this->callback = [$this, 'print_help'];
+    $this->callback          = [ $this, 'print_help' ];
 
     $this->add_flag(new ShortCircuitFlagGrammar(
       'help',
       'h',
       'Show this message',
-      [$this, 'print_help']
+      [ $this, 'print_help' ]
     ));
   }
 
@@ -87,7 +87,7 @@ class SubcommandGrammar implements Describeable {
 
   function parse(ProgramGrammar $program, Scanner $scanner): SubcommandResult {
     $flags = $this->flags_grammar->parse($scanner);
-    $args = $this->parse_args($scanner);
+    $args  = $this->parse_args($scanner);
 
     if ($scanner->not_empty()) {
       if ($scanner->next_starts_with('-')) {
@@ -101,7 +101,7 @@ class SubcommandGrammar implements Describeable {
 
   function dispatch(ProgramResult $program_result) {
     $flags = Lookup::from_flat_array($program_result->subcommand->flags->flags);
-    $args = Lookup::from_flat_array($program_result->subcommand->arguments);
+    $args  = Lookup::from_flat_array($program_result->subcommand->arguments);
     if ($this->callback) {
       call_user_func($this->callback, $flags, $args);
     }

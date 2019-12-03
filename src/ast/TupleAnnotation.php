@@ -8,7 +8,7 @@ class TupleAnnotation extends Annotation {
   public array $members;
 
   /**
-   * @param Source\Span $span
+   * @param Source\Span  $span
    * @param Annotation[] $members
    */
   function __construct(Source\Span $span, array $members) {

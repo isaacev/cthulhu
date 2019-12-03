@@ -2,4 +2,5 @@
 
 namespace Cthulhu\lib\test;
 
-class TestPassed extends TestResult {}
+class TestPassed extends TestResult {
+}

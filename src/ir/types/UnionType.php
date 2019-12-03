@@ -12,15 +12,15 @@ class UnionType extends Type implements TypeSupportingParameters {
   public array $variants;
 
   /**
-   * @param RefSymbol $symbol
-   * @param Ref $ref
-   * @param ParamType[] $params
+   * @param RefSymbol       $symbol
+   * @param Ref             $ref
+   * @param ParamType[]     $params
    * @param VariantFields[] $variants
    */
   function __construct(RefSymbol $symbol, Ref $ref, array $params, array $variants) {
-    $this->symbol = $symbol;
-    $this->ref = $ref;
-    $this->params = $params;
+    $this->symbol   = $symbol;
+    $this->ref      = $ref;
+    $this->params   = $params;
     $this->variants = $variants;
   }
 

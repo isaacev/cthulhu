@@ -39,14 +39,14 @@ class Lower {
   ) {
     $this->ir_name_to_ir_symbol = $ir_name_to_ir_symbol;
     $this->ir_symbol_to_ir_name = $ir_symbol_to_ir_name;
-    $this->ir_symbol_to_type = $ir_symbol_to_type;
-    $this->ir_expr_to_type = $ir_expr_to_type;
+    $this->ir_symbol_to_type    = $ir_symbol_to_type;
+    $this->ir_expr_to_type      = $ir_expr_to_type;
     $this->ir_symbol_to_php_ref = new ir\Table();
     $this->ir_symbol_to_php_var = new ir\Table();
-    $this->ir_name_to_php_name = new ir\Table();
-    $this->php_symbol_table = new ir\Table();
-    $this->ir_symbol_to_string = new ir\Table();
-    $this->root_scope = new names\Scope();
+    $this->ir_name_to_php_name  = new ir\Table();
+    $this->php_symbol_table     = new ir\Table();
+    $this->ir_symbol_to_string  = new ir\Table();
+    $this->root_scope           = new names\Scope();
   }
 
   private function push_block(): void {
@@ -108,14 +108,14 @@ class Lower {
       return $php_name;
     }
 
-    $ir_symbol = $this->ir_name_to_ir_symbol->get($ir_name);
-    $php_value = $this->rename_ir_name($ir_symbol, $ir_name);
+    $ir_symbol  = $this->ir_name_to_ir_symbol->get($ir_name);
+    $php_value  = $this->rename_ir_name($ir_symbol, $ir_name);
     $php_symbol = new names\Symbol();
-    $php_name = new nodes\Name($php_value, $php_symbol);
+    $php_name   = new nodes\Name($php_value, $php_symbol);
     $this->php_symbol_table->set($php_name, $php_symbol);
     $this->ir_name_to_php_name->set($ir_name, $php_name);
     $php_segments = end($this->namespace_refs)->segments . '\\' . $php_value;
-    $php_ref = new nodes\Reference($php_segments, $php_symbol);
+    $php_ref      = new nodes\Reference($php_segments, $php_symbol);
     $this->ir_symbol_to_php_ref->set($ir_symbol, $php_ref);
     return $php_name;
   }
@@ -126,9 +126,9 @@ class Lower {
       return $php_var;
     }
 
-    $php_value = $this->rename_ir_name($ir_symbol, $ir_name);
+    $php_value  = $this->rename_ir_name($ir_symbol, $ir_name);
     $php_symbol = new names\Symbol();
-    $php_var = new nodes\Variable($php_value, $php_symbol);
+    $php_var    = new nodes\Variable($php_value, $php_symbol);
     $this->php_symbol_table->set($php_var, $php_symbol);
     $this->ir_symbol_to_php_var->set($ir_symbol, $php_var);
     return $php_var;
@@ -140,13 +140,13 @@ class Lower {
       return $php_ref;
     }
 
-    $ir_symbol = $tail_ir_symbol;
+    $ir_symbol  = $tail_ir_symbol;
     $php_values = [ $this->rename_ir_name($ir_symbol, $ir_name) ];
     while ($ir_symbol = $ir_symbol->parent) {
       array_unshift($php_values, $this->ir_symbol_to_string->get($ir_symbol));
     }
     $php_symbol = new names\Symbol();
-    $php_ref = new nodes\Reference(implode('\\', $php_values), $php_symbol);
+    $php_ref    = new nodes\Reference(implode('\\', $php_values), $php_symbol);
     $this->php_symbol_table->set($php_ref, $php_symbol);
     $this->ir_symbol_to_php_ref->set($tail_ir_symbol, $php_ref);
     return $php_ref;
@@ -161,7 +161,7 @@ class Lower {
       } else {
         $current_scope->use_name($candidate);
         $php_symbol = new names\Symbol();
-        $php_var = new nodes\Variable($candidate, $php_symbol);
+        $php_var    = new nodes\Variable($candidate, $php_symbol);
         $this->php_symbol_table->set($php_var, $php_symbol);
         return $php_var;
       }
@@ -170,7 +170,7 @@ class Lower {
 
   private function php_var_from_string(string $basis): nodes\Variable {
     $current_scope = $this->current_scope();
-    $counter = 0;
+    $counter       = 0;
     while (true) {
       $candidate = $counter === 0 ? $basis : "${basis}_$counter";
       if ($this->is_name_unavailable($candidate, $current_scope)) {
@@ -179,7 +179,7 @@ class Lower {
       } else {
         $current_scope->use_name($candidate);
         $php_symbol = new names\Symbol();
-        $php_var = new nodes\Variable($candidate, $php_symbol);
+        $php_var    = new nodes\Variable($candidate, $php_symbol);
         $this->php_symbol_table->set($php_var, $php_symbol);
         return $php_var;
       }
@@ -187,8 +187,8 @@ class Lower {
   }
 
   private function rename_ir_name(ir\names\Symbol $ir_symbol, ir\nodes\Name $ir_name): string {
-    $candidate = $ir_name->value;
-    $counter = 0;
+    $candidate     = $ir_name->value;
+    $counter       = 0;
     $current_scope = $this->current_scope();
     while ($this->is_name_unavailable($candidate, $current_scope)) {
       if ($counter === 0) {
@@ -244,7 +244,7 @@ class Lower {
   }
 
   private function enter_function(ir\nodes\FuncHead $ir_head): void {
-    $php_name = $this->php_name_from_ir_name($ir_head->name);
+    $php_name   = $this->php_name_from_ir_name($ir_head->name);
     $func_scope = new names\Scope();
     array_push($this->function_scopes, $func_scope);
 
@@ -264,7 +264,7 @@ class Lower {
   }
 
   private function native_function(ir\nodes\Name $ir_name, int $num_params): nodes\FuncHead {
-    $php_name = $this->php_name_from_ir_name($ir_name);
+    $php_name   = $this->php_name_from_ir_name($ir_name);
     $func_scope = new names\Scope();
     array_push($this->function_scopes, $func_scope);
 
@@ -406,7 +406,7 @@ class Lower {
           new nodes\CallExpr(
             new nodes\ReferenceExpr($php_ref), [])));
     }
-    $block = $ctx->pop_block();
+    $block             = $ctx->pop_block();
     $ctx->namespaces[] = new nodes\NamespaceNode(null, $block);
   }
 
@@ -416,8 +416,8 @@ class Lower {
   }
 
   private static function exit_library(self $ctx): void {
-    $block = $ctx->pop_block();
-    $php_ref = $ctx->exit_namespace();
+    $block             = $ctx->pop_block();
+    $php_ref           = $ctx->exit_namespace();
     $ctx->namespaces[] = new nodes\NamespaceNode($php_ref, $block);
   }
 
@@ -427,16 +427,16 @@ class Lower {
   }
 
   private static function exit_mod_item(self $ctx): void {
-    $php_ref = $ctx->exit_namespace();
-    $block = $ctx->pop_block();
+    $php_ref           = $ctx->exit_namespace();
+    $block             = $ctx->pop_block();
     $ctx->namespaces[] = new nodes\NamespaceNode($php_ref, $block);
   }
 
   private static function enter_func_item(self $ctx, ir\nodes\FuncItem $item): void {
     $ctx->enter_function($item->head);
 
-    $ir_symbol = $ctx->ir_name_to_ir_symbol->get($item->head->name);
-    $type = $ctx->ir_symbol_to_type->get($ir_symbol);
+    $ir_symbol   = $ctx->ir_name_to_ir_symbol->get($item->head->name);
+    $type        = $ctx->ir_symbol_to_type->get($ir_symbol);
     $does_return = ir\types\UnitType::does_not_match($type->output);
     if ($does_return) {
       $callback = function () use ($ctx) {
@@ -462,7 +462,7 @@ class Lower {
     $ctx->push_stmt($php_func);
 
     if ($item->get_attr('entry', false)) {
-      $ir_symbol = $ctx->ir_name_to_ir_symbol->get($item->head->name);
+      $ir_symbol         = $ctx->ir_name_to_ir_symbol->get($item->head->name);
       $ctx->entry_refs[] = $ctx->ir_symbol_to_php_ref->get($ir_symbol);
     }
   }
@@ -487,7 +487,7 @@ class Lower {
     }
 
     $ir_symbol = $ctx->ir_name_to_ir_symbol->get($item->name);
-    $type = $ctx->ir_symbol_to_type->get($ir_symbol);
+    $type      = $ctx->ir_symbol_to_type->get($ir_symbol);
     $ctx->push_stmt(ir\types\UnitType::matches($type->output)
       ? new nodes\SemiStmt($ctx->pop_expr())
       : new nodes\ReturnStmt($ctx->pop_expr()));
@@ -499,20 +499,21 @@ class Lower {
 
   private static function union_item(self $ctx, ir\nodes\UnionItem $item): void {
     $php_base_name = $ctx->php_name_from_ir_name($item->name);
-    $php_base_ref = $ctx->php_ref_from_ir_name($item->name);
-    $php_base = new nodes\ClassStmt(true, $php_base_name, null, []);
+    $php_base_ref  = $ctx->php_ref_from_ir_name($item->name);
+    $php_base      = new nodes\ClassStmt(true, $php_base_name, null, []);
     $ctx->push_stmt($php_base);
 
     foreach ($item->variants as $name => $variant) {
       $php_variant_name = $ctx->php_name_from_ir_name($variant->name);
       switch (true) {
-        case $variant instanceof ir\nodes\NamedVariantDeclNode: {
+        case $variant instanceof ir\nodes\NamedVariantDeclNode:
+        {
           $body = [];
           $ctx->enter_method();
           $params = [ $ctx->php_var_from_string('args') ];
           foreach ($variant->fields as $field) {
             $php_var = $ctx->php_var_from_ir_name($field->name);
-            $body[] = new nodes\PropertyNode(true, $php_var);
+            $body[]  = new nodes\PropertyNode(true, $php_var);
             $ctx->push_stmt(new nodes\AssignStmt(
               new nodes\PropertyAccessExpr(
                 new nodes\ThisExpr(),
@@ -524,7 +525,8 @@ class Lower {
           $body[] = new nodes\MagicMethodNode('__construct', $params, $ctx->exit_method());
           break;
         }
-        case $variant instanceof ir\nodes\OrderedVariantDeclNode: {
+        case $variant instanceof ir\nodes\OrderedVariantDeclNode:
+        {
           $body = [];
           $ctx->enter_method();
           $params = [];
@@ -553,7 +555,7 @@ class Lower {
   }
 
   private static function exit_let_stmt(self $ctx, ir\nodes\LetStmt $stmt): void {
-    $php_var = $ctx->php_var_from_ir_name($stmt->name);
+    $php_var  = $ctx->php_var_from_ir_name($stmt->name);
     $php_expr = $ctx->pop_expr();
     $php_stmt = new nodes\AssignStmt($php_var, $php_expr);
     $ctx->push_stmt($php_stmt);
@@ -573,12 +575,12 @@ class Lower {
 
   private static function enter_match_expr(self $ctx, ir\nodes\MatchExpr $expr, ir\Path $path): void {
     // This is the variable that all match arms will assign values to.
-    $php_var = $ctx->php_tmp_var();
+    $php_var               = $ctx->php_tmp_var();
     $ctx->match_out_vars[] = $php_var;
-    $ctx->match_arms[] = [];
+    $ctx->match_arms[]     = [];
 
     $parent_ir_node = $path->parent->node;
-    $return_type = $ctx->ir_expr_to_type->get($expr);
+    $return_type    = $ctx->ir_expr_to_type->get($expr);
     if ($parent_ir_node instanceof ir\nodes\SemiStmt || ir\types\UnitType::matches($return_type)) {
       $ctx->push_expr(new nodes\NullLiteral());
       $ctx->push_block_exit_handler(function () use ($ctx) {
@@ -631,7 +633,7 @@ class Lower {
 
   private static function enter_match_arm(self $ctx, ir\nodes\MatchArm $node): void {
     $ctx->push_block();
-    $accessors = [ end($ctx->match_in_vars) ];
+    $accessors  = [ end($ctx->match_in_vars) ];
     $conditions = [];
     ir\Visitor::walk($node->pattern, [
       'VariantPattern' => function (ir\nodes\VariantPattern $node) use ($ctx, &$accessors, &$conditions) {
@@ -725,7 +727,7 @@ class Lower {
   }
 
   private static function exit_match_arm(self $ctx, ir\nodes\MatchArm $node): void {
-    $test = array_pop($ctx->match_tests);
+    $test    = array_pop($ctx->match_tests);
     $if_stmt = new nodes\IfStmt($test, $ctx->pop_block(), null);
     array_push($ctx->match_arms[count($ctx->match_arms) - 1], $if_stmt);
   }
@@ -742,7 +744,7 @@ class Lower {
 
   private static function enter_if_expr(self $ctx, ir\nodes\IfExpr $expr, ir\Path $path): void {
     $parent_ir_node = $path->parent->node;
-    $return_type = $ctx->ir_expr_to_type->get($expr);
+    $return_type    = $ctx->ir_expr_to_type->get($expr);
     if ($parent_ir_node instanceof ir\nodes\SemiStmt || ir\types\UnitType::matches($return_type)) {
       $ctx->push_expr(new nodes\NullLiteral());
       $ctx->push_block_exit_handler(function () use ($ctx) {
@@ -820,11 +822,11 @@ class Lower {
     $ref = new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($expr->ref->tail_segment));
     if ($expr->fields instanceof ir\nodes\NamedVariantConstructorFields) {
       $fields = [];
-      $exprs = $ctx->pop_exprs(count($expr->fields->pairs));
+      $exprs  = $ctx->pop_exprs(count($expr->fields->pairs));
       foreach ($expr->fields->pairs as $index => $field) {
         $field_name = $ctx->php_name_from_ir_name($field->name);
         $field_expr = $exprs[$index];
-        $fields[] = new nodes\FieldNode($field_name, $field_expr);
+        $fields[]   = new nodes\FieldNode($field_name, $field_expr);
       }
       $args = [ new nodes\AssociativeArrayExpr($fields) ];
     } else if ($expr->fields instanceof ir\nodes\OrderedVariantConstructorFields) {
@@ -836,7 +838,7 @@ class Lower {
   }
 
   private static function ref_expr(self $ctx, ir\nodes\RefExpr $expr): void {
-    $ir_name = $expr->ref->tail_segment;
+    $ir_name   = $expr->ref->tail_segment;
     $ir_symbol = $ctx->ir_name_to_ir_symbol->get($ir_name);
     if ($ir_symbol instanceof ir\names\VarSymbol) {
       $php_var  = $ctx->ir_symbol_to_php_var->get($ir_symbol);

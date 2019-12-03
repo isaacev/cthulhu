@@ -25,8 +25,32 @@ class Scope {
   }
 
   private const alphabet = [
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+    'g',
+    'h',
+    'i',
+    'j',
+    'k',
+    'l',
+    'm',
+    'n',
+    'o',
+    'p',
+    'q',
+    'r',
+    's',
+    't',
+    'u',
+    'v',
+    'w',
+    'x',
+    'y',
+    'z',
   ];
 
   static function generate_tmp_var_name() {
@@ -39,7 +63,7 @@ class Scope {
       }
 
       $letter = self::alphabet[$index++];
-      $value = str_repeat($letter, $loops + 1);
+      $value  = str_repeat($letter, $loops + 1);
       yield $value;
     }
   }

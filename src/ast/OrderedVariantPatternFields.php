@@ -9,7 +9,7 @@ class OrderedVariantPatternFields extends VariantPatternFields {
 
   /**
    * @param Source\Span $span
-   * @param Pattern[] $order
+   * @param Pattern[]   $order
    */
   function __construct(Source\Span $span, array $order) {
     parent::__construct($span);

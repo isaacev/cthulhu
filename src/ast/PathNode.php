@@ -10,15 +10,15 @@ class PathNode extends Node {
   public $tail;
 
   /**
-   * @param Source\Span $span
-   * @param bool $extern
-   * @param UpperNameNode[] $head
+   * @param Source\Span                 $span
+   * @param bool                        $extern
+   * @param UpperNameNode[]             $head
    * @param UpperNameNode|LowerNameNode $tail
    */
   function __construct(Source\Span $span, bool $extern, array $head, $tail) {
     parent::__construct($span);
     $this->extern = $extern;
-    $this->head = $head;
-    $this->tail = $tail;
+    $this->head   = $head;
+    $this->tail   = $tail;
   }
 }

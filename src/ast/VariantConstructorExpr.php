@@ -10,7 +10,7 @@ class VariantConstructorExpr extends Expr {
 
   function __construct(Source\Span $span, PathNode $path, ?VariantConstructorFields $fields) {
     parent::__construct($span);
-    $this->path = $path;
+    $this->path   = $path;
     $this->fields = $fields;
   }
 }

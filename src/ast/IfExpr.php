@@ -11,8 +11,8 @@ class IfExpr extends Expr {
 
   function __construct(Source\Span $span, Expr $condition, BlockNode $if_clause, ?BlockNode $else_clause) {
     parent::__construct($span);
-    $this->condition = $condition;
-    $this->if_clause = $if_clause;
+    $this->condition   = $condition;
+    $this->if_clause   = $if_clause;
     $this->else_clause = $else_clause;
   }
 }

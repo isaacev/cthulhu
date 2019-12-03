@@ -11,8 +11,8 @@ class FloatLiteral extends Literal {
 
   function __construct(Source\Span $span, float $value, int $precision, string $raw) {
     parent::__construct($span);
-    $this->value = $value;
+    $this->value     = $value;
     $this->precision = $precision;
-    $this->raw = $raw;
+    $this->raw       = $raw;
   }
 }

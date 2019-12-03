@@ -12,7 +12,7 @@ class BinaryExpr extends Expr {
   function __construct(Source\Span $span, string $operator, Expr $left, Expr $right) {
     parent::__construct($span);
     $this->operator = $operator;
-    $this->left = $left;
-    $this->right = $right;
+    $this->left     = $left;
+    $this->right    = $right;
   }
 }

@@ -8,7 +8,7 @@ class FloatLiteral extends Literal {
 
   function __construct(float $value, int $precision) {
     parent::__construct();
-    $this->value = $value;
+    $this->value     = $value;
     $this->precision = $precision;
   }
 

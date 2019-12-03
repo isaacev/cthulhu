@@ -6,7 +6,7 @@ class NamedVariantDeclNode extends VariantDeclNode {
   public array $fields;
 
   /**
-   * @param Name $name
+   * @param Name            $name
    * @param FieldDeclNode[] $fields
    */
   function __construct(Name $name, array $fields) {

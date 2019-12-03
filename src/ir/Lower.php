@@ -81,9 +81,9 @@ class Lower {
   }
 
   private static function union_item(Table $spans, ast\UnionItem $item): nodes\UnionItem {
-    $attrs    = self::attrs($item->attrs);
-    $name     = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    $params   = [];
+    $attrs  = self::attrs($item->attrs);
+    $name   = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
+    $params = [];
     foreach ($item->params as $param) {
       $params[] = self::param_note($spans, $param);
     }
@@ -234,7 +234,7 @@ class Lower {
   }
 
   private static function variant_pattern(Table $spans, ast\VariantPattern $pattern): nodes\VariantPattern {
-    $ref = self::path($spans, $pattern->path);
+    $ref    = self::path($spans, $pattern->path);
     $fields = self::variant_pattern_fields($spans, $pattern->fields);
     return $spans->set(new nodes\VariantPattern($ref, $fields), $pattern->span);
   }
@@ -255,7 +255,7 @@ class Lower {
     foreach ($fields->mapping as $field) {
       $name = $field->name->ident;
       if (array_key_exists($name, $mapping)) {
-        $first = $spans->get($mapping[$name]->name);
+        $first  = $spans->get($mapping[$name]->name);
         $second = $field->name->span;
         throw Errors::redundant_named_fields($first, $second, $name);
       }
@@ -265,7 +265,7 @@ class Lower {
   }
 
   private static function named_pattern_field(Table $spans, ast\NamedPatternField $field): nodes\NamedPatternField {
-    $name = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
+    $name    = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
     $pattern = self::pattern($spans, $field->pattern);
     return $spans->set(new nodes\NamedPatternField($name, $pattern), $field->span);
   }
@@ -463,7 +463,7 @@ class Lower {
   }
 
   private static function parameterized_note(Table $spans, ast\ParameterizedAnnotation $note): nodes\ParameterizedNote {
-    $inner = self::note($spans, $note->inner);
+    $inner  = self::note($spans, $note->inner);
     $params = [];
     foreach ($note->params as $param) {
       $params[] = self::note($spans, $param);
@@ -486,8 +486,8 @@ class Lower {
   private static function func_params(Table $spans, array $params): array {
     $_params = [];
     foreach ($params as $param) {
-      $name = $spans->set(new nodes\Name($param->name->ident), $param->name->span);
-      $note = self::note($spans, $param->note);
+      $name      = $spans->set(new nodes\Name($param->name->ident), $param->name->span);
+      $note      = self::note($spans, $param->note);
       $_params[] = $spans->set(new nodes\FuncParam($name, $note), $param->span);
     }
     return $_params;

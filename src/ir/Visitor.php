@@ -4,7 +4,7 @@ namespace Cthulhu\ir;
 
 class Visitor {
   static function walk(nodes\Node $start, array $callbacks): void {
-    $path = new Path(null, $start);
+    $path      = new Path(null, $start);
     $callbacks = new CallbackTable($callbacks);
     self::_walk($path, $callbacks);
   }
@@ -28,10 +28,10 @@ class CallbackTable {
       $direction = 'enter';
       if (preg_match('/^enter\((.+)\)$/', $selector, $matches)) {
         $direction = 'enter';
-        $selector = $matches[1];
+        $selector  = $matches[1];
       } else if (preg_match('/^exit\((.+)\)$/', $selector, $matches)) {
         $direction = 'exit';
-        $selector = $matches[1];
+        $selector  = $matches[1];
       }
 
       $kinds = explode('|', $selector);
@@ -66,8 +66,8 @@ class CallbackTable {
   }
 
   private static function get_node_kinds(nodes\Node $node): array {
-    $parents = array_values(class_parents($node));
-    $child = get_class($node);
+    $parents   = array_values(class_parents($node));
+    $child     = get_class($node);
     $hierarchy = array_merge([ $child ], $parents);
     return array_map(function ($classname) {
       return str_replace(__NAMESPACE__ . '\\nodes\\', '', $classname);

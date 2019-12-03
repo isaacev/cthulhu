@@ -29,8 +29,8 @@ class Inline {
           : false;
 
         if ($should_inline) {
-          $symbol_id = $path->node->head->name->symbol->get_id();
-          $inline_func_syms[] = $symbol_id;
+          $symbol_id                    = $path->node->head->name->symbol->get_id();
+          $inline_func_syms[]           = $symbol_id;
           $inline_func_defs[$symbol_id] = $path->node;
         }
       },
@@ -68,9 +68,11 @@ class Inline {
           return;
         }
 
-        $param_ids = array_map(function ($p) { return $p->symbol->get_id(); }, $func_def->head->params);
+        $param_ids            = array_map(function ($p) {
+          return $p->symbol->get_id();
+        }, $func_def->head->params);
         $param_id_to_arg_expr = array_combine($param_ids, $path->node->args);
-        $rewritten_body = visitor\Visitor::replace_references($func_def->body, $param_id_to_arg_expr);
+        $rewritten_body       = visitor\Visitor::replace_references($func_def->body, $param_id_to_arg_expr);
 
         if ($path->parent->node instanceof php\nodes\SemiStmt) {
           $path->parent->replace_with_multiple($rewritten_body->stmts);

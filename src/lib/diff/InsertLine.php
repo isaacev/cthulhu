@@ -2,4 +2,5 @@
 
 namespace Cthulhu\lib\diff;
 
-class InsertLine extends Line {}
+class InsertLine extends Line {
+}

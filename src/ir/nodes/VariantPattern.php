@@ -8,7 +8,7 @@ class VariantPattern extends Pattern {
 
   function __construct(Ref $ref, ?VariantPatternFields $fields) {
     parent::__construct();
-    $this->ref = $ref;
+    $this->ref    = $ref;
     $this->fields = $fields;
   }
 

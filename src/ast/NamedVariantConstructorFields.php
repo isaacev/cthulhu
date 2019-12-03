@@ -8,7 +8,7 @@ class NamedVariantConstructorFields extends VariantConstructorFields {
   public array $pairs;
 
   /**
-   * @param Source\Span $span
+   * @param Source\Span     $span
    * @param FieldExprNode[] $pairs
    */
   function __construct(Source\Span $span, array $pairs) {

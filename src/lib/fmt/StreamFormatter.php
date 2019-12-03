@@ -11,7 +11,7 @@ class StreamFormatter extends Formatter {
       throw new \Exception('StreamFormatter requires a resource object');
     }
 
-    $this->resource = $resource;
+    $this->resource  = $resource;
     $this->use_color = $use_color === null
       ? posix_isatty($resource)
       : $use_color;

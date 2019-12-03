@@ -8,7 +8,7 @@ class Table {
 
   function __construct(array $callbacks) {
     foreach ($callbacks as $selector => $callback) {
-      list($order, $node_names) = self::parse_selector($selector);
+      [ $order, $node_names ] = self::parse_selector($selector);
       if ($order === 'postorder') {
         foreach ($node_names as $node_name) {
           $this->postorder_callbacks[$node_name] = $callback;
@@ -39,19 +39,19 @@ class Table {
     return str_replace('Cthulhu\\php\\nodes\\', '', get_class($path->node));
   }
 
-  protected const SIMPLE_SELECTOR = '/^(\w+)$/';
+  protected const SIMPLE_SELECTOR  = '/^(\w+)$/';
   protected const COMPLEX_SELECTOR = '/^(pre|post)order\((\w+(?:\|\w+)*)\)$/';
 
   protected static function parse_selector(string $sel): array {
     if (preg_match(self::SIMPLE_SELECTOR, $sel, $simple_match)) {
       return [
         'preorder',
-        [ $simple_match[1] ]
+        [ $simple_match[1] ],
       ];
     } else if (preg_match(self::COMPLEX_SELECTOR, $sel, $complex_match)) {
       return [
         $complex_match[1] . 'order',
-        explode('|', $complex_match[2])
+        explode('|', $complex_match[2]),
       ];
     } else {
       throw new \Exception('unknown node selector');

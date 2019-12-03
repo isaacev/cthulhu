@@ -14,7 +14,7 @@ class OrderedVariantFields extends VariantFields {
 
   function size(): int {
     return count($this->order);
-}
+  }
 
   function get(int $i): ?Type {
     return isset($this->order[$i])

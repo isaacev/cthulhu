@@ -9,10 +9,7 @@ abstract class Pattern {
   abstract function __toString(): string;
 
   static function from(nodes\Pattern $pattern, types\Type $type): self {
-    $prev_kind = "$type";
     $type = $type->unwrap();
-    $then_kind = "$type";
-    if ($prev_kind !== $then_kind) echo "$prev_kind // $then_kind\n";
     if ($pattern instanceof nodes\VariantPattern) {
       assert($type instanceof types\UnionType);
       $form = $type->variants[$pattern->ref->tail_segment->value];
@@ -20,7 +17,7 @@ abstract class Pattern {
         assert($pattern->fields instanceof nodes\NamedVariantPatternFields);
         $mapping = [];
         foreach ($form->mapping as $name => $sub_type) {
-          $sub_pattern = $pattern->fields->mapping[$name]->pattern;
+          $sub_pattern    = $pattern->fields->mapping[$name]->pattern;
           $mapping[$name] = self::from($sub_pattern, $sub_type);
         }
         $fields = new NamedVariantFields($mapping);
@@ -30,7 +27,7 @@ abstract class Pattern {
         $order = [];
         foreach ($form->order as $index => $sub_type) {
           $sub_pattern = $pattern->fields->order[$index]->pattern;
-          $order[] = self::from($sub_pattern, $sub_type);
+          $order[]     = self::from($sub_pattern, $sub_type);
         }
         $fields = new OrderedVariantFields($order);
         return new VariantPattern($pattern->ref->tail_segment->value, $fields);

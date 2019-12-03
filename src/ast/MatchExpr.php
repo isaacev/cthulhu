@@ -10,8 +10,8 @@ class MatchExpr extends Expr {
 
   /**
    * @param Source\Span $span
-   * @param Expr $disc
-   * @param MatchArm[] $arms
+   * @param Expr        $disc
+   * @param MatchArm[]  $arms
    */
   function __construct(Source\Span $span, Expr $disc, array $arms) {
     parent::__construct($span);

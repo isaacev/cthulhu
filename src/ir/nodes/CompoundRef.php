@@ -15,8 +15,8 @@ class CompoundRef extends Node {
   function __construct(bool $extern, array $body, $tail) {
     parent::__construct();
     $this->extern = $extern;
-    $this->body = $body;
-    $this->tail = $tail;
+    $this->body   = $body;
+    $this->tail   = $tail;
   }
 
   function children(): array {

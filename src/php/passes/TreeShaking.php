@@ -8,7 +8,7 @@ use Cthulhu\php\visitor;
 class TreeShaking {
   public static function apply(php\nodes\Program $prog): php\nodes\Program {
     $declared = [];
-    $used = [];
+    $used     = [];
 
     visitor\Visitor::walk($prog, [
       'ReferenceExpr' => function (visitor\Path $path) use (&$used) {

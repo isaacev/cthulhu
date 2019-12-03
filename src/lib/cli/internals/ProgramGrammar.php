@@ -2,8 +2,8 @@
 
 namespace Cthulhu\lib\cli\internals;
 
-use \Cthulhu\lib\cli\Lookup;
-use \Cthulhu\lib\fmt\StreamFormatter;
+use Cthulhu\lib\cli\Lookup;
+use Cthulhu\lib\fmt\StreamFormatter;
 
 class ProgramGrammar {
   public $name;
@@ -13,24 +13,24 @@ class ProgramGrammar {
   public $callback;
 
   function __construct(string $name, string $version) {
-    $this->name = $name;
-    $this->version = $version;
-    $this->flags_grammar = new FlagsGrammar();
+    $this->name                = $name;
+    $this->version             = $version;
+    $this->flags_grammar       = new FlagsGrammar();
     $this->subcommand_grammars = [];
-    $this->callback = [$this, 'print_help'];
+    $this->callback            = [ $this, 'print_help' ];
 
     $this->flags_grammar->add(new ShortCircuitFlagGrammar(
       'help',
       'h',
       'Show this message',
-      [$this, 'print_help']
+      [ $this, 'print_help' ]
     ));
 
     $this->flags_grammar->add(new ShortCircuitFlagGrammar(
       'version',
       'v',
       'Show version number',
-      [$this, 'print_version']
+      [ $this, 'print_version' ]
     ));
   }
 
@@ -100,31 +100,31 @@ class ProgramGrammar {
     $partial_line  = substr($line, 0, $point);   // "cthulhu foo bar"
     $partial_words = array_slice($words, 0, $w); // [ "cthulhu", "foo" ]
 
-    fprintf(STDERR, "w:             %d\n",     $w);
+    fprintf(STDERR, "w:             %d\n", $w);
     fprintf(STDERR, "words:         [ %s ]\n", implode(', ', $words));
-    fprintf(STDERR, "word:          %s\n",     $word);
-    fprintf(STDERR, "line:          %s\n",     $line);
-    fprintf(STDERR, "point:         %d\n",     $point);
-    fprintf(STDERR, "partial_line:  %s\n",     $partial_line);
-    fprintf(STDERR, "partial_words: %s\n",     implode(', ', $partial_words));
+    fprintf(STDERR, "word:          %s\n", $word);
+    fprintf(STDERR, "line:          %s\n", $line);
+    fprintf(STDERR, "point:         %d\n", $point);
+    fprintf(STDERR, "partial_line:  %s\n", $partial_line);
+    fprintf(STDERR, "partial_words: %s\n", implode(', ', $partial_words));
 
     // Determine where in the last word the cursor point is in
     $partial_word = $words[$w];
-    $i = strlen($partial_word);
+    $i            = strlen($partial_word);
     while (substr($partial_word, 0, $i) !== substr($partial_line, -1 * $i) && $i > 0) {
       $i--;
     }
-    $partial_word = substr($partial_word, 0, $i);
+    $partial_word    = substr($partial_word, 0, $i);
     $partial_words[] = $partial_word;
-    fprintf(STDERR, "partial_word:  %s\n",     $partial_word);
-    fprintf(STDERR, "partial_words: %s\n",     implode(', ', $partial_words));
+    fprintf(STDERR, "partial_word:  %s\n", $partial_word);
+    fprintf(STDERR, "partial_words: %s\n", implode(', ', $partial_words));
 
-    $parts = array_slice($partial_words, 1);
+    $parts     = array_slice($partial_words, 1);
     $last_part = end($parts);
     if ($last_part !== '') {
       array_pop($parts);
     }
-    $scanner = new Scanner($parts);
+    $scanner     = new Scanner($parts);
     $completions = Completions::find($scanner, $this);
     fprintf(STDERR, "completions: %s\n", implode(', ', $completions));
     echo implode(PHP_EOL, $completions);
@@ -140,7 +140,7 @@ class ProgramGrammar {
     if ($token === '__complete') {
       $grammar = new SubcommandGrammar($this->name, '__complete', '');
       $grammar->add_argument(new VariadicArgumentGrammar('parts', ''));
-      $grammar->add_callback([$this, 'complete_callback']);
+      $grammar->add_callback([ $this, 'complete_callback' ]);
       return $grammar;
     }
 
@@ -165,7 +165,7 @@ class ProgramGrammar {
   }
 
   function parse(Scanner $scanner): ProgramResult {
-    $flags = $this->flags_grammar->parse($scanner);
+    $flags      = $this->flags_grammar->parse($scanner);
     $subcommand = $this->parse_subcommand($scanner);
 
     if ($scanner->not_empty()) {

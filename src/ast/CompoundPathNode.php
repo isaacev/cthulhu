@@ -10,15 +10,15 @@ class CompoundPathNode extends Node {
   public $tail;
 
   /**
-   * @param Source\Span $span
-   * @param bool $extern
-   * @param UpperNameNode[] $body
+   * @param Source\Span               $span
+   * @param bool                      $extern
+   * @param UpperNameNode[]           $body
    * @param StarSegment|UpperNameNode $tail
    */
   function __construct(Source\Span $span, bool $extern, array $body, $tail) {
     parent::__construct($span);
     $this->extern = $extern;
-    $this->body = $body;
-    $this->tail = $tail;
+    $this->body   = $body;
+    $this->tail   = $tail;
   }
 }

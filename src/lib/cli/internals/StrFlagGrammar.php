@@ -9,14 +9,14 @@ class StrFlagGrammar extends FlagGrammar {
   function __construct(string $id, ?string $short, string $description, string $arg_name, ?array $pattern) {
     parent::__construct($id, $short, $description);
     $this->arg_name = $arg_name;
-    $this->pattern = $pattern;
+    $this->pattern  = $pattern;
   }
 
   function completions(): array {
     if ($this->has_short_form()) {
       return [
         "-$this->short",
-        "--$this->id"
+        "--$this->id",
       ];
     } else {
       return [ "--$this->id" ];

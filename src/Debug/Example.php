@@ -14,7 +14,7 @@ class Example implements Reportable {
   }
 
   public function print(Formatter $f): Formatter {
-    $file = new Source\File('<example>', $this->example);
+    $file       = new Source\File('<example>', $this->example);
     $all_tokens = Lexer::to_tokens($file, Lexer::RELAXED_ERRORS | Lexer::KEEP_COMMENTS);
 
     $f->increment_tab_stop(2)
@@ -22,11 +22,11 @@ class Example implements Reportable {
       ->tab();
 
     $prev_line = 1;
-    $prev_col = 1;
+    $prev_col  = 1;
     foreach ($all_tokens as $token) {
       $total_newlines = $token->span->from->line - $prev_line;
       if ($total_newlines > 0) {
-        $prev_col = 1;
+        $prev_col  = 1;
         $prev_line = $token->span->to->line;
         $f->repeat(PHP_EOL, $total_newlines)
           ->tab();

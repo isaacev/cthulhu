@@ -10,7 +10,7 @@ class SubscriptExpr extends Expr {
 
   function __construct(Expr $arr, Expr $index) {
     parent::__construct();
-    $this->arr = $arr;
+    $this->arr   = $arr;
     $this->index = $index;
   }
 

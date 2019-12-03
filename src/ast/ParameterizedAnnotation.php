@@ -9,14 +9,14 @@ class ParameterizedAnnotation extends Annotation {
   public array $params;
 
   /**
-   * @param Source\Span $span
-   * @param Annotation $inner
+   * @param Source\Span  $span
+   * @param Annotation   $inner
    * @param Annotation[] $params
    */
   function __construct(Source\Span $span, Annotation $inner, array $params) {
     parent::__construct($span);
     assert(!empty($params));
-    $this->inner = $inner;
+    $this->inner  = $inner;
     $this->params = $params;
   }
 }

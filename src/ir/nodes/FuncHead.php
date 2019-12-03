@@ -8,9 +8,9 @@ class FuncHead extends Node {
   public Note $output;
 
   /**
-   * @param Name $name
+   * @param Name        $name
    * @param FuncParam[] $params
-   * @param Note $output
+   * @param Note        $output
    */
   function __construct(Name $name, array $params, Note $output) {
     parent::__construct();

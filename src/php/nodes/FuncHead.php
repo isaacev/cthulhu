@@ -9,7 +9,7 @@ class FuncHead extends Node {
   public array $params;
 
   /**
-   * @param Name $name
+   * @param Name       $name
    * @param Variable[] $params
    */
   function __construct(Name $name, array $params) {

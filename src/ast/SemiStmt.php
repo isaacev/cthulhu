@@ -9,8 +9,8 @@ class SemiStmt extends Stmt {
   public Token $semi;
 
   /**
-   * @param Expr $expr
-   * @param Token $semi
+   * @param Expr        $expr
+   * @param Token       $semi
    * @param Attribute[] $attrs
    */
   function __construct(Expr $expr, Token $semi, array $attrs) {

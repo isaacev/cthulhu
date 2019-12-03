@@ -11,12 +11,12 @@ class ResolvePhase {
   private $ir_tree;
 
   function __construct(Table $spans, Program $ir_tree) {
-    $this->spans = $spans;
+    $this->spans   = $spans;
     $this->ir_tree = $ir_tree;
   }
 
   function resolve(): CheckPhase {
-    list($name_to_symbol, $symbol_to_name) = Resolve::names(
+    [ $name_to_symbol, $symbol_to_name ] = Resolve::names(
       $this->spans,
       $this->ir_tree
     );

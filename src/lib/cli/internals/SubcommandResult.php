@@ -8,8 +8,8 @@ class SubcommandResult {
   public $arguments;
 
   function __construct(SubcommandGrammar $grammar, FlagsResult $flags, array $arguments) {
-    $this->grammar = $grammar;
-    $this->flags = $flags;
+    $this->grammar   = $grammar;
+    $this->flags     = $flags;
     $this->arguments = $arguments;
   }
 }

@@ -15,10 +15,10 @@ class Test {
   public $expected;
 
   function __construct(string $dir, string $group, string $name, string $input, TestOutput $expected) {
-    $this->dir = $dir;
-    $this->group = $group;
-    $this->name = $name;
-    $this->input = $input;
+    $this->dir      = $dir;
+    $this->group    = $group;
+    $this->name     = $name;
+    $this->input    = $input;
     $this->expected = $expected;
   }
 
@@ -28,9 +28,9 @@ class Test {
   }
 
   public function run(): TestResult {
-    $time_before = microtime(true);
-    $found = $this->eval();
-    $time_after = microtime(true);
+    $time_before   = microtime(true);
+    $found         = $this->eval();
+    $time_after    = microtime(true);
     $runtime_in_ms = ($time_after - $time_before) * 1000;
 
     if ($this->expected->equals($found)) {
@@ -63,7 +63,7 @@ class Test {
 
   protected function eval(): TestOutput {
     try {
-      $file = new Source\File($this->name, $this->input);
+      $file   = new Source\File($this->name, $this->input);
       $stdout = ReadPhase::from_memory($file)
         ->parse()
         ->link()

@@ -14,7 +14,7 @@ class IntFlagGrammar extends FlagGrammar {
     if ($this->has_short_form()) {
       return [
         "-$this->short",
-        "--$this->id"
+        "--$this->id",
       ];
     } else {
       return [ "--$this->id" ];

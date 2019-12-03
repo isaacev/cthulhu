@@ -14,11 +14,11 @@ class Check {
   private $exprs;
 
   private function __construct(ir\Table $spans, ir\Table $name_to_symbol, ir\Table $symbol_to_name) {
-    $this->spans = $spans;
+    $this->spans          = $spans;
     $this->name_to_symbol = $name_to_symbol;
     $this->symbol_to_name = $symbol_to_name;
-    $this->types = new ir\Table(); // Symbols -> type
-    $this->exprs = new ir\Table(); // Expression nodes -> type
+    $this->types          = new ir\Table(); // Symbols -> type
+    $this->exprs          = new ir\Table(); // Expression nodes -> type
   }
 
   private function get_symbol_for_name(nodes\Name $name): names\Symbol {
@@ -161,17 +161,17 @@ class Check {
     $inputs = [];
     foreach ($head->params as $param) {
       $inputs[] = $type = self::note_to_type($ctx, $param->note);
-      $symbol = $ctx->get_symbol_for_name($param->name);
+      $symbol   = $ctx->get_symbol_for_name($param->name);
       $ctx->set_type_for_symbol($symbol, $type);
     }
     $output = self::note_to_type($ctx, $head->output);
-    $type = new FuncType($inputs, $output);
+    $type   = new FuncType($inputs, $output);
     $symbol = $ctx->get_symbol_for_name($head->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
   private static function exit_func_item(self $ctx, nodes\FuncItem $item): void {
-    $symbol = $ctx->get_symbol_for_name($item->head->name);
+    $symbol               = $ctx->get_symbol_for_name($item->head->name);
     $expected_return_type = $ctx->get_type_for_symbol($symbol)->output;
 
     $block_type = $ctx->get_type_for_expr($item->body);
@@ -203,7 +203,7 @@ class Check {
     $output = self::note_to_type($ctx, $item->note->output);
 
     $symbol = $ctx->get_symbol_for_name($item->name);
-    $type = new FuncType($inputs, $output);
+    $type   = new FuncType($inputs, $output);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
@@ -255,7 +255,7 @@ class Check {
     }
     $symbol = $ctx->name_to_symbol->get($item->name);
     assert($symbol instanceof names\RefSymbol);
-    $ref = self::build_ref_from_symbol($ctx, $symbol);
+    $ref  = self::build_ref_from_symbol($ctx, $symbol);
     $type = new UnionType($symbol, $ref, $params, $variants);
     $ctx->set_type_for_symbol($symbol, $type);
   }
@@ -265,7 +265,7 @@ class Check {
     assert($tail_segment instanceof nodes\Name);
 
     $head_segments = [];
-    $head_symbol = $tail_symbol->parent;
+    $head_symbol   = $tail_symbol->parent;
     while ($head_symbol !== null) {
       $head_segment = $ctx->symbol_to_name->get($head_symbol);
       array_unshift($head_segments, $head_segment);
@@ -277,7 +277,7 @@ class Check {
   }
 
   private static function exit_let_stmt(self $ctx, nodes\LetStmt $stmt): void {
-    $symbol = $ctx->get_symbol_for_name($stmt->name);
+    $symbol    = $ctx->get_symbol_for_name($stmt->name);
     $expr_type = $ctx->get_type_for_expr($stmt->expr);
 
     if ($stmt->note !== null) {
@@ -302,7 +302,7 @@ class Check {
     $match_expr = $path->parent->node;
     assert($match_expr instanceof nodes\MatchExpr);
     $disc_type = $ctx->get_type_for_expr($match_expr->disc->expr);
-    $pattern = $arm->pattern;
+    $pattern   = $arm->pattern;
     self::check_pattern($ctx, $pattern, $disc_type);
   }
 
@@ -322,7 +322,7 @@ class Check {
         break;
       case $pattern instanceof nodes\FloatConstPattern:
         self::check_float_pattern($ctx, $pattern, $type);
-      break;
+        break;
       case $pattern instanceof nodes\IntConstPattern:
         self::check_int_pattern($ctx, $pattern, $type);
         break;
@@ -346,7 +346,7 @@ class Check {
     assert($union_type->accepts_as_parameter($type)); // ???
 
     $arguments = $type->get_variant_fields($pattern->ref->tail_segment->value);
-    $fields = $pattern->fields;
+    $fields    = $pattern->fields;
     if ($arguments instanceof UnitVariantFields) {
       assert($fields === null);
     } else if ($arguments instanceof NamedVariantFields) {
@@ -425,7 +425,7 @@ class Check {
       throw Errors::if_cond_not_bool($span, $cond_type);
     }
 
-    $if_true_type = $ctx->get_type_for_expr($expr->if_true);
+    $if_true_type  = $ctx->get_type_for_expr($expr->if_true);
     $if_false_type = $expr->if_false
       ? $ctx->get_type_for_expr($expr->if_false)
       : new UnitType();
@@ -465,16 +465,16 @@ class Check {
      * Make sure that the correct number of arguments were passed to the callee.
      */
     $num_params = count($parameterized_callee_type->inputs);
-    $num_args = count($expr->args);
+    $num_args   = count($expr->args);
     if ($num_params !== $num_args) {
       $span = $ctx->spans->get($expr);
       throw Errors::call_with_wrong_arg_num($span, $num_params, $num_args);
     }
 
-    $arg_types = [];
+    $arg_types        = [];
     $param_components = []; // ParamSymbol -> Type[]
     foreach ($expr->args as $index => $arg) {
-      $arg_type = $arg_types[] = $ctx->exprs->get($arg);
+      $arg_type   = $arg_types[] = $ctx->exprs->get($arg);
       $param_type = $parameterized_callee_type->inputs[$index];
 
       /**
@@ -517,7 +517,8 @@ class Check {
 
   private static function find_type_param_components(self $ctx, array &$components, Type $param, Type $arg): void {
     switch (true) {
-      case $param instanceof ParamType: {
+      case $param instanceof ParamType:
+      {
         $param_symbol = $ctx->get_symbol_for_name($param->name);
         if (isset($components[$param_symbol->get_id()])) {
           $components[$param_symbol->get_id()][] = $arg;
@@ -526,7 +527,8 @@ class Check {
         }
         break;
       }
-      case $param instanceof FuncType: {
+      case $param instanceof FuncType:
+      {
         assert($arg instanceof FuncType);
         foreach ($param->inputs as $index => $param_input) {
           self::find_type_param_components($ctx, $components, $param_input, $arg->inputs[$index]);
@@ -534,14 +536,16 @@ class Check {
         self::find_type_param_components($ctx, $components, $param->output, $arg->output);
         break;
       }
-      case $param instanceof ListType: {
+      case $param instanceof ListType:
+      {
         assert($arg instanceof ListType);
         if (isset($param->element)) {
           self::find_type_param_components($ctx, $components, $param->element, $arg->element);
         }
         break;
       }
-      case $param instanceof UnionType: {
+      case $param instanceof UnionType:
+      {
         assert($arg instanceof UnionType);
         foreach ($param->params as $index => $union_param) {
           self::find_type_param_components($ctx, $components, $union_param, $arg->params[$index]);
@@ -558,7 +562,7 @@ class Check {
   private static function exit_binary_expr(self $ctx, nodes\BinaryExpr $expr): void {
     $lhs = $ctx->get_type_for_expr($expr->left);
     $rhs = $ctx->get_type_for_expr($expr->right);
-    $op = $expr->op;
+    $op  = $expr->op;
     if ($type = $lhs->apply($op, $rhs)) {
       $ctx->set_type_for_expr($expr, $type);
     } else {
@@ -569,7 +573,7 @@ class Check {
 
   private static function exit_unary_expr(self $ctx, nodes\UnaryExpr $expr): void {
     $rhs = $ctx->get_type_for_expr($expr->right);
-    $op = $expr->op;
+    $op  = $expr->op;
     if ($type = $rhs->apply($op)) {
       $ctx->set_type_for_expr($expr, $type);
     } else {
@@ -640,18 +644,18 @@ class Check {
       $param_type = $union_type->get_variant_fields($variant_name);
       if ($param_type->accepts_constructor($arg_type)) {
         $params = [];
-        $args = [];
+        $args   = [];
         if ($param_type instanceof NamedVariantFields) {
           foreach (array_keys($param_type->mapping) as $name) {
             $params[] = $param_type->mapping[$name];
-            $args[] = $arg_type->mapping[$name];
+            $args[]   = $arg_type->mapping[$name];
           }
         } else if ($param_type instanceof OrderedVariantFields) {
           $params = $param_type->order;
-          $args = $arg_type->order;
+          $args   = $arg_type->order;
         }
 
-        $inferences = self::infer_stuff($params, $args);
+        $inferences          = self::infer_stuff($params, $args);
         $concrete_union_type = $union_type->bind_parameters($inferences);
         $ctx->set_type_for_expr($expr, $concrete_union_type);
       } else {
@@ -673,13 +677,13 @@ class Check {
   private static function infer_stuff(array $params, array $args): array {
     assert(count($params) === count($args));
     $inferences = [];
-    $queue = array_map(null, $params, $args);
-    while (list($param, $arg) = array_shift($queue)) {
+    $queue      = array_map(null, $params, $args);
+    while ([ $param, $arg ] = array_shift($queue)) {
       assert($param instanceof Type);
       assert($arg instanceof Type);
 
       $param = $param->unwrap();
-      $arg = $arg->unwrap();
+      $arg   = $arg->unwrap();
       assert($param->accepts_as_parameter($arg));
 
       if ($param instanceof ParamType) {
@@ -699,12 +703,12 @@ class Check {
       } else if ($param instanceof ListType) {
         assert($arg instanceof ListType);
         if (!$param->is_empty() && !$arg->is_empty()) {
-          array_push($queue, [$param->element, $arg->element]);
+          array_push($queue, [ $param->element, $arg->element ]);
         }
       } else if ($param instanceof FuncType) {
         assert($arg instanceof FuncType);
         array_push($queue, ...array_map(null, $param->inputs, $arg->inputs));
-        array_push($queue, [$param->output, $arg->output]);
+        array_push($queue, [ $param->output, $arg->output ]);
       }
     }
 
@@ -713,7 +717,7 @@ class Check {
 
   private static function ref_expr(self $ctx, nodes\RefExpr $expr): void {
     $symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
-    $type = $ctx->get_type_for_symbol($symbol);
+    $type   = $ctx->get_type_for_symbol($symbol);
     $ctx->set_type_for_expr($expr, $type);
   }
 
@@ -810,7 +814,7 @@ class Check {
 
     assert($inner_type instanceof UnionType);
     $wanted_total_params = $inner_type->total_parameters();
-    $found_total_params = count($note->params);
+    $found_total_params  = count($note->params);
     if ($inner_type->total_parameters() !== count($note->params)) {
       throw new \Exception("expected $wanted_total_params parameters, found $found_total_params");
     }

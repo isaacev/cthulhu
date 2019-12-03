@@ -47,7 +47,7 @@ class Flow {
   }
 
   private static function match_arm(self $ctx, nodes\MatchArm $arm): void {
-    $type = end($ctx->match_types);
+    $type    = end($ctx->match_types);
     $pattern = patterns\Pattern::from($arm->pattern, $type);
     if ($ctx->peek_pattern_tree()->is_redundant($pattern)) {
       $span = $ctx->spans->get($arm->pattern);

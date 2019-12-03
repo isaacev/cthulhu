@@ -15,10 +15,10 @@ class OptimizePhase {
   }
 
   function optimize(array $passes = []): WritePhase {
-    $all    = isset($passes['all'])    && $passes['all']    === true;
+    $all    = isset($passes['all']) && $passes['all'] === true;
     $inline = isset($passes['inline']) && $passes['inline'] === true;
-    $fold   = isset($passes['fold'])   && $passes['fold']   === true;
-    $shake  = isset($passes['shake'])  && $passes['shake']  === true;
+    $fold   = isset($passes['fold']) && $passes['fold'] === true;
+    $shake  = isset($passes['shake']) && $passes['shake'] === true;
 
     if ($all || $inline) {
       $this->php_tree = Inline::apply($this->php_tree);

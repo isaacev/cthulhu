@@ -9,9 +9,9 @@ class FunctionAnnotation extends Annotation {
   public Annotation $output;
 
   /**
-   * @param Source\Span $span
+   * @param Source\Span  $span
    * @param Annotation[] $inputs
-   * @param Annotation $output
+   * @param Annotation   $output
    */
   function __construct(Source\Span $span, array $inputs, Annotation $output) {
     parent::__construct($span);

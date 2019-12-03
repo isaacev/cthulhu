@@ -2,4 +2,5 @@
 
 namespace Cthulhu\lib\diff;
 
-class KeepLine extends Line {}
+class KeepLine extends Line {
+}

@@ -8,11 +8,11 @@ use Cthulhu\Source;
 class Errors {
   public static function unexpected_character(Character $char): Error {
     return (new Error('unexpected symbol'))
-        ->paragraph(
-          'File contains a symbol that is not part of the syntax.',
-          'Try removing it?'
-        )
-        ->snippet($char->point->to_span());
+      ->paragraph(
+        'File contains a symbol that is not part of the syntax.',
+        'Try removing it?'
+      )
+      ->snippet($char->point->to_span());
   }
 
   public static function unnamed_type_param(Source\Span $location): Error {

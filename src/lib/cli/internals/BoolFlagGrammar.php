@@ -8,12 +8,12 @@ class BoolFlagGrammar extends FlagGrammar {
       return [
         "-$this->short",
         "--$this->id",
-        "--no-$this->id"
+        "--no-$this->id",
       ];
     } else {
       return [
         "--$this->id",
-        "--no-$this->id"
+        "--no-$this->id",
       ];
     }
   }

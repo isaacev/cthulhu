@@ -18,7 +18,7 @@ class Lexer {
   public const KEEP_COMMENTS  = 0x0010; // Return comments as tokens instead of ignoring
 
   function __construct(Scanner $scanner, int $settings = 0) {
-    $this->scanner = $scanner;
+    $this->scanner  = $scanner;
     $this->settings = $settings;
   }
 
@@ -55,7 +55,7 @@ class Lexer {
     if ($this->buffer === null) {
       $this->prev = $this->read();
     } else {
-      $this->prev = $this->buffer;
+      $this->prev   = $this->buffer;
       $this->buffer = null;
     }
 
@@ -102,7 +102,7 @@ class Lexer {
       case $next->is(')'):
         return $this->next_single_char(TokenType::PAREN_RIGHT, $next);
       case $next->is('+'):
-      return $this->next_single_or_double_char(TokenType::PLUS, '+', TokenType::PLUS_PLUS, $next);
+        return $this->next_single_or_double_char(TokenType::PLUS, '+', TokenType::PLUS_PLUS, $next);
       case $next->is('-'):
         return $this->starts_with_dash($next);
       case $next->is('*'):
@@ -137,23 +137,23 @@ class Lexer {
 
   private function next_int_or_float(Character $start): Token {
     $lexeme = $start->char;
-    $from = $start->point;
-    $to = $start->point;
+    $from   = $start->point;
+    $to     = $start->point;
 
     while ($peek = $this->scanner->peek()) {
       if ($peek->is_digit() === false) {
         break;
       }
 
-      $next = $this->scanner->next();
+      $next   = $this->scanner->next();
       $lexeme .= $next->char;
-      $to = $next->point;
+      $to     = $next->point;
     }
 
     if ($peek && $peek->is('.')) {
-      $dot = $this->scanner->next();
+      $dot    = $this->scanner->next();
       $lexeme .= $dot->char;
-      $to = $dot->point;
+      $to     = $dot->point;
 
       $next = $this->scanner->next();
       if ($next === null || $next->is_digit() === false) {
@@ -165,7 +165,7 @@ class Lexer {
         }
       } else {
         $lexeme .= $next->char;
-        $to = $next->point;
+        $to     = $next->point;
       }
 
       while ($peek = $this->scanner->peek()) {
@@ -173,9 +173,9 @@ class Lexer {
           break;
         }
 
-        $next = $this->scanner->next();
+        $next   = $this->scanner->next();
         $lexeme .= $next->char;
-        $to = $next->point;
+        $to     = $next->point;
       }
 
       $span = new Source\Span($from, $to->next());
@@ -188,14 +188,14 @@ class Lexer {
 
   private function next_str(Character $start): Token {
     $lexeme = $start->char;
-    $from = $start->point;
+    $from   = $start->point;
 
     while ($peek = $this->scanner->peek()) {
       if ($peek->is('"') || $peek->is(PHP_EOL) || $peek->is_eof()) {
         break;
       }
 
-      $next = $this->scanner->next();
+      $next   = $this->scanner->next();
       $lexeme .= $next->char;
     }
 
@@ -211,15 +211,15 @@ class Lexer {
     }
 
     $lexeme .= $last->char;
-    $to = $last->point;
-    $span = new Source\Span($from, $to->next());
+    $to     = $last->point;
+    $span   = new Source\Span($from, $to->next());
     return new Token(TokenType::LITERAL_STR, $span, $lexeme);
   }
 
   private function next_type_param(Character $single_quote): Token {
     $lexeme = $single_quote->char;
-    $from = $single_quote->point;
-    $to = $single_quote->point->next();
+    $from   = $single_quote->point;
+    $to     = $single_quote->point->next();
 
     if ($this->scanner->peek()->is_letter() === false) {
       $span = new Source\Span($from, $to);
@@ -231,9 +231,9 @@ class Lexer {
     }
 
     while ($this->scanner->peek()->is_letter()) {
-      $next = $this->scanner->next();
+      $next   = $this->scanner->next();
       $lexeme .= $next->char;
-      $to = $next->point->next();
+      $to     = $next->point->next();
     }
 
     $span = new Source\Span($from, $to);
@@ -242,8 +242,8 @@ class Lexer {
 
   private function next_word(Character $start): Token {
     $lexeme = $start->char;
-    $from = $start->point;
-    $to = $start->point;
+    $from   = $start->point;
+    $to     = $start->point;
 
     while ($peek = $this->scanner->peek()) {
       $peek_char_is_allowed = (
@@ -256,24 +256,35 @@ class Lexer {
         break;
       }
 
-      $next = $this->scanner->next();
+      $next   = $this->scanner->next();
       $lexeme .= $next->char;
-      $to = $next->point;
+      $to     = $next->point;
     }
 
     $span = new Source\Span($from, $to->next());
     switch ($lexeme) {
-      case 'let':     return new Token(TokenType::KEYWORD_LET, $span, 'let');
-      case 'if':      return new Token(TokenType::KEYWORD_IF, $span, 'if');
-      case 'else':    return new Token(TokenType::KEYWORD_ELSE, $span, 'else');
-      case 'fn':      return new Token(TokenType::KEYWORD_FN, $span, 'fn');
-      case 'use':     return new Token(TokenType::KEYWORD_USE, $span, 'use');
-      case 'mod':     return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
-      case 'native':  return new Token(TokenType::KEYWORD_NATIVE, $span, 'native');
-      case 'type':    return new Token(TokenType::KEYWORD_TYPE, $span, 'type');
-      case 'match':   return new Token(TokenType::KEYWORD_MATCH, $span, 'match');
-      case 'true':    return new Token(TokenType::LITERAL_BOOL, $span, 'true');
-      case 'false':   return new Token(TokenType::LITERAL_BOOL, $span, 'false');
+      case 'let':
+        return new Token(TokenType::KEYWORD_LET, $span, 'let');
+      case 'if':
+        return new Token(TokenType::KEYWORD_IF, $span, 'if');
+      case 'else':
+        return new Token(TokenType::KEYWORD_ELSE, $span, 'else');
+      case 'fn':
+        return new Token(TokenType::KEYWORD_FN, $span, 'fn');
+      case 'use':
+        return new Token(TokenType::KEYWORD_USE, $span, 'use');
+      case 'mod':
+        return new Token(TokenType::KEYWORD_MOD, $span, 'mod');
+      case 'native':
+        return new Token(TokenType::KEYWORD_NATIVE, $span, 'native');
+      case 'type':
+        return new Token(TokenType::KEYWORD_TYPE, $span, 'type');
+      case 'match':
+        return new Token(TokenType::KEYWORD_MATCH, $span, 'match');
+      case 'true':
+        return new Token(TokenType::LITERAL_BOOL, $span, 'true');
+      case 'false':
+        return new Token(TokenType::LITERAL_BOOL, $span, 'false');
     }
 
     // For non-keyword names, determine the name's capitalization rules
@@ -300,9 +311,9 @@ class Lexer {
           break;
         }
 
-        $next = $this->scanner->next();
+        $next   = $this->scanner->next();
         $lexeme .= $next->char;
-        $to = $next->point;
+        $to     = $next->point;
       }
 
       $span = new Source\Span($start->point, $to->next());
@@ -341,7 +352,7 @@ class Lexer {
   }
 
   public static function to_tokens(Source\File $file, int $settings): array {
-    $lexer = new Lexer(Scanner::from_file($file), $settings);
+    $lexer  = new Lexer(Scanner::from_file($file), $settings);
     $tokens = [];
     while ($lexer->peek()->type !== TokenType::EOF) {
       $tokens[] = $lexer->next();

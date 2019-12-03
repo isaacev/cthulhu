@@ -15,8 +15,8 @@ class Scanner {
   private $offset;
 
   function __construct(Source\File $file) {
-    $this->chars = preg_split('//u', $file->contents, -1, PREG_SPLIT_NO_EMPTY);
-    $this->point = new Source\Point($file);
+    $this->chars  = preg_split('//u', $file->contents, -1, PREG_SPLIT_NO_EMPTY);
+    $this->point  = new Source\Point($file);
     $this->buffer = null;
     $this->offset = 0;
   }
@@ -35,7 +35,7 @@ class Scanner {
 
   public function next(): Character {
     if ($this->buffer !== null) {
-      $buf = $this->buffer;
+      $buf          = $this->buffer;
       $this->buffer = null;
       return $buf;
     }
@@ -44,8 +44,8 @@ class Scanner {
       return new Character('', $this->point);
     }
 
-    $char = $this->chars[$this->offset++];
-    $point = $this->point;
+    $char        = $this->chars[$this->offset++];
+    $point       = $this->point;
     $this->point = $this->point->next($char);
     return new Character($char, $point);
   }

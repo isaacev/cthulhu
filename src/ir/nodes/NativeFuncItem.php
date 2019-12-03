@@ -8,8 +8,8 @@ class NativeFuncItem extends Item {
 
   function __construct(Name $name, FuncNote $note, array $attrs) {
     parent::__construct($attrs);
-    $this->name  = $name;
-    $this->note  = $note;
+    $this->name = $name;
+    $this->note = $note;
   }
 
   function children(): array {

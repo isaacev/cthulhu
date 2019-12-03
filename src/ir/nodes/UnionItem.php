@@ -8,8 +8,8 @@ class UnionItem extends Item {
   public array $variants;
 
   /**
-   * @param array $attrs
-   * @param Name $name
+   * @param array             $attrs
+   * @param Name              $name
    * @param ParamNote[]
    * @param VariantDeclNode[] $variants
    */

@@ -9,14 +9,14 @@ class NativeFuncItem extends Item {
   public FunctionAnnotation $note;
 
   /**
-   * @param Source\Span $span
-   * @param LowerNameNode $name
+   * @param Source\Span        $span
+   * @param LowerNameNode      $name
    * @param FunctionAnnotation $note
-   * @param Attribute[] $attrs
+   * @param Attribute[]        $attrs
    */
   function __construct(Source\Span $span, LowerNameNode $name, FunctionAnnotation $note, array $attrs) {
     parent::__construct($span, $attrs);
-    $this->name  = $name;
-    $this->note  = $note;
+    $this->name = $name;
+    $this->note = $note;
   }
 }

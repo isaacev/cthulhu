@@ -9,7 +9,7 @@ class Character {
   public $point;
 
   function __construct(string $char, Source\Point $point) {
-    $this->char = $char;
+    $this->char  = $char;
     $this->point = $point;
   }
 

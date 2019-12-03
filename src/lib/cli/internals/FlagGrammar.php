@@ -8,8 +8,8 @@ abstract class FlagGrammar implements Describeable {
   protected $description;
 
   function __construct(string $id, ?string $short, string $description) {
-    $this->id = $id;
-    $this->short = $short;
+    $this->id          = $id;
+    $this->short       = $short;
     $this->description = $description;
   }
 
@@ -18,7 +18,9 @@ abstract class FlagGrammar implements Describeable {
   }
 
   abstract function completions(): array;
+
   abstract function matches(string $token): bool;
+
   abstract function parse(string $token, Scanner $scanner): FlagResult;
 
   function full_name(): string {

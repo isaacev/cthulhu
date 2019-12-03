@@ -8,6 +8,6 @@ class FlagsResult {
 
   function __construct(FlagsGrammar $grammar, array $flags) {
     $this->grammar = $grammar;
-    $this->flags = $flags;
+    $this->flags   = $flags;
   }
 }

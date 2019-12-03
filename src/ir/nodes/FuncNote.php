@@ -8,7 +8,7 @@ class FuncNote extends Note {
 
   /**
    * @param Note[] $inputs
-   * @param Note $output
+   * @param Note   $output
    */
   function __construct(array $inputs, Note $output) {
     parent::__construct();

@@ -11,7 +11,7 @@ class UnaryExpr extends Expr {
   function __construct(string $operator, Expr $operand) {
     parent::__construct();
     $this->operator = $operator;
-    $this->operand = $operand;
+    $this->operand  = $operand;
   }
 
   public function to_children(): array {

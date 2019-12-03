@@ -7,9 +7,9 @@ class ModItem extends Item {
   public array $items;
 
   /**
-   * @param Name $name
+   * @param Name   $name
    * @param Item[] $items
-   * @param array $attrs
+   * @param array  $attrs
    */
   function __construct(Name $name, array $items, array $attrs) {
     parent::__construct($attrs);

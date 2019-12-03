@@ -12,8 +12,8 @@ use Cthulhu\Source;
 use Cthulhu\Source\File;
 
 class Snippet implements Reportable {
-  const LINES_ABOVE = 0;
-  const LINES_BELOW = 0;
+  const LINES_ABOVE    = 0;
+  const LINES_BELOW    = 0;
   const UNDERLINE_CHAR = '^';
 
   public $file;
@@ -22,10 +22,10 @@ class Snippet implements Reportable {
   public $options;
 
   function __construct(File $file, Source\Span $location, ?string $message = null, array $options = []) {
-    $this->file = $file;
+    $this->file     = $file;
     $this->location = $location;
-    $this->message = $message;
-    $this->options = $options;
+    $this->message  = $message;
+    $this->options  = $options;
   }
 
   protected function get_option(string $name, $fallback) {
@@ -46,10 +46,10 @@ class Snippet implements Reportable {
     $all_tokens = Lexer::to_tokens($this->file, Lexer::RELAXED_ERRORS | Lexer::KEEP_COMMENTS);
 
     if (empty($all_tokens)) {
-      return (
-        $f->newline_if_not_already()
-          ->tab()
-          ->print('empty program'));
+      return $f
+        ->newline_if_not_already()
+        ->tab()
+        ->print('empty program');
     }
 
     $first_visible_line_num = max(
@@ -62,10 +62,10 @@ class Snippet implements Reportable {
 
     // Group tokens by line for each line in the visible region
     $visible_region_lines = [];
-    $prev_line = null;
+    $prev_line            = null;
     foreach ($all_tokens as $token) {
       $token_from_line = $token->span->from->line;
-      $token_to_line = $token->span->to->line;
+      $token_to_line   = $token->span->to->line;
 
       if ($token_to_line < $first_visible_line_num) {
         // Token ends before the visible region begins so skip this token
@@ -137,7 +137,7 @@ class Snippet implements Reportable {
       // printing the token.
       $col = 1;
       foreach ($tokens_in_line as $token) {
-        $styles = self::token_styles($token);
+        $styles     = self::token_styles($token);
         $has_styles = !empty($styles);
         $f->spaces($token->span->from->column - $col)
           ->apply_styles_if($has_styles, ...$styles)
@@ -156,7 +156,7 @@ class Snippet implements Reportable {
           ->printf($gutter_underline_format, ' ');
 
         $first_token_on_line = $tokens_in_line[0];
-        $last_token_on_line = end($tokens_in_line);
+        $last_token_on_line  = end($tokens_in_line);
 
         // Compute the number of spaces between the gutter and the start of the
         // underline characters.
@@ -190,32 +190,32 @@ class Snippet implements Reportable {
   public static function token_styles(Token $token): array {
     switch ($token->type) {
       case TokenType::ERROR:
-        return [Background::RED, Foreground::DEFAULT];
+        return [ Background::RED, Foreground::DEFAULT ];
       case TokenType::LITERAL_FLOAT:
       case TokenType::LITERAL_INT:
       case TokenType::LITERAL_BOOL:
       case TokenType::TYPE_PARAM:
-        return [Foreground::MAGENTA];
+        return [ Foreground::MAGENTA ];
       case TokenType::LITERAL_STR:
-        return [Foreground::GREEN];
+        return [ Foreground::GREEN ];
       case TokenType::PLUS:
       case TokenType::DASH:
       case TokenType::STAR:
       case TokenType::EQUALS:
       case TokenType::THIN_ARROW:
-        return [Foreground::YELLOW];
+        return [ Foreground::YELLOW ];
       case TokenType::KEYWORD_LET:
       case TokenType::KEYWORD_IF:
       case TokenType::KEYWORD_ELSE:
       case TokenType::KEYWORD_FN:
       case TokenType::KEYWORD_USE:
       case TokenType::KEYWORD_MOD:
-        return [Foreground::CYAN];
+        return [ Foreground::CYAN ];
       case TokenType::COMMENT:
       case TokenType::SEMICOLON:
-        return [Foreground::BRIGHT_BLACK];
+        return [ Foreground::BRIGHT_BLACK ];
       default:
-        return [FOREGROUND::DEFAULT];
+        return [ FOREGROUND::DEFAULT ];
     }
   }
 }

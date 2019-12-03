@@ -8,8 +8,8 @@ class ProgramResult {
   public $subcommand;
 
   function __construct(ProgramGrammar $grammar, FlagsResult $flags, ?SubcommandResult $subcommand) {
-    $this->grammar = $grammar;
-    $this->flags = $flags;
+    $this->grammar    = $grammar;
+    $this->flags      = $flags;
     $this->subcommand = $subcommand;
   }
 }

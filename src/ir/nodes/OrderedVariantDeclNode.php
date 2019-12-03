@@ -6,7 +6,7 @@ class OrderedVariantDeclNode extends VariantDeclNode {
   public array $members;
 
   /**
-   * @param Name $name
+   * @param Name   $name
    * @param Note[] $members
    */
   function __construct(Name $name, array $members) {

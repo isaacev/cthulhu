@@ -12,7 +12,7 @@ class Error extends \Exception {
 
   function __construct(string $title) {
     parent::__construct($title);
-    $this->title = $title;
+    $this->title  = $title;
     $this->report = new Debug\Report(
       new Debug\Title($title)
     );

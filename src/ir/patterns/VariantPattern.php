@@ -7,7 +7,7 @@ class VariantPattern extends Pattern {
   public $fields;
 
   function __construct(string $name, ?VariantFields $fields) {
-    $this->name = $name;
+    $this->name   = $name;
     $this->fields = $fields;
   }
 

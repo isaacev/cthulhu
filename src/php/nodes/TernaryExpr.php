@@ -11,8 +11,8 @@ class TernaryExpr extends Expr {
 
   function __construct(Expr $cond, Expr $if_true, Expr $if_false) {
     parent::__construct();
-    $this->cond = $cond;
-    $this->if_true = $if_true;
+    $this->cond     = $cond;
+    $this->if_true  = $if_true;
     $this->if_false = $if_false;
   }
 

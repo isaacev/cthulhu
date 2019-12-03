@@ -25,7 +25,7 @@ class FuncType extends Type {
       return false;
     }
 
-    foreach (array_map(null, $this->inputs, $other->inputs) as list($p1, $p2)) {
+    foreach (array_map(null, $this->inputs, $other->inputs) as [$p1, $p2]) {
       if ($p1->accepts($p2) === false) {
         return false;
       }
@@ -45,7 +45,7 @@ class FuncType extends Type {
     }
 
     $new_inputs = [];
-    foreach (array_map(null, $this->inputs, $other->inputs) as list($p1, $p2)) {
+    foreach (array_map(null, $this->inputs, $other->inputs) as [$p1, $p2]) {
       if ($unification = $p1->unify($p2)) {
         $new_inputs[] = $unification;
       } else {

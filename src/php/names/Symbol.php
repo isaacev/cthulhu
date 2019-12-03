@@ -10,6 +10,6 @@ class Symbol implements \Cthulhu\ir\HasId {
   }
 
   function __toString(): string {
-    return (string) $this->get_id();
+    return (string)$this->get_id();
   }
 }

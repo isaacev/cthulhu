@@ -11,17 +11,17 @@ class ClassStmt extends Stmt {
   public array $body;
 
   /**
-   * @param bool $is_abstract
-   * @param Name $name
-   * @param Reference|null $parent_class
+   * @param bool              $is_abstract
+   * @param Name              $name
+   * @param Reference|null    $parent_class
    * @param MagicMethodNode[] $body
    */
   function __construct(bool $is_abstract, Name $name, ?Reference $parent_class, array $body) {
     parent::__construct();
-    $this->is_abstract = $is_abstract;
-    $this->name = $name;
+    $this->is_abstract  = $is_abstract;
+    $this->name         = $name;
     $this->parent_class = $parent_class;
-    $this->body = $body;
+    $this->body         = $body;
   }
 
   function to_children(): array {

@@ -43,7 +43,7 @@ class Linker {
       }
     }
 
-    if (list($index, $libraries) = $graph->get_cycle()) {
+    if ([ $index, $libraries ] = $graph->get_cycle()) {
       throw Errors::import_cycle($index, ...$libraries);
     }
 
@@ -110,8 +110,8 @@ class Linker {
     }
 
     $file = new Source\File($absolute_path, $contents);
-    $ast = Parser\Parser::file_to_ast($file);
-    $lib = Lower::file($spans, $ast);
+    $ast  = Parser\Parser::file_to_ast($file);
+    $lib  = Lower::file($spans, $ast);
     return $lib;
   }
 }

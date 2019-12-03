@@ -12,9 +12,9 @@ class Paragraph implements Reportable {
   }
 
   public function print(Formatter $f): Formatter {
-    return (
-      $f->newline_if_not_already()
-        ->tab()
-        ->text_wrap(...$this->sentences));
+    return $f
+      ->newline_if_not_already()
+      ->tab()
+      ->text_wrap(...$this->sentences);
   }
 }

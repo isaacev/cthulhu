@@ -11,7 +11,7 @@ class Variable extends Node {
 
   function __construct(string $value, names\Symbol $symbol) {
     parent::__construct();
-    $this->value = $value;
+    $this->value  = $value;
     $this->symbol = $symbol;
   }
 

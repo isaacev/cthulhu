@@ -8,7 +8,7 @@ class Path {
 
   function __construct(?self $parent, nodes\Node $node) {
     $this->parent = $parent;
-    $this->node = $node;
+    $this->node   = $node;
   }
 
   function extend(nodes\Node $node): self {

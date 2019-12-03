@@ -11,7 +11,7 @@ class AssignStmt extends Stmt {
   function __construct(Node $assignee, Expr $expr) {
     parent::__construct();
     $this->assignee = $assignee;
-    $this->expr = $expr;
+    $this->expr     = $expr;
   }
 
   public function to_children(): array {

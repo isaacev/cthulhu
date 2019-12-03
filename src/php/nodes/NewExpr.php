@@ -10,7 +10,7 @@ class NewExpr extends Expr {
 
   /**
    * @param ReferenceExpr $ref
-   * @param Expr[] $args
+   * @param Expr[]        $args
    */
   function __construct(ReferenceExpr $ref, array $args) {
     parent::__construct();

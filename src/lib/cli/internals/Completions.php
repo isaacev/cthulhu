@@ -26,7 +26,7 @@ abstract class GuardedNode extends Node {
   public $completions = [];
 
   function __construct(Node $to_node, array $completions) {
-    parent::__construct([$to_node]);
+    parent::__construct([ $to_node ]);
     $this->completions = $completions;
   }
 
@@ -58,7 +58,7 @@ class PatternNode extends GuardedNode {
 
 class Completions {
   public static function find(Scanner $scanner, ProgramGrammar $grammar): array {
-    $start = self::trace($grammar);
+    $start    = self::trace($grammar);
     $frontier = self::frontier($scanner, $start);
 
     $completions = [];
@@ -83,7 +83,7 @@ class Completions {
   }
 
   private static function trace(ProgramGrammar $prog): Node {
-    $after_sc = new Node([]);
+    $after_sc  = new Node([]);
     $before_sc = new Node([]);
     foreach ($prog->subcommand_grammars as $sc) {
       $before_sc->to_nodes[] = self::trace_subcommand($sc, $after_sc);
@@ -96,11 +96,11 @@ class Completions {
       $after = self::trace_argument($ar, $after);
     }
     $after = self::trace_flags($sc->flags_grammar, $after);
-    return new LiteralNode($after, [$sc->id]);
+    return new LiteralNode($after, [ $sc->id ]);
   }
 
   private static function trace_flags(FlagsGrammar $flags, Node $after) {
-    $before = new Node([$after]);
+    $before = new Node([ $after ]);
     foreach ($flags->flags as $flag) {
       $before->to_nodes[] = self::trace_flag($flag, $before);
     }
@@ -126,7 +126,7 @@ class Completions {
     if ($arg instanceof SingleArgumentGrammar) {
       return new PatternNode($after, '/\S/');
     } else if ($arg instanceof VariadicArgumentGrammar) {
-      $start = new Node([$after]);
+      $start             = new Node([ $after ]);
       $start->to_edges[] = new PatternNode($start, '/\S/');
       return $start;
     } else {

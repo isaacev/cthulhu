@@ -7,11 +7,12 @@ abstract class ArgumentGrammar implements Describeable {
   public $description;
 
   function __construct(string $id, string $description) {
-    $this->id = $id;
+    $this->id          = $id;
     $this->description = $description;
   }
 
   abstract function parse(Scanner $scanner): ArgumentResult;
+
   abstract function full_name(): string;
 
   function description(): string {
