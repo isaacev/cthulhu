@@ -1,4 +1,9 @@
 #[inline]
+fn str(s: Str) -> Str {
+  s
+}
+
+#[inline]
 fn int(i: Int) -> Str {
   ::Kernel::Builtins::cast_int_to_string(i)
 }
@@ -6,4 +11,12 @@ fn int(i: Int) -> Str {
 #[inline]
 fn float(f: Float) -> Str {
   ::Kernel::Builtins::cast_float_to_string(f)
+}
+
+#[inline]
+fn bool(b: Bool) -> Str {
+  match b {
+    true => "true",
+    false => "false",
+  }
 }
