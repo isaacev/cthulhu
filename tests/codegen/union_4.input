@@ -1,0 +1,17 @@
+type Maybe('a) =
+  | Just('a)
+  | None;
+
+#[entry]
+fn main() -> () {
+  let x = if 0 < 5 {
+    Maybe::Just("hello")
+  } else {
+    Maybe::None
+  };
+
+  ::Io::println(match x {
+    Maybe::Just(s) => s,
+    Maybe::None => "none",
+  });
+}

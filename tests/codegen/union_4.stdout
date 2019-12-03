@@ -1,0 +1,49 @@
+<?php
+
+namespace Kernel\Builtins {
+  // #[inline]
+  // #[construct]
+  function _print($a) {
+    print($a);
+  }
+}
+
+namespace Io {
+  // #[inline]
+  function println($str) {
+    \Kernel\Builtins\_print($str . "\n");
+  }
+}
+
+namespace union_4 {
+  abstract class Maybe {}
+
+  class Just extends \union_4\Maybe {
+    function __construct($a) {
+      $this->{0} = $a;
+    }
+  }
+
+  class None extends \union_4\Maybe {}
+
+  // #[entry]
+  function main() {
+    if (0 < 5) {
+      $a = new \union_4\Just("hello");
+    } else {
+      $a = new \union_4\None();
+    }
+    $x = $a;
+    if ($x instanceof \union_4\Just) {
+      $s = $x->{0};
+      $b = $s;
+    } else if ($x instanceof \union_4\None) {
+      $b = "none";
+    }
+    \Io\println($b);
+  }
+}
+
+namespace {
+  \union_4\main();
+}

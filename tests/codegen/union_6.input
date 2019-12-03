@@ -1,0 +1,21 @@
+type Result('a, 'b) =
+  | Left('a)
+  | Right('b);
+
+fn attempt(success: Bool, val: 'a) -> Result('a, Str) {
+  if success {
+    Result::Left(val)
+  } else {
+    Result::Right("unable to generate a true value")
+  }
+}
+
+#[entry]
+fn main() -> () {
+  let r: Result(Bool, Str) = match ::Random::integer(0, 5) {
+    0 => Result::Left(true),
+    1 => Result::Left(true),
+    2 => Result::Left(false),
+    _ => Result::Right("unknown integer"),
+  };
+}
