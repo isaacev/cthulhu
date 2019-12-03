@@ -46,10 +46,11 @@ class ParamType extends Type {
         return new self($this->symbol, $this->name, $unification);
       }
     } else if ($other instanceof self) {
-      $other = $other->unwrap();
       if ($this->symbol->equals($other->symbol)) {
         return $this;
       }
+    } else {
+      return $other;
     }
     return null;
   }

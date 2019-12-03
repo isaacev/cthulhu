@@ -82,8 +82,11 @@ class UnionType extends Type implements TypeSupportingParameters {
       $replacements = [];
       foreach ($this->params as $index => $this_param) {
         $other_param = $other->params[$index];
+        assert($this_param instanceof ParamType);
+        assert($other_param instanceof ParamType);
+
         if ($this_param->binding && $other_param->binding) {
-          if ($unification = $this_param->unify($other_param)) {
+          if ($unification = $this_param->unwrap()->unify($other_param->unwrap())) {
             $replacements[$this_param->symbol->get_id()] = $unification;
           } else {
             return null;
