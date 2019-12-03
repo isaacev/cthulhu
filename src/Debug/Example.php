@@ -2,9 +2,9 @@
 
 namespace Cthulhu\Debug;
 
+use Cthulhu\lib\fmt\Formatter;
 use Cthulhu\Parser\Lexer\Lexer;
 use Cthulhu\Source;
-use Cthulhu\lib\fmt\Formatter;
 
 class Example implements Reportable {
   public $example;

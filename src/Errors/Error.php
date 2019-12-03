@@ -3,8 +3,8 @@
 namespace Cthulhu\Errors;
 
 use Cthulhu\Debug;
-use Cthulhu\Source;
 use Cthulhu\lib\fmt\Formatter;
+use Cthulhu\Source;
 
 class Error extends \Exception {
   private $title;

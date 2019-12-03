@@ -2,7 +2,7 @@
 
 namespace Cthulhu\lib\cli\internals;
 
-use \Cthulhu\lib\fmt\Formatter;
+use Cthulhu\lib\fmt\Formatter;
 
 class Helper {
   const COLUMN_SPACER = 4;

@@ -2,14 +2,14 @@
 
 namespace Cthulhu\Debug;
 
-use Cthulhu\Parser\Lexer\Lexer;
-use Cthulhu\Source;
-use Cthulhu\Parser\Lexer\Token;
-use Cthulhu\Parser\Lexer\TokenType;
-use Cthulhu\Source\File;
 use Cthulhu\lib\fmt\Background;
 use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;
+use Cthulhu\Parser\Lexer\Lexer;
+use Cthulhu\Parser\Lexer\Token;
+use Cthulhu\Parser\Lexer\TokenType;
+use Cthulhu\Source;
+use Cthulhu\Source\File;
 
 class Snippet implements Reportable {
   const LINES_ABOVE = 0;

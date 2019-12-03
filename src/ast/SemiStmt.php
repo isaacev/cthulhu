@@ -2,7 +2,6 @@
 
 namespace Cthulhu\ast;
 
-use Cthulhu\Source;
 use Cthulhu\Parser\Lexer\Token;
 
 class SemiStmt extends Stmt {

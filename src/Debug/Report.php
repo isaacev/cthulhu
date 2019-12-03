@@ -2,7 +2,6 @@
 
 namespace Cthulhu\Debug;
 
-use Cthulhu\Source;
 use Cthulhu\lib\fmt\Formatter;
 
 class Report {

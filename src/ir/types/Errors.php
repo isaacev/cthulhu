@@ -3,9 +3,9 @@
 namespace Cthulhu\ir\types;
 
 use Cthulhu\Errors\Error;
-use Cthulhu\Source;
-use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\ir\nodes;
+use Cthulhu\lib\fmt\Foreground;
+use Cthulhu\Source;
 
 class Errors {
   public static function wrong_return_type(Source\Span $span, Type $wanted, Type $found): Error {

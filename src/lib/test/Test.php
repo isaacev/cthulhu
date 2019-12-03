@@ -2,9 +2,9 @@
 
 namespace Cthulhu\lib\test;
 
-use \Cthulhu\Errors;
-use \Cthulhu\Source;
-use \Cthulhu\lib\fmt;
+use Cthulhu\Errors;
+use Cthulhu\lib\fmt;
+use Cthulhu\Source;
 use Cthulhu\workspace\ReadPhase;
 
 class Test {

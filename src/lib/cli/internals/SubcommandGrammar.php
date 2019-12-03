@@ -2,8 +2,8 @@
 
 namespace Cthulhu\lib\cli\internals;
 
-use \Cthulhu\lib\cli\Lookup;
-use \Cthulhu\lib\fmt\StreamFormatter;
+use Cthulhu\lib\cli\Lookup;
+use Cthulhu\lib\fmt\StreamFormatter;
 
 class SubcommandGrammar implements Describeable {
   public $program_name;
