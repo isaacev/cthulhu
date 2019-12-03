@@ -23,8 +23,7 @@ These capitalization rules are enforced by the language.
 - [x] Generic functions
 - [ ] Pretty multi-line error snippets
 - [x] Module dependency linearized and cycle detection
-- [ ] The Maybe type
+- [x] The Maybe type
 - [x] The List type
 - [x] Floating point numbers
 - [x] Pattern matching
-- [ ] Type casting
