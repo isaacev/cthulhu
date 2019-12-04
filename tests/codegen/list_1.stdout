@@ -23,11 +23,6 @@ namespace Kernel\Builtins {
   function subscript($a, $b) {
     return $a[$b];
   }
-
-  // #[inline]
-  function count($a) {
-    return \count($a);
-  }
 }
 
 namespace _List {

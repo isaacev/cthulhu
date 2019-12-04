@@ -1,28 +1,10 @@
 <?php
 
-namespace Kernel\Types {
-  abstract class Maybe {}
-
-  class Just extends \Kernel\Types\Maybe {
-    function __construct($a) {
-      $this->{0} = $a;
-    }
-  }
-
-  class None extends \Kernel\Types\Maybe {}
-}
-
 namespace Kernel\Builtins {
   // #[inline]
   // #[construct]
   function _print($a) {
     print($a);
-  }
-
-  // #[inline]
-  // #[construct]
-  function cast_int_to_string($a) {
-    return (string)$a;
   }
 
   // #[inline]
