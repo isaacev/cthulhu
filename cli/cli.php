@@ -59,4 +59,9 @@ $root->subcommand('test', 'Run all of the available tests')
   ->optional_single_argument('filter', 'Only run tests that match the filter')
   ->callback('command_test');
 
+require_once __DIR__ . '/command_run.php';
+$root->subcommand('run', 'Compile and evaluate a script')
+  ->single_argument('file', 'Path to the source file')
+  ->callback('command_run');
+
 $root->parse($argv);
