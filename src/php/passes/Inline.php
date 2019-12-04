@@ -24,6 +24,7 @@ class Inline {
      */
     visitor\Visitor::walk($prog, [
       'FuncStmt' => function (visitor\Path $path) use (&$inline_func_syms, &$inline_func_defs) {
+        assert($path->node instanceof php\nodes\FuncStmt);
         $should_inline = array_key_exists('inline', $path->node->attrs)
           ? $path->node->attrs['inline'] === true
           : false;
@@ -43,14 +44,16 @@ class Inline {
      * to params with the corresponding expression provided to the function
      * call. Replace the function call with the modified function body.
      */
-    return visitor\Visitor::edit($prog, [
+    $new_prog = visitor\Visitor::edit($prog, [
       'postorder(FuncStmt)' => function (visitor\Path $path) use (&$inline_func_syms, &$inline_func_defs) {
+        assert($path->node instanceof php\nodes\FuncStmt);
         $def_id = $path->node->head->name->symbol->get_id();
         if (array_key_exists($def_id, $inline_func_defs)) {
           $inline_func_defs[$def_id] = $path->node;
         }
       },
       'CallExpr' => function (visitor\Path $path) use (&$inline_func_syms, &$inline_func_defs) {
+        assert($path->node instanceof php\nodes\CallExpr);
         if (($path->node->callee instanceof php\nodes\ReferenceExpr) === false) {
           // Function being called is a closure or something
           return;
@@ -85,6 +88,9 @@ class Inline {
         }
       },
     ]);
+
+    assert($new_prog instanceof php\nodes\Program);
+    return $new_prog;
   }
 }
 

@@ -32,12 +32,16 @@ class ConstFolding {
   }
 
   public static function apply(php\nodes\Program $prog): php\nodes\Program {
-    return visitor\Visitor::edit($prog, [
+    $new_prog = visitor\Visitor::edit($prog, [
       'postorder(BinaryExpr)' => function (visitor\Path $path) {
+        assert($path->node instanceof php\nodes\BinaryExpr);
         if (self::is_const_expr($path->node->left) && self::is_const_expr($path->node->right)) {
           $path->replace_with(self::static_eval($path->node));
         }
       },
     ]);
+
+    assert($new_prog instanceof php\nodes\Program);
+    return $new_prog;
   }
 }
