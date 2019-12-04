@@ -4,7 +4,7 @@ type Result('a, 'b) =
 
 fn ask(s: Str) -> Maybe(Str) {
   if ::Random::bool() {
-    Maybe::Some(s)
+    Maybe::Just(s)
   } else {
     Maybe::None
   }
@@ -21,7 +21,7 @@ fn attempt(x: 'x) -> Result('x, Int) {
 #[entry]
 fn main() -> () {
   match ask("hello") {
-    Maybe::Some(s) => ::Io::println("said: " ++ s),
+    Maybe::Just(s) => ::Io::println("said: " ++ s),
     Maybe::None => ::Io::println("said nothing"),
   };
 
