@@ -372,8 +372,8 @@ class Lower {
       'exit(VariantConstructorExpr)' => function (ir\nodes\VariantConstructorExpr $expr) use ($ctx) {
         self::exit_variant_constructor_expr($ctx, $expr);
       },
-      'RefExpr' => function (ir\nodes\RefExpr $expr) use ($ctx) {
-        self::ref_expr($ctx, $expr);
+      'RefExpr' => function (ir\nodes\RefExpr $expr, ir\Path $path) use ($ctx) {
+        self::ref_expr($ctx, $expr, $path);
       },
       'StrLiteral' => function (ir\nodes\StrLiteral $expr) use ($ctx) {
         self::str_literal($ctx, $expr);
@@ -405,7 +405,7 @@ class Lower {
       $ctx->push_stmt(
         new nodes\SemiStmt(
           new nodes\CallExpr(
-            new nodes\ReferenceExpr($php_ref), [])));
+            new nodes\ReferenceExpr($php_ref, false), [])));
     }
     $block             = $ctx->pop_block();
     $ctx->namespaces[] = new nodes\NamespaceNode(null, $block);
@@ -483,7 +483,8 @@ class Lower {
       $ctx->push_expr(
         new nodes\CallExpr(
           new nodes\ReferenceExpr(
-            new nodes\Reference($item->name->value, new names\Symbol())),
+            new nodes\Reference($item->name->value, new names\Symbol()),
+            false),
           $args));
     }
 
@@ -641,7 +642,7 @@ class Lower {
         $next_condition = new nodes\BinaryExpr(
           'instanceof',
           end($accessors),
-          new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($node->ref->tail_segment))
+          new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($node->ref->tail_segment), false)
         );
         array_push($conditions, $next_condition);
       },
@@ -820,7 +821,7 @@ class Lower {
   }
 
   private static function exit_variant_constructor_expr(self $ctx, ir\nodes\VariantConstructorExpr $expr): void {
-    $ref = new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($expr->ref->tail_segment));
+    $ref = new nodes\ReferenceExpr($ctx->php_ref_from_ir_name($expr->ref->tail_segment), false);
     if ($expr->fields instanceof ir\nodes\NamedVariantConstructorFields) {
       $fields = [];
       $exprs  = $ctx->pop_exprs(count($expr->fields->pairs));
@@ -838,15 +839,16 @@ class Lower {
     $ctx->push_expr(new nodes\NewExpr($ref, $args));
   }
 
-  private static function ref_expr(self $ctx, ir\nodes\RefExpr $expr): void {
+  private static function ref_expr(self $ctx, ir\nodes\RefExpr $expr, ir\Path $path): void {
     $ir_name   = $expr->ref->tail_segment;
     $ir_symbol = $ctx->ir_name_to_ir_symbol->get($ir_name);
     if ($ir_symbol instanceof ir\names\VarSymbol) {
       $php_var  = $ctx->ir_symbol_to_php_var->get($ir_symbol);
       $php_expr = new nodes\VariableExpr($php_var);
     } else {
-      $php_ref  = $ctx->ir_symbol_to_php_ref->get($ir_symbol);
-      $php_expr = new nodes\ReferenceExpr($php_ref);
+      $php_ref   = $ctx->ir_symbol_to_php_ref->get($ir_symbol);
+      $is_quoted = !($path->parent && $path->parent->node instanceof ir\nodes\CallExpr);
+      $php_expr  = new nodes\ReferenceExpr($php_ref, $is_quoted);
     }
     $ctx->push_expr($php_expr);
   }

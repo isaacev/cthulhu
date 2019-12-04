@@ -1,0 +1,9 @@
+fn foo(a: Int, b: Int, c: Int) -> Int {
+  (a + b) * c
+}
+
+#[entry]
+fn main() -> () {
+  let x = foo;
+  x(1, 2, 3) == 9;
+}

@@ -1,0 +1,29 @@
+<?php
+
+namespace Kernel\Types {
+  abstract class Maybe {}
+
+  class Just extends \Kernel\Types\Maybe {
+    function __construct($a) {
+      $this->{0} = $a;
+    }
+  }
+
+  class None extends \Kernel\Types\Maybe {}
+}
+
+namespace curry_1 {
+  function foo($a, $b, $c) {
+    return ($a + $b) * $c;
+  }
+
+  // #[entry]
+  function main() {
+    $x = '\curry_1\foo';
+    $x(1, 2, 3) == 9;
+  }
+}
+
+namespace {
+  \curry_1\main();
+}
