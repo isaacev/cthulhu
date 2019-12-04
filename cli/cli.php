@@ -35,14 +35,14 @@ $root->subcommand('compile', 'Convert source code to PHP')
     'all',
     'inline',
     'fold',
-    'tree-shake',
+    'shake',
   ])
   ->short_circuit_flag('--list-optimizations', 'List available optimization passes', function () {
     $passes = [
       [ 'all', 'Apply all optimizations' ],
       [ 'inline', 'Replace function call sites with function body' ],
       [ 'fold', 'Evaluate some constant expressions at compile time' ],
-      [ 'tree-shake', 'Remove function and namespace definitions that are never used' ],
+      [ 'shake', 'Remove function and namespace definitions that are never used' ],
     ];
 
     foreach ($passes as [$name, $desc]) {
