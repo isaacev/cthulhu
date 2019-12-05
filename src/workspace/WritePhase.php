@@ -7,7 +7,8 @@ use Cthulhu\php\nodes\Program;
 use Exception;
 
 class WritePhase {
-  private $php_tree;
+  private Program $php_tree;
+  private ?string $written = null;
 
   function __construct(Program $php_tree) {
     $this->php_tree = $php_tree;
@@ -51,6 +52,10 @@ class WritePhase {
   }
 
   function write(): string {
-    return $this->php_tree->build()->write(new StringFormatter());
+    if ($this->written !== null) {
+      return $this->written;
+    }
+
+    return $this->written = $this->php_tree->build()->write(new StringFormatter());
   }
 }
