@@ -4,7 +4,7 @@ namespace Cthulhu\lib\test;
 
 class Runner {
   const DEFAULT_DIR           = './tests';
-  const VALID_TEST_EXTENSIONS = [ 'input', 'stderr', 'stdout' ];
+  const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'out' ];
 
   /**
    * @param string $starting_dir
@@ -70,20 +70,20 @@ class Runner {
     foreach ($test_mapping as $test_dir => $tests_in_dir) {
       $test_group = str_replace($root_path . '/', '', $test_dir);
       foreach ($tests_in_dir as $test_name => $test_files) {
-        $has_input  = array_key_exists('input', $test_files);
-        $has_stderr = array_key_exists('stderr', $test_files);
-        $has_stdout = array_key_exists('stdout', $test_files);
+        $has_cth = array_key_exists('cth', $test_files);
+        $has_php = array_key_exists('php', $test_files);
+        $has_out = array_key_exists('out', $test_files);
 
-        $input  = @file_get_contents($test_files['input']);
-        $stderr = $has_stderr ? file_get_contents($test_files['stderr']) : '';
-        $stdout = $has_stdout ? file_get_contents($test_files['stdout']) : '';
+        $cth = @file_get_contents($test_files['cth']);
+        $php = $has_php ? file_get_contents($test_files['php']) : '';
+        $out = $has_out ? file_get_contents($test_files['out']) : '';
 
-        if ($input === false || $stderr === false || $stdout === false) {
+        if ($cth === false || $php === false || $out === false) {
           continue;
         }
 
-        $expected = new TestOutput($stdout, $stderr);
-        $tests[]  = new Test($test_dir, $test_group, $test_name, $input, $expected);
+        $expected = new TestOutput($php, $out);
+        $tests[]  = new Test($test_dir, $test_group, $test_name, $cth, $expected);
       }
     }
     return $tests;

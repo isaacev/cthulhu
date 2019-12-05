@@ -67,13 +67,13 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
       ->printf('%d) %s', $index + 1, $result->test->name)
       ->newline();
 
-    mismatch_diff($f, 'STDOUT',
-      $result->test->expected->stdout,
-      $result->found->stdout);
+    mismatch_diff($f, 'PHP',
+      $result->test->expected->php,
+      $result->found->php);
 
-    mismatch_diff($f, 'STDERR',
-      $result->test->expected->stderr,
-      $result->found->stderr);
+    mismatch_diff($f, 'OUT',
+      $result->test->expected->out,
+      $result->found->out);
   }
 
   $f->newline()

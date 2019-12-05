@@ -3,18 +3,18 @@
 namespace Cthulhu\lib\test;
 
 class TestOutput {
-  public $stdout;
-  public $stderr;
+  public string $php;
+  public string $out;
 
-  function __construct(string $stdout, string $stderr) {
-    $this->stdout = $stdout;
-    $this->stderr = $stderr;
+  function __construct(string $php, string $out) {
+    $this->php = $php;
+    $this->out = $out;
   }
 
-  function equals(TestOutput $other): bool {
+  function equals(self $other): bool {
     return (
-      $this->stdout === $other->stdout &&
-      $this->stderr === $other->stderr
+      $this->php === $other->php &&
+      $this->out === $other->out
     );
   }
 }

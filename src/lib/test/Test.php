@@ -8,11 +8,11 @@ use Cthulhu\Source;
 use Cthulhu\workspace\ReadPhase;
 
 class Test {
-  public $dir;
-  public $group;
-  public $name;
-  public $input;
-  public $expected;
+  public string $dir;
+  public string $group;
+  public string $name;
+  public string $input;
+  public TestOutput $expected;
 
   function __construct(string $dir, string $group, string $name, string $input, TestOutput $expected) {
     $this->dir      = $dir;
@@ -41,8 +41,8 @@ class Test {
   }
 
   public function bless(TestOutput $blessed_output): void {
-    $this->bless_extension("$this->dir/$this->name.stdout", $blessed_output->stdout);
-    $this->bless_extension("$this->dir/$this->name.stderr", $blessed_output->stderr);
+    $this->bless_extension("$this->dir/$this->name.php", $blessed_output->php);
+    $this->bless_extension("$this->dir/$this->name.out", $blessed_output->out);
   }
 
   protected function bless_extension(string $filepath, string $contents): void {
@@ -63,8 +63,8 @@ class Test {
 
   protected function eval(): TestOutput {
     try {
-      $file   = new Source\File($this->name, $this->input);
-      $stdout = ReadPhase::from_memory($file)
+      $file = new Source\File($this->name, $this->input);
+      $tree = ReadPhase::from_memory($file)
         ->parse()
         ->link()
         ->resolve()
@@ -72,13 +72,15 @@ class Test {
         ->codegen()
         ->optimize([
           'shake' => true,
-        ])
-        ->write();
-      return new TestOutput($stdout, '');
+        ]);
+
+      $php = $tree->write();
+      $out = $tree->run();
+      return new TestOutput($php, $out);
     } catch (Errors\Error $err) {
-      $stderr = new fmt\StringFormatter();
-      $err->format($stderr);
-      return new TestOutput('', $stderr);
+      $out = new fmt\StringFormatter();
+      $err->format($out);
+      return new TestOutput('', $out);
     }
   }
 }
