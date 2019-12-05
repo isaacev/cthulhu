@@ -8,6 +8,7 @@ use Cthulhu\lib\test;
 function command_test(cli\Lookup $flags, cli\Lookup $args) {
   $is_blessed     = $flags->get('bless');
   $show_time      = $flags->get('time');
+  $do_php_eval    = $flags->get('eval', false);
   $filter         = $args->get('filter');
   $failed_results = [];
   $stats          = [
@@ -33,7 +34,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
       ->reset_styles()
       ->space();
 
-    $result = $test->run();
+    $result = $test->run($do_php_eval);
 
     if ($is_blessed && $result instanceof test\TestFailed) {
       $test->bless($result->found);

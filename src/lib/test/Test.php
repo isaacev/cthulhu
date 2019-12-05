@@ -27,9 +27,9 @@ class Test {
     return strpos($full_path, $filter) === 0;
   }
 
-  public function run(): TestResult {
+  public function run(bool $do_php_eval): TestResult {
     $time_before   = microtime(true);
-    $found         = $this->eval();
+    $found         = $this->eval($do_php_eval);
     $time_after    = microtime(true);
     $runtime_in_ms = ($time_after - $time_before) * 1000;
 
@@ -61,7 +61,7 @@ class Test {
     }
   }
 
-  protected function eval(): TestOutput {
+  protected function eval(bool $do_php_eval): TestOutput {
     try {
       $file = new Source\File($this->name, $this->input);
       $tree = ReadPhase::from_memory($file)
@@ -75,7 +75,7 @@ class Test {
         ]);
 
       $php = $tree->write();
-      $out = $tree->run();
+      $out = $do_php_eval ? $tree->run() : $this->expected->out;
       return new TestOutput($php, $out);
     } catch (Errors\Error $err) {
       $out = new fmt\StringFormatter();
