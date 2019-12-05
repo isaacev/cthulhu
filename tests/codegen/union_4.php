@@ -12,21 +12,6 @@ namespace Kernel\Types {
   class None extends \Kernel\Types\Maybe {}
 }
 
-namespace Kernel\Builtins {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-}
-
-namespace Io {
-  // #[inline]
-  function println($str) {
-    \Kernel\Builtins\_print($str . "\n");
-  }
-}
-
 namespace union_4 {
   // #[entry]
   function main() {
@@ -42,7 +27,7 @@ namespace union_4 {
     } else if ($x instanceof \Kernel\Types\None) {
       $b = "none";
     }
-    \Io\println($b);
+    print($b . "\n");
   }
 }
 

@@ -1,33 +1,5 @@
 <?php
 
-namespace Kernel\Builtins {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-
-  // #[inline]
-  // #[construct]
-  function cast_float_to_string($a) {
-    return (string)$a;
-  }
-}
-
-namespace Io {
-  // #[inline]
-  function println($str) {
-    \Kernel\Builtins\_print($str . "\n");
-  }
-}
-
-namespace Fmt {
-  // #[inline]
-  function float($f) {
-    return \Kernel\Builtins\cast_float_to_string($f);
-  }
-}
-
 namespace match_5 {
   abstract class Shape {}
 
@@ -59,16 +31,16 @@ namespace match_5 {
       $a = "unit circle";
     } else if ($sh instanceof \match_5\Circle) {
       $r = $sh->{0};
-      $a = "circle with radius " . \Fmt\float($r);
+      $a = "circle with radius " . (string)$r;
     } else if ($sh instanceof \match_5\Square) {
       $s = $sh->{0};
-      $a = "square with perimeter " . \Fmt\float(4.0 * $s);
+      $a = "square with perimeter " . (string)4.0 * $s;
     } else if ($sh instanceof \match_5\Rect) {
       $w = $sh->width;
       $h = $sh->height;
-      $a = "rectangle with area " . \Fmt\float($w * $h);
+      $a = "rectangle with area " . (string)$w * $h;
     }
-    \Io\println($a);
+    print($a . "\n");
   }
 
   // #[entry]

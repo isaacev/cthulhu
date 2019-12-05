@@ -1,33 +1,5 @@
 <?php
 
-namespace Kernel\Builtins {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-
-  // #[inline]
-  // #[construct]
-  function cast_int_to_string($a) {
-    return (string)$a;
-  }
-}
-
-namespace Io {
-  // #[inline]
-  function println($str) {
-    \Kernel\Builtins\_print($str . "\n");
-  }
-}
-
-namespace Fmt {
-  // #[inline]
-  function int($i) {
-    return \Kernel\Builtins\cast_int_to_string($i);
-  }
-}
-
 namespace match_3 {
   // #[entry]
   function main() {
@@ -39,7 +11,7 @@ namespace match_3 {
       $a = $n + 1;
     }
     $next = $a;
-    \Io\println(\Fmt\int($next));
+    print((string)$next . "\n");
   }
 }
 

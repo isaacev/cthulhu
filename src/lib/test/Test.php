@@ -71,7 +71,7 @@ class Test {
         ->check()
         ->codegen()
         ->optimize([
-          'shake' => true,
+          'all' => true,
         ]);
 
       $php = $tree->write();

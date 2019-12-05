@@ -1,20 +1,5 @@
 <?php
 
-namespace Kernel\Builtins {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-}
-
-namespace Io {
-  // #[inline]
-  function println($str) {
-    \Kernel\Builtins\_print($str . "\n");
-  }
-}
-
 namespace union_5 {
   abstract class Result {}
 
@@ -43,22 +28,22 @@ namespace union_5 {
   function main() {
     $b = \union_5\attempt(true, true);
     if ($b instanceof \union_5\Left && $b->{0} == true) {
-      \Io\println("was true");
+      print("was true\n");
     } else if ($b instanceof \union_5\Left && $b->{0} == false) {
-      \Io\println("was false");
+      print("was false\n");
     } else if ($b instanceof \union_5\Right) {
       $msg = $b->{0};
-      \Io\println($msg);
+      print($msg . "\n");
     }
     $a;
     $d = \union_5\attempt(true, false);
     if ($d instanceof \union_5\Left && $d->{0} == true) {
-      \Io\println("was true");
+      print("was true\n");
     } else if ($d instanceof \union_5\Left && $d->{0} == false) {
-      \Io\println("was false");
+      print("was false\n");
     } else if ($d instanceof \union_5\Right) {
       $_msg = $d->{0};
-      \Io\println($_msg);
+      print($_msg . "\n");
     }
     $c;
   }

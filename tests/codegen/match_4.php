@@ -1,20 +1,5 @@
 <?php
 
-namespace Kernel\Builtins {
-  // #[inline]
-  // #[construct]
-  function _print($a) {
-    print($a);
-  }
-}
-
-namespace Io {
-  // #[inline]
-  function println($str) {
-    \Kernel\Builtins\_print($str . "\n");
-  }
-}
-
 namespace match_4 {
   abstract class Shape {}
 
@@ -51,7 +36,7 @@ namespace match_4 {
     } else if ($sh instanceof \match_4\Rect) {
       $a = "rectangle";
     }
-    \Io\println($a);
+    print($a . "\n");
   }
 
   // #[entry]

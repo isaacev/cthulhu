@@ -1,19 +1,5 @@
 <?php
 
-namespace Kernel\Builtins {
-  // #[inline]
-  function mt_rand($a, $b) {
-    return \mt_rand($a, $b);
-  }
-}
-
-namespace Random {
-  // #[inline]
-  function integer($min, $max) {
-    return \Kernel\Builtins\mt_rand($min, $max);
-  }
-}
-
 namespace union_6 {
   abstract class Result {}
 
@@ -31,7 +17,7 @@ namespace union_6 {
 
   // #[entry]
   function main() {
-    $b = \Random\integer(0, 5);
+    $b = \mt_rand(0, 5);
     if ($b == 0) {
       $a = new \union_6\Left(true);
     } else if ($b == 1) {
