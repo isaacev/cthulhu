@@ -5,5 +5,5 @@ fn foo(a: Int, b: Int, c: Int) -> Int {
 #[entry]
 fn main() -> () {
   let x = foo;
-  x(1, 2, 3) == 9;
+  ::Io::println(::Fmt::int(x(1, 2, 3)));
 }
