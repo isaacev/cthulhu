@@ -3,479 +3,471 @@
 namespace Cthulhu\ir;
 
 use Cthulhu\ast;
-use Exception;
 
 class Lower {
-  public static function file(Table $spans, ast\File $file): nodes\Library {
+  public static function file(ast\File $file): nodes\Library {
     $name  = new nodes\Name($file->file->basename());
-    $items = self::items($spans, $file->items);
-    return $spans->set(new nodes\Library($name, $items), $file->span);
+    $items = self::items($file->items);
+    return (new nodes\Library($name, $items))->set('span', $file->span);
   }
 
   /**
    * Lower item nodes
    */
 
-  private static function items(Table $spans, array $items): array {
+  /**
+   * @param ast\Item[] $items
+   * @return nodes\Item[]
+   */
+  private static function items(array $items): array {
     $_items = [];
     foreach ($items as $item) {
-      $_items[] = self::item($spans, $item);
+      $_items[] = self::item($item);
     }
     return $_items;
   }
 
-  private static function item(Table $spans, ast\Item $item): nodes\Item {
+  private static function item(ast\Item $item): nodes\Item {
     switch (true) {
       case $item instanceof ast\ModItem:
-        return self::mod_item($spans, $item);
+        return self::mod_item($item);
       case $item instanceof ast\UseItem:
-        return self::use_item($spans, $item);
+        return self::use_item($item);
       case $item instanceof ast\FnItem:
-        return self::func_item($spans, $item);
+        return self::func_item($item);
       case $item instanceof ast\NativeFuncItem:
-        return self::native_item($spans, $item);
+        return self::native_item($item);
       case $item instanceof ast\NativeTypeItem:
-        return self::native_type_item($spans, $item);
+        return self::native_type_item($item);
       case $item instanceof ast\UnionItem:
-        return self::union_item($spans, $item);
+        return self::union_item($item);
       default:
-        throw new Exception('cannot lower unknown ast item');
+        die('unreachable');
     }
   }
 
-  private static function mod_item(Table $spans, ast\ModItem $item): nodes\ModItem {
+  private static function mod_item(ast\ModItem $item): nodes\ModItem {
     $attrs = self::attrs($item->attrs);
-    $name  = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    $items = self::items($spans, $item->items);
-    return $spans->set(new nodes\ModItem($name, $items, $attrs), $item->span);
+    $name  = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
+    $items = self::items($item->items);
+    return (new nodes\ModItem($name, $items, $attrs))->set('span', $item->span);
   }
 
-  private static function use_item(Table $spans, ast\UseItem $item): nodes\UseItem {
+  private static function use_item(ast\UseItem $item): nodes\UseItem {
     $attrs = self::attrs($item->attrs);
-    $ref   = self::compound_path($spans, $item->path);
-    return $spans->set(new nodes\UseItem($ref, $attrs), $item->span);
+    $ref   = self::compound_path($item->path);
+    return (new nodes\UseItem($ref, $attrs))->set('span', $item->span);
   }
 
-  private static function func_item(Table $spans, ast\FnItem $item): nodes\FuncItem {
+  private static function func_item(ast\FnItem $item): nodes\FuncItem {
     $attrs  = self::attrs($item->attrs);
-    $name   = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    $params = self::func_params($spans, $item->params);
-    $output = self::note($spans, $item->returns);
-    $body   = self::block($spans, $item->body);
-    $head   = $spans->set(
-      new nodes\FuncHead($name, $params, $output),
-      $item->span->extended_to($item->returns->span));
-    return $spans->set(new nodes\FuncItem($head, $body, $attrs), $item->span);
+    $name   = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
+    $params = self::func_params($item->params);
+    $output = self::note($item->returns);
+    $body   = self::block($item->body);
+    $head   = (new nodes\FuncHead($name, $params, $output))->set('span', $item->span->extended_to($item->returns->span));
+    return (new nodes\FuncItem($head, $body, $attrs))->set('span', $item->span);
   }
 
-  private static function native_item(Table $spans, ast\NativeFuncItem $item): nodes\NativeFuncItem {
+  private static function native_item(ast\NativeFuncItem $item): nodes\NativeFuncItem {
     $attrs = self::attrs($item->attrs);
-    $name  = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    $note  = self::func_note($spans, $item->note);
-    return $spans->set(new nodes\NativeFuncItem($name, $note, $attrs), $item->span);
+    $name  = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
+    $note  = self::func_note($item->note);
+    return (new nodes\NativeFuncItem($name, $note, $attrs))->set('span', $item->span);
   }
 
-  private static function native_type_item(Table $spans, ast\NativeTypeItem $item): nodes\NativeTypeItem {
+  private static function native_type_item(ast\NativeTypeItem $item): nodes\NativeTypeItem {
     $attrs = self::attrs($item->attrs);
-    $name  = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
-    return $spans->set(new nodes\NativeTypeItem($name, $attrs), $item->span);
+    $name  = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
+    return (new nodes\NativeTypeItem($name, $attrs))->set('span', $item->span);
   }
 
-  private static function union_item(Table $spans, ast\UnionItem $item): nodes\UnionItem {
+  private static function union_item(ast\UnionItem $item): nodes\UnionItem {
     $attrs  = self::attrs($item->attrs);
-    $name   = $spans->set(new nodes\Name($item->name->ident), $item->name->span);
+    $name   = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
     $params = [];
     foreach ($item->params as $param) {
-      $params[] = self::param_note($spans, $param);
+      $params[] = self::param_note($param);
     }
-    $variants = self::union_variants($spans, $item->variants);
-    return $spans->set(new nodes\UnionItem($attrs, $name, $params, $variants), $item->span);
+    $variants = self::union_variants($item->variants);
+    return (new nodes\UnionItem($attrs, $name, $params, $variants))->set('span', $item->span);
   }
 
-  private static function union_variants(Table $spans, array $variants): array {
-    return array_map(function ($variant) use ($spans) {
-      return self::union_variant_decl($spans, $variant);
+  /**
+   * @param ast\VariantDeclNode[] $variants
+   * @return nodes\VariantDeclNode[]
+   */
+  private static function union_variants(array $variants): array {
+    return array_map(function ($variant) {
+      return self::union_variant_decl($variant);
     }, $variants);
   }
 
-  private static function union_variant_decl(Table $spans, ast\VariantDeclNode $variant): nodes\VariantDeclNode {
+  private static function union_variant_decl(ast\VariantDeclNode $variant): nodes\VariantDeclNode {
     switch (true) {
       case $variant instanceof ast\NamedVariantDeclNode:
-        return self::named_variant_decl($spans, $variant);
+        return self::named_variant_decl($variant);
       case $variant instanceof ast\OrderedVariantDeclNode:
-        return self::ordered_variant_decl($spans, $variant);
+        return self::ordered_variant_decl($variant);
+      case $variant instanceof ast\UnitVariantDeclNode:
+        return self::unit_variant_decl($variant);
       default:
-        return self::unit_variant_decl($spans, $variant);
+        die('unreachable');
     }
   }
 
-  private static function named_variant_decl(Table $spans, ast\NamedVariantDeclNode $variant): nodes\NamedVariantDeclNode {
-    $name   = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
+  private static function named_variant_decl(ast\NamedVariantDeclNode $variant): nodes\NamedVariantDeclNode {
+    $name   = (new nodes\Name($variant->name->ident))->set('span', $variant->name->span);
     $fields = [];
     foreach ($variant->fields as $field) {
-      $field_name = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
-      $field_note = self::note($spans, $field->note);
-      $fields[]   = $spans->set(new nodes\FieldDeclNode($field_name, $field_note), $field->span);
+      $field_name = (new nodes\Name($field->name->ident))->set('span', $field->name->span);
+      $field_note = self::note($field->note);
+      $fields[]   = (new nodes\FieldDeclNode($field_name, $field_note))->set('span', $field->span);
     }
-    return $spans->set(new nodes\NamedVariantDeclNode($name, $fields), $variant->span);
+    return (new nodes\NamedVariantDeclNode($name, $fields))->set('span', $variant->span);
   }
 
-  private static function ordered_variant_decl(Table $spans, ast\OrderedVariantDeclNode $variant): nodes\OrderedVariantDeclNode {
-    $name    = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
+  private static function ordered_variant_decl(ast\OrderedVariantDeclNode $variant): nodes\OrderedVariantDeclNode {
+    $name    = (new nodes\Name($variant->name->ident))->set('span', $variant->name->span);
     $members = [];
     foreach ($variant->members as $member) {
-      $members[] = self::note($spans, $member);
+      $members[] = self::note($member);
     }
-    return $spans->set(new nodes\OrderedVariantDeclNode($name, $members), $variant->span);
+    return (new nodes\OrderedVariantDeclNode($name, $members))->set('span', $variant->span);
   }
 
-  private static function unit_variant_decl(Table $spans, ast\UnitVariantDeclNode $variant): nodes\UnitVariantDeclNode {
-    $name = $spans->set(new nodes\Name($variant->name->ident), $variant->name->span);
-    return $spans->set(new nodes\UnitVariantDeclNode($name), $variant->span);
+  private static function unit_variant_decl(ast\UnitVariantDeclNode $variant): nodes\UnitVariantDeclNode {
+    $name = (new nodes\Name($variant->name->ident))->set('span', $variant->name->span);
+    return (new nodes\UnitVariantDeclNode($name))->set('span', $variant->span);
   }
 
-  /**
-   * Lower statement nodes
-   */
-
-  private static function stmt(Table $spans, ast\Stmt $stmt): nodes\Stmt {
+  private static function stmt(ast\Stmt $stmt): nodes\Stmt {
     switch (true) {
       case $stmt instanceof ast\LetStmt:
-        return self::let_stmt($spans, $stmt);
+        return self::let_stmt($stmt);
       case $stmt instanceof ast\SemiStmt:
-        return self::semi_stmt($spans, $stmt);
+        return self::semi_stmt($stmt);
       case $stmt instanceof ast\ExprStmt:
-        return self::expr_stmt($spans, $stmt);
+        return self::expr_stmt($stmt);
       default:
-        throw new Exception('cannot lower unknown ast statement');
+        die('unreachable');
     }
   }
 
-  private static function let_stmt(Table $spans, ast\LetStmt $stmt): nodes\LetStmt {
-    $name = $spans->set(new nodes\Name($stmt->name->ident), $stmt->name->span);
-    $note = $stmt->note ? self::note($spans, $stmt->note) : null;
-    $expr = self::expr($spans, $stmt->expr);
-    return $spans->set(new nodes\LetStmt($name, $note, $expr), $stmt->span);
+  private static function let_stmt(ast\LetStmt $stmt): nodes\LetStmt {
+    $name = (new nodes\Name($stmt->name->ident))->set('span', $stmt->name->span);
+    $note = $stmt->note ? self::note($stmt->note) : null;
+    $expr = self::expr($stmt->expr);
+    return (new nodes\LetStmt($name, $note, $expr))->set('span', $stmt->span);
   }
 
-  private static function semi_stmt(Table $spans, ast\SemiStmt $stmt): nodes\SemiStmt {
-    $expr = self::expr($spans, $stmt->expr);
-    return $spans->set(new nodes\SemiStmt($expr), $stmt->span);
+  private static function semi_stmt(ast\SemiStmt $stmt): nodes\SemiStmt {
+    $expr = self::expr($stmt->expr);
+    return (new nodes\SemiStmt($expr))->set('span', $stmt->span);
   }
 
-  private static function expr_stmt(Table $spans, ast\ExprStmt $stmt): nodes\ReturnStmt {
-    $expr = self::expr($spans, $stmt->expr);
-    return $spans->set(new nodes\ReturnStmt($expr), $stmt->span);
+  private static function expr_stmt(ast\ExprStmt $stmt): nodes\ReturnStmt {
+    $expr = self::expr($stmt->expr);
+    return (new nodes\ReturnStmt($expr))->set('span', $stmt->span);
   }
 
-  /**
-   * Lower expression nodes
-   */
-
-  private static function expr(Table $spans, ast\Expr $expr): nodes\Expr {
+  private static function expr(ast\Expr $expr): nodes\Expr {
     switch (true) {
       case $expr instanceof ast\MatchExpr:
-        return self::match_expr($spans, $expr);
+        return self::match_expr($expr);
       case $expr instanceof ast\IfExpr:
-        return self::if_expr($spans, $expr);
+        return self::if_expr($expr);
       case $expr instanceof ast\CallExpr:
-        return self::call_expr($spans, $expr);
+        return self::call_expr($expr);
       case $expr instanceof ast\VariantConstructorExpr:
-        return self::variant_constructor_expr($spans, $expr);
+        return self::variant_constructor_expr($expr);
       case $expr instanceof ast\BinaryExpr:
-        return self::binary_expr($spans, $expr);
+        return self::binary_expr($expr);
       case $expr instanceof ast\UnaryExpr:
-        return self::unary_expr($spans, $expr);
+        return self::unary_expr($expr);
       case $expr instanceof ast\ListExpr:
-        return self::list_expr($spans, $expr);
+        return self::list_expr($expr);
       case $expr instanceof ast\PathExpr:
-        return self::path_expr($spans, $expr);
+        return self::path_expr($expr);
       case $expr instanceof ast\Literal:
-        return self::literal($spans, $expr);
+        return self::literal($expr);
       default:
-        throw new Exception('cannot lower unknown ast expression');
+        die('unreachable');
     }
   }
 
-  private static function match_expr(Table $spans, ast\MatchExpr $expr): nodes\MatchExpr {
-    $disc = $spans->set(new nodes\MatchDiscriminant(self::expr($spans, $expr->disc)), $expr->disc->span);
+  private static function match_expr(ast\MatchExpr $expr): nodes\MatchExpr {
+    $disc = (new nodes\MatchDiscriminant(self::expr($expr->disc)))->set('span', $expr->disc->span);
     $arms = [];
     foreach ($expr->arms as $arm) {
-      $arms[] = self::match_arm($spans, $arm);
+      $arms[] = self::match_arm($arm);
     }
-    return $spans->set(new nodes\MatchExpr($disc, $arms), $expr->span);
+    return (new nodes\MatchExpr($disc, $arms))->set('span', $expr->span);
   }
 
-  private static function match_arm(Table $spans, ast\MatchArm $arm): nodes\MatchArm {
-    $pattern = self::pattern($spans, $arm->pattern);
-    $handler = $spans->set(
-      new nodes\MatchHandler(
-        new nodes\ReturnStmt(
-          self::expr($spans, $arm->handler)
-        )
-      ),
-      $arm->handler->span
-    );
-    return $spans->set(new nodes\MatchArm($pattern, $handler), $arm->span);
+  private static function match_arm(ast\MatchArm $arm): nodes\MatchArm {
+    $pattern = self::pattern($arm->pattern);
+    $handler = (new nodes\MatchHandler(new nodes\ReturnStmt(self::expr($arm->handler))))->set('span', $arm->handler->span);
+    return (new nodes\MatchArm($pattern, $handler))->set('span', $arm->span);
   }
 
-  private static function pattern(Table $spans, ast\Pattern $pattern): nodes\Pattern {
+  private static function pattern(ast\Pattern $pattern): nodes\Pattern {
     switch (true) {
       case $pattern instanceof ast\VariantPattern:
-        return self::variant_pattern($spans, $pattern);
+        return self::variant_pattern($pattern);
       case $pattern instanceof ast\VariablePattern:
-        return self::variable_pattern($spans, $pattern);
+        return self::variable_pattern($pattern);
       case $pattern instanceof ast\ConstPattern:
-        return self::const_pattern($spans, $pattern);
+        return self::const_pattern($pattern);
       case $pattern instanceof ast\WildcardPattern:
-        return self::wildcard_pattern($spans, $pattern);
+        return self::wildcard_pattern($pattern);
       default:
-        assert(false, 'unreachable');
+        die('unreachable');
     }
   }
 
-  private static function variant_pattern(Table $spans, ast\VariantPattern $pattern): nodes\VariantPattern {
-    $ref    = self::path($spans, $pattern->path);
-    $fields = self::variant_pattern_fields($spans, $pattern->fields);
-    return $spans->set(new nodes\VariantPattern($ref, $fields), $pattern->span);
+  private static function variant_pattern(ast\VariantPattern $pattern): nodes\VariantPattern {
+    $ref    = self::path($pattern->path);
+    $fields = self::variant_pattern_fields($pattern->fields);
+    return (new nodes\VariantPattern($ref, $fields))->set('span', $pattern->span);
   }
 
-  private static function variant_pattern_fields(Table $spans, ?ast\VariantPatternFields $fields): ?nodes\VariantPatternFields {
+  private static function variant_pattern_fields(?ast\VariantPatternFields $fields): ?nodes\VariantPatternFields {
     switch (true) {
       case $fields instanceof ast\NamedVariantPatternFields:
-        return self::named_variant_pattern_fields($spans, $fields);
+        return self::named_variant_pattern_fields($fields);
       case $fields instanceof ast\OrderedVariantPatternFields:
-        return self::ordered_variant_pattern_fields($spans, $fields);
+        return self::ordered_variant_pattern_fields($fields);
       default:
         return null;
     }
   }
 
-  private static function named_variant_pattern_fields(Table $spans, ast\NamedVariantPatternFields $fields): nodes\NamedVariantPatternFields {
+  private static function named_variant_pattern_fields(ast\NamedVariantPatternFields $fields): nodes\NamedVariantPatternFields {
     $mapping = [];
     foreach ($fields->mapping as $field) {
       $name = $field->name->ident;
       if (array_key_exists($name, $mapping)) {
-        $first  = $spans->get($mapping[$name]->name);
+        $first  = $mapping[$name]->name->get('span');
         $second = $field->name->span;
         throw Errors::redundant_named_fields($first, $second, $name);
       }
-      $mapping[$name] = self::named_pattern_field($spans, $field);
+      $mapping[$name] = self::named_pattern_field($field);
     }
-    return $spans->set(new nodes\NamedVariantPatternFields($mapping), $fields->span);
+    return (new nodes\NamedVariantPatternFields($mapping))->set('span', $fields->span);
   }
 
-  private static function named_pattern_field(Table $spans, ast\NamedPatternField $field): nodes\NamedPatternField {
-    $name    = $spans->set(new nodes\Name($field->name->ident), $field->name->span);
-    $pattern = self::pattern($spans, $field->pattern);
-    return $spans->set(new nodes\NamedPatternField($name, $pattern), $field->span);
+  private static function named_pattern_field(ast\NamedPatternField $field): nodes\NamedPatternField {
+    $name    = (new nodes\Name($field->name->ident))->set('span', $field->name->span);
+    $pattern = self::pattern($field->pattern);
+    return (new nodes\NamedPatternField($name, $pattern))->set('span', $field->span);
   }
 
-  private static function ordered_variant_pattern_fields(Table $spans, ast\OrderedVariantPatternFields $fields): nodes\OrderedVariantPatternFields {
+  private static function ordered_variant_pattern_fields(ast\OrderedVariantPatternFields $fields): nodes\OrderedVariantPatternFields {
     $order = [];
     foreach ($fields->order as $index => $pattern) {
-      $order[$index] = $spans->set(new nodes\OrderedVariantPatternField($index, self::pattern($spans, $pattern)), $pattern->span);
+      $order[$index] = (new nodes\OrderedVariantPatternField($index, self::pattern($pattern)))->set('span', $pattern->span);
     }
-    return $spans->set(new nodes\OrderedVariantPatternFields($order), $fields->span);
+    return (new nodes\OrderedVariantPatternFields($order))->set('span', $fields->span);
   }
 
-  private static function variable_pattern(Table $spans, ast\VariablePattern $pattern): nodes\VariablePattern {
-    $name = $spans->set(new nodes\Name($pattern->name->ident), $pattern->name->span);
-    return $spans->set(new nodes\VariablePattern($name), $pattern->span);
+  private static function variable_pattern(ast\VariablePattern $pattern): nodes\VariablePattern {
+    $name = (new nodes\Name($pattern->name->ident))->set('span', $pattern->name->span);
+    return (new nodes\VariablePattern($name))->set('span', $pattern->span);
   }
 
-  private static function const_pattern(Table $spans, ast\ConstPattern $pattern): nodes\ConstPattern {
+  private static function const_pattern(ast\ConstPattern $pattern): nodes\ConstPattern {
     $literal = $pattern->literal;
     switch (true) {
       case $literal instanceof ast\StrLiteral:
-        return $spans->set(new nodes\StrConstPattern($literal->value), $pattern->span);
+        return (new nodes\StrConstPattern($literal->value))->set('span', $pattern->span);
       case $literal instanceof ast\FloatLiteral:
-        return $spans->set(new nodes\FloatConstPattern($literal->value), $pattern->span);
+        return (new nodes\FloatConstPattern($literal->value))->set('span', $pattern->span);
       case $literal instanceof ast\IntLiteral:
-        return $spans->set(new nodes\IntConstPattern($literal->value), $pattern->span);
+        return (new nodes\IntConstPattern($literal->value))->set('span', $pattern->span);
       case $literal instanceof ast\BoolLiteral:
-        return $spans->set(new nodes\BoolConstPattern($literal->value), $pattern->span);
+        return (new nodes\BoolConstPattern($literal->value))->set('span', $pattern->span);
       default:
-        assert(false, 'unreachable');
+        die('unreachable');
     }
   }
 
-  private static function wildcard_pattern(Table $spans, ast\WildcardPattern $pattern): nodes\WildcardPattern {
-    return $spans->set(new nodes\WildcardPattern(), $pattern->span);
+  private static function wildcard_pattern(ast\WildcardPattern $pattern): nodes\WildcardPattern {
+    return (new nodes\WildcardPattern())->set('span', $pattern->span);
   }
 
-  private static function if_expr(Table $spans, ast\IfExpr $expr): nodes\IfExpr {
-    $cond     = self::expr($spans, $expr->condition);
-    $if_true  = self::block($spans, $expr->if_clause);
-    $if_false = $expr->else_clause ? self::block($spans, $expr->else_clause) : null;
-    return $spans->set(new nodes\IfExpr($cond, $if_true, $if_false), $expr->span);
+  private static function if_expr(ast\IfExpr $expr): nodes\IfExpr {
+    $cond     = self::expr($expr->condition);
+    $if_true  = self::block($expr->if_clause);
+    $if_false = $expr->else_clause ? self::block($expr->else_clause) : null;
+    return (new nodes\IfExpr($cond, $if_true, $if_false))->set('span', $expr->span);
   }
 
-  private static function call_expr(Table $spans, ast\CallExpr $expr): nodes\CallExpr {
-    $callee = self::expr($spans, $expr->callee);
+  private static function call_expr(ast\CallExpr $expr): nodes\CallExpr {
+    $callee = self::expr($expr->callee);
     $args   = [];
     foreach ($expr->args as $arg) {
-      $args[] = self::expr($spans, $arg);
+      $args[] = self::expr($arg);
     }
-    return $spans->set(new nodes\CallExpr($callee, $args), $expr->span);
+    return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
   }
 
-  private static function variant_constructor_expr(Table $spans, ast\VariantConstructorExpr $expr): nodes\VariantConstructorExpr {
-    $ref = self::path($spans, $expr->path);
+  private static function variant_constructor_expr(ast\VariantConstructorExpr $expr): nodes\VariantConstructorExpr {
+    $ref = self::path($expr->path);
     if ($expr->fields instanceof ast\NamedVariantConstructorFields) {
       $pairs = [];
       foreach ($expr->fields->pairs as $field) {
-        $pairs[] = self::field_expr_node($spans, $field);
+        $pairs[] = self::field_expr_node($field);
       }
-      $fields = $spans->set(new nodes\NamedVariantConstructorFields($pairs), $expr->fields->span);
+      $fields = (new nodes\NamedVariantConstructorFields($pairs))->set('span', $expr->fields->span);
     } else if ($expr->fields instanceof ast\OrderedVariantConstructorFields) {
       $order = [];
       foreach ($expr->fields->order as $sub_expr) {
-        $order[] = self::expr($spans, $sub_expr);
+        $order[] = self::expr($sub_expr);
       }
-      $fields = $spans->set(new nodes\OrderedVariantConstructorFields($order), $expr->fields->span);
+      $fields = (new nodes\OrderedVariantConstructorFields($order))->set('span', $expr->fields->span);
     } else {
       $fields = null;
     }
 
-    return $spans->set(new nodes\VariantConstructorExpr($ref, $fields), $expr->span);
+    return (new nodes\VariantConstructorExpr($ref, $fields))->set('span', $expr->span);
   }
 
-  private static function field_expr_node(Table $spans, ast\FieldExprNode $node): nodes\FieldExprNode {
-    $name = $spans->set(new nodes\Name($node->name->ident), $node->name->span);
-    $expr = self::expr($spans, $node->expr);
-    return $spans->set(new nodes\FieldExprNode($name, $expr), $node->span);
+  private static function field_expr_node(ast\FieldExprNode $node): nodes\FieldExprNode {
+    $name = (new nodes\Name($node->name->ident))->set('span', $node->name->span);
+    $expr = self::expr($node->expr);
+    return (new nodes\FieldExprNode($name, $expr))->set('span', $node->span);
   }
 
-  private static function binary_expr(Table $spans, ast\BinaryExpr $expr): nodes\BinaryExpr {
+  private static function binary_expr(ast\BinaryExpr $expr): nodes\BinaryExpr {
     $op    = $expr->operator;
-    $left  = self::expr($spans, $expr->left);
-    $right = self::expr($spans, $expr->right);
-    return $spans->set(new nodes\BinaryExpr($op, $left, $right), $expr->span);
+    $left  = self::expr($expr->left);
+    $right = self::expr($expr->right);
+    return (new nodes\BinaryExpr($op, $left, $right))->set('span', $expr->span);
   }
 
-  private static function unary_expr(Table $spans, ast\UnaryExpr $expr): nodes\UnaryExpr {
+  private static function unary_expr(ast\UnaryExpr $expr): nodes\UnaryExpr {
     $op    = $expr->operator;
-    $right = self::expr($spans, $expr->operand);
-    return $spans->set(new nodes\UnaryExpr($op, $right), $expr->span);
+    $right = self::expr($expr->operand);
+    return (new nodes\UnaryExpr($op, $right))->set('span', $expr->span);
   }
 
-  private static function list_expr(Table $spans, ast\ListExpr $expr): nodes\ListExpr {
+  private static function list_expr(ast\ListExpr $expr): nodes\ListExpr {
     $elements = [];
     foreach ($expr->elements as $element) {
-      $elements[] = self::expr($spans, $element);
+      $elements[] = self::expr($element);
     }
-    return $spans->set(new nodes\ListExpr($elements), $expr->span);
+    return (new nodes\ListExpr($elements))->set('span', $expr->span);
   }
 
-  private static function path_expr(Table $spans, ast\PathExpr $expr): nodes\RefExpr {
-    $ref = self::path($spans, $expr->path);
-    return $spans->set(new nodes\RefExpr($ref), $expr->span);
+  private static function path_expr(ast\PathExpr $expr): nodes\RefExpr {
+    $ref = self::path($expr->path);
+    return (new nodes\RefExpr($ref))->set('span', $expr->span);
   }
 
-  private static function literal(Table $spans, ast\Literal $literal): nodes\Literal {
+  private static function literal(ast\Literal $literal): nodes\Literal {
     switch (true) {
       case $literal instanceof ast\StrLiteral:
-        return self::str_literal($spans, $literal);
+        return self::str_literal($literal);
       case $literal instanceof ast\FloatLiteral:
-        return self::float_literal($spans, $literal);
+        return self::float_literal($literal);
       case $literal instanceof ast\IntLiteral:
-        return self::int_literal($spans, $literal);
+        return self::int_literal($literal);
       case $literal instanceof ast\BoolLiteral:
-        return self::bool_literal($spans, $literal);
+        return self::bool_literal($literal);
       default:
-        assert(false, 'unreachable');
+        die('unreachable');
     }
   }
 
-  private static function str_literal(Table $spans, ast\StrLiteral $expr): nodes\StrLiteral {
+  private static function str_literal(ast\StrLiteral $expr): nodes\StrLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\StrLiteral($value), $expr->span);
+    return (new nodes\StrLiteral($value))->set('span', $expr->span);
   }
 
-  private static function float_literal(Table $spans, ast\FloatLiteral $expr): nodes\FloatLiteral {
+  private static function float_literal(ast\FloatLiteral $expr): nodes\FloatLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\FloatLiteral($value, $expr->precision), $expr->span);
+    return (new nodes\FloatLiteral($value, $expr->precision))->set('span', $expr->span);
   }
 
-  private static function int_literal(Table $spans, ast\IntLiteral $expr): nodes\IntLiteral {
+  private static function int_literal(ast\IntLiteral $expr): nodes\IntLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\IntLiteral($value), $expr->span);
+    return (new nodes\IntLiteral($value))->set('span', $expr->span);
   }
 
-  private static function bool_literal(Table $spans, ast\BoolLiteral $expr): nodes\BoolLiteral {
+  private static function bool_literal(ast\BoolLiteral $expr): nodes\BoolLiteral {
     $value = $expr->value;
-    return $spans->set(new nodes\BoolLiteral($value), $expr->span);
+    return (new nodes\BoolLiteral($value))->set('span', $expr->span);
   }
 
-  /**
-   * Lower type annotation nodes
-   */
-
-  private static function note(Table $spans, ast\Annotation $note): nodes\Note {
+  private static function note(ast\Annotation $note): nodes\Note {
     switch (true) {
       case $note instanceof ast\TypeParamAnnotation:
-        return self::param_note($spans, $note);
+        return self::param_note($note);
       case $note instanceof ast\UnitAnnotation:
-        return self::unit_note($spans, $note);
+        return self::unit_note($note);
       case $note instanceof ast\NamedAnnotation:
-        return self::name_note($spans, $note);
+        return self::name_note($note);
       case $note instanceof ast\FunctionAnnotation:
-        return self::func_note($spans, $note);
+        return self::func_note($note);
       case $note instanceof ast\ListAnnotation:
-        return self::list_note($spans, $note);
+        return self::list_note($note);
       case $note instanceof ast\ParameterizedAnnotation:
-        return self::parameterized_note($spans, $note);
+        return self::parameterized_note($note);
       default:
-        throw new Exception('cannot lower unknown type annotation');
+        die('unreachable');
     }
   }
 
-  private static function param_note(Table $spans, ast\TypeParamAnnotation $note): nodes\ParamNote {
-    $name = $spans->set(new nodes\Name($note->name), $note->span); // TODO: this span should not include the left quote
-    return $spans->set(new nodes\ParamNote($name), $note->span);
+  private static function param_note(ast\TypeParamAnnotation $note): nodes\ParamNote {
+    $name = (new nodes\Name($note->name))->set('span', $note->span); // TODO: this span should not include the left quote
+    return (new nodes\ParamNote($name))->set('span', $note->span);
   }
 
-  private static function unit_note(Table $spans, ast\UnitAnnotation $note): nodes\UnitNote {
-    return $spans->set(new nodes\UnitNote(), $note->span);
+  private static function unit_note(ast\UnitAnnotation $note): nodes\UnitNote {
+    return (new nodes\UnitNote())->set('span', $note->span);
   }
 
-  private static function name_note(Table $spans, ast\NamedAnnotation $note): nodes\NameNote {
-    $ref = self::path($spans, $note->path);
-    return $spans->set(new nodes\NameNote($ref), $note->span);
+  private static function name_note(ast\NamedAnnotation $note): nodes\NameNote {
+    $ref = self::path($note->path);
+    return (new nodes\NameNote($ref))->set('span', $note->span);
   }
 
-  private static function func_note(Table $spans, ast\FunctionAnnotation $note): nodes\FuncNote {
+  private static function func_note(ast\FunctionAnnotation $note): nodes\FuncNote {
     $inputs = [];
     foreach ($note->inputs as $input) {
-      $inputs[] = self::note($spans, $input);
+      $inputs[] = self::note($input);
     }
-    $output = self::note($spans, $note->output);
-    return $spans->set(new nodes\FuncNote($inputs, $output), $note->span);
+    $output = self::note($note->output);
+    return (new nodes\FuncNote($inputs, $output))->set('span', $note->span);
   }
 
-  private static function list_note(Table $spans, ast\ListAnnotation $note): nodes\ListNote {
+  private static function list_note(ast\ListAnnotation $note): nodes\ListNote {
     if ($note->elements) {
-      $elements = self::note($spans, $note->elements);
+      $elements = self::note($note->elements);
     } else {
       $elements = null;
     }
-    return $spans->set(new nodes\ListNote($elements), $note->span);
+    return (new nodes\ListNote($elements))->set('span', $note->span);
   }
 
-  private static function parameterized_note(Table $spans, ast\ParameterizedAnnotation $note): nodes\ParameterizedNote {
-    $inner  = self::note($spans, $note->inner);
+  private static function parameterized_note(ast\ParameterizedAnnotation $note): nodes\ParameterizedNote {
+    $inner  = self::note($note->inner);
     $params = [];
     foreach ($note->params as $param) {
-      $params[] = self::note($spans, $param);
+      $params[] = self::note($param);
     }
-    return $spans->set(new nodes\ParameterizedNote($inner, $params), $note->span);
+    return (new nodes\ParameterizedNote($inner, $params))->set('span', $note->span);
   }
 
   /**
    * Lower miscellaneous nodes
    */
 
+  /**
+   * @param ast\Attribute[] $attrs
+   * @return array
+   */
   private static function attrs(array $attrs): array {
     $hash = [];
     foreach ($attrs as $attr) {
@@ -484,45 +476,45 @@ class Lower {
     return $hash;
   }
 
-  private static function func_params(Table $spans, array $params): array {
+  private static function func_params(array $params): array {
     $_params = [];
     foreach ($params as $param) {
-      $name      = $spans->set(new nodes\Name($param->name->ident), $param->name->span);
-      $note      = self::note($spans, $param->note);
-      $_params[] = $spans->set(new nodes\FuncParam($name, $note), $param->span);
+      $name      = (new nodes\Name($param->name->ident))->set('span', $param->name->span);
+      $note      = self::note($param->note);
+      $_params[] = (new nodes\FuncParam($name, $note))->set('span', $param->span);
     }
     return $_params;
   }
 
-  private static function block(Table $spans, ast\BlockNode $block): nodes\Block {
+  private static function block(ast\BlockNode $block): nodes\Block {
     $stmts = [];
     foreach ($block->stmts as $stmt) {
-      $stmts[] = self::stmt($spans, $stmt);
+      $stmts[] = self::stmt($stmt);
     }
-    return $spans->set(new nodes\Block($stmts), $block->span);
+    return (new nodes\Block($stmts))->set('span', $block->span);
   }
 
-  private static function compound_path(Table $spans, ast\CompoundPathNode $path): nodes\CompoundRef {
+  private static function compound_path(ast\CompoundPathNode $path): nodes\CompoundRef {
     $body = [];
     foreach ($path->body as $segment) {
-      $body[] = $spans->set(new nodes\Name($segment->ident), $segment->span);
+      $body[] = (new nodes\Name($segment->ident))->set('span', $segment->span);
     }
 
     if ($path->tail instanceof ast\StarSegment) {
-      $tail = $spans->set(new nodes\StarRef(), $path->tail->span);
+      $tail = (new nodes\StarRef())->set('span', $path->tail->span);
     } else {
-      $tail = $spans->set(new nodes\Name($path->tail->ident), $path->tail->span);
+      $tail = (new nodes\Name($path->tail->ident))->set('span', $path->tail->span);
     }
 
-    return $spans->set(new nodes\CompoundRef($path->extern, $body, $tail), $path->span);
+    return (new nodes\CompoundRef($path->extern, $body, $tail))->set('span', $path->span);
   }
 
-  private static function path(Table $spans, ast\PathNode $path): nodes\Ref {
+  private static function path(ast\PathNode $path): nodes\Ref {
     $head = [];
     foreach ($path->head as $segment) {
-      $head[] = $spans->set(new nodes\Name($segment->ident), $segment->span);
+      $head[] = (new nodes\Name($segment->ident))->set('span', $segment->span);
     }
-    $tail = $spans->set(new nodes\Name($path->tail->ident), $path->tail->span);
-    return $spans->set(new nodes\Ref($path->extern, $head, $tail), $path->span);
+    $tail = (new nodes\Name($path->tail->ident))->set('span', $path->tail->span);
+    return (new nodes\Ref($path->extern, $head, $tail))->set('span', $path->span);
   }
 }

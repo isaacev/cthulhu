@@ -3,15 +3,8 @@
 namespace Cthulhu\ir;
 
 class Flow {
-  private $spans;
-  private $types;
   private $match_types = [];
   private $coverage_trees = [];
-
-  private function __construct(Table $spans, Table $types) {
-    $this->spans = $spans;
-    $this->types = $types;
-  }
 
   private function push_pattern_tree(types\Type $type) {
     array_push($this->coverage_trees, patterns\Node::from_type($type));
@@ -25,8 +18,8 @@ class Flow {
     return array_pop($this->coverage_trees);
   }
 
-  public static function analyze(Table $spans, Table $types, nodes\Program $prog): void {
-    $ctx = new self($spans, $types);
+  public static function analyze(nodes\Program $prog): void {
+    $ctx = new self();
 
     Visitor::walk($prog, [
       'enter(MatchExpr)' => function (nodes\MatchExpr $expr) use ($ctx) {
@@ -42,15 +35,15 @@ class Flow {
   }
 
   private static function enter_match_expr(self $ctx, nodes\MatchExpr $expr): void {
-    array_push($ctx->match_types, $ctx->types->get($expr->disc->expr));
-    $ctx->push_pattern_tree($ctx->types->get($expr->disc->expr));
+    array_push($ctx->match_types, $expr->disc->expr->get('type'));
+    $ctx->push_pattern_tree($expr->disc->expr->get('type'));
   }
 
   private static function match_arm(self $ctx, nodes\MatchArm $arm): void {
     $type    = end($ctx->match_types);
     $pattern = patterns\Pattern::from($arm->pattern, $type);
     if ($ctx->peek_pattern_tree()->is_redundant($pattern)) {
-      $span = $ctx->spans->get($arm->pattern);
+      $span = $arm->pattern->get('span');
       throw Errors::redundant_pattern($span, $pattern);
     } else {
       $ctx->peek_pattern_tree()->apply($pattern);
@@ -61,7 +54,7 @@ class Flow {
     array_pop($ctx->match_types);
     $uncovered = $ctx->pop_pattern_tree()->uncovered_patterns();
     if (!empty($uncovered)) {
-      $span = $ctx->spans->get($expr);
+      $span = $expr->get('span');
       throw Errors::uncovered_patterns($span, $uncovered);
     }
   }

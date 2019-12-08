@@ -6,7 +6,7 @@ use Cthulhu\Parser\Parser;
 use Cthulhu\Source\File;
 
 class ParsePhase {
-  private $file;
+  private File $file;
 
   function __construct(File $file) {
     $this->file = $file;

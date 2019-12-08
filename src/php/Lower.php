@@ -3,7 +3,6 @@
 namespace Cthulhu\php;
 
 use Cthulhu\ir;
-use Exception;
 
 class Lower {
   private $namespaces = [];
@@ -16,15 +15,6 @@ class Lower {
   private $match_tests = [];
 
   // Name resolution variables
-  private $ir_name_to_ir_symbol;
-  private $ir_symbol_to_ir_name;
-  private $ir_symbol_to_type;
-  private $ir_expr_to_type;
-  private $ir_symbol_to_php_ref;
-  private $ir_symbol_to_php_var;
-  private $ir_name_to_php_name;
-  private $php_symbol_table;
-  private $ir_symbol_to_string;
   private $root_scope;
   private $namespace_scopes = [];
   private $namespace_refs = [];
@@ -32,22 +22,8 @@ class Lower {
   private $function_heads = [];
   private $block_exit_handlers = [];
 
-  function __construct(
-    ir\Table $ir_name_to_ir_symbol,
-    ir\Table $ir_symbol_to_ir_name,
-    ir\Table $ir_symbol_to_type,
-    ir\Table $ir_expr_to_type
-  ) {
-    $this->ir_name_to_ir_symbol = $ir_name_to_ir_symbol;
-    $this->ir_symbol_to_ir_name = $ir_symbol_to_ir_name;
-    $this->ir_symbol_to_type    = $ir_symbol_to_type;
-    $this->ir_expr_to_type      = $ir_expr_to_type;
-    $this->ir_symbol_to_php_ref = new ir\Table();
-    $this->ir_symbol_to_php_var = new ir\Table();
-    $this->ir_name_to_php_name  = new ir\Table();
-    $this->php_symbol_table     = new ir\Table();
-    $this->ir_symbol_to_string  = new ir\Table();
-    $this->root_scope           = new names\Scope();
+  function __construct() {
+    $this->root_scope = new names\Scope();
   }
 
   private function push_block(): void {
@@ -105,51 +81,49 @@ class Lower {
   }
 
   private function php_name_from_ir_name(ir\nodes\Name $ir_name): nodes\Name {
-    if ($php_name = $this->ir_name_to_php_name->get($ir_name)) {
+    if ($php_name = $ir_name->get('php/name')) {
       return $php_name;
     }
 
-    $ir_symbol  = $this->ir_name_to_ir_symbol->get($ir_name);
+    $ir_symbol  = $ir_name->get('symbol');
     $php_value  = $this->rename_ir_name($ir_symbol, $ir_name);
     $php_symbol = new names\Symbol();
     $php_name   = new nodes\Name($php_value, $php_symbol);
-    $this->php_symbol_table->set($php_name, $php_symbol);
-    $this->ir_name_to_php_name->set($ir_name, $php_name);
+    $ir_name->set('php/name', $php_name);
     $php_segments = end($this->namespace_refs)->segments . '\\' . $php_value;
     $php_ref      = new nodes\Reference($php_segments, $php_symbol);
-    $this->ir_symbol_to_php_ref->set($ir_symbol, $php_ref);
+    $ir_symbol->set('php/ref', $php_ref);
     return $php_name;
   }
 
   private function php_var_from_ir_name(ir\nodes\Name $ir_name): nodes\Variable {
-    $ir_symbol = $this->ir_name_to_ir_symbol->get($ir_name);
-    if ($php_var = $this->ir_symbol_to_php_var->get($ir_symbol)) {
+    $ir_symbol = $ir_name->get('symbol');
+    if ($php_var = $ir_symbol->get('php/var')) {
       return $php_var;
     }
 
     $php_value  = $this->rename_ir_name($ir_symbol, $ir_name);
     $php_symbol = new names\Symbol();
     $php_var    = new nodes\Variable($php_value, $php_symbol);
-    $this->php_symbol_table->set($php_var, $php_symbol);
-    $this->ir_symbol_to_php_var->set($ir_symbol, $php_var);
+    $ir_symbol->set('php/var', $php_var);
     return $php_var;
   }
 
   private function php_ref_from_ir_name(ir\nodes\Name $ir_name): nodes\Reference {
-    $tail_ir_symbol = $this->ir_name_to_ir_symbol->get($ir_name);
-    if ($php_ref = $this->ir_symbol_to_php_ref->get($tail_ir_symbol)) {
+    $tail_ir_symbol = $ir_name->get('symbol');
+    if ($php_ref = $tail_ir_symbol->get('php/ref')) {
       return $php_ref;
     }
 
     $ir_symbol  = $tail_ir_symbol;
     $php_values = [ $this->rename_ir_name($ir_symbol, $ir_name) ];
     while ($ir_symbol = $ir_symbol->parent) {
-      array_unshift($php_values, $this->ir_symbol_to_string->get($ir_symbol));
+      assert($ir_symbol instanceof ir\names\Symbol);
+      array_unshift($php_values, $ir_symbol->get('php/string'));
     }
     $php_symbol = new names\Symbol();
     $php_ref    = new nodes\Reference(implode('\\', $php_values), $php_symbol);
-    $this->php_symbol_table->set($php_ref, $php_symbol);
-    $this->ir_symbol_to_php_ref->set($tail_ir_symbol, $php_ref);
+    $tail_ir_symbol->set('php/ref', $php_ref);
     return $php_ref;
   }
 
@@ -163,7 +137,6 @@ class Lower {
         $current_scope->use_name($candidate);
         $php_symbol = new names\Symbol();
         $php_var    = new nodes\Variable($candidate, $php_symbol);
-        $this->php_symbol_table->set($php_var, $php_symbol);
         return $php_var;
       }
     }
@@ -181,7 +154,6 @@ class Lower {
         $current_scope->use_name($candidate);
         $php_symbol = new names\Symbol();
         $php_var    = new nodes\Variable($candidate, $php_symbol);
-        $this->php_symbol_table->set($php_var, $php_symbol);
         return $php_var;
       }
     }
@@ -200,7 +172,7 @@ class Lower {
       $counter++;
     }
     $current_scope->use_name($candidate);
-    $this->ir_symbol_to_string->set($ir_symbol, $candidate);
+    $ir_symbol->set('php/string', $candidate);
     return $candidate;
   }
 
@@ -279,19 +251,8 @@ class Lower {
     return new nodes\FuncHead($php_name, $php_params);
   }
 
-  public static function from(
-    ir\Table $ir_name_to_ir_symbol,
-    ir\Table $ir_symbol_to_ir_name,
-    ir\Table $ir_symbol_to_type,
-    ir\Table $ir_expr_to_type,
-    ir\nodes\Program $prog
-  ): nodes\Program {
-    $ctx = new self(
-      $ir_name_to_ir_symbol,
-      $ir_symbol_to_ir_name,
-      $ir_symbol_to_type,
-      $ir_expr_to_type
-    );
+  public static function from(ir\nodes\Program $prog): nodes\Program {
+    $ctx = new self();
 
     ir\Visitor::walk($prog, [
       'exit(Program)' => function () use ($ctx) {
@@ -436,8 +397,8 @@ class Lower {
   private static function enter_func_item(self $ctx, ir\nodes\FuncItem $item): void {
     $ctx->enter_function($item->head);
 
-    $ir_symbol   = $ctx->ir_name_to_ir_symbol->get($item->head->name);
-    $type        = $ctx->ir_symbol_to_type->get($ir_symbol);
+    $ir_symbol   = $item->head->name->get('symbol');
+    $type        = $ir_symbol->get('type');
     $does_return = ir\types\UnitType::does_not_match($type->output);
     if ($does_return) {
       $callback = function () use ($ctx) {
@@ -463,8 +424,8 @@ class Lower {
     $ctx->push_stmt($php_func);
 
     if ($item->get_attr('entry', false)) {
-      $ir_symbol         = $ctx->ir_name_to_ir_symbol->get($item->head->name);
-      $ctx->entry_refs[] = $ctx->ir_symbol_to_php_ref->get($ir_symbol);
+      $ir_symbol         = $item->head->name->get('symbol');
+      $ctx->entry_refs[] = $ir_symbol->get('php/ref');
     }
   }
 
@@ -488,8 +449,7 @@ class Lower {
           $args));
     }
 
-    $ir_symbol = $ctx->ir_name_to_ir_symbol->get($item->name);
-    $type      = $ctx->ir_symbol_to_type->get($ir_symbol);
+    $type = $item->name->get('symbol')->get('type');
     $ctx->push_stmt(ir\types\UnitType::matches($type->output)
       ? new nodes\SemiStmt($ctx->pop_expr())
       : new nodes\ReturnStmt($ctx->pop_expr()));
@@ -582,7 +542,7 @@ class Lower {
     $ctx->match_arms[]     = [];
 
     $parent_ir_node = $path->parent->node;
-    $return_type    = $ctx->ir_expr_to_type->get($expr);
+    $return_type    = $expr->get('type');
     if ($parent_ir_node instanceof ir\nodes\SemiStmt || ir\types\UnitType::matches($return_type)) {
       $ctx->push_expr(new nodes\NullLiteral());
       $ctx->push_block_exit_handler(function () use ($ctx) {
@@ -746,7 +706,7 @@ class Lower {
 
   private static function enter_if_expr(self $ctx, ir\nodes\IfExpr $expr, ir\Path $path): void {
     $parent_ir_node = $path->parent->node;
-    $return_type    = $ctx->ir_expr_to_type->get($expr);
+    $return_type    = $expr->get('type');
     if ($parent_ir_node instanceof ir\nodes\SemiStmt || ir\types\UnitType::matches($return_type)) {
       $ctx->push_expr(new nodes\NullLiteral());
       $ctx->push_block_exit_handler(function () use ($ctx) {
@@ -773,7 +733,7 @@ class Lower {
   }
 
   private static function exit_call_expr(self $ctx, ir\nodes\CallExpr $expr): void {
-    $type   = $ctx->ir_expr_to_type->get($expr->callee);
+    $type   = $expr->callee->get('type');
     $arity  = count($type->inputs);
     $args   = $ctx->pop_exprs($arity);
     $callee = $ctx->pop_expr();
@@ -841,12 +801,12 @@ class Lower {
 
   private static function ref_expr(self $ctx, ir\nodes\RefExpr $expr, ir\Path $path): void {
     $ir_name   = $expr->ref->tail_segment;
-    $ir_symbol = $ctx->ir_name_to_ir_symbol->get($ir_name);
+    $ir_symbol = $ir_name->get('symbol');
     if ($ir_symbol instanceof ir\names\VarSymbol) {
-      $php_var  = $ctx->ir_symbol_to_php_var->get($ir_symbol);
+      $php_var  = $ir_symbol->get('php/var');
       $php_expr = new nodes\VariableExpr($php_var);
     } else {
-      $php_ref   = $ctx->ir_symbol_to_php_ref->get($ir_symbol);
+      $php_ref   = $ir_symbol->get('php/ref');
       $is_quoted = !($path->parent && $path->parent->node instanceof ir\nodes\CallExpr);
       $php_expr  = new nodes\ReferenceExpr($php_ref, $is_quoted);
     }
@@ -887,7 +847,7 @@ class Lower {
       case 'cast_float_to_string':
         return new nodes\CastExpr('string', $args[0]);
       default:
-        throw new Exception("unknown PHP construct: $name");
+        die("unknown PHP construct: $name");
     }
   }
 }

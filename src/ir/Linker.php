@@ -12,7 +12,7 @@ use Cthulhu\Source;
  * cycle is detected, emit an error and stop linking.
  */
 class Linker {
-  static function link(Table $spans, nodes\Library $first_lib): nodes\Program {
+  static function link(nodes\Library $first_lib): nodes\Program {
     // A object to track connections accross a directed graph. By updating this
     // graph with all of the dependency relationships, import cycles can be
     // detected early and a topological ordering for all libraries can be built.
@@ -38,7 +38,7 @@ class Linker {
         // and to the cache.
         $dep = array_key_exists($dep_name, $cache)
           ? $cache[$dep_name]
-          : ($cache[$dep_name] = $queue[] = self::parse($spans, $dep_name));
+          : ($cache[$dep_name] = $queue[] = self::parse($dep_name));
         $graph->add_edge($lib, $dep);
       }
     }
@@ -96,7 +96,7 @@ class Linker {
     return realpath(self::STDLIB_DIR . $name . '.cth');
   }
 
-  private static function parse(Table $spans, string $name): nodes\Library {
+  private static function parse(string $name): nodes\Library {
     $absolute_path = self::resolve_name_in_stdlib($name);
     if ($absolute_path === false) {
       fwrite(STDERR, sprintf("unknown standard library: `%s`\n", $name));
@@ -111,7 +111,7 @@ class Linker {
 
     $file = new Source\File($absolute_path, $contents);
     $ast  = Parser\Parser::file_to_ast($file);
-    $lib  = Lower::file($spans, $ast);
+    $lib  = Lower::file($ast);
     return $lib;
   }
 }

@@ -8,60 +8,41 @@ use Cthulhu\ir\nodes;
 use Exception;
 
 class Check {
-  private $spans;
-  private $name_to_symbol;
-  private $symbol_to_name;
-  private $types;
-  private $exprs;
-
-  private function __construct(ir\Table $spans, ir\Table $name_to_symbol, ir\Table $symbol_to_name) {
-    $this->spans          = $spans;
-    $this->name_to_symbol = $name_to_symbol;
-    $this->symbol_to_name = $symbol_to_name;
-    $this->types          = new ir\Table(); // Symbols -> type
-    $this->exprs          = new ir\Table(); // Expression nodes -> type
-  }
-
   private function get_symbol_for_name(nodes\Name $name): names\Symbol {
-    if ($symbol = $this->name_to_symbol->get($name)) {
+    if ($symbol = $name->get('symbol')) {
       return $symbol;
     }
-    throw new Exception('no known symbol for name');
+    die('no known symbol for name');
   }
 
   private function get_type_for_symbol(names\Symbol $symbol): Type {
-    if ($type = $this->types->get($symbol)) {
+    if ($type = $symbol->get('type')) {
       return $type;
     }
-    throw new Exception('symbol has not been type-checked yet');
+    die('symbol has not been type-checked yet');
   }
 
   private function set_type_for_symbol(names\Symbol $symbol, Type $type): void {
-    $this->types->set($symbol, $type);
+    $symbol->set('type', $type);
   }
 
   private function get_type_for_expr(nodes\Expr $expr): Type {
-    if ($type = $this->exprs->get($expr)) {
+    if ($type = $expr->get('type')) {
       return $type;
     }
 
-    $span = $this->spans->get($expr);
+    $span = $expr->get('span');
     $line = $span->from->line;
     $file = $span->from->file->filepath;
-    throw new Exception("expression has not been type-checked yet on line $line in $file");
+    die("expression has not been type-checked yet on line $line in $file");
   }
 
   private function set_type_for_expr(nodes\Expr $expr, Type $type): void {
-    $this->exprs->set($expr, $type);
+    $expr->set('type', $type);
   }
 
-  public static function types(
-    ir\Table $spans,
-    ir\Table $name_to_symbol,
-    ir\Table $symbol_to_name,
-    nodes\Program $prog
-  ): array {
-    $ctx = new self($spans, $name_to_symbol, $symbol_to_name);
+  public static function types(nodes\Program $prog): void {
+    $ctx = new self();
 
     ir\Visitor::walk($prog, [
       'enter(FuncHead)' => function (nodes\FuncHead $head) use ($ctx) {
@@ -125,11 +106,6 @@ class Check {
         self::exit_block($ctx, $block);
       },
     ]);
-
-    return [
-      $ctx->types, // symbol -> type
-      $ctx->exprs, // expression node -> type
-    ];
   }
 
   /**
@@ -138,11 +114,13 @@ class Check {
    * type. Because this check requires an additional walk over the whole IR tree
    * and because this validation is checking for bugs in the type-checker, it
    * should only be run during compiler development.
+   *
+   * @param nodes\Program $prog
    */
-  public static function validate(ir\Table $exprs, nodes\Program $prog): void {
+  public static function validate(nodes\Program $prog): void {
     ir\Visitor::walk($prog, [
-      'Expr' => function (nodes\Expr $expr) use ($exprs) {
-        if ($exprs->has($expr) === false) {
+      'Expr' => function (nodes\Expr $expr) {
+        if ($expr->has('type') === false) {
           throw new Exception('missing type binding for an expression');
         }
       },
@@ -177,9 +155,9 @@ class Check {
 
     $block_type = $ctx->get_type_for_expr($item->body);
     if ($last_stmt = $item->body->last_stmt()) {
-      $span = $ctx->spans->get($last_stmt);
+      $span = $last_stmt->get('span');
     } else {
-      $span = $ctx->spans->get($item->body);
+      $span = $item->body->get('span');
     }
 
     if ($expected_return_type->accepts_as_return($block_type) === false) {
@@ -226,8 +204,7 @@ class Check {
         throw new Exception('unknown native type');
     }
 
-    $symbol = $ctx->name_to_symbol->get($item->name);
-    $ctx->set_type_for_symbol($symbol, $type);
+    $ctx->set_type_for_symbol($item->name->get('symbol'), $type);
   }
 
   private static function exit_union_item(self $ctx, nodes\UnionItem $item): void {
@@ -254,7 +231,7 @@ class Check {
         $variants[$variant->name->value] = new UnitVariantFields();
       }
     }
-    $symbol = $ctx->name_to_symbol->get($item->name);
+    $symbol = $item->name->get('symbol');
     assert($symbol instanceof names\RefSymbol);
     $ref  = self::build_ref_from_symbol($ctx, $symbol);
     $type = new UnionType($symbol, $ref, $params, $variants);
@@ -262,13 +239,13 @@ class Check {
   }
 
   static function build_ref_from_symbol(self $ctx, names\RefSymbol $tail_symbol): nodes\Ref {
-    $tail_segment = $ctx->symbol_to_name->get($tail_symbol);
+    $tail_segment = $tail_symbol->get('node');
     assert($tail_segment instanceof nodes\Name);
 
     $head_segments = [];
     $head_symbol   = $tail_symbol->parent;
     while ($head_symbol !== null) {
-      $head_segment = $ctx->symbol_to_name->get($head_symbol);
+      $head_segment = $head_symbol->get('node');
       array_unshift($head_segments, $head_segment);
       $head_symbol = $head_symbol->parent;
     }
@@ -285,9 +262,9 @@ class Check {
       $note_type = self::note_to_type($ctx, $stmt->note);
       if ($note_type->accepts_as_parameter($expr_type) === false) {
         throw Errors::let_note_does_not_match_expr(
-          $ctx->spans->get($stmt->note),
+          $stmt->note->get('span'),
           $note_type,
-          $ctx->spans->get($stmt->expr),
+          $stmt->expr->get('span'),
           $expr_type
         );
       }
@@ -331,7 +308,7 @@ class Check {
         self::check_bool_pattern($ctx, $pattern, $type);
         break;
       default:
-        assert(false, 'unreachable');
+        die('unreachable');
     }
   }
 
@@ -361,7 +338,7 @@ class Check {
         self::check_pattern($ctx, $field->pattern, $arguments->order[$index]);
       }
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 
@@ -376,25 +353,25 @@ class Check {
 
   private static function check_str_pattern(self $ctx, nodes\StrConstPattern $pattern, Type $type): void {
     if (StrType::matches($type) === false) {
-      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+      throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
   private static function check_float_pattern(self $ctx, nodes\FloatConstPattern $pattern, Type $type): void {
     if (FloatType::matches($type) === false) {
-      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+      throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
   private static function check_int_pattern(self $ctx, nodes\IntConstPattern $pattern, Type $type): void {
     if (IntType::matches($type) === false) {
-      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+      throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
   private static function check_bool_pattern(self $ctx, nodes\BoolConstPattern $pattern, Type $type): void {
     if (BoolType::matches($type) === false) {
-      throw Errors::incompatible_pattern($ctx->spans->get($pattern), $type);
+      throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
@@ -407,7 +384,7 @@ class Check {
       if ($unified_type = $match_type->unify($arm_type)) {
         $match_type = $unified_type;
       } else {
-        $arm_span = $ctx->spans->get($arm);
+        $arm_span = $arm->get('span');
         throw Errors::match_arm_disagreement(
           $arm_span,
           $arm_type,
@@ -422,7 +399,7 @@ class Check {
   private static function exit_if_expr(self $ctx, nodes\IfExpr $expr): void {
     $cond_type = $ctx->get_type_for_expr($expr->cond);
     if (BoolType::does_not_match($cond_type)) {
-      $span = $ctx->spans->get($expr->cond);
+      $span = $expr->cond->get('span');
       throw Errors::if_cond_not_bool($span, $cond_type);
     }
 
@@ -434,9 +411,9 @@ class Check {
     if ($unified_type = $if_true_type->unify($if_false_type)) {
       $ctx->set_type_for_expr($expr, $unified_type);
     } else {
-      $if_span = $ctx->spans->get($expr->if_true);
+      $if_span = $expr->if_true->get('span');
       if ($expr->if_false) {
-        $else_span = $ctx->spans->get($expr->if_false);
+        $else_span = $expr->if_false->get('span');
         throw Errors::if_else_branch_disagreement(
           $if_span,
           $if_true_type,
@@ -456,7 +433,7 @@ class Check {
      */
     $parameterized_callee_type = $ctx->get_type_for_expr($expr->callee);
     if (FuncType::does_not_match($parameterized_callee_type)) {
-      $span = $ctx->spans->get($expr->callee);
+      $span = $expr->callee->get('span');
       throw Errors::call_to_non_function($span, $parameterized_callee_type);
     }
     assert($parameterized_callee_type instanceof FuncType);
@@ -468,14 +445,14 @@ class Check {
     $num_params = count($parameterized_callee_type->inputs);
     $num_args   = count($expr->args);
     if ($num_params !== $num_args) {
-      $span = $ctx->spans->get($expr);
+      $span = $expr->get('span');
       throw Errors::call_with_wrong_arg_num($span, $num_params, $num_args);
     }
 
     $arg_types        = [];
     $param_components = []; // ParamSymbol -> Type[]
     foreach ($expr->args as $index => $arg) {
-      $arg_type   = $arg_types[] = $ctx->exprs->get($arg);
+      $arg_type   = $arg_types[] = $arg->get('type');
       $param_type = $parameterized_callee_type->inputs[$index];
 
       /**
@@ -490,7 +467,7 @@ class Check {
          */
         self::find_type_param_components($ctx, $param_components, $param_type, $arg_type);
       } else {
-        $span = $ctx->spans->get($arg);
+        $span = $arg->get('span');
         throw Errors::call_with_wrong_arg_type($span, $index, $param_type, $arg_type);
       }
     }
@@ -504,7 +481,7 @@ class Check {
         if ($attempt = $unification->unify($component)) {
           $unification = $attempt;
         } else {
-          $span = $ctx->spans->get($expr);
+          $span = $expr->get('span');
           $name = $ctx->symbol_to_name->get_by_id($symbol_id);
           throw Errors::unsolvable_type_parameter($span, $name, $unification, $component);
         }
@@ -567,8 +544,7 @@ class Check {
     if ($type = $lhs->apply($op, $rhs)) {
       $ctx->set_type_for_expr($expr, $type);
     } else {
-      $span = $ctx->spans->get($expr);
-      throw Errors::unsupported_binary_operator($span, $op, $lhs, $rhs);
+      throw Errors::unsupported_binary_operator($expr->get('span'), $op, $lhs, $rhs);
     }
   }
 
@@ -578,8 +554,7 @@ class Check {
     if ($type = $rhs->apply($op)) {
       $ctx->set_type_for_expr($expr, $type);
     } else {
-      $span = $ctx->spans->get($expr);
-      throw Errors::unsupported_unary_operator($span, $op, $rhs);
+      throw Errors::unsupported_unary_operator($expr->get('span'), $op, $rhs);
     }
   }
 
@@ -597,9 +572,8 @@ class Check {
         continue;
       }
 
-      $span = $ctx->spans->get($element_expr);
       throw Errors::mismatched_list_element_types(
-        $span,
+        $element_expr->get('span'),
         $unified_type,
         $index + 1,
         $element_type
@@ -612,14 +586,15 @@ class Check {
 
   private static function exit_variant_constructor_expr(self $ctx, nodes\VariantConstructorExpr $expr): void {
     $variant_symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
-    $union_symbol   = $variant_symbol->parent;
-    $union_type     = $ctx->types->get($union_symbol);
+    assert($variant_symbol instanceof names\RefSymbol);
+    $union_symbol = $variant_symbol->parent;
+    $union_type   = $union_symbol->get('type');
 
     if ($union_type === null) {
-      $span = $ctx->spans->get(end($expr->ref->head_segments));
+      $span = end($expr->ref->head_segments)->get('span');
       throw Errors::constructor_on_non_type($span);
     } else if (($union_type instanceof UnionType) === false) {
-      $span = $ctx->spans->get(end($expr->ref->head_segments));
+      $span = end($expr->ref->head_segments)->get('span');
       throw Errors::constructor_on_non_union_type($span, $union_type);
     }
 
@@ -660,11 +635,11 @@ class Check {
         $concrete_union_type = $union_type->bind_parameters($inferences);
         $ctx->set_type_for_expr($expr, $concrete_union_type);
       } else {
-        $span = $ctx->spans->get($expr);
+        $span = $expr->get('span');
         throw Errors::wrong_constructor_arguments($span, $variant_name, $param_type, $arg_type);
       }
     } else {
-      $span = $ctx->spans->get($expr->ref->tail_segment);
+      $span = $expr->ref->tail_segment->get('span');
       throw Errors::no_variant_with_name($span, $union_type, $variant_name);
     }
   }
@@ -767,7 +742,7 @@ class Check {
       case $note instanceof nodes\ParameterizedNote:
         return self::parameterized_note_to_type($ctx, $note);
       default:
-        throw new Exception('cannot type-check unknown note node: ' . get_class($note));
+        die('cannot type-check unknown note node: ' . get_class($note));
     }
   }
 

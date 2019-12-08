@@ -8,7 +8,7 @@ use Cthulhu\php\passes\Inline;
 use Cthulhu\php\passes\TreeShaking;
 
 class OptimizePhase {
-  private $php_tree;
+  private Program $php_tree;
 
   function __construct(Program $php_tree) {
     $this->php_tree = $php_tree;

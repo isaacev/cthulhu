@@ -11,9 +11,6 @@ use Exception;
  * The names table contains a mapping of node ids (typeof int) -> Symbol
  */
 class Resolve {
-  private $spans;
-  private $name_to_symbol;
-  private $symbol_to_name;
   private $root_scope;
   private $namespaces = [];
   private $module_scopes = [];
@@ -22,35 +19,29 @@ class Resolve {
   private $block_scopes = [];
   private $ref_symbols = [];
 
-  private function __construct(ir\Table $spans) {
-    $this->spans          = $spans;
-    $this->name_to_symbol = new ir\Table();
-    $this->symbol_to_name = new ir\Table();
-  }
-
   private function make_ref_symbol(nodes\Name $node, ?RefSymbol $parent): RefSymbol {
     $symbol = new RefSymbol($parent);
-    $this->name_to_symbol->set($node, $symbol);
-    $this->symbol_to_name->set($symbol, $node);
+    $node->set('symbol', $symbol);
+    $symbol->set('node', $node);
     return $symbol;
   }
 
   private function make_var_symbol(nodes\Name $node): VarSymbol {
     $symbol = new VarSymbol();
-    $this->name_to_symbol->set($node, $symbol);
-    $this->symbol_to_name->set($symbol, $node);
+    $node->set('symbol', $symbol);
+    $symbol->set('node', $node);
     return $symbol;
   }
 
   private function make_type_symbol(nodes\Name $node): TypeSymbol {
     $symbol = new TypeSymbol();
-    $this->name_to_symbol->set($node, $symbol);
-    $this->symbol_to_name->set($symbol, $node);
+    $node->set('symbol', $symbol);
+    $symbol->set('node', $node);
     return $symbol;
   }
 
   private function set_symbol(nodes\Name $node, Symbol $symbol): void {
-    $this->name_to_symbol->set($node, $symbol);
+    $node->set('symbol', $symbol);
   }
 
   private function current_module_scope(): Scope {
@@ -141,8 +132,8 @@ class Resolve {
     }
   }
 
-  public static function names(ir\Table $spans, nodes\Program $prog): array {
-    $ctx = new self($spans);
+  public static function names(nodes\Program $prog): void {
+    $ctx = new self();
 
     ir\Visitor::walk($prog, [
       'enter(Program)' => function () use ($ctx) {
@@ -221,18 +212,13 @@ class Resolve {
         self::ref($ctx, $ref);
       },
     ]);
-
-    return [
-      $ctx->name_to_symbol,
-      $ctx->symbol_to_name,
-    ];
   }
 
-  public static function validate(ir\Table $names, nodes\Program $prog): void {
+  public static function validate(nodes\Program $prog): void {
     ir\Visitor::walk($prog, [
-      'Name' => function (nodes\Name $name) use ($names) {
-        if ($names->has($name) === false) {
-          throw new Exception('missing symbol binding for a name: ' . $name->value);
+      'Name' => function (nodes\Name $name) {
+        if ($name->has('symbol') === false) {
+          throw new Exception("missing symbol binding for a name '$name->value' at " . $name->get('span')->from);
         }
       },
     ]);
@@ -302,7 +288,7 @@ class Resolve {
         }
       }
 
-      throw Errors::unknown_namespace_field($ctx->spans->get($segment), $segment);
+      throw Errors::unknown_namespace_field($segment->get('span'), $segment);
     }
 
     if ($item->ref->tail instanceof nodes\StarRef) {
@@ -315,10 +301,10 @@ class Resolve {
         $ctx->set_symbol($item->ref->tail, $tail_symbol);
         $ctx->current_module_scope()->add_binding($tail_name, $tail_symbol);
       } else {
-        throw Errors::unknown_namespace_field($ctx->spans->get($item->ref->tail), $item->ref->tail);
+        throw Errors::unknown_namespace_field($item->ref->tail->get('span'), $item->ref->tail);
       }
     } else {
-      throw new Exception('unknown reference tail segment');
+      die('unknown reference tail segment');
     }
   }
 
@@ -466,7 +452,7 @@ class Resolve {
   private static function exit_variant_pattern(self $ctx, nodes\VariantPattern $pattern): void {
     $fields = $pattern->fields;
     if ($fields instanceof nodes\NamedVariantPatternFields) {
-      $union_symbol = $ctx->name_to_symbol->get($pattern->ref->tail_segment);
+      $union_symbol = $pattern->ref->tail_segment->get('symbol');
       // TODO: user error if this lookup fails
       $union_namespace = $ctx->get_namespace($union_symbol);
       foreach ($fields->mapping as $field) {
@@ -488,26 +474,23 @@ class Resolve {
   private static function named_variant_constructor_fields(self $ctx, nodes\NamedVariantConstructorFields $fields, ir\Path $path): void {
     $expr = $path->parent->node;
     assert($expr instanceof nodes\VariantConstructorExpr);
-    $ctor_symbol = $ctx->name_to_symbol->get($expr->ref->tail_segment);
+    $ctor_symbol = $expr->ref->tail_segment->get('symbol');
     if ($ctor_namespace = $ctx->get_namespace($ctor_symbol)) {
       foreach ($fields->pairs as $field) {
         if ($field_symbol = $ctor_namespace->get_name($field->name->value)) {
           $ctx->set_symbol($field->name, $field_symbol);
         } else {
-          $span = $ctx->spans->get($field->name);
-          throw Errors::unknown_constructor_field($span, $expr->ref, $field->name);
+          throw Errors::unknown_constructor_field($field->name->get('span'), $expr->ref, $field->name);
         }
       }
     } else {
-      $span = $ctx->spans->get($expr);
-      throw Errors::unknown_constructor_form($span, $expr->ref);
+      throw Errors::unknown_constructor_form($expr->get('span'), $expr->ref);
     }
   }
 
   private static function param_note(self $ctx, nodes\ParamNote $note): void {
     if ($ctx->has_param_scope() === false) {
-      $span = $ctx->spans->get($note);
-      throw Errors::type_param_used_outside_function($span);
+      throw Errors::type_param_used_outside_function($note->get('span'));
     }
 
     $param_scope = $ctx->current_param_scope();
@@ -515,8 +498,7 @@ class Resolve {
       assert($param_symbol instanceof TypeSymbol);
       $ctx->set_symbol($note->name, $param_symbol);
     } else {
-      $span = $ctx->spans->get($note);
-      throw Errors::unknown_type_param($span, $note);
+      throw Errors::unknown_type_param($note->get('span'), $note);
     }
   }
 
@@ -564,7 +546,7 @@ class Resolve {
         return;
       }
 
-      throw Errors::unknown_name($ctx->spans->get($tail_segment), $tail_segment);
+      throw Errors::unknown_name($tail_segment->get('span'), $tail_segment);
     } else {
       $scope = $is_extern
         ? $ctx->root_scope()
@@ -580,14 +562,14 @@ class Resolve {
           }
         }
 
-        throw Errors::unknown_namespace_field($ctx->spans->get($head_segment), $head_segment);
+        throw Errors::unknown_namespace_field($head_segment->get('span'), $head_segment);
       }
 
       $tail_name = $tail_segment->value;
       if ($tail_symbol = $scope->get_name($tail_name)) {
         $ctx->set_symbol($tail_segment, $tail_symbol);
       } else {
-        throw Errors::unknown_namespace_field($ctx->spans->get($tail_segment), $tail_segment);
+        throw Errors::unknown_namespace_field($tail_segment->get('span'), $tail_segment);
       }
     }
   }
