@@ -5,8 +5,8 @@ namespace Cthulhu\ir\patterns;
 use Cthulhu\ir\types;
 
 class NamedVariantNode extends VariantNode {
-  protected $types;
-  protected $child_nodes = [];
+  protected types\NamedVariantFields $types;
+  protected array $child_nodes = [];
 
   function __construct(string $name, types\NamedVariantFields $types) {
     parent::__construct($name);

@@ -5,9 +5,9 @@ namespace Cthulhu\Parser\Lexer;
 use Cthulhu\Source;
 
 class Token {
-  public $type;
-  public $span;
-  public $lexeme;
+  public string $type;
+  public Source\Span $span;
+  public string $lexeme;
 
   function __construct(string $type, Source\Span $span, string $lexeme) {
     $this->type   = $type;

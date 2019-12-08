@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 abstract class VariantNode extends Node {
-  protected $name;
+  protected string $name;
 
   function __construct(string $name) {
     $this->name = $name;

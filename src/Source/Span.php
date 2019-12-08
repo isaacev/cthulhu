@@ -3,8 +3,8 @@
 namespace Cthulhu\Source;
 
 class Span {
-  public $from;
-  public $to;
+  public Point $from;
+  public Point $to;
 
   function __construct(Point $from, Point $to) {
     $this->from = $from;

@@ -6,11 +6,11 @@ use Cthulhu\php;
 use Exception;
 
 class Path {
-  public $parent;
-  public $node;
-  public $was_changed = false;
-  public $was_removed = false;
-  public $new_sibling_nodes = [];
+  public ?Path $parent;
+  public ?php\nodes\Node $node;
+  public bool $was_changed = false;
+  public bool $was_removed = false;
+  public array $new_sibling_nodes = [];
 
   function __construct(?self $parent, php\nodes\Node $node) {
     $this->parent = $parent;

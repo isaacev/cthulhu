@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\types;
 
 class OrderedVariantFields extends VariantFields {
-  public $order;
+  public array $order;
 
   /**
    * @param Type[] $order

@@ -5,8 +5,8 @@ namespace Cthulhu\Debug;
 use Cthulhu\lib\fmt\Formatter;
 
 class Cycle implements Reportable {
-  public $index;
-  public $members;
+  public int $index;
+  public array $members;
 
   function __construct(int $index, array $members) {
     $this->index   = $index;

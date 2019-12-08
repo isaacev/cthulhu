@@ -3,8 +3,8 @@
 namespace Cthulhu\lib\cli\internals;
 
 class StrFlagGrammar extends FlagGrammar {
-  public $arg_name;
-  public $pattern;
+  public string $arg_name;
+  public ?array $pattern;
 
   function __construct(string $id, ?string $short, string $description, string $arg_name, ?array $pattern) {
     parent::__construct($id, $short, $description);

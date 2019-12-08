@@ -3,8 +3,8 @@
 namespace Cthulhu\ir;
 
 class Path {
-  public $parent;
-  public $node;
+  public ?Path $parent;
+  public nodes\Node $node;
 
   function __construct(?self $parent, nodes\Node $node) {
     $this->parent = $parent;

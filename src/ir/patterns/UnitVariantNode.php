@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 class UnitVariantNode extends VariantNode {
-  protected $has_match = false;
+  protected bool $has_match = false;
 
   function is_covered(): bool {
     return $this->has_match;

@@ -3,8 +3,8 @@
 namespace Cthulhu\lib\cli\internals;
 
 class Scanner {
-  protected $argv = [];
-  protected $index = 0;
+  protected array $argv = [];
+  protected int $index = 0;
 
   function __construct(array $argv) {
     $this->argv = $argv;

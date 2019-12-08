@@ -10,9 +10,9 @@ class Scanner {
   }
 
   private $chars;
-  private $point;
+  private Source\Point $point;
   private $buffer;
-  private $offset;
+  private int $offset;
 
   function __construct(Source\File $file) {
     $this->chars  = preg_split('//u', $file->contents, -1, PREG_SPLIT_NO_EMPTY);

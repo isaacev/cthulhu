@@ -3,9 +3,9 @@
 namespace Cthulhu\Source;
 
 class Point {
-  public $file;
-  public $line;
-  public $column;
+  public File $file;
+  public int $line;
+  public int $column;
 
   function __construct(File $file, int $line = 1, int $column = 1) {
     $this->file   = $file;

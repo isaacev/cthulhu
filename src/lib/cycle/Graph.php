@@ -5,9 +5,9 @@ namespace Cthulhu\lib\cycle;
 use Cthulhu\ir\HasId;
 
 class Graph {
-  protected $root_id;
-  protected $lookup = [];
-  protected $edges = [];
+  protected int $root_id;
+  protected array $lookup = [];
+  protected array $edges = [];
 
   function __construct(HasId $root) {
     $this->lookup[$this->root_id = $root->get_id()] = $root;

@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\types;
 
 class FuncType extends Type {
-  public $inputs;
-  public $output;
+  public array $inputs;
+  public Type $output;
 
   /**
    * @param Type[] $inputs

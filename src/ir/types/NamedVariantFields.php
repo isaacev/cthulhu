@@ -3,10 +3,9 @@
 namespace Cthulhu\ir\types;
 
 class NamedVariantFields extends VariantFields {
-  public $mapping;
+  public array $mapping;
 
   /**
-   * NamedVariantFields constructor.
    * @param array[string]Type $mapping
    */
   function __construct(array $mapping) {

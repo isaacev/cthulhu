@@ -9,10 +9,10 @@ class Lexer {
     return new self(Scanner::from_file($file));
   }
 
-  public $scanner;
+  public Scanner $scanner;
   private $prev = null;
   private $buffer = null;
-  private $settings;
+  private int $settings;
 
   public const RELAXED_ERRORS = 0x0001; // Return errors as tokens instead of throwing an error
   public const KEEP_COMMENTS  = 0x0010; // Return comments as tokens instead of ignoring

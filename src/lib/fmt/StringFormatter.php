@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\fmt;
 
 class StringFormatter extends Formatter {
-  protected $buffer = '';
+  protected string $buffer = '';
 
   protected function write(string $str): void {
     $this->buffer .= $str;

@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\names;
 
 class Scope {
-  public $table = [];
+  public array $table = [];
 
   public function has_name(string $name): bool {
     return array_key_exists($name, $this->table);

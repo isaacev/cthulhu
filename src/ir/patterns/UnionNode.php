@@ -8,10 +8,10 @@ use Cthulhu\ir\types\UnionType;
 use Cthulhu\ir\types\UnitVariantFields;
 
 class UnionNode extends Node {
-  protected $type;
-  protected $variants = [];
-  protected $has_wildcard = false;
-  protected $is_uncovered = true;
+  protected UnionType $type;
+  protected array $variants = [];
+  protected bool $has_wildcard = false;
+  protected bool $is_uncovered = true;
 
   function __construct(UnionType $type) {
     $this->type = $type;

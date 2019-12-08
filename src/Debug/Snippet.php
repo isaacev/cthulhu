@@ -16,10 +16,10 @@ class Snippet implements Reportable {
   const LINES_BELOW    = 0;
   const UNDERLINE_CHAR = '^';
 
-  public $file;
-  public $location;
-  public $message;
-  public $options;
+  public File $file;
+  public Source\Span $location;
+  public ?string $message;
+  public array $options;
 
   function __construct(File $file, Source\Span $location, ?string $message = null, array $options = []) {
     $this->file     = $file;

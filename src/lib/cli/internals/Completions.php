@@ -5,7 +5,7 @@ namespace Cthulhu\lib\cli\internals;
 use Exception;
 
 class Node {
-  public $to_nodes = [];
+  public array $to_nodes = [];
 
   function __construct(array $to_nodes) {
     $this->to_nodes = $to_nodes;
@@ -25,7 +25,7 @@ class Node {
 }
 
 abstract class GuardedNode extends Node {
-  public $completions = [];
+  public array $completions = [];
 
   function __construct(Node $to_node, array $completions) {
     parent::__construct([ $to_node ]);
@@ -46,7 +46,7 @@ class LiteralNode extends GuardedNode {
 }
 
 class PatternNode extends GuardedNode {
-  public $pattern = '';
+  public string $pattern = '';
 
   function __construct(Node $to_node, string $pattern) {
     parent::__construct($to_node, []);

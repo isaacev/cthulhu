@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\cli;
 
 class Subcommand {
-  public $grammar;
+  public internals\SubcommandGrammar $grammar;
 
   function __construct(string $program_name, string $id, string $description) {
     $this->grammar = new internals\SubcommandGrammar($program_name, $id, $description);

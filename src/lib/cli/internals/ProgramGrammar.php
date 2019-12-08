@@ -6,11 +6,11 @@ use Cthulhu\lib\cli\Lookup;
 use Cthulhu\lib\fmt\StreamFormatter;
 
 class ProgramGrammar {
-  public $name;
-  public $version;
-  public $flags_grammar;
-  public $subcommand_grammars;
-  public $callback;
+  public string $name;
+  public string $version;
+  public FlagsGrammar $flags_grammar;
+  public array $subcommand_grammars;
+  public array $callback;
 
   function __construct(string $name, string $version) {
     $this->name                = $name;

@@ -6,7 +6,7 @@ namespace Cthulhu\ir\names;
  * @param null|RefSymbol $parent
  */
 class RefSymbol extends Symbol {
-  public $parent;
+  public ?RefSymbol $parent;
 
   function __construct(?self $parent) {
     parent::__construct();

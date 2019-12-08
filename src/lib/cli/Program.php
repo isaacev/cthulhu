@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\cli;
 
 class Program {
-  public $grammar;
+  public internals\ProgramGrammar $grammar;
 
   function __construct(string $name, string $version) {
     $this->grammar = new internals\ProgramGrammar($name, $version);

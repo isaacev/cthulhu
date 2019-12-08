@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\patterns;
 
 class VariantPattern extends Pattern {
-  public $name;
-  public $fields;
+  public string $name;
+  public ?VariantFields $fields;
 
   function __construct(string $name, ?VariantFields $fields) {
     $this->name   = $name;

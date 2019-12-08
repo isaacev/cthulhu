@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\cli;
 
 class Lookup {
-  protected $table;
+  protected array $table;
 
   function __construct(array $table) {
     $this->table = $table;

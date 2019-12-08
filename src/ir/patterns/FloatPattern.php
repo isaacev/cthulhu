@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 class FloatPattern extends Pattern {
-  public $value;
+  public float $value;
 
   function __construct(float $value) {
     $this->value = $value;

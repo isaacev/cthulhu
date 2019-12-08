@@ -3,8 +3,8 @@
 namespace Cthulhu\ir\patterns;
 
 class FloatNode extends Node {
-  protected $has_wildcard = false;
-  protected $has_values = [];
+  protected bool $has_wildcard = false;
+  protected array $has_values = [];
 
   function is_covered(): bool {
     return $this->has_wildcard;

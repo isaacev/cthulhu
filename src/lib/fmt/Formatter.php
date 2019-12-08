@@ -6,9 +6,9 @@ abstract class Formatter {
   public const MAX_LINE_LENGTH = 80;
 
   private $col = null;
-  private $tab = [ 0 ];
-  private $applied_styles = [];
-  private $stashed_styles = [];
+  private array $tab = [ 0 ];
+  private array $applied_styles = [];
+  private array $stashed_styles = [];
 
   abstract protected function write(string $str): void;
 

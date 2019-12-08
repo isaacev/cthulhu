@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 class IntPattern extends Pattern {
-  public $value;
+  public int $value;
 
   function __construct(int $value) {
     $this->value = $value;

@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 class StrPattern extends Pattern {
-  public $value;
+  public string $value;
 
   function __construct(string $value) {
     $this->value = $value;

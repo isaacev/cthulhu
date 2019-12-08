@@ -6,7 +6,7 @@ use Cthulhu\lib\fmt;
 use Cthulhu\php\nodes\Reference;
 
 class Builder implements Buildable {
-  private $frames = [];
+  private array $frames = [];
 
   /**
    * Internal methods

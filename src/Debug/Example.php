@@ -7,7 +7,7 @@ use Cthulhu\Parser\Lexer\Lexer;
 use Cthulhu\Source;
 
 class Example implements Reportable {
-  public $example;
+  public string $example;
 
   function __construct(string $example) {
     $this->example = $example;

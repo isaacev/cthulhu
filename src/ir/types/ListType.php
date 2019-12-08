@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\types;
 
 class ListType extends Type {
-  public $element;
+  public ?Type $element;
 
   function __construct(?Type $element = null) {
     $this->element = $element;

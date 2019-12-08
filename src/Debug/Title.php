@@ -6,7 +6,7 @@ use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;
 
 class Title implements Reportable {
-  public $title;
+  public string $title;
 
   function __construct(string $title) {
     $this->title = $title;

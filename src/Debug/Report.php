@@ -5,7 +5,7 @@ namespace Cthulhu\Debug;
 use Cthulhu\lib\fmt\Formatter;
 
 class Report {
-  public $sections;
+  public array $sections;
 
   function __construct(Reportable ...$sections) {
     $this->sections = $sections;

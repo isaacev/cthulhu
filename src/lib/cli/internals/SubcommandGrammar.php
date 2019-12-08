@@ -6,11 +6,14 @@ use Cthulhu\lib\cli\Lookup;
 use Cthulhu\lib\fmt\StreamFormatter;
 
 class SubcommandGrammar implements Describeable {
-  public $program_name;
-  public $id;
-  public $description;
-  public $flags_grammar;
-  public $argument_grammars;
+  public string $program_name;
+  public string $id;
+  public string $description;
+  public FlagsGrammar $flags_grammar;
+  public array $argument_grammars;
+  /**
+   * @var callable
+   */
   public $callback;
 
   function __construct(string $program_name, string $id, string $description) {

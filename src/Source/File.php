@@ -3,8 +3,8 @@
 namespace Cthulhu\Source;
 
 class File {
-  public $filepath;
-  public $contents;
+  public string $filepath;
+  public string $contents;
 
   function __construct(string $filepath, string $contents) {
     $this->filepath = $filepath;

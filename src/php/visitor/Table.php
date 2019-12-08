@@ -5,8 +5,8 @@ namespace Cthulhu\php\visitor;
 use Exception;
 
 class Table {
-  protected $postorder_callbacks = [];
-  protected $preorder_callbacks = [];
+  protected array $postorder_callbacks = [];
+  protected array $preorder_callbacks = [];
 
   function __construct(array $callbacks) {
     foreach ($callbacks as $selector => $callback) {

@@ -5,8 +5,8 @@ namespace Cthulhu\Parser\Lexer;
 use Cthulhu\Source;
 
 class Character {
-  public $char;
-  public $point;
+  public string $char;
+  public Source\Point $point;
 
   function __construct(string $char, Source\Point $point) {
     $this->char  = $char;

@@ -3,8 +3,8 @@
 namespace Cthulhu\php\names;
 
 class Scope {
-  protected $names = [];
-  protected $tmp_generator;
+  protected array $names = [];
+  protected \Generator $tmp_generator;
 
   function __construct() {
     $this->tmp_generator = self::generate_tmp_var_name();

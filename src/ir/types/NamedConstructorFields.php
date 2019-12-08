@@ -3,10 +3,9 @@
 namespace Cthulhu\ir\types;
 
 class NamedConstructorFields extends ConstructorFields {
-  public $mapping;
+  public array $mapping;
 
   /**
-   * NamedConstructorFields constructor.
    * @param Type[] $mapping
    */
   function __construct(array $mapping) {

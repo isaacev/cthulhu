@@ -3,9 +3,9 @@
 namespace Cthulhu\ir\patterns;
 
 class BoolNode extends Node {
-  protected $has_wildcard = false;
-  protected $has_true = false;
-  protected $has_false = false;
+  protected bool $has_wildcard = false;
+  protected bool $has_true = false;
+  protected bool $has_false = false;
 
   function is_covered(): bool {
     return $this->has_wildcard || ($this->has_true && $this->has_false);

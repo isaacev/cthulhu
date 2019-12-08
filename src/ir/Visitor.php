@@ -21,7 +21,7 @@ class Visitor {
 }
 
 class CallbackTable {
-  private $callbacks = [];
+  private array $callbacks = [];
 
   function __construct(array $callbacks) {
     foreach ($callbacks as $selector => $callback) {

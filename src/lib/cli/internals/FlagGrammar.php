@@ -3,9 +3,9 @@
 namespace Cthulhu\lib\cli\internals;
 
 abstract class FlagGrammar implements Describeable {
-  protected $id;
-  protected $short;
-  protected $description;
+  protected string $id;
+  protected ?string $short;
+  protected string $description;
 
   function __construct(string $id, ?string $short, string $description) {
     $this->id          = $id;

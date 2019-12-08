@@ -3,10 +3,9 @@
 namespace Cthulhu\ir\types;
 
 class OrderedConstructorFields extends ConstructorFields {
-  public $order;
+  public array $order;
 
   /**
-   * OrderedConstructorFields constructor.
    * @param Type[] $order
    */
   function __construct(array $order) {

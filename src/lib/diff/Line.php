@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\diff;
 
 abstract class Line {
-  protected $text;
+  protected string $text;
 
   function __construct(string $text) {
     $this->text = $text;

@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\cli\internals;
 
 class IntFlagGrammar extends FlagGrammar {
-  public $arg_name;
+  public string $arg_name;
 
   function __construct(string $id, ?string $short, string $description, string $arg_name) {
     parent::__construct($id, $short, $description);

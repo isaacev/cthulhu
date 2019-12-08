@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\cli\internals;
 
 class FlagsGrammar {
-  public $flags;
+  public array $flags = [];
 
   function add(FlagGrammar $flag) {
     $this->flags[] = $flag;

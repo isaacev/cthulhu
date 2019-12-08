@@ -3,8 +3,8 @@
 namespace Cthulhu\ir;
 
 trait GenerateId {
-  private static $next_id = 1;
-  protected $id;
+  private static int $next_id = 1;
+  protected int $id;
 
   function __construct() {
     $this->id = self::$next_id++;

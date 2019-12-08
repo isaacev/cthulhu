@@ -8,8 +8,8 @@ use Cthulhu\Source;
 use Exception;
 
 class Error extends Exception {
-  private $title;
-  private $report;
+  private string $title;
+  private Debug\Report $report;
 
   function __construct(string $title) {
     parent::__construct($title);

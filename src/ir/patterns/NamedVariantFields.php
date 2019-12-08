@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 class NamedVariantFields extends VariantFields {
-  public $mapping;
+  public array $mapping;
 
   /**
    * @param Pattern[] $mapping
