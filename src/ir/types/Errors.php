@@ -139,4 +139,16 @@ class Errors {
       ->paragraph("The previous list elements had the type `$unified` but element $ord has the type `$next`:")
       ->snippet($span);
   }
+
+  public static function type_does_not_support_parameters(Source\Span $span, Type $type): Error {
+    return (new Error('type does not support type parameters'))
+      ->paragraph("The type `$type` does not support type-parameters that refine its behavior:")
+      ->snippet($span);
+  }
+
+  public static function wrong_num_type_parameters(Source\Span $span, Type $type, int $wanted, int $found): Error {
+    return (new Error('wrong number of type parameters'))
+      ->paragraph("The type `$type` wanted $wanted type parameters but found $found:")
+      ->snippet($span);
+  }
 }

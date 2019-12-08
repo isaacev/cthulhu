@@ -2,6 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
+/**
+ * @package Cthulhu\ir\nodes
+ * @property-read Name              $name
+ * @property-read ParamNote[]       $params
+ * @property-read VariantDeclNode[] $variants
+ */
 class UnionItem extends Item {
   public Name $name;
   public array $params;
@@ -10,7 +16,7 @@ class UnionItem extends Item {
   /**
    * @param array             $attrs
    * @param Name              $name
-   * @param ParamNote[]
+   * @param ParamNote[]       $params
    * @param VariantDeclNode[] $variants
    */
   function __construct(array $attrs, Name $name, array $params, array $variants) {

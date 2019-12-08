@@ -3,6 +3,7 @@
 namespace Cthulhu\workspace;
 
 use Cthulhu\ast\File;
+use Cthulhu\Errors\Error;
 use Cthulhu\ir\Linker;
 use Cthulhu\ir\Lower;
 
@@ -13,6 +14,10 @@ class LinkPhase {
     $this->syntax_tree = $syntax_tree;
   }
 
+  /**
+   * @return ResolvePhase
+   * @throws Error
+   */
   function link(): ResolvePhase {
     $lib     = Lower::file($this->syntax_tree);
     $ir_tree = Linker::link($lib);

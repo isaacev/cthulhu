@@ -2,22 +2,22 @@
 
 namespace Cthulhu\ir\names;
 
+use Cthulhu\Errors\Error;
 use Cthulhu\ir;
 use Cthulhu\ir\nodes;
-use Exception;
 
 /**
  * Scopes contain mappings from names (typeof string) -> Symbol
  * The names table contains a mapping of node ids (typeof int) -> Symbol
  */
 class Resolve {
-  private $root_scope;
-  private $namespaces = [];
-  private $module_scopes = [];
-  private $func_scopes = [];
-  private $param_scopes = [];
-  private $block_scopes = [];
-  private $ref_symbols = [];
+  private ?Scope $root_scope;
+  private array $namespaces = [];
+  private array $module_scopes = [];
+  private array $func_scopes = [];
+  private array $param_scopes = [];
+  private array $block_scopes = [];
+  private array $ref_symbols = [];
 
   private function make_ref_symbol(nodes\Name $node, ?RefSymbol $parent): RefSymbol {
     $symbol = new RefSymbol($parent);
@@ -132,6 +132,11 @@ class Resolve {
     }
   }
 
+  /**
+   * @param nodes\Program $prog
+   * @throws Error
+   * @noinspection PhpDocRedundantThrowsInspection
+   */
   public static function names(nodes\Program $prog): void {
     $ctx = new self();
 
@@ -218,7 +223,7 @@ class Resolve {
     ir\Visitor::walk($prog, [
       'Name' => function (nodes\Name $name) {
         if ($name->has('symbol') === false) {
-          throw new Exception("missing symbol binding for a name '$name->value' at " . $name->get('span')->from);
+          die("missing symbol binding for a name '$name->value' at " . $name->get('span')->from);
         }
       },
     ]);
@@ -273,6 +278,11 @@ class Resolve {
     $ctx->pop_module_scope();
   }
 
+  /**
+   * @param Resolve       $ctx
+   * @param nodes\UseItem $item
+   * @throws Error
+   */
   private static function use_item(self $ctx, nodes\UseItem $item): void {
     $namespace = $item->ref->extern
       ? $ctx->root_scope()
@@ -384,12 +394,17 @@ class Resolve {
     $ctx->current_module_scope()->add_binding($type_name, $type_symbol);
   }
 
+  /**
+   * @param Resolve         $ctx
+   * @param nodes\UnionItem $item
+   * @throws Error
+   */
   private static function enter_union_item(self $ctx, nodes\UnionItem $item): void {
     $param_scope = new Scope();
     $ctx->push_param_scope($param_scope);
     foreach ($item->params as $param) {
       if ($param_scope->has_name($param->name->value)) {
-        throw new Exception('duplicate parameter');
+        throw Errors::duplicate_union_type_parameter($param->name->get('span'), $param->name);
       } else {
         $type_symbol = $ctx->make_type_symbol($param->name);
         $param_scope->add_binding($param->name->value, $type_symbol);
@@ -471,6 +486,12 @@ class Resolve {
     $ctx->current_block_scope()->add_binding($name, $symbol);
   }
 
+  /**
+   * @param Resolve                             $ctx
+   * @param nodes\NamedVariantConstructorFields $fields
+   * @param ir\Path                             $path
+   * @throws Error
+   */
   private static function named_variant_constructor_fields(self $ctx, nodes\NamedVariantConstructorFields $fields, ir\Path $path): void {
     $expr = $path->parent->node;
     assert($expr instanceof nodes\VariantConstructorExpr);
@@ -488,6 +509,11 @@ class Resolve {
     }
   }
 
+  /**
+   * @param Resolve         $ctx
+   * @param nodes\ParamNote $note
+   * @throws Error
+   */
   private static function param_note(self $ctx, nodes\ParamNote $note): void {
     if ($ctx->has_param_scope() === false) {
       throw Errors::type_param_used_outside_function($note->get('span'));
@@ -502,6 +528,11 @@ class Resolve {
     }
   }
 
+  /**
+   * @param Resolve   $ctx
+   * @param nodes\Ref $ref
+   * @throws Error
+   */
   private static function ref(self $ctx, nodes\Ref $ref): void {
     $is_extern     = $ref->extern;
     $head_segments = $ref->head_segments;

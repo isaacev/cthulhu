@@ -2,25 +2,26 @@
 
 namespace Cthulhu\php;
 
+use Cthulhu\Errors\Error;
 use Cthulhu\ir;
 
 class Lower {
-  private $namespaces = [];
-  private $stmt_stack = [];
-  private $expr_stack = [];
-  private $entry_refs = [];
-  private $match_out_vars = [];
-  private $match_in_vars = [];
-  private $match_arms = [];
-  private $match_tests = [];
+  private array $namespaces = [];
+  private array $stmt_stack = [];
+  private array $expr_stack = [];
+  private array $entry_refs = [];
+  private array $match_out_vars = [];
+  private array $match_in_vars = [];
+  private array $match_arms = [];
+  private array $match_tests = [];
 
   // Name resolution variables
-  private $root_scope;
-  private $namespace_scopes = [];
-  private $namespace_refs = [];
-  private $function_scopes = [];
-  private $function_heads = [];
-  private $block_exit_handlers = [];
+  private names\Scope $root_scope;
+  private array $namespace_scopes = [];
+  private array $namespace_refs = [];
+  private array $function_scopes = [];
+  private array $function_heads = [];
+  private array $block_exit_handlers = [];
 
   function __construct() {
     $this->root_scope = new names\Scope();
@@ -36,10 +37,6 @@ class Lower {
 
   private function pop_block(): nodes\BlockNode {
     return new nodes\BlockNode(array_pop($this->stmt_stack));
-  }
-
-  private function peek_expr(): nodes\Expr {
-    return end($this->expr_stack);
   }
 
   private function push_expr(nodes\Expr $expr): void {
@@ -136,10 +133,10 @@ class Lower {
       } else {
         $current_scope->use_name($candidate);
         $php_symbol = new names\Symbol();
-        $php_var    = new nodes\Variable($candidate, $php_symbol);
-        return $php_var;
+        return new nodes\Variable($candidate, $php_symbol);
       }
     }
+    die('unreachable');
   }
 
   private function php_var_from_string(string $basis): nodes\Variable {
@@ -153,10 +150,10 @@ class Lower {
       } else {
         $current_scope->use_name($candidate);
         $php_symbol = new names\Symbol();
-        $php_var    = new nodes\Variable($candidate, $php_symbol);
-        return $php_var;
+        return new nodes\Variable($candidate, $php_symbol);
       }
     }
+    die('unreachable');
   }
 
   private function rename_ir_name(ir\names\Symbol $ir_symbol, ir\nodes\Name $ir_name): string {
@@ -251,6 +248,12 @@ class Lower {
     return new nodes\FuncHead($php_name, $php_params);
   }
 
+  /**
+   * @param ir\nodes\Program $prog
+   * @return nodes\Program
+   * @throws Error
+   * @noinspection PhpDocRedundantThrowsInspection
+   */
   public static function from(ir\nodes\Program $prog): nodes\Program {
     $ctx = new self();
 
@@ -294,17 +297,17 @@ class Lower {
       'enter(MatchExpr)' => function (ir\nodes\MatchExpr $expr, ir\Path $path) use ($ctx) {
         self::enter_match_expr($ctx, $expr, $path);
       },
-      'exit(MatchExpr)' => function (ir\nodes\MatchExpr $expr) use ($ctx) {
-        self::exit_match_expr($ctx, $expr);
+      'exit(MatchExpr)' => function () use ($ctx) {
+        self::exit_match_expr($ctx);
       },
-      'exit(MatchDiscriminant)' => function (ir\nodes\MatchDiscriminant $node) use ($ctx) {
-        self::exit_match_discriminant($ctx, $node);
+      'exit(MatchDiscriminant)' => function () use ($ctx) {
+        self::exit_match_discriminant($ctx);
       },
       'enter(MatchArm)' => function (ir\nodes\MatchArm $node) use ($ctx) {
         self::enter_match_arm($ctx, $node);
       },
-      'exit(MatchArm)' => function (ir\nodes\MatchArm $node) use ($ctx) {
-        self::exit_match_arm($ctx, $node);
+      'exit(MatchArm)' => function () use ($ctx) {
+        self::exit_match_arm($ctx);
       },
       'enter(MatchHandler)' => function (ir\nodes\MatchHandler $node) use ($ctx) {
         self::enter_match_handler($ctx, $node);
@@ -356,6 +359,10 @@ class Lower {
     return new nodes\Program($ctx->namespaces);
   }
 
+  /**
+   * @param Lower $ctx
+   * @throws Error
+   */
   private static function exit_program(self $ctx): void {
     if (empty($ctx->entry_refs)) {
       throw Errors::no_main_func();
@@ -558,7 +565,7 @@ class Lower {
     }
   }
 
-  private static function exit_match_expr(self $ctx, ir\nodes\MatchExpr $expr): void {
+  private static function exit_match_expr(self $ctx): void {
     $ctx->pop_block_exit_handler();
     array_pop($ctx->match_in_vars);
     $arms = array_pop($ctx->match_arms);
@@ -581,7 +588,7 @@ class Lower {
     $ctx->push_expr(new nodes\VariableExpr(array_pop($ctx->match_out_vars)));
   }
 
-  private static function exit_match_discriminant(self $ctx, ir\nodes\MatchDiscriminant $node): void {
+  private static function exit_match_discriminant(self $ctx): void {
     $expr = $ctx->pop_expr();
 
     if ($expr instanceof nodes\VariableExpr) {
@@ -688,7 +695,7 @@ class Lower {
     array_push($ctx->match_tests, $test);
   }
 
-  private static function exit_match_arm(self $ctx, ir\nodes\MatchArm $node): void {
+  private static function exit_match_arm(self $ctx): void {
     $test    = array_pop($ctx->match_tests);
     $if_stmt = new nodes\IfStmt($test, $ctx->pop_block(), null);
     array_push($ctx->match_arms[count($ctx->match_arms) - 1], $if_stmt);

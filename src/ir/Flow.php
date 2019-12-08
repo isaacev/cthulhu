@@ -2,9 +2,11 @@
 
 namespace Cthulhu\ir;
 
+use Cthulhu\Errors\Error;
+
 class Flow {
-  private $match_types = [];
-  private $coverage_trees = [];
+  private array $match_types = [];
+  private array $coverage_trees = [];
 
   private function push_pattern_tree(types\Type $type) {
     array_push($this->coverage_trees, patterns\Node::from_type($type));
@@ -18,6 +20,11 @@ class Flow {
     return array_pop($this->coverage_trees);
   }
 
+  /**
+   * @param nodes\Program $prog
+   * @throws Error
+   * @noinspection PhpDocRedundantThrowsInspection
+   */
   public static function analyze(nodes\Program $prog): void {
     $ctx = new self();
 
@@ -39,6 +46,11 @@ class Flow {
     $ctx->push_pattern_tree($expr->disc->expr->get('type'));
   }
 
+  /**
+   * @param Flow           $ctx
+   * @param nodes\MatchArm $arm
+   * @throws Error
+   */
   private static function match_arm(self $ctx, nodes\MatchArm $arm): void {
     $type    = end($ctx->match_types);
     $pattern = patterns\Pattern::from($arm->pattern, $type);
@@ -50,6 +62,11 @@ class Flow {
     }
   }
 
+  /**
+   * @param Flow            $ctx
+   * @param nodes\MatchExpr $expr
+   * @throws Error
+   */
   private static function exit_match_expr(self $ctx, nodes\MatchExpr $expr): void {
     array_pop($ctx->match_types);
     $uncovered = $ctx->pop_pattern_tree()->uncovered_patterns();

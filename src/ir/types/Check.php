@@ -2,12 +2,17 @@
 
 namespace Cthulhu\ir\types;
 
+use Cthulhu\Errors\Error;
 use Cthulhu\ir;
 use Cthulhu\ir\names;
 use Cthulhu\ir\nodes;
-use Exception;
+use Cthulhu\Source\Span;
 
 class Check {
+  /**
+   * @param nodes\Name $name
+   * @return names\Symbol
+   */
   private function get_symbol_for_name(nodes\Name $name): names\Symbol {
     if ($symbol = $name->get('symbol')) {
       return $symbol;
@@ -15,6 +20,10 @@ class Check {
     die('no known symbol for name');
   }
 
+  /**
+   * @param names\Symbol $symbol
+   * @return Type
+   */
   private function get_type_for_symbol(names\Symbol $symbol): Type {
     if ($type = $symbol->get('type')) {
       return $type;
@@ -22,10 +31,18 @@ class Check {
     die('symbol has not been type-checked yet');
   }
 
+  /**
+   * @param names\Symbol $symbol
+   * @param Type         $type
+   */
   private function set_type_for_symbol(names\Symbol $symbol, Type $type): void {
     $symbol->set('type', $type);
   }
 
+  /**
+   * @param nodes\Expr $expr
+   * @return Type
+   */
   private function get_type_for_expr(nodes\Expr $expr): Type {
     if ($type = $expr->get('type')) {
       return $type;
@@ -37,10 +54,19 @@ class Check {
     die("expression has not been type-checked yet on line $line in $file");
   }
 
+  /**
+   * @param nodes\Expr $expr
+   * @param Type       $type
+   */
   private function set_type_for_expr(nodes\Expr $expr, Type $type): void {
     $expr->set('type', $type);
   }
 
+  /**
+   * @param nodes\Program $prog
+   * @throws Error
+   * @noinspection PhpDocRedundantThrowsInspection
+   */
   public static function types(nodes\Program $prog): void {
     $ctx = new self();
 
@@ -121,12 +147,17 @@ class Check {
     ir\Visitor::walk($prog, [
       'Expr' => function (nodes\Expr $expr) {
         if ($expr->has('type') === false) {
-          throw new Exception('missing type binding for an expression');
+          die('missing type binding for an expression');
         }
       },
     ]);
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\FuncHead $head
+   * @throws Error
+   */
   private static function enter_func_head(self $ctx, nodes\FuncHead $head): void {
     $type_param_names = [];
     foreach ($head->params as $param) {
@@ -149,9 +180,15 @@ class Check {
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\FuncItem $item
+   * @throws Error
+   */
   private static function exit_func_item(self $ctx, nodes\FuncItem $item): void {
     $symbol               = $ctx->get_symbol_for_name($item->head->name);
     $expected_return_type = $ctx->get_type_for_symbol($symbol)->output;
+    assert($expected_return_type instanceof Type);
 
     $block_type = $ctx->get_type_for_expr($item->body);
     if ($last_stmt = $item->body->last_stmt()) {
@@ -165,6 +202,11 @@ class Check {
     }
   }
 
+  /**
+   * @param Check                $ctx
+   * @param nodes\NativeFuncItem $item
+   * @throws Error
+   */
   private static function exit_native_func_item(self $ctx, nodes\NativeFuncItem $item): void {
     $type_param_names = [];
     foreach ($item->note->inputs as $note) {
@@ -186,6 +228,10 @@ class Check {
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
+  /**
+   * @param Check                $ctx
+   * @param nodes\NativeTypeItem $item
+   */
   private static function exit_native_type_item(self $ctx, nodes\NativeTypeItem $item): void {
     switch ($item->name->value) {
       case 'Str':
@@ -201,12 +247,17 @@ class Check {
         $type = new BoolType();
         break;
       default:
-        throw new Exception('unknown native type');
+        die('unreachable');
     }
 
     $ctx->set_type_for_symbol($item->name->get('symbol'), $type);
   }
 
+  /**
+   * @param Check           $ctx
+   * @param nodes\UnionItem $item
+   * @throws Error
+   */
   private static function exit_union_item(self $ctx, nodes\UnionItem $item): void {
     $params = [];
     foreach ($item->params as $param) {
@@ -233,12 +284,16 @@ class Check {
     }
     $symbol = $item->name->get('symbol');
     assert($symbol instanceof names\RefSymbol);
-    $ref  = self::build_ref_from_symbol($ctx, $symbol);
+    $ref  = self::build_ref_from_symbol($symbol);
     $type = new UnionType($symbol, $ref, $params, $variants);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
-  static function build_ref_from_symbol(self $ctx, names\RefSymbol $tail_symbol): nodes\Ref {
+  /**
+   * @param names\RefSymbol $tail_symbol
+   * @return nodes\Ref
+   */
+  static function build_ref_from_symbol(names\RefSymbol $tail_symbol): nodes\Ref {
     $tail_segment = $tail_symbol->get('node');
     assert($tail_segment instanceof nodes\Name);
 
@@ -254,6 +309,11 @@ class Check {
     return new nodes\Ref(true, $head_segments, $tail_segment);
   }
 
+  /**
+   * @param Check         $ctx
+   * @param nodes\LetStmt $stmt
+   * @throws Error
+   */
   private static function exit_let_stmt(self $ctx, nodes\LetStmt $stmt): void {
     $symbol    = $ctx->get_symbol_for_name($stmt->name);
     $expr_type = $ctx->get_type_for_expr($stmt->expr);
@@ -276,6 +336,12 @@ class Check {
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\MatchArm $arm
+   * @param ir\Path        $path
+   * @throws Error
+   */
   private static function enter_match_arm(self $ctx, nodes\MatchArm $arm, ir\Path $path): void {
     $match_expr = $path->parent->node;
     assert($match_expr instanceof nodes\MatchExpr);
@@ -284,6 +350,12 @@ class Check {
     self::check_pattern($ctx, $pattern, $disc_type);
   }
 
+  /**
+   * @param Check         $ctx
+   * @param nodes\Pattern $pattern
+   * @param Type          $type
+   * @throws Error
+   */
   private static function check_pattern(self $ctx, nodes\Pattern $pattern, Type $type): void {
     switch (true) {
       case $pattern instanceof nodes\VariantPattern:
@@ -296,22 +368,28 @@ class Check {
         self::check_variable_pattern($ctx, $pattern, $type);
         break;
       case $pattern instanceof nodes\StrConstPattern:
-        self::check_str_pattern($ctx, $pattern, $type);
+        self::check_str_pattern($pattern, $type);
         break;
       case $pattern instanceof nodes\FloatConstPattern:
-        self::check_float_pattern($ctx, $pattern, $type);
+        self::check_float_pattern($pattern, $type);
         break;
       case $pattern instanceof nodes\IntConstPattern:
-        self::check_int_pattern($ctx, $pattern, $type);
+        self::check_int_pattern($pattern, $type);
         break;
       case $pattern instanceof nodes\BoolConstPattern:
-        self::check_bool_pattern($ctx, $pattern, $type);
+        self::check_bool_pattern($pattern, $type);
         break;
       default:
         die('unreachable');
     }
   }
 
+  /**
+   * @param Check                $ctx
+   * @param nodes\VariantPattern $pattern
+   * @param Type                 $type
+   * @throws Error
+   */
   private static function check_variant_pattern(self $ctx, nodes\VariantPattern $pattern, Type $type): void {
     assert($type instanceof UnionType);
 
@@ -342,39 +420,74 @@ class Check {
     }
   }
 
+  /**
+   * @param Check                 $ctx
+   * @param nodes\WildcardPattern $pattern
+   * @param Type                  $type
+   */
   private static function check_wildcard_pattern(self $ctx, nodes\WildcardPattern $pattern, Type $type): void {
     // do nothing
   }
 
+  /**
+   * @param Check                 $ctx
+   * @param nodes\VariablePattern $pattern
+   * @param Type                  $type
+   */
   private static function check_variable_pattern(self $ctx, nodes\VariablePattern $pattern, Type $type): void {
     $symbol = $ctx->get_symbol_for_name($pattern->name);
     $ctx->set_type_for_symbol($symbol, $type);
   }
 
-  private static function check_str_pattern(self $ctx, nodes\StrConstPattern $pattern, Type $type): void {
+  /**
+   * @param nodes\StrConstPattern $pattern
+   * @param Type                  $type
+   * @throws Error
+   */
+  private static function check_str_pattern(nodes\StrConstPattern $pattern, Type $type): void {
     if (StrType::matches($type) === false) {
       throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
-  private static function check_float_pattern(self $ctx, nodes\FloatConstPattern $pattern, Type $type): void {
+  /**
+   * @param nodes\FloatConstPattern $pattern
+   * @param Type                    $type
+   * @throws Error
+   */
+  private static function check_float_pattern(nodes\FloatConstPattern $pattern, Type $type): void {
     if (FloatType::matches($type) === false) {
       throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
-  private static function check_int_pattern(self $ctx, nodes\IntConstPattern $pattern, Type $type): void {
+  /**
+   * @param nodes\IntConstPattern $pattern
+   * @param Type                  $type
+   * @throws Error
+   */
+  private static function check_int_pattern(nodes\IntConstPattern $pattern, Type $type): void {
     if (IntType::matches($type) === false) {
       throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
-  private static function check_bool_pattern(self $ctx, nodes\BoolConstPattern $pattern, Type $type): void {
+  /**
+   * @param nodes\BoolConstPattern $pattern
+   * @param Type                   $type
+   * @throws Error
+   */
+  private static function check_bool_pattern(nodes\BoolConstPattern $pattern, Type $type): void {
     if (BoolType::matches($type) === false) {
       throw Errors::incompatible_pattern($pattern->get('span'), $type);
     }
   }
 
+  /**
+   * @param Check           $ctx
+   * @param nodes\MatchExpr $expr
+   * @throws Error
+   */
   private static function exit_match_expr(self $ctx, nodes\MatchExpr $expr): void {
     assert(empty($expr->arms) === false);
 
@@ -396,6 +509,11 @@ class Check {
     $ctx->set_type_for_expr($expr, $match_type);
   }
 
+  /**
+   * @param Check        $ctx
+   * @param nodes\IfExpr $expr
+   * @throws Error
+   */
   private static function exit_if_expr(self $ctx, nodes\IfExpr $expr): void {
     $cond_type = $ctx->get_type_for_expr($expr->cond);
     if (BoolType::does_not_match($cond_type)) {
@@ -426,6 +544,11 @@ class Check {
     }
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\CallExpr $expr
+   * @throws Error
+   */
   private static function exit_call_expr(self $ctx, nodes\CallExpr $expr): void {
     /**
      * 1.
@@ -481,18 +604,25 @@ class Check {
         if ($attempt = $unification->unify($component)) {
           $unification = $attempt;
         } else {
-          $span = $expr->get('span');
-          $name = $ctx->symbol_to_name->get_by_id($symbol_id);
-          throw Errors::unsolvable_type_parameter($span, $name, $unification, $component);
+          die('type parameter solving needs to be rewritten for both function types and union types');
+          // $span = $expr->get('span');
+          // $name = $ctx->symbol_to_name->get_by_id($symbol_id);
+          // throw Errors::unsolvable_type_parameter($span, $name, $unification, $component);
         }
       }
       $type_param_solutions[$symbol_id] = $unification;
     }
 
-    $concrete_callee_type = self::bind_type_params($ctx, $parameterized_callee_type, $type_param_solutions);
+    $concrete_callee_type = self::bind_type_params($parameterized_callee_type, $type_param_solutions);
     $ctx->set_type_for_expr($expr, $concrete_callee_type->output);
   }
 
+  /**
+   * @param Check $ctx
+   * @param array $components
+   * @param Type  $param
+   * @param Type  $arg
+   */
   private static function find_type_param_components(self $ctx, array &$components, Type $param, Type $arg): void {
     switch (true) {
       case $param instanceof ParamType:
@@ -533,10 +663,20 @@ class Check {
     }
   }
 
-  private static function bind_type_params(self $ctx, Type $parameterized, array $solutions): Type {
+  /**
+   * @param Type  $parameterized
+   * @param array $solutions
+   * @return Type
+   */
+  private static function bind_type_params(Type $parameterized, array $solutions): Type {
     return $parameterized->bind_parameters($solutions);
   }
 
+  /**
+   * @param Check            $ctx
+   * @param nodes\BinaryExpr $expr
+   * @throws Error
+   */
   private static function exit_binary_expr(self $ctx, nodes\BinaryExpr $expr): void {
     $lhs = $ctx->get_type_for_expr($expr->left);
     $rhs = $ctx->get_type_for_expr($expr->right);
@@ -548,6 +688,11 @@ class Check {
     }
   }
 
+  /**
+   * @param Check           $ctx
+   * @param nodes\UnaryExpr $expr
+   * @throws Error
+   */
   private static function exit_unary_expr(self $ctx, nodes\UnaryExpr $expr): void {
     $rhs = $ctx->get_type_for_expr($expr->right);
     $op  = $expr->op;
@@ -558,6 +703,11 @@ class Check {
     }
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\ListExpr $expr
+   * @throws Error
+   */
   private static function exit_list_expr(self $ctx, nodes\ListExpr $expr): void {
     $unified_type = null;
     foreach ($expr->elements as $index => $element_expr) {
@@ -584,6 +734,11 @@ class Check {
     $ctx->set_type_for_expr($expr, $type);
   }
 
+  /**
+   * @param Check                        $ctx
+   * @param nodes\VariantConstructorExpr $expr
+   * @throws Error
+   */
   private static function exit_variant_constructor_expr(self $ctx, nodes\VariantConstructorExpr $expr): void {
     $variant_symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
     assert($variant_symbol instanceof names\RefSymbol);
@@ -631,7 +786,7 @@ class Check {
           $args   = $arg_type->order;
         }
 
-        $inferences          = self::infer_stuff($params, $args);
+        $inferences          = self::infer_stuff($expr->get('span'), $params, $args);
         $concrete_union_type = $union_type->bind_parameters($inferences);
         $ctx->set_type_for_expr($expr, $concrete_union_type);
       } else {
@@ -645,12 +800,13 @@ class Check {
   }
 
   /**
+   * @param Span   $span
    * @param Type[] $params
    * @param Type[] $args
    * @return Type[]
-   * @throws Exception
+   * @throws Error
    */
-  private static function infer_stuff(array $params, array $args): array {
+  private static function infer_stuff(Span $span, array $params, array $args): array {
     assert(count($params) === count($args));
     $inferences = [];
     $queue      = array_map(null, $params, $args);
@@ -668,7 +824,7 @@ class Check {
           $prev_solution = $inferences[$id];
           assert($prev_solution instanceof Type);
           if (!($inferences[$id] = $prev_solution->unify($arg))) {
-            throw new Exception("unable to unify $prev_solution and $arg");
+            throw Errors::unsolvable_type_parameter($span, $param->name, $prev_solution, $arg);
           }
         } else {
           $inferences[$id] = $arg;
@@ -691,32 +847,56 @@ class Check {
     return $inferences;
   }
 
+  /**
+   * @param Check         $ctx
+   * @param nodes\RefExpr $expr
+   */
   private static function ref_expr(self $ctx, nodes\RefExpr $expr): void {
     $symbol = $ctx->get_symbol_for_name($expr->ref->tail_segment);
     $type   = $ctx->get_type_for_symbol($symbol);
     $ctx->set_type_for_expr($expr, $type);
   }
 
+  /**
+   * @param Check            $ctx
+   * @param nodes\StrLiteral $expr
+   */
   private static function str_literal(self $ctx, nodes\StrLiteral $expr): void {
     $type = new StrType();
     $ctx->set_type_for_expr($expr, $type);
   }
 
+  /**
+   * @param Check              $ctx
+   * @param nodes\FloatLiteral $expr
+   */
   private static function float_literal(self $ctx, nodes\FloatLiteral $expr): void {
     $type = new FloatType();
     $ctx->set_type_for_expr($expr, $type);
   }
 
+  /**
+   * @param Check            $ctx
+   * @param nodes\IntLiteral $expr
+   */
   private static function int_literal(self $ctx, nodes\IntLiteral $expr): void {
     $type = new IntType();
     $ctx->set_type_for_expr($expr, $type);
   }
 
+  /**
+   * @param Check             $ctx
+   * @param nodes\BoolLiteral $expr
+   */
   private static function bool_literal(self $ctx, nodes\BoolLiteral $expr): void {
     $type = new BoolType();
     $ctx->set_type_for_expr($expr, $type);
   }
 
+  /**
+   * @param Check       $ctx
+   * @param nodes\Block $block
+   */
   private static function exit_block(self $ctx, nodes\Block $block): void {
     $last_stmt = $block->last_stmt();
     if ($last_stmt instanceof nodes\ReturnStmt) {
@@ -727,6 +907,12 @@ class Check {
     }
   }
 
+  /**
+   * @param Check      $ctx
+   * @param nodes\Note $note
+   * @return Type
+   * @throws Error
+   */
   private static function note_to_type(self $ctx, nodes\Note $note): Type {
     switch (true) {
       case $note instanceof nodes\FuncNote:
@@ -746,6 +932,12 @@ class Check {
     }
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\FuncNote $note
+   * @return Type
+   * @throws Error
+   */
   private static function func_note_to_type(self $ctx, nodes\FuncNote $note): Type {
     $inputs = [];
     foreach ($note->inputs as $input) {
@@ -755,15 +947,29 @@ class Check {
     return new FuncType($inputs, $output);
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\NameNote $note
+   * @return Type
+   */
   private static function name_note_to_type(self $ctx, nodes\NameNote $note): Type {
     $symbol = $ctx->get_symbol_for_name($note->ref->tail_segment);
     return $ctx->get_type_for_symbol($symbol);
   }
 
+  /**
+   * @return Type
+   */
   private static function unit_note_to_type(): Type {
     return new UnitType();
   }
 
+  /**
+   * @param Check          $ctx
+   * @param nodes\ListNote $note
+   * @return Type
+   * @throws Error
+   */
   private static function list_note_to_type(self $ctx, nodes\ListNote $note): Type {
     $elements = $note->elements
       ? self::note_to_type($ctx, $note->elements)
@@ -771,12 +977,23 @@ class Check {
     return new ListType($elements);
   }
 
+  /**
+   * @param Check           $ctx
+   * @param nodes\ParamNote $note
+   * @return Type
+   */
   private static function param_note_to_type(self $ctx, nodes\ParamNote $note): Type {
     $symbol = $ctx->get_symbol_for_name($note->name);
     assert($symbol instanceof names\TypeSymbol);
     return new ParamType($symbol, $note->name, null);
   }
 
+  /**
+   * @param Check                   $ctx
+   * @param nodes\ParameterizedNote $note
+   * @return Type
+   * @throws Error
+   */
   private static function parameterized_note_to_type(self $ctx, nodes\ParameterizedNote $note): Type {
     // TODO
     // 1. resolve root to type
@@ -785,14 +1002,14 @@ class Check {
 
     $inner_type = self::note_to_type($ctx, $note->inner);
     if (($inner_type instanceof TypeSupportingParameters) === false) {
-      throw new Exception("cannot parameterize the type `$inner_type`");
+      throw Errors::type_does_not_support_parameters($note->get('span'), $inner_type);
     }
 
     assert($inner_type instanceof UnionType);
     $wanted_total_params = $inner_type->total_parameters();
     $found_total_params  = count($note->params);
     if ($inner_type->total_parameters() !== count($note->params)) {
-      throw new Exception("expected $wanted_total_params parameters, found $found_total_params");
+      throw Errors::wrong_num_type_parameters($note->get('span'), $inner_type, $wanted_total_params, $found_total_params);
     }
 
     $replacements = [];

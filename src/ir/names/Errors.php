@@ -25,6 +25,12 @@ class Errors {
       ->snippet($span);
   }
 
+  public static function duplicate_union_type_parameter(Source\Span $span, nodes\Name $name): Error {
+    return (new Error('duplicate type parameter'))
+      ->paragraph("Found a duplicate type parameter named `$name`:")
+      ->snippet($span);
+  }
+
   public static function unknown_namespace_field(Source\Span $span, nodes\Name $name): Error {
     return (new Error('unknown field'))
       ->paragraph("Reference to an unknown field in a namespace.")

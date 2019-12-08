@@ -3,8 +3,14 @@
 namespace Cthulhu\ir;
 
 use Cthulhu\ast;
+use Cthulhu\Errors\Error;
 
 class Lower {
+  /**
+   * @param ast\File $file
+   * @return nodes\Library
+   * @throws Error
+   */
   public static function file(ast\File $file): nodes\Library {
     $name  = new nodes\Name($file->file->basename());
     $items = self::items($file->items);
@@ -12,12 +18,9 @@ class Lower {
   }
 
   /**
-   * Lower item nodes
-   */
-
-  /**
    * @param ast\Item[] $items
    * @return nodes\Item[]
+   * @throws Error
    */
   private static function items(array $items): array {
     $_items = [];
@@ -27,6 +30,11 @@ class Lower {
     return $_items;
   }
 
+  /**
+   * @param ast\Item $item
+   * @return nodes\Item
+   * @throws Error
+   */
   private static function item(ast\Item $item): nodes\Item {
     switch (true) {
       case $item instanceof ast\ModItem:
@@ -46,6 +54,11 @@ class Lower {
     }
   }
 
+  /**
+   * @param ast\ModItem $item
+   * @return nodes\ModItem
+   * @throws Error
+   */
   private static function mod_item(ast\ModItem $item): nodes\ModItem {
     $attrs = self::attrs($item->attrs);
     $name  = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
@@ -59,6 +72,11 @@ class Lower {
     return (new nodes\UseItem($ref, $attrs))->set('span', $item->span);
   }
 
+  /**
+   * @param ast\FnItem $item
+   * @return nodes\FuncItem
+   * @throws Error
+   */
   private static function func_item(ast\FnItem $item): nodes\FuncItem {
     $attrs  = self::attrs($item->attrs);
     $name   = (new nodes\Name($item->name->ident))->set('span', $item->name->span);
@@ -141,6 +159,11 @@ class Lower {
     return (new nodes\UnitVariantDeclNode($name))->set('span', $variant->span);
   }
 
+  /**
+   * @param ast\Stmt $stmt
+   * @return nodes\Stmt
+   * @throws Error
+   */
   private static function stmt(ast\Stmt $stmt): nodes\Stmt {
     switch (true) {
       case $stmt instanceof ast\LetStmt:
@@ -154,6 +177,11 @@ class Lower {
     }
   }
 
+  /**
+   * @param ast\LetStmt $stmt
+   * @return nodes\LetStmt
+   * @throws Error
+   */
   private static function let_stmt(ast\LetStmt $stmt): nodes\LetStmt {
     $name = (new nodes\Name($stmt->name->ident))->set('span', $stmt->name->span);
     $note = $stmt->note ? self::note($stmt->note) : null;
@@ -161,16 +189,31 @@ class Lower {
     return (new nodes\LetStmt($name, $note, $expr))->set('span', $stmt->span);
   }
 
+  /**
+   * @param ast\SemiStmt $stmt
+   * @return nodes\SemiStmt
+   * @throws Error
+   */
   private static function semi_stmt(ast\SemiStmt $stmt): nodes\SemiStmt {
     $expr = self::expr($stmt->expr);
     return (new nodes\SemiStmt($expr))->set('span', $stmt->span);
   }
 
+  /**
+   * @param ast\ExprStmt $stmt
+   * @return nodes\ReturnStmt
+   * @throws Error
+   */
   private static function expr_stmt(ast\ExprStmt $stmt): nodes\ReturnStmt {
     $expr = self::expr($stmt->expr);
     return (new nodes\ReturnStmt($expr))->set('span', $stmt->span);
   }
 
+  /**
+   * @param ast\Expr $expr
+   * @return nodes\Expr
+   * @throws Error
+   */
   private static function expr(ast\Expr $expr): nodes\Expr {
     switch (true) {
       case $expr instanceof ast\MatchExpr:
@@ -196,6 +239,11 @@ class Lower {
     }
   }
 
+  /**
+   * @param ast\MatchExpr $expr
+   * @return nodes\MatchExpr
+   * @throws Error
+   */
   private static function match_expr(ast\MatchExpr $expr): nodes\MatchExpr {
     $disc = (new nodes\MatchDiscriminant(self::expr($expr->disc)))->set('span', $expr->disc->span);
     $arms = [];
@@ -205,12 +253,22 @@ class Lower {
     return (new nodes\MatchExpr($disc, $arms))->set('span', $expr->span);
   }
 
+  /**
+   * @param ast\MatchArm $arm
+   * @return nodes\MatchArm
+   * @throws Error
+   */
   private static function match_arm(ast\MatchArm $arm): nodes\MatchArm {
     $pattern = self::pattern($arm->pattern);
     $handler = (new nodes\MatchHandler(new nodes\ReturnStmt(self::expr($arm->handler))))->set('span', $arm->handler->span);
     return (new nodes\MatchArm($pattern, $handler))->set('span', $arm->span);
   }
 
+  /**
+   * @param ast\Pattern $pattern
+   * @return nodes\Pattern
+   * @throws Error
+   */
   private static function pattern(ast\Pattern $pattern): nodes\Pattern {
     switch (true) {
       case $pattern instanceof ast\VariantPattern:
@@ -226,12 +284,22 @@ class Lower {
     }
   }
 
+  /**
+   * @param ast\VariantPattern $pattern
+   * @return nodes\VariantPattern
+   * @throws Error
+   */
   private static function variant_pattern(ast\VariantPattern $pattern): nodes\VariantPattern {
     $ref    = self::path($pattern->path);
     $fields = self::variant_pattern_fields($pattern->fields);
     return (new nodes\VariantPattern($ref, $fields))->set('span', $pattern->span);
   }
 
+  /**
+   * @param ast\VariantPatternFields|null $fields
+   * @return nodes\VariantPatternFields|null
+   * @throws Error
+   */
   private static function variant_pattern_fields(?ast\VariantPatternFields $fields): ?nodes\VariantPatternFields {
     switch (true) {
       case $fields instanceof ast\NamedVariantPatternFields:
@@ -243,6 +311,11 @@ class Lower {
     }
   }
 
+  /**
+   * @param ast\NamedVariantPatternFields $fields
+   * @return nodes\NamedVariantPatternFields
+   * @throws Error
+   */
   private static function named_variant_pattern_fields(ast\NamedVariantPatternFields $fields): nodes\NamedVariantPatternFields {
     $mapping = [];
     foreach ($fields->mapping as $field) {
@@ -257,12 +330,22 @@ class Lower {
     return (new nodes\NamedVariantPatternFields($mapping))->set('span', $fields->span);
   }
 
+  /**
+   * @param ast\NamedPatternField $field
+   * @return nodes\NamedPatternField
+   * @throws Error
+   */
   private static function named_pattern_field(ast\NamedPatternField $field): nodes\NamedPatternField {
     $name    = (new nodes\Name($field->name->ident))->set('span', $field->name->span);
     $pattern = self::pattern($field->pattern);
     return (new nodes\NamedPatternField($name, $pattern))->set('span', $field->span);
   }
 
+  /**
+   * @param ast\OrderedVariantPatternFields $fields
+   * @return nodes\OrderedVariantPatternFields
+   * @throws Error
+   */
   private static function ordered_variant_pattern_fields(ast\OrderedVariantPatternFields $fields): nodes\OrderedVariantPatternFields {
     $order = [];
     foreach ($fields->order as $index => $pattern) {
@@ -296,6 +379,11 @@ class Lower {
     return (new nodes\WildcardPattern())->set('span', $pattern->span);
   }
 
+  /**
+   * @param ast\IfExpr $expr
+   * @return nodes\IfExpr
+   * @throws Error
+   */
   private static function if_expr(ast\IfExpr $expr): nodes\IfExpr {
     $cond     = self::expr($expr->condition);
     $if_true  = self::block($expr->if_clause);
@@ -303,6 +391,11 @@ class Lower {
     return (new nodes\IfExpr($cond, $if_true, $if_false))->set('span', $expr->span);
   }
 
+  /**
+   * @param ast\CallExpr $expr
+   * @return nodes\CallExpr
+   * @throws Error
+   */
   private static function call_expr(ast\CallExpr $expr): nodes\CallExpr {
     $callee = self::expr($expr->callee);
     $args   = [];
@@ -312,6 +405,11 @@ class Lower {
     return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
   }
 
+  /**
+   * @param ast\VariantConstructorExpr $expr
+   * @return nodes\VariantConstructorExpr
+   * @throws Error
+   */
   private static function variant_constructor_expr(ast\VariantConstructorExpr $expr): nodes\VariantConstructorExpr {
     $ref = self::path($expr->path);
     if ($expr->fields instanceof ast\NamedVariantConstructorFields) {
@@ -333,12 +431,22 @@ class Lower {
     return (new nodes\VariantConstructorExpr($ref, $fields))->set('span', $expr->span);
   }
 
+  /**
+   * @param ast\FieldExprNode $node
+   * @return nodes\FieldExprNode
+   * @throws Error
+   */
   private static function field_expr_node(ast\FieldExprNode $node): nodes\FieldExprNode {
     $name = (new nodes\Name($node->name->ident))->set('span', $node->name->span);
     $expr = self::expr($node->expr);
     return (new nodes\FieldExprNode($name, $expr))->set('span', $node->span);
   }
 
+  /**
+   * @param ast\BinaryExpr $expr
+   * @return nodes\BinaryExpr
+   * @throws Error
+   */
   private static function binary_expr(ast\BinaryExpr $expr): nodes\BinaryExpr {
     $op    = $expr->operator;
     $left  = self::expr($expr->left);
@@ -346,12 +454,22 @@ class Lower {
     return (new nodes\BinaryExpr($op, $left, $right))->set('span', $expr->span);
   }
 
+  /**
+   * @param ast\UnaryExpr $expr
+   * @return nodes\UnaryExpr
+   * @throws Error
+   */
   private static function unary_expr(ast\UnaryExpr $expr): nodes\UnaryExpr {
     $op    = $expr->operator;
     $right = self::expr($expr->operand);
     return (new nodes\UnaryExpr($op, $right))->set('span', $expr->span);
   }
 
+  /**
+   * @param ast\ListExpr $expr
+   * @return nodes\ListExpr
+   * @throws Error
+   */
   private static function list_expr(ast\ListExpr $expr): nodes\ListExpr {
     $elements = [];
     foreach ($expr->elements as $element) {
@@ -486,6 +604,11 @@ class Lower {
     return $_params;
   }
 
+  /**
+   * @param ast\BlockNode $block
+   * @return nodes\Block
+   * @throws Error
+   */
   private static function block(ast\BlockNode $block): nodes\Block {
     $stmts = [];
     foreach ($block->stmts as $stmt) {

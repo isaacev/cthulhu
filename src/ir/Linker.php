@@ -2,6 +2,7 @@
 
 namespace Cthulhu\ir;
 
+use Cthulhu\Errors\Error;
 use Cthulhu\lib\cycle;
 use Cthulhu\Parser;
 use Cthulhu\Source;
@@ -12,8 +13,13 @@ use Cthulhu\Source;
  * cycle is detected, emit an error and stop linking.
  */
 class Linker {
+  /**
+   * @param nodes\Library $first_lib
+   * @return nodes\Program
+   * @throws Error
+   */
   static function link(nodes\Library $first_lib): nodes\Program {
-    // A object to track connections accross a directed graph. By updating this
+    // A object to track connections across a directed graph. By updating this
     // graph with all of the dependency relationships, import cycles can be
     // detected early and a topological ordering for all libraries can be built.
     $graph = new cycle\Graph($first_lib);
@@ -96,6 +102,11 @@ class Linker {
     return realpath(self::STDLIB_DIR . $name . '.cth');
   }
 
+  /**
+   * @param string $name
+   * @return nodes\Library
+   * @throws Error
+   */
   private static function parse(string $name): nodes\Library {
     $absolute_path = self::resolve_name_in_stdlib($name);
     if ($absolute_path === false) {

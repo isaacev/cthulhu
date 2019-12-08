@@ -2,6 +2,7 @@
 
 namespace Cthulhu\workspace;
 
+use Cthulhu\Errors\Error;
 use Cthulhu\ir\names\Resolve;
 use Cthulhu\ir\nodes\Program;
 
@@ -12,6 +13,10 @@ class ResolvePhase {
     $this->ir_tree = $ir_tree;
   }
 
+  /**
+   * @return CheckPhase
+   * @throws Error
+   */
   function resolve(): CheckPhase {
     Resolve::names($this->ir_tree);
     Resolve::validate($this->ir_tree);
