@@ -5,10 +5,10 @@ namespace Cthulhu\ir\patterns;
 use Cthulhu\ir\types;
 
 class OrderedVariantNode extends VariantNode {
-  protected types\OrderedVariantFields $types;
+  protected types\OrderedVariant $types;
   protected array $child_nodes = [];
 
-  function __construct(string $name, types\OrderedVariantFields $types) {
+  function __construct(string $name, types\OrderedVariant $types) {
     parent::__construct($name);
     $this->types = $types;
   }
@@ -48,7 +48,7 @@ class OrderedVariantNode extends VariantNode {
     assert($pattern->fields instanceof OrderedVariantFields);
     foreach ($pattern->fields->order as $index => $sub_pattern) {
       if (!array_key_exists($index, $this->child_nodes)) {
-        $this->child_nodes[$index] = Node::from_type($this->types->get($index));
+        $this->child_nodes[$index] = Node::from_type($this->types->order[$index]);
       }
       $this->child_nodes[$index]->apply($sub_pattern);
     }

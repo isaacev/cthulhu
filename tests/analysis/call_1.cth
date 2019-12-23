@@ -1,5 +1,0 @@
-use ::Io;
-
-fn main() -> () {
-  Io::println();
-}

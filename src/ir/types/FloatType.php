@@ -3,7 +3,11 @@
 namespace Cthulhu\ir\types;
 
 class FloatType extends Type {
-  function apply(string $op, Type ...$operands): ?Type {
+  use traits\NoChildren;
+  use traits\DefaultWalkable;
+  use traits\StaticEquality;
+
+  public function apply_operator(string $op, Type ...$operands): ?Type {
     if (empty($operands)) {
       switch ($op) {
         case '-':
@@ -29,25 +33,18 @@ class FloatType extends Type {
       }
     }
 
-    return parent::apply($op, ...$operands);
+    return parent::apply_operator($op, ...$operands);
   }
 
-  function accepts_as_parameter(Type $other): bool {
-    return self::matches($other);
+  function similar_to(Walkable $other): bool {
+    return $other instanceof self;
   }
 
-  function unify(Type $other): ?Type {
-    if (self::matches($other)) {
-      return new self();
-    }
-    return null;
+  function equals(Type $other): bool {
+    return $other instanceof FloatType;
   }
 
   function __toString(): string {
-    return 'Float';
-  }
-
-  static function matches(Type $other): bool {
-    return $other->unwrap() instanceof self;
+    return "Float";
   }
 }

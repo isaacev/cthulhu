@@ -5,10 +5,10 @@ namespace Cthulhu\ir\patterns;
 use Cthulhu\ir\types;
 
 class NamedVariantNode extends VariantNode {
-  protected types\NamedVariantFields $types;
+  protected types\NamedVariant $types;
   protected array $child_nodes = [];
 
-  function __construct(string $name, types\NamedVariantFields $types) {
+  function __construct(string $name, types\NamedVariant $types) {
     parent::__construct($name);
     $this->types = $types;
   }
@@ -48,7 +48,7 @@ class NamedVariantNode extends VariantNode {
     assert($pattern->fields instanceof NamedVariantFields);
     foreach ($pattern->fields->mapping as $name => $sub_pattern) {
       if (!array_key_exists($name, $this->child_nodes)) {
-        $this->child_nodes[$name] = Node::from_type($this->types->get($name));
+        $this->child_nodes[$name] = Node::from_type($this->types->mapping[$name]);
       }
       $this->child_nodes[$name]->apply($sub_pattern);
     }

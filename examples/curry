@@ -1,0 +1,12 @@
+fn maybe_map(f: 'a -> 'b, m: Maybe('a)) -> Maybe('b) {
+  match m {
+    Maybe::Just(a) => Maybe::Just(f(a)),
+    Maybe::None => Maybe::None,
+  }
+}
+
+#[entry]
+fn main () -> () {
+  let x = Maybe::Just(123);
+  let y: Maybe(Str) = maybe_map(::Fmt::int)(x);
+}

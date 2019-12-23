@@ -1,9 +1,0 @@
-
-  CALL WITH THE WRONG NUMBER OF ARGUMENTS  -----------------------------------
-
-  Expected 1 total arguments, found 0 instead:
-
-    : call_1
-  4 |   Io::println();
-    |   ^^^^^^^^^^^^^
-

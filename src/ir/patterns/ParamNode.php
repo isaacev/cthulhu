@@ -17,7 +17,7 @@ class ParamNode extends Node {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 

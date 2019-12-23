@@ -3,63 +3,42 @@
 namespace Cthulhu\ir\types;
 
 class ListType extends Type {
-  public ?Type $element;
+  use traits\DefaultWalkable;
+  use traits\StaticEquality;
 
-  function __construct(?Type $element = null) {
+  public Type $element;
+
+  function __construct(Type $element) {
     $this->element = $element;
   }
 
-  function is_empty(): bool {
-    return $this->element === null;
+  public function similar_to(Walkable $other): bool {
+    return $other instanceof self;
   }
 
-  function accepts_as_parameter(Type $other): bool {
-    if (self::matches($other)) {
-      $other = $other->unwrap();
-      if ($this->is_empty()) {
-        return $other->is_empty();
-      } else if ($other->is_empty()) {
-        return true;
-      } else {
-        return $this->element->accepts_as_parameter($other->element);
-      }
-    }
-    return false;
-  }
-
-  function unify(Type $other): ?Type {
-    if (self::matches($other)) {
-      $other = $other->unwrap();
-      if ($this->is_empty()) {
-        return $other;
-      } else if ($other->is_empty()) {
-        return $this;
-      } else if ($unified = $this->element->unify($other->element)) {
-        return new self($unified);
-      }
-    }
-    return null;
-  }
-
-  function bind_parameters(array $replacements): Type {
-    if ($this->element) {
-      return new self($this->element->bind_parameters($replacements));
-    }
-    return $this;
+  function equals(Type $other): bool {
+    return (
+      $other instanceof ListType &&
+      $this->element->equals($other->element)
+    );
   }
 
   function __toString(): string {
-    if ($this->is_empty()) {
-      return '[]';
-    }
     return "[$this->element]";
   }
 
-  static function matches(Type $other): bool {
-    return $other->unwrap() instanceof self;
+  /**
+   * @return Type[]
+   */
+  function to_children(): array {
+    return [ $this->element ];
   }
 
-  static function does_not_match(Type $other): bool {
-    return self::matches($other) === false;
+  /**
+   * @param Type[] $children
+   * @return $this
+   */
+  function from_children(array $children): ListType {
+    return new ListType($children[0]);
   }
 }

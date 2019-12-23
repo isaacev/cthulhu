@@ -9,11 +9,11 @@ abstract class Pattern {
   abstract function __toString(): string;
 
   static function from(nodes\Pattern $pattern, types\Type $type): self {
-    $type = $type->unwrap();
     if ($pattern instanceof nodes\VariantPattern) {
-      assert($type instanceof types\UnionType);
-      $form = $type->variants[$pattern->ref->tail_segment->value];
-      if ($form instanceof types\NamedVariantFields) {
+      assert($type instanceof types\NamedType);
+      assert($type->pointer instanceof types\UnionType);
+      $form = $type->pointer->variants[$pattern->ref->tail_segment->value];
+      if ($form instanceof types\NamedVariant) {
         assert($pattern->fields instanceof nodes\NamedVariantPatternFields);
         $mapping = [];
         foreach ($form->mapping as $name => $sub_type) {
@@ -22,7 +22,7 @@ abstract class Pattern {
         }
         $fields = new NamedVariantFields($mapping);
         return new VariantPattern($pattern->ref->tail_segment->value, $fields);
-      } else if ($form instanceof types\OrderedVariantFields) {
+      } else if ($form instanceof types\OrderedVariant) {
         assert($pattern->fields instanceof nodes\OrderedVariantPatternFields);
         $order = [];
         foreach ($form->order as $index => $sub_type) {

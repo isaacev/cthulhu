@@ -3,26 +3,19 @@
 namespace Cthulhu\ir\types;
 
 class BoolType extends Type {
-  function accepts_as_parameter(Type $other): bool {
-    return self::matches($other);
+  use traits\NoChildren;
+  use traits\DefaultWalkable;
+  use traits\StaticEquality;
+
+  function similar_to(Walkable $other): bool {
+    return $other instanceof self;
   }
 
-  function unify(Type $other): ?Type {
-    if (self::matches($other)) {
-      return new self();
-    }
-    return null;
+  function equals(Type $other): bool {
+    return $other instanceof BoolType;
   }
 
   function __toString(): string {
-    return 'Bool';
-  }
-
-  static function matches(Type $other): bool {
-    return $other->unwrap() instanceof self;
-  }
-
-  static function does_not_match(Type $other): bool {
-    return self::matches($other) === false;
+    return "Bool";
   }
 }

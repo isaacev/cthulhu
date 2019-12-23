@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\types;
 
-class UnitType extends Type {
+class UnknownType extends Type {
   use traits\NoChildren;
   use traits\DefaultWalkable;
   use traits\StaticEquality;
@@ -12,10 +12,10 @@ class UnitType extends Type {
   }
 
   function equals(Type $other): bool {
-    return $other instanceof self;
+    return false;
   }
 
   function __toString(): string {
-    return "()";
+    return "_";
   }
 }

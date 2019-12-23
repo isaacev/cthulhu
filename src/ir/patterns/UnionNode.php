@@ -2,10 +2,10 @@
 
 namespace Cthulhu\ir\patterns;
 
-use Cthulhu\ir\types\NamedVariantFields;
-use Cthulhu\ir\types\OrderedVariantFields;
+use Cthulhu\ir\types\NamedVariant;
+use Cthulhu\ir\types\OrderedVariant;
 use Cthulhu\ir\types\UnionType;
-use Cthulhu\ir\types\UnitVariantFields;
+use Cthulhu\ir\types\UnitVariant;
 
 class UnionNode extends Node {
   protected UnionType $type;
@@ -17,17 +17,17 @@ class UnionNode extends Node {
     $this->type = $type;
     foreach ($type->variants as $name => $form) {
       switch (true) {
-        case $form instanceof UnitVariantFields:
+        case $form instanceof UnitVariant:
           $this->variants[$name] = new UnitVariantNode($name);
           break;
-        case $form instanceof OrderedVariantFields:
+        case $form instanceof OrderedVariant:
           $this->variants[$name] = new OrderedVariantNode($name, $form);
           break;
-        case $form instanceof NamedVariantFields:
+        case $form instanceof NamedVariant:
           $this->variants[$name] = new NamedVariantNode($name, $form);
           break;
         default:
-          assert(false, 'unreachable');
+          die('unreachable');
       }
     }
   }
@@ -52,7 +52,7 @@ class UnionNode extends Node {
     } else if ($pattern instanceof VariantPattern) {
       return $this->variants[$pattern->name]->is_redundant($pattern);
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 

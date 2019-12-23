@@ -69,13 +69,22 @@ class Errors {
       ->snippet($span);
   }
 
-  public static function no_variant_with_name(Source\Span $span, UnionType $union, string $variant_name): Error {
+  public static function no_variant_with_name(Source\Span $span, AliasedType $type, string $variant_name): Error {
     return (new Error('unknown variant'))
-      ->paragraph("A constructor named '$variant_name' was used by the type `$union->name` has no variant with that name.")
+      ->paragraph("A constructor named '$variant_name' was used by the type `$type` has no variant with that name.")
       ->snippet($span);
   }
 
-  public static function wrong_constructor_arguments(Source\Span $span, string $name, VariantFields $expected, ConstructorFields $found): Error {
+  public static function wrong_constructor_argument(Source\Span $span, string $variant_name, Type $expected, Type $found): Error {
+    return (new Error('wrong constructor argument'))
+      ->paragraph("The constructor for the `$variant_name` variant expected the type:")
+      ->example("$expected")
+      ->paragraph("But found the type:")
+      ->example("$found")
+      ->snippet($span);
+  }
+
+  public static function wrong_constructor_arguments(Source\Span $span, string $name, Variant $expected, Variant $found): Error {
     return (new Error('wrong constructor arguments'))
       ->paragraph("The constructor for the `$name` variant expected:")
       ->example(trim($expected))
@@ -109,11 +118,37 @@ class Errors {
       ->snippet($span);
   }
 
+  public static function call_with_too_many_args(Source\Span $span, int $wanted, int $found): Error {
+    return (new Error('function call with too many arguments'))
+      ->paragraph("Expected at most $wanted arguments, found $found instead:")
+      ->snippet($span);
+  }
+
   public static function call_with_wrong_arg_type(Source\Span $span, int $offset, Type $wanted, Type $found): Error {
     $ordinal = $offset + 1;
-    return (new Error('wrong argument type'))
+    $err     = (new Error('wrong argument type'))
       ->paragraph("Expected argument $ordinal to have the type `$wanted`, found type `$found` instead:")
       ->snippet($span);
+
+    if ($wanted instanceof FreeType || $wanted instanceof FixedType) {
+      $err
+        ->paragraph("The type `$wanted` was defined here:")
+        ->snippet($wanted->symbol->get('node')->get('span'), null, [
+          'color' => Foreground::BLUE,
+          'underline' => '~',
+        ]);
+    }
+
+    if ($found instanceof FreeType || $found instanceof FixedType) {
+      $err
+        ->paragraph("The type `$found` was defined here:")
+        ->snippet($found->symbol->get('node')->get('span'), null, [
+          'color' => Foreground::BLUE,
+          'underline' => '~',
+        ]);
+    }
+
+    return $err;
   }
 
   public static function unsolvable_type_parameter(Source\Span $span, nodes\Name $name, Type $unified, Type $component): Error {

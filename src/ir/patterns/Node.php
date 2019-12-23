@@ -14,8 +14,9 @@ abstract class Node {
   abstract function uncovered_patterns(): array;
 
   static function from_type(types\Type $type): self {
-    $type = $type->unwrap();
     switch (true) {
+      case $type instanceof types\NamedType:
+        return self::from_type($type->pointer);
       case $type instanceof types\UnionType:
         return new UnionNode($type);
       case $type instanceof types\StrType:
@@ -26,11 +27,11 @@ abstract class Node {
         return new IntNode();
       case $type instanceof types\BoolType:
         return new BoolNode();
-      case $type instanceof types\ParamType:
+      case $type instanceof types\FreeType:
+      case $type instanceof types\FixedType:
         return new ParamNode();
       default:
-        echo get_class($type) . PHP_EOL;
-        assert(false, 'unknown type');
+        die("unreachable");
     }
   }
 }
