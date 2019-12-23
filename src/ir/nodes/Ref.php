@@ -27,7 +27,7 @@ class Ref extends Node {
   }
 
   function equals(self $other): bool {
-    return "$this" === "$other";
+    return $this->tail_segment->get('symbol')->equals($other->tail_segment->get('symbol'));
   }
 
   function __toString(): string {
