@@ -36,7 +36,7 @@ class BoolNode extends Node {
         $this->has_false = true;
       }
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 

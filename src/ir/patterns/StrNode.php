@@ -27,7 +27,7 @@ class StrNode extends Node {
     } else if ($pattern instanceof StrPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 

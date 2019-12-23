@@ -27,7 +27,7 @@ class FloatNode extends Node {
     } else if ($pattern instanceof FloatPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 

@@ -27,7 +27,7 @@ class IntNode extends Node {
     } else if ($pattern instanceof IntPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      assert(false, 'unreachable');
+      die('unreachable');
     }
   }
 
