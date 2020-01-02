@@ -1,1 +1,322 @@
 rules:
+  digit:
+    - - range: [0, 9]
+
+  lower_letter:
+    - - range: [a, z]
+
+  upper_letter:
+    - - range: [A, Z]
+
+  inline_whitespace:
+    - - literal: "\\s"
+    - - literal: "\\t"
+
+  letter:
+    - - nonterminal: lower_letter
+    - - nonterminal: upper_letter
+
+  alphanumeric:
+    - - nonterminal: digit
+    - - nonterminal: letter
+
+  lower_ident:
+    - - nonterminal: lower_letter
+      - star:
+          - nonterminal: alphanumeric
+
+  upper_ident:
+    - - nonterminal: upper_letter
+      - star:
+          - nonterminal: alphanumeric
+
+  path_head:
+    - - option:
+          - literal: "::"
+          - nonterminal: upper_ident
+          - literal: "::"
+      - star:
+          - nonterminal: upper_ident
+          - literal: "::"
+
+  upper_path:
+    - - nonterminal: path_head
+      - nonterminal: upper_ident
+
+  lower_path:
+    - - nonterminal: path_head
+      - nonterminal: lower_ident
+
+  unit_type:
+    - - literal: "()"
+
+  param_type:
+    - - literal: "'"
+      - nonterminal: lower_ident
+
+  named_type:
+    - - nonterminal: upper_path
+      - option:
+          - literal: "("
+          - nonterminal: type
+          - star:
+              - literal: ","
+              - nonterminal: type
+          - literal: ")"
+
+  grouped_type:
+    - - literal: "("
+      - nonterminal: type
+      - literal: ")"
+
+  list_type:
+    - - literal: "["
+      - nonterminal: type
+      - literal: "]"
+
+  simple_type:
+    - - nonterminal: unit_type
+    - - nonterminal: param_type
+    - - nonterminal: named_type
+    - - nonterminal: grouped_type
+    - - nonterminal: list_type
+
+  function_type:
+    - - nonterminal: simple_type
+      - literal: "->"
+      - nonterminal: type
+
+  type:
+    - - nonterminal: simple_type
+    - - nonterminal: function_type
+
+  string_literal:
+    - - literal: '"'
+      - star:
+          - or:
+              - - nonterminal: inline_whitespace
+              - - nonterminal: alphanumeric
+      - literal: '"'
+
+  float_literal:
+    - - plus:
+          - nonterminal: digit
+      - literal: "."
+      - plus:
+          - nonterminal: digit
+
+  integer_literal:
+    - - plus:
+          - nonterminal: digit
+
+  boolean_literal:
+    - - literal: "true"
+    - - literal: "false"
+
+  literal:
+    - - nonterminal: string_literal
+    - - nonterminal: float_literal
+    - - nonterminal: integer_literal
+    - - nonterminal: boolean_literal
+
+  block:
+    - - literal: "{"
+      - nonterminal: stmts
+      - literal: "}"
+
+  condition:
+    - - nonterminal: expr
+    - - literal: let
+      - nonterminal: pattern
+      - literal: "="
+      - nonterminal: expr
+
+  consequent:
+    - - literal: if
+      - nonterminal: condition
+      - nonterminal: block
+
+  alternative:
+    - - literal: else
+      - nonterminal: consequent
+      - option:
+          - nonterminal: alternative
+    - - literal: else
+      - nonterminal: block
+
+  if_expr:
+    - - nonterminal: consequent
+      - option:
+          - nonterminal: alternative
+
+  literal_pattern:
+    - - nonterminal: literal
+
+  wildcard_pattern:
+    - - literal: "_"
+
+  binding_pattern:
+    - - nonterminal: lower_ident
+
+  pattern_field:
+    - - nonterminal: lower_ident
+      - literal: ":"
+      - nonterminal: pattern
+
+  variant_pattern:
+    - - nonterminal: upper_path
+      - literal: "{"
+      - nonterminal: pattern_field
+      - star:
+          - literal: ","
+          - nonterminal: pattern_field
+      - literal: "}"
+    - - nonterminal: upper_path
+      - literal: "("
+      - nonterminal: pattern
+      - star:
+          - literal: ","
+          - nonterminal: pattern
+      - literal: ")"
+    - - nonterminal: upper_path
+
+  pattern:
+    - - nonterminal: literal_pattern
+    - - nonterminal: wildcard_pattern
+    - - nonterminal: binding_pattern
+    - - nonterminal: variant_pattern
+
+  match_arm_handler:
+    - - nonterminal: expr
+    - - nonterminal: block
+
+  match_arm:
+    - - nonterminal: pattern
+      - literal: "=>"
+      - nonterminal: match_arm_handler
+
+  match_expr:
+    - - literal: match
+      - literal: "{"
+      - plus:
+          - nonterminal: match_arm
+      - literal: "}"
+
+  expr:
+    - - nonterminal: literal
+    - - nonterminal: if_expr
+    - - nonterminal: match_expr
+
+  let_stmt:
+    - - literal: "let"
+      - nonterminal: lower_ident
+      - option:
+          - literal: ":"
+          - nonterminal: type
+      - literal: "="
+      - nonterminal: expr
+
+  expr_stmt:
+    - - nonterminal: expr
+
+  stmt:
+    - - nonterminal: let_stmt
+    - - nonterminal: expr_stmt
+
+  stmts:
+    - - star:
+          - nonterminal: stmt
+          - literal: ";"
+      - option:
+          - nonterminal: stmt
+          - option:
+              - literal: ";"
+
+  use_path_tail:
+    - - nonterminal: lower_ident
+    - - nonterminal: upper_ident
+    - - literal: "*"
+
+  use_item:
+    - - literal: "use"
+      - nonterminal: path_head
+      - nonterminal: use_path_tail
+      - literal: ";"
+
+  mod_item:
+    - - literal: "mod"
+      - nonterminal: upper_ident
+      - literal: "{"
+      - nonterminal: items
+      - literal: "}"
+
+  named_variant_param:
+    - - nonterminal: lower_item
+      - literal: ":"
+      - nonterminal: type
+
+  variant_params:
+    - - literal: "("
+      - nonterminal: type
+      - star:
+          - literal: ","
+          - nonterminal: type
+      - literal: ")"
+    - - literal: "{"
+      - nonterminal: named_variant_param
+      - star:
+          - literal: ","
+          - nonterminal: named_variant_param
+      - literal: "}"
+
+  variant_definition:
+    - - literal: "|"
+      - nonterminal: upper_ident
+      - option:
+          - nonterminal: variant_params
+
+  type_item:
+    - - literal: "type"
+      - nonterminal: upper_ident
+      - literal: "{"
+      - plus:
+          - nonterminal: variant_definition
+      - literal: "}"
+      - literal: ";"
+
+  fn_param:
+    - - nonterminal: lower_ident
+      - literal: ":"
+      - nonterminal: type
+
+  fn_params:
+    - - nonterminal: fn_param
+      - star:
+          - literal: ","
+          - nonterminal: fn_param
+    - - literal: ""
+
+  fn_item:
+    - - literal: "fn"
+      - nonterminal: lower_ident
+      - literal: "("
+      - nonterminal: fn_params
+      - literal: ")"
+      - literal: "->"
+      - nonterminal: type
+      - literal: "{"
+      - nonterminal: stmts
+      - literal: "}"
+
+  item:
+    - - nonterminal: use_item
+    - - nonterminal: mod_item
+    - - nonterminal: type_item
+    - - nonterminal: fn_item
+
+  items:
+    - - star:
+          - nonterminal: item
+
+  source_file:
+    - - nonterminal: items
