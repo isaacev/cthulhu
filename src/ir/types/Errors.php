@@ -69,7 +69,7 @@ class Errors {
       ->snippet($span);
   }
 
-  public static function no_variant_with_name(Source\Span $span, AliasedType $type, string $variant_name): Error {
+  public static function no_variant_with_name(Source\Span $span, NamedType $type, string $variant_name): Error {
     return (new Error('unknown variant'))
       ->paragraph("A constructor named '$variant_name' was used by the type `$type` has no variant with that name.")
       ->snippet($span);
