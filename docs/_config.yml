@@ -1,0 +1,18 @@
+title: Language Specification
+
+permalink: pretty
+
+plugins:
+  - jekyll-katex
+
+collections:
+  spec:
+    output: true
+    permalink: /spec/:title
+
+defaults:
+  - scope:
+      path: ""
+      type: "spec"
+    values:
+      layout: "default"

@@ -1,0 +1,21 @@
+@function pow($base, $exponent) {
+  $raised: 1;
+
+  @if $exponent == 0 {
+    @return 1;
+  }
+
+  @for $i from 1 through abs($exponent) {
+    $raised: $raised * $base;
+  }
+
+  @if $exponent < 0 {
+    @return 1 / $raised;
+  } @else {
+    @return $raised;
+  }
+}
+
+@function major-third($step: 0, $unit: 1rem) {
+  @return $unit * pow(1.25, $step);
+}
