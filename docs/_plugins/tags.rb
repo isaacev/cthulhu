@@ -1,4 +1,6 @@
-$GRAMMAR_BASE_URL = "/grammar"
+def grammar_url
+  "#{Jekyll.sites.first.baseurl}/grammar"
+end
 
 def nl(n = 1)
   "\n" * n
@@ -9,7 +11,7 @@ def sp(n = 1)
 end
 
 def nonterm_with_link(name)
-  "<a href=\"#{$GRAMMAR_BASE_URL}##{name}\">#{name}</a>"
+  "<a href=\"#{grammar_url()}##{name}\">#{name}</a>"
 end
 
 def span_with_class(name, inner)

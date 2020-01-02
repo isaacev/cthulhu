@@ -3,4 +3,4 @@ title: Language Specification
 layout: default
 ---
 
-## [Specification Chapters](/spec)
+## [Specification Chapters]({% link spec.md %})
