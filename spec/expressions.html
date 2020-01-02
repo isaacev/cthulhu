@@ -14,22 +14,22 @@
     <main>
       <article>
         <h1>Expressions</h1>
-        <pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#expr">expr</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#literal">literal</a></span></span>
-       <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#if_expr">if_expr</a></span></span>
-       <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#match_expr">match_expr</a></span></span>
+        <pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#expr">expr</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#literal">literal</a></span></span>
+       <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#if_expr">if_expr</a></span></span>
+       <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#match_expr">match_expr</a></span></span>
 </span></code></pre>
 
 <h2 id="binary-and-unary-operators">Binary and unary operators</h2>
 
 <h2 id="conditions">Conditions</h2>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#block">block</a></span>       <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"{"</span> <span class="nonterminal"><a href="/grammar#stmts">stmts</a></span> <span class="literal">"}"</span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#condition">condition</a></span>   <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#expr">expr</a></span></span>
-              <span class="sym or">|</span> <span class="sequence"><span class="literal">"let"</span> <span class="nonterminal"><a href="/grammar#pattern">pattern</a></span> <span class="literal">"="</span> <span class="nonterminal"><a href="/grammar#expr">expr</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#consequent">consequent</a></span>  <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"if"</span> <span class="nonterminal"><a href="/grammar#condition">condition</a></span> <span class="nonterminal"><a href="/grammar#block">block</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#alternative">alternative</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"else"</span> <span class="nonterminal"><a href="/grammar#consequent">consequent</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#alternative">alternative</a></span></span> <span class="sym rparen">)</span><span class="repeater">?</span></span></span>
-              <span class="sym or">|</span> <span class="sequence"><span class="literal">"else"</span> <span class="nonterminal"><a href="/grammar#block">block</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#if_expr">if_expr</a></span>     <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#consequent">consequent</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#alternative">alternative</a></span></span> <span class="sym rparen">)</span><span class="repeater">?</span></span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#block">block</a></span>       <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"{"</span> <span class="nonterminal"><a href="/cthulhu/grammar#stmts">stmts</a></span> <span class="literal">"}"</span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#condition">condition</a></span>   <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#expr">expr</a></span></span>
+              <span class="sym or">|</span> <span class="sequence"><span class="literal">"let"</span> <span class="nonterminal"><a href="/cthulhu/grammar#pattern">pattern</a></span> <span class="literal">"="</span> <span class="nonterminal"><a href="/cthulhu/grammar#expr">expr</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#consequent">consequent</a></span>  <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"if"</span> <span class="nonterminal"><a href="/cthulhu/grammar#condition">condition</a></span> <span class="nonterminal"><a href="/cthulhu/grammar#block">block</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#alternative">alternative</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"else"</span> <span class="nonterminal"><a href="/cthulhu/grammar#consequent">consequent</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#alternative">alternative</a></span></span> <span class="sym rparen">)</span><span class="repeater">?</span></span></span>
+              <span class="sym or">|</span> <span class="sequence"><span class="literal">"else"</span> <span class="nonterminal"><a href="/cthulhu/grammar#block">block</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#if_expr">if_expr</a></span>     <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#consequent">consequent</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#alternative">alternative</a></span></span> <span class="sym rparen">)</span><span class="repeater">?</span></span></span>
 </span></code></pre>
 
 <h3 id="if-let-conditions">If-let conditions</h3>
@@ -71,10 +71,10 @@ match thing {
 
 <h2 id="match-expressions">Match expressions</h2>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#match_arm_handler">match_arm_handler</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#expr">expr</a></span></span>
-                    <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#block">block</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#match_arm">match_arm</a></span>         <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#pattern">pattern</a></span> <span class="literal">"=&gt;"</span> <span class="nonterminal"><a href="/grammar#match_arm_handler">match_arm_handler</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#match_expr">match_expr</a></span>        <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"match"</span> <span class="literal">"{"</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#match_arm">match_arm</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span> <span class="literal">"}"</span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#match_arm_handler">match_arm_handler</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#expr">expr</a></span></span>
+                    <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#block">block</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#match_arm">match_arm</a></span>         <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#pattern">pattern</a></span> <span class="literal">"=&gt;"</span> <span class="nonterminal"><a href="/cthulhu/grammar#match_arm_handler">match_arm_handler</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#match_expr">match_expr</a></span>        <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"match"</span> <span class="literal">"{"</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#match_arm">match_arm</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span> <span class="literal">"}"</span></span>
 </span></code></pre>
 
 <p>See the <a href="/cthulhu/spec/patterns">Patterns chapter</a> for information about how to construct patterns.</p>

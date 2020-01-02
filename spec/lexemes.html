@@ -16,15 +16,15 @@
         <h1>Lexemes</h1>
         <h2 id="identifiers">Identifiers</h2>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#digit">digit</a></span>        <span class="sym defined-as">::=</span> <span class="sequence"><span class="range"><span class="literal">"0"</span> <span class="sym ellipsis">&hellip;</span> <span class="literal">"9"</span></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#lower_letter">lower_letter</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="range"><span class="literal">"a"</span> <span class="sym ellipsis">&hellip;</span> <span class="literal">"z"</span></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#upper_letter">upper_letter</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="range"><span class="literal">"A"</span> <span class="sym ellipsis">&hellip;</span> <span class="literal">"Z"</span></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#letter">letter</a></span>       <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#lower_letter">lower_letter</a></span></span>
-               <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#upper_letter">upper_letter</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#alphanumeric">alphanumeric</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#digit">digit</a></span></span>
-               <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#letter">letter</a></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#lower_ident">lower_ident</a></span>  <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#lower_letter">lower_letter</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#alphanumeric">alphanumeric</a></span></span> <span class="sym rparen">)</span><span class="repeater">*</span></span></span>
-</span><span class="production"><span class="nonterminal"><a href="/grammar#upper_ident">upper_ident</a></span>  <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#upper_letter">upper_letter</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#alphanumeric">alphanumeric</a></span></span> <span class="sym rparen">)</span><span class="repeater">*</span></span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#digit">digit</a></span>        <span class="sym defined-as">::=</span> <span class="sequence"><span class="range"><span class="literal">"0"</span> <span class="sym ellipsis">&hellip;</span> <span class="literal">"9"</span></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#lower_letter">lower_letter</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="range"><span class="literal">"a"</span> <span class="sym ellipsis">&hellip;</span> <span class="literal">"z"</span></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#upper_letter">upper_letter</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="range"><span class="literal">"A"</span> <span class="sym ellipsis">&hellip;</span> <span class="literal">"Z"</span></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#letter">letter</a></span>       <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#lower_letter">lower_letter</a></span></span>
+               <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#upper_letter">upper_letter</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#alphanumeric">alphanumeric</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#digit">digit</a></span></span>
+               <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#letter">letter</a></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#lower_ident">lower_ident</a></span>  <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#lower_letter">lower_letter</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#alphanumeric">alphanumeric</a></span></span> <span class="sym rparen">)</span><span class="repeater">*</span></span></span>
+</span><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#upper_ident">upper_ident</a></span>  <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#upper_letter">upper_letter</a></span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#alphanumeric">alphanumeric</a></span></span> <span class="sym rparen">)</span><span class="repeater">*</span></span></span>
 </span></code></pre>
 
 <p>The language distinguishes between identifiers that start with an upper-case letter and identifiers that start with a lower-case letter.
@@ -46,15 +46,15 @@ type    use
 
 <p>There are literal forms for strings, floating-point numbers, integer numbers, and boolean constants.</p>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#literal">literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#string_literal">string_literal</a></span></span>
-          <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#float_literal">float_literal</a></span></span>
-          <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#integer_literal">integer_literal</a></span></span>
-          <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#boolean_literal">boolean_literal</a></span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#literal">literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#string_literal">string_literal</a></span></span>
+          <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#float_literal">float_literal</a></span></span>
+          <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#integer_literal">integer_literal</a></span></span>
+          <span class="sym or">|</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#boolean_literal">boolean_literal</a></span></span>
 </span></code></pre>
 
 <h3 id="string-literals">String literals</h3>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#string_literal">string_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">`"`</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="choice"><span class="sequence"><span class="nonterminal"><a href="/grammar#inline_whitespace">inline_whitespace</a></span></span> | <span class="sequence"><span class="nonterminal"><a href="/grammar#alphanumeric">alphanumeric</a></span></span></span></span> <span class="sym rparen">)</span><span class="repeater">*</span></span> <span class="literal">`"`</span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#string_literal">string_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">`"`</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="choice"><span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#inline_whitespace">inline_whitespace</a></span></span> | <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#alphanumeric">alphanumeric</a></span></span></span></span> <span class="sym rparen">)</span><span class="repeater">*</span></span> <span class="literal">`"`</span></span>
 </span></code></pre>
 
 <p>String literals are wrapped in double quotes and cannot contain newline characters.
@@ -62,7 +62,7 @@ All string literals are of the type <code class="highlighter-rouge">Str</code>.<
 
 <h3 id="floating-point-literals">Floating-point literals</h3>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#float_literal">float_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#digit">digit</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span> <span class="literal">"."</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#digit">digit</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#float_literal">float_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#digit">digit</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span> <span class="literal">"."</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#digit">digit</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span></span>
 </span></code></pre>
 
 <p>Floating point literals must have 1 or more digits before the decimal point and 1 or more digits after the decimal point.
@@ -70,7 +70,7 @@ All floating point literals are of the type <code class="highlighter-rouge">Floa
 
 <h3 id="integer-literals">Integer literals</h3>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#integer_literal">integer_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#digit">digit</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#integer_literal">integer_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/cthulhu/grammar#digit">digit</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span></span>
 </span></code></pre>
 
 <p>Integer literals have 1 or more digits.
@@ -79,7 +79,7 @@ All integer literals are of the type <code class="highlighter-rouge">Int</code>.
 
 <h3 id="boolean-literals">Boolean literals</h3>
 
-<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/grammar#boolean_literal">boolean_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"true"</span></span>
+<pre class="grammar"><code><span class="production"><span class="nonterminal"><a href="/cthulhu/grammar#boolean_literal">boolean_literal</a></span> <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"true"</span></span>
                   <span class="sym or">|</span> <span class="sequence"><span class="literal">"false"</span></span>
 </span></code></pre>
 
