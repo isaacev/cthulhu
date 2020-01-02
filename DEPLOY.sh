@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-jekyll build
+jekyll build -b /cthulhu
 npx gh-pages -d _site

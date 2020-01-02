@@ -37,7 +37,7 @@
 <p>Sometimes it’s desirable to perform pattern matching on a value with a single pattern without needing the full power of the <code class="highlighter-rouge">match</code> expression.
 For these cases, the if-let expression can be useful.</p>
 
-<p>Instead of a boolean condition, it uses the <code class="highlighter-rouge">let</code> keyword and a single <a href="/spec/patterns">pattern</a>:</p>
+<p>Instead of a boolean condition, it uses the <code class="highlighter-rouge">let</code> keyword and a single <a href="/cthulhu/spec/patterns">pattern</a>:</p>
 
 <pre><code class="language-cth">let thing = Maybe::Just(123);
 
@@ -77,7 +77,7 @@ match thing {
 </span><span class="production"><span class="nonterminal"><a href="/grammar#match_expr">match_expr</a></span>        <span class="sym defined-as">::=</span> <span class="sequence"><span class="literal">"match"</span> <span class="literal">"{"</span> <span class="repeater"><span class="sym lparen">(</span> <span class="sequence"><span class="nonterminal"><a href="/grammar#match_arm">match_arm</a></span></span> <span class="sym rparen">)</span><span class="repeater">+</span></span> <span class="literal">"}"</span></span>
 </span></code></pre>
 
-<p>See the <a href="/spec/patterns">Patterns chapter</a> for information about how to construct patterns.</p>
+<p>See the <a href="/cthulhu/spec/patterns">Patterns chapter</a> for information about how to construct patterns.</p>
 
       </article>
     </main>
