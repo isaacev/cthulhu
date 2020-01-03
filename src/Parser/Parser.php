@@ -443,8 +443,7 @@ class Parser {
       case TokenType::BRACKET_LEFT:
         return $this->list_expr($this->lexer->next());
       case TokenType::PAREN_LEFT:
-        $this->lexer->next();
-        return $this->group_expr();
+        return $this->paren_expr($this->lexer->next());
       case TokenType::UPPER_NAME:
       case TokenType::LOWER_NAME:
       case TokenType::DOUBLE_COLON:
@@ -764,10 +763,17 @@ class Parser {
   }
 
   /**
+   * @param Token $paren_left
    * @return ast\Expr
    * @throws Error
    */
-  private function group_expr(): ast\Expr {
+  private function paren_expr(Token $paren_left): ast\Expr {
+    if ($this->lexer->peek()->type === TokenType::PAREN_RIGHT) {
+      $paren_right = $this->next(TokenType::PAREN_RIGHT);
+      $span        = $paren_left->span->extended_to($paren_right->span);
+      return new ast\UnitExpr($span);
+    }
+
     $expr = $this->expr();
     $this->next(TokenType::PAREN_RIGHT);
     return $expr;

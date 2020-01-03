@@ -129,6 +129,9 @@ class Check {
       'BoolLiteral' => function (nodes\BoolLiteral $expr) use ($ctx) {
         self::bool_literal($ctx, $expr);
       },
+      'UnitExpr' => function (nodes\UnitExpr $expr) use ($ctx) {
+        self::unit_expr($ctx, $expr);
+      },
       'exit(Block)' => function (nodes\Block $block) use ($ctx) {
         self::exit_block($ctx, $block);
       },
@@ -192,14 +195,9 @@ class Check {
     assert($expected_return_type instanceof Type);
 
     $block_type = $ctx->get_type_for_expr($item->body);
-    if ($last_stmt = $item->body->last_stmt()) {
-      $span = $last_stmt->get('span');
-    } else {
-      $span = $item->body->get('span');
-    }
-
     $block_type = Type::replace_unknowns($block_type, $expected_return_type);
     if ($expected_return_type->equals($block_type) === false) {
+      $span = end($item->body->stmts)->get('span');
       throw Errors::wrong_return_type($span, $expected_return_type, $block_type);
     }
   }
@@ -767,17 +765,21 @@ class Check {
   }
 
   /**
+   * @param Check          $ctx
+   * @param nodes\UnitExpr $expr
+   */
+  private static function unit_expr(self $ctx, nodes\UnitExpr $expr): void {
+    $type = new UnitType();
+    $ctx->set_type_for_expr($expr, $type);
+  }
+
+  /**
    * @param Check       $ctx
    * @param nodes\Block $block
    */
   private static function exit_block(self $ctx, nodes\Block $block): void {
-    $last_stmt = $block->last_stmt();
-    if ($last_stmt instanceof nodes\ReturnStmt) {
-      $type = $ctx->get_type_for_expr($last_stmt->expr);
-      $ctx->set_type_for_expr($block, $type);
-    } else {
-      $ctx->set_type_for_expr($block, new UnitType());
-    }
+    $type = $ctx->get_type_for_expr(end($block->stmts)->expr);
+    $ctx->set_type_for_expr($block, $type);
   }
 
   /**

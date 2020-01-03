@@ -10,11 +10,9 @@ class Block extends Expr {
    */
   function __construct(array $stmts) {
     parent::__construct();
+    assert(count($stmts) > 0);
+    assert(end($stmts) instanceof ReturnStmt);
     $this->stmts = $stmts;
-  }
-
-  function last_stmt(): ?Stmt {
-    return empty($this->stmts) ? null : end($this->stmts);
   }
 
   function children(): array {

@@ -13,6 +13,10 @@ class Point {
     $this->column = $column;
   }
 
+  public function prev(): Point {
+    return new Point($this->file, $this->line, max(1, $this->column - 1));
+  }
+
   public function next(string $char = ''): Point {
     if ($char === "\n") {
       return new Point($this->file, $this->line + 1, 1);

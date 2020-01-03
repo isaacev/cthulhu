@@ -5,6 +5,6 @@
   returns the type `()`:
 
     : fn_return_1
-  3 |   x;
-    |   ^^
+  4 | }
+    | ^
 
