@@ -404,6 +404,9 @@ class Lower {
     foreach ($expr->args as $arg) {
       $args[] = self::expr($arg);
     }
+    if (empty($expr->args)) {
+      $args[] = (new nodes\UnitExpr())->set('span', $expr->span);
+    }
     return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
   }
 

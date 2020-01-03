@@ -563,20 +563,21 @@ class Check {
    */
   private static function exit_call_expr(self $ctx, nodes\CallExpr $expr): void {
     $callee_type = $expr->callee->get('type');
-
-    if (empty($expr->args)) {
+    foreach ($expr->args as $index => $arg_expr) {
       if (($callee_type instanceof FuncType) === false) {
-        throw Errors::call_to_non_function($expr->get('span'), $callee_type);
+        throw Errors::call_to_non_function($arg_expr->get('span'), $callee_type);
       }
-      $replacements = Type::infer_free_types($callee_type->input, new UnitType(), $expr->get('span'));
-      $callee_type  = Type::replace_free_types($callee_type->output, $replacements);
-    } else {
-      foreach ($expr->args as $index => $arg_expr) {
-        if (($callee_type instanceof FuncType) === false) {
-          throw Errors::call_to_non_function($arg_expr->get('span'), $callee_type);
-        }
-        $replacements = Type::infer_free_types($callee_type->input, $arg_expr->get('type'), $arg_expr->get('span'));
-        $callee_type  = Type::replace_free_types($callee_type->output, $replacements);
+
+      $arg_type     = $arg_expr->get('type');
+      $arg_span     = $arg_expr->get('span');
+      $replacements = Type::infer_free_types($callee_type->input, $arg_type, $arg_span);
+      $callee_type  = Type::replace_free_types($callee_type, $replacements);
+
+      assert($callee_type instanceof FuncType);
+      if ($callee_type->input->equals($arg_type)) {
+        $callee_type = $callee_type->output;
+      } else {
+        throw Errors::call_with_wrong_arg_type($arg_span, $index, $callee_type->input, $arg_type);
       }
     }
 

@@ -1,0 +1,9 @@
+
+  WRONG ARGUMENT TYPE  -------------------------------------------------------
+
+  Expected argument 1 to have the type `Int`, found type `()` instead:
+
+    : call_2
+  7 |   plus_one();
+    |   ^^^^^^^^^^
+

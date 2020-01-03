@@ -1,0 +1,8 @@
+fn plus_one(i: Int) -> Int {
+  i + 1
+}
+
+#[entry]
+fn main () -> () {
+  plus_one("1");
+}
