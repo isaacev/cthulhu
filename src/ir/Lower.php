@@ -234,7 +234,7 @@ class Lower {
         return self::path_expr($expr);
       case $expr instanceof ast\Literal:
         return self::literal($expr);
-      case $expr instanceof ast\UnitExpr:
+      case $expr instanceof ast\UnitLiteral:
         return self::unit($expr);
       default:
         die('unreachable');
@@ -405,7 +405,7 @@ class Lower {
       $args[] = self::expr($arg);
     }
     if (empty($expr->args)) {
-      $args[] = (new nodes\UnitExpr())->set('span', $expr->span);
+      $args[] = (new nodes\UnitLiteral())->set('span', $expr->span);
     }
     return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
   }
@@ -523,8 +523,8 @@ class Lower {
     return (new nodes\BoolLiteral($value))->set('span', $expr->span);
   }
 
-  private static function unit(ast\UnitExpr $expr): nodes\UnitExpr {
-    return (new nodes\UnitExpr())->set('span', $expr->span);
+  private static function unit(ast\UnitLiteral $expr): nodes\UnitLiteral {
+    return (new nodes\UnitLiteral())->set('span', $expr->span);
   }
 
   private static function note(ast\Annotation $note): nodes\Note {
@@ -626,7 +626,7 @@ class Lower {
 
     if (empty($stmts) || (end($stmts) instanceof nodes\ReturnStmt) === false) {
       $span    = $block->span->to->prev()->to_span();
-      $unit    = (new nodes\UnitExpr())->set('span', $span);
+      $unit    = (new nodes\UnitLiteral())->set('span', $span);
       $stmts[] = (new nodes\ReturnStmt($unit))->set('span', $span);
     }
 

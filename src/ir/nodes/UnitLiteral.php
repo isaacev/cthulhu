@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-class UnitExpr extends Expr {
+class UnitLiteral extends Literal {
   function children(): array {
     return [];
   }

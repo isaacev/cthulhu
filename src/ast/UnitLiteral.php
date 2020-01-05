@@ -2,5 +2,5 @@
 
 namespace Cthulhu\ast;
 
-class UnitExpr extends Expr {
+class UnitLiteral extends Expr {
 }

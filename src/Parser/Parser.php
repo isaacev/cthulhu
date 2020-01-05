@@ -771,7 +771,7 @@ class Parser {
     if ($this->lexer->peek()->type === TokenType::PAREN_RIGHT) {
       $paren_right = $this->next(TokenType::PAREN_RIGHT);
       $span        = $paren_left->span->extended_to($paren_right->span);
-      return new ast\UnitExpr($span);
+      return new ast\UnitLiteral($span);
     }
 
     $expr = $this->expr();

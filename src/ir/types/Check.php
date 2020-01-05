@@ -129,8 +129,8 @@ class Check {
       'BoolLiteral' => function (nodes\BoolLiteral $expr) use ($ctx) {
         self::bool_literal($ctx, $expr);
       },
-      'UnitExpr' => function (nodes\UnitExpr $expr) use ($ctx) {
-        self::unit_expr($ctx, $expr);
+      'UnitLiteral' => function (nodes\UnitLiteral $expr) use ($ctx) {
+        self::unit_literal($ctx, $expr);
       },
       'exit(Block)' => function (nodes\Block $block) use ($ctx) {
         self::exit_block($ctx, $block);
@@ -766,10 +766,10 @@ class Check {
   }
 
   /**
-   * @param Check          $ctx
-   * @param nodes\UnitExpr $expr
+   * @param Check             $ctx
+   * @param nodes\UnitLiteral $expr
    */
-  private static function unit_expr(self $ctx, nodes\UnitExpr $expr): void {
+  private static function unit_literal(self $ctx, nodes\UnitLiteral $expr): void {
     $type = new UnitType();
     $ctx->set_type_for_expr($expr, $type);
   }

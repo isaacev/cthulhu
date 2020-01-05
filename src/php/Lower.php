@@ -351,8 +351,8 @@ class Lower {
       'BoolLiteral' => function (ir\nodes\BoolLiteral $expr) use ($ctx) {
         self::bool_literal($ctx, $expr);
       },
-      'UnitExpr' => function (ir\nodes\UnitExpr $expr) use ($ctx) {
-        self::unit_expr($ctx, $expr);
+      'UnitLiteral' => function (ir\nodes\UnitLiteral $expr) use ($ctx) {
+        self::unit_literal($ctx, $expr);
       },
       'Block' => function () use ($ctx) {
         self::block($ctx);
@@ -843,7 +843,7 @@ class Lower {
     $ctx->push_expr($php_expr);
   }
 
-  private static function unit_expr(self $ctx, ir\nodes\UnitExpr $expr): void {
+  private static function unit_literal(self $ctx, ir\nodes\UnitLiteral $expr): void {
     $php_expr = new nodes\NullLiteral();
     $ctx->push_expr($php_expr);
   }
