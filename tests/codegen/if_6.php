@@ -5,6 +5,7 @@ namespace if_6 {
   function main() {
     if (true) {
       "hello";
+      null;
     }
     $x = null;
   }
