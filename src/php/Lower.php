@@ -916,7 +916,11 @@ class Lower {
       $php_expr = new nodes\VariableExpr($php_var);
     } else {
       $php_ref   = $ir_symbol->get('php/ref');
-      $is_quoted = !($path->parent && $path->parent->node instanceof ir\nodes\CallExpr);
+      $is_quoted = !(
+        $path->parent &&
+        $path->parent->node instanceof ir\nodes\CallExpr &&
+        $path->parent->node->callee === $expr
+      );
       $php_expr  = new nodes\ReferenceExpr($php_ref, $is_quoted);
     }
     $ctx->push_expr($php_expr);
