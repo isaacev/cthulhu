@@ -1,0 +1,9 @@
+fn foo(a: Int, b: Int, c: Int) -> Int {
+  (a + b) * c
+}
+
+#[entry]
+fn main() -> () {
+  let x = foo(1, 2)(3);
+  ::Io::println(::Fmt::int(x));
+}
