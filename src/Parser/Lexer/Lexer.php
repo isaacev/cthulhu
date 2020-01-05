@@ -86,7 +86,7 @@ class Lexer {
       case $next->is('^'):
         return $this->next_single_char(TokenType::CARET, $next);
       case $next->is('|'):
-        return $this->next_single_char(TokenType::PIPE, $next);
+        return $this->next_single_or_double_char(TokenType::PIPE, '>', TokenType::TRIANGLE, $next);
       case $next->is('#'):
         return $this->next_single_char(TokenType::POUND, $next);
       case $next->is('{'):

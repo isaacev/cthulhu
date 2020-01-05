@@ -473,6 +473,8 @@ class Parser {
       case TokenType::PAREN_LEFT:
       case TokenType::BRACKET_LEFT:
         return $this->call_expr($left);
+      case TokenType::TRIANGLE:
+        return $this->pipe_expr($left);
       case TokenType::PLUS:
       case TokenType::PLUS_PLUS:
       case TokenType::DASH:
@@ -737,6 +739,17 @@ class Parser {
     $paren_right = $this->next(TokenType::PAREN_RIGHT);
     $span        = $callee->span->extended_to($paren_right->span);
     return new ast\CallExpr($span, $callee, $args);
+  }
+
+  /**
+   * @param ast\Expr $left
+   * @return ast\PipeExpr
+   * @throws Error
+   */
+  private function pipe_expr(ast\Expr $left): ast\PipeExpr {
+    $right = $this->expr(Precedence::PIPE);
+    $span  = $left->span->extended_to($right->span);
+    return new ast\PipeExpr($span, $left, $right);
   }
 
   /**
@@ -1051,6 +1064,8 @@ class Parser {
       case TokenType::GREATER_THAN:
       case TokenType::GREATER_THAN_EQ:
         return Precedence::RELATION;
+      case TokenType::TRIANGLE:
+        return Precedence::PIPE;
       default:
         return Precedence::LOWEST;
     }

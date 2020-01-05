@@ -222,6 +222,8 @@ class Lower {
         return self::if_expr($expr);
       case $expr instanceof ast\CallExpr:
         return self::call_expr($expr);
+      case $expr instanceof ast\PipeExpr:
+        return self::pipe_expr($expr);
       case $expr instanceof ast\VariantConstructorExpr:
         return self::variant_constructor_expr($expr);
       case $expr instanceof ast\BinaryExpr:
@@ -416,6 +418,26 @@ class Lower {
     if (empty($expr->args)) {
       $args[] = (new nodes\UnitLiteral())->set('span', $expr->span);
     }
+    return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
+  }
+
+  /**
+   * @param ast\PipeExpr $expr
+   * @return nodes\CallExpr
+   * @throws Error
+   */
+  private static function pipe_expr(ast\PipeExpr $expr): nodes\CallExpr {
+    $left  = self::expr($expr->left);
+    $right = self::expr($expr->right);
+
+    $callee = ($right instanceof nodes\CallExpr)
+      ? $right->callee
+      : $right;
+
+    $args = ($right instanceof nodes\CallExpr)
+      ? array_merge($right->args, [ $left ])
+      : [ $left ];
+
     return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
   }
 

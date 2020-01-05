@@ -25,6 +25,7 @@ abstract class TokenType {
   const UNDERSCORE      = '_';
   const CARET           = '^';
   const PIPE            = '|';
+  const TRIANGLE        = '|>';
   const POUND           = '#';
   const BRACE_LEFT      = '{';
   const BRACE_RIGHT     = '}';
