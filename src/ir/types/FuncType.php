@@ -14,6 +14,13 @@ class FuncType extends Type {
     $this->output = $output;
   }
 
+  function arity(): int {
+    if ($this->output instanceof self) {
+      return 1 + $this->output->arity();
+    }
+    return 1;
+  }
+
   public function similar_to(Walkable $other): bool {
     return $other instanceof self;
   }

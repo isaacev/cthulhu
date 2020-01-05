@@ -1,12 +1,15 @@
-fn maybe_map(f: 'a -> 'b, m: Maybe('a)) -> Maybe('b) {
-  match m {
-    Maybe::Just(a) => Maybe::Just(f(a)),
-    Maybe::None => Maybe::None,
-  }
+fn add(a: Int, b: Int) -> Int {
+  a + b
+}
+
+fn add2(a: Int) -> Int -> Int -> Int {
+  ::Io::println("hello world");
+  add
 }
 
 #[entry]
 fn main () -> () {
-  let x = Maybe::Just(123);
-  let y: Maybe(Str) = maybe_map(::Fmt::int)(x);
+  let x = add2(1);
+  let y = x(2);
+  let z = add2(1, 2);
 }

@@ -47,6 +47,10 @@ class Lower {
     return array_pop($this->expr_stack);
   }
 
+  /**
+   * @param int $n
+   * @return nodes\Expr[]
+   */
   private function pop_exprs(int $n): array {
     $exprs = [];
     while ($n-- > 0) {
@@ -743,12 +747,107 @@ class Lower {
   }
 
   private static function exit_call_expr(self $ctx, ir\nodes\CallExpr $expr): void {
-    $type   = $expr->callee->get('type');
-    $arity  = count($type->inputs);
-    $args   = $ctx->pop_exprs($arity);
-    $callee = $ctx->pop_expr();
-    $expr   = new nodes\CallExpr($callee, $args);
-    $ctx->push_expr($expr);
+    /**
+     * A function call can be compiled in a few different ways:
+     *
+     * 2. A native function call. This solution is clean and efficient but can
+     *    only be used when the compiler is certain that such a call will
+     *    produce correct PHP. This solution can only be used when the callee
+     *    has a known arity.
+     *
+     * 2. An inline closure that wraps available parameters and exposes a
+     *    function interface for providing the rest of the parameters. This
+     *    solution can only be used when the callee has a known arity.
+     *
+     * 3. An inline call to the `curry` function. This solution incurs a runtime
+     *    performance penalty (an extra function call wrapping the *real* call)
+     *    but is necessary at any call-sites where the arity of the callee is
+     *    not known at compile time.
+     */
+
+    $callee_arity = $expr->callee->get('arity');
+    assert($callee_arity instanceof ir\arity\Arity);
+
+    if ($callee_arity instanceof ir\arity\KnownArity) {
+      // Hooray! The callee's arity is known at compile time so solutions #1 and
+      // #2 are available for this call-site.
+      $total_args = count($expr->args);
+      $args       = $ctx->pop_exprs($total_args);
+      $callee     = $ctx->pop_expr();
+      $ctx->push_expr(self::over_applied_call_site($ctx, $callee, $args, $callee_arity));
+    } else {
+      die("curry function not implemented yet\n");
+    }
+  }
+
+  /**
+   * @param self                $ctx
+   * @param nodes\Expr          $callee
+   * @param nodes\Expr[]        $args
+   * @param ir\arity\KnownArity $arity
+   * @return nodes\Expr
+   */
+  private static function under_applied_call_site(self $ctx, nodes\Expr $callee, array $args, ir\arity\KnownArity $arity): nodes\Expr {
+    $func_scope = new names\ClosureScope($ctx->current_function_scope());
+    array_push($ctx->function_scopes, $func_scope);
+
+    /* @var nodes\Variable[] $closure_params */
+    $closure_params = [];
+    $leftover_args  = $arity->params - count($args);
+    for ($i = 0; $i < $leftover_args; $i++) {
+      $var    = $closure_params[] = $ctx->php_tmp_var();
+      $args[] = new nodes\VariableExpr($var);
+    }
+
+    array_pop($ctx->function_scopes);
+    $closure_body = new nodes\CallExpr($callee, $args);
+    return new nodes\ArrowExpr($closure_params, $closure_body);
+  }
+
+  private static function fully_applied_call_site(nodes\Expr $callee, array $args): nodes\Expr {
+    return new nodes\CallExpr($callee, $args);
+  }
+
+  /**
+   * @param self                $ctx
+   * @param nodes\Expr          $callee
+   * @param nodes\Expr[]        $remaining_args
+   * @param ir\arity\KnownArity $arity
+   * @return nodes\Expr
+   */
+  private static function over_applied_call_site(self $ctx, nodes\Expr $callee, array $remaining_args, ir\arity\KnownArity $arity): nodes\Expr {
+    while (count($remaining_args) > 0 && count($remaining_args) >= $arity->params) {
+      if (($arity instanceof ir\arity\KnownArity) === false) {
+        die("over-application of unknown arity is not implemented yet\n");
+      }
+
+      $taken_args = array_splice($remaining_args, 0, $arity->params);
+      $arity      = $arity->apply_arguments(count($taken_args));
+      $callee     = self::fully_applied_call_site($callee, $taken_args);
+    }
+
+    if (!empty($remaining_args)) {
+      if (($callee instanceof nodes\ReferenceExpr) === false) {
+        /**
+         * If the callee is more complex than a reference expression then it
+         * could have side-effects. If the callee has side effects and it's
+         * wrapped in an under-application closure, when those side effects
+         * occur will change which could change the behavior of the program.
+         *
+         * The solution is to recognize this case and bind the result of the
+         * callee to a temporary variable and use the temporary variable as the
+         * callee inside of the under-application closure.
+         */
+        $tmp_var  = $ctx->php_tmp_var();
+        $tmp_stmt = new nodes\AssignStmt($tmp_var, $callee);
+        $ctx->push_stmt($tmp_stmt);
+        $callee = new nodes\VariableExpr($tmp_var);
+      }
+
+      $callee = self::under_applied_call_site($ctx, $callee, $remaining_args, $arity);
+    }
+
+    return $callee;
   }
 
   private static function exit_binary_expr(self $ctx, ir\nodes\BinaryExpr $expr): void {

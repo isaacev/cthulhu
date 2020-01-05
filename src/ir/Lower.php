@@ -400,7 +400,16 @@ class Lower {
    */
   private static function call_expr(ast\CallExpr $expr): nodes\CallExpr {
     $callee = self::expr($expr->callee);
-    $args   = [];
+
+    if ($callee instanceof nodes\CallExpr) {
+      $args = $callee->args;
+      foreach ($expr->args as $arg) {
+        $args[] = self::expr($arg);
+      }
+      return (new nodes\CallExpr($callee->callee, $args))->set('span', $expr->span);
+    }
+
+    $args = [];
     foreach ($expr->args as $arg) {
       $args[] = self::expr($arg);
     }

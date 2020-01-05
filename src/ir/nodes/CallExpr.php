@@ -12,6 +12,7 @@ class CallExpr extends Expr {
    */
   function __construct(Expr $callee, array $args) {
     parent::__construct();
+    assert(($callee instanceof self) === false);
     assert(empty($args) === false);
     $this->callee = $callee;
     $this->args   = $args;
