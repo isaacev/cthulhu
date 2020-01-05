@@ -3,6 +3,7 @@
 namespace Cthulhu\php;
 
 use Cthulhu\lib\fmt;
+use Cthulhu\php\nodes\Precedence;
 use Cthulhu\php\nodes\Reference;
 
 class Builder implements Buildable {
@@ -202,7 +203,7 @@ class Builder implements Buildable {
   /**
    * Statements, expressions, and other syntax nodes
    */
-  public function expr(nodes\Expr $expr, int $parent_precedence = 0): self {
+  public function expr(nodes\Expr $expr, int $parent_precedence = Precedence::LOWEST): self {
     $should_group = $expr->precedence() < $parent_precedence;
     return $this
       ->maybe($should_group, (new Builder)->paren_left())
