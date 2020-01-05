@@ -504,9 +504,10 @@ class Check {
 
     $match_type = $ctx->get_type_for_expr($expr->arms[0]->handler->stmt->expr);
     foreach (array_slice($expr->arms, 1) as $arm) {
-      $arm_type                  = $ctx->get_type_for_expr($arm->handler->stmt->expr);
-      $arm_type_without_unknowns = Type::replace_unknowns($arm_type, $match_type);
-      if ($match_type->equals($arm_type_without_unknowns) === false) {
+      $arm_type   = $ctx->get_type_for_expr($arm->handler->stmt->expr);
+      $arm_type   = Type::replace_unknowns($arm_type, $match_type);
+      $match_type = Type::replace_unknowns($match_type, $arm_type);
+      if ($match_type->equals($arm_type) === false) {
         $arm_span = $arm->get('span');
         throw Errors::match_arm_disagreement(
           $arm_span,

@@ -12,7 +12,7 @@ class UnknownType extends Type {
   }
 
   function equals(Type $other): bool {
-    return false;
+    return $other instanceof self;
   }
 
   function __toString(): string {
