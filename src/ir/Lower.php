@@ -423,22 +423,13 @@ class Lower {
 
   /**
    * @param ast\PipeExpr $expr
-   * @return nodes\CallExpr
+   * @return nodes\PipeExpr
    * @throws Error
    */
-  private static function pipe_expr(ast\PipeExpr $expr): nodes\CallExpr {
+  private static function pipe_expr(ast\PipeExpr $expr): nodes\PipeExpr {
     $left  = self::expr($expr->left);
     $right = self::expr($expr->right);
-
-    $callee = ($right instanceof nodes\CallExpr)
-      ? $right->callee
-      : $right;
-
-    $args = ($right instanceof nodes\CallExpr)
-      ? array_merge($right->args, [ $left ])
-      : [ $left ];
-
-    return (new nodes\CallExpr($callee, $args))->set('span', $expr->span);
+    return (new nodes\PipeExpr($left, $right))->set('span', $expr->span);
   }
 
   /**

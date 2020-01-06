@@ -349,8 +349,11 @@ class Lower {
       'exit(IfExpr)' => function (ir\nodes\IfExpr $expr) use ($ctx) {
         self::exit_if_expr($ctx, $expr);
       },
-      'exit(CallExpr)' => function (ir\nodes\CallExpr $expr) use ($ctx) {
-        self::exit_call_expr($ctx, $expr);
+      'exit(CallExpr)' => function (ir\nodes\CallExpr $expr, ir\Path $path) use ($ctx) {
+        self::exit_call_expr($ctx, $expr, $path);
+      },
+      'exit(PipeExpr)' => function (ir\nodes\PipeExpr $expr) use ($ctx) {
+        self::exit_pipe_expr($ctx, $expr);
       },
       'exit(BinaryExpr)' => function (ir\nodes\BinaryExpr $expr) use ($ctx) {
         self::exit_binary_expr($ctx, $expr);
@@ -770,7 +773,11 @@ class Lower {
     $ctx->push_stmt($php_stmt);
   }
 
-  private static function exit_call_expr(self $ctx, ir\nodes\CallExpr $expr): void {
+  private static function exit_call_expr(self $ctx, ir\nodes\CallExpr $expr, ir\Path $path): void {
+    if ($path->parent && $path->parent->node instanceof ir\nodes\PipeExpr && $expr === $path->parent->node->right) {
+      return;
+    }
+
     /**
      * A function call can be compiled in a few different ways:
      *
@@ -832,24 +839,30 @@ class Lower {
   }
 
   /**
-   * @param self                $ctx
-   * @param nodes\Expr          $callee
-   * @param nodes\Expr[]        $remaining_args
-   * @param ir\arity\KnownArity $arity
+   * @param self           $ctx
+   * @param nodes\Expr     $callee
+   * @param nodes\Expr[]   $args
+   * @param ir\arity\Arity $arity
    * @return nodes\Expr
    */
-  private static function over_applied_call_site(self $ctx, nodes\Expr $callee, array $remaining_args, ir\arity\KnownArity $arity): nodes\Expr {
-    while (count($remaining_args) > 0 && count($remaining_args) >= $arity->params) {
+  private static function over_applied_call_site(self $ctx, nodes\Expr $callee, array $args, ir\arity\Arity $arity): nodes\Expr {
+    if (($arity instanceof ir\arity\KnownArity) === false) {
+      return self::curry_call_site($ctx, $callee, $args);
+    }
+
+    while (count($args) > 0 && count($args) >= $arity->params) {
       if (($arity instanceof ir\arity\KnownArity) === false) {
-        return self::curry_call_site($ctx, $callee, $remaining_args);
+        return self::curry_call_site($ctx, $callee, $args);
+      } else if ($arity->params === 0) {
+        return $callee;
       }
 
-      $taken_args = array_splice($remaining_args, 0, $arity->params);
+      $taken_args = array_splice($args, 0, $arity->params);
       $arity      = $arity->apply_arguments(count($taken_args));
       $callee     = self::fully_applied_call_site($callee, $taken_args);
     }
 
-    if (!empty($remaining_args)) {
+    if (!empty($args) && $arity instanceof ir\arity\KnownArity) {
       if (($callee instanceof nodes\ReferenceExpr) === false) {
         /**
          * If the callee is more complex than a reference expression then it
@@ -867,7 +880,7 @@ class Lower {
         $callee = new nodes\VariableExpr($tmp_var);
       }
 
-      $callee = self::under_applied_call_site($ctx, $callee, $remaining_args, $arity);
+      $callee = self::under_applied_call_site($ctx, $callee, $args, $arity);
     }
 
     return $callee;
@@ -887,6 +900,22 @@ class Lower {
         $callee,
         new nodes\OrderedArrayExpr($args),
       ]);
+  }
+
+  private static function exit_pipe_expr(self $ctx, ir\nodes\PipeExpr $expr): void {
+    if ($expr->right instanceof ir\nodes\CallExpr) {
+      $rhs_args   = $ctx->pop_exprs(count($expr->right->args));
+      $rhs_callee = $ctx->pop_expr();
+      $lhs        = $ctx->pop_expr();
+      $rhs_arity  = $expr->right->callee->get('arity');
+      $expr       = self::over_applied_call_site($ctx, $rhs_callee, array_merge($rhs_args, [ $lhs ]), $rhs_arity);
+    } else {
+      $rhs       = $ctx->pop_expr();
+      $lhs       = $ctx->pop_expr();
+      $rhs_arity = $expr->right->get('arity');
+      $expr      = self::over_applied_call_site($ctx, $rhs, [ $lhs ], $rhs_arity);
+    }
+    $ctx->push_expr($expr);
   }
 
   private static function exit_binary_expr(self $ctx, ir\nodes\BinaryExpr $expr): void {

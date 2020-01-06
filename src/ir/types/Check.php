@@ -102,6 +102,9 @@ class Check {
       'exit(CallExpr)' => function (nodes\CallExpr $expr) use ($ctx) {
         self::exit_call_expr($ctx, $expr);
       },
+      'exit(PipeExpr)' => function (nodes\PipeExpr $expr) use ($ctx) {
+        self::exit_pipe_expr($ctx, $expr);
+      },
       'exit(BinaryExpr)' => function (nodes\BinaryExpr $expr) use ($ctx) {
         self::exit_binary_expr($ctx, $expr);
       },
@@ -578,8 +581,34 @@ class Check {
       if ($callee_type->input->equals($arg_type)) {
         $callee_type = $callee_type->output;
       } else {
-        throw Errors::call_with_wrong_arg_type($arg_span, $index, $callee_type->input, $arg_type);
+        throw Errors::call_with_wrong_arg_type($arg_span, $callee_type->input, $arg_type, $index);
       }
+    }
+
+    $ctx->set_type_for_expr($expr, $callee_type);
+  }
+
+  /**
+   * @param Check          $ctx
+   * @param nodes\PipeExpr $expr
+   * @throws Error
+   */
+  private static function exit_pipe_expr(self $ctx, nodes\PipeExpr $expr): void {
+    $callee_type = $ctx->get_type_for_expr($expr->right);
+    if (($callee_type instanceof FuncType) === false) {
+      throw Errors::call_to_non_function($expr->right->get('span'), $callee_type);
+    }
+
+    $arg_type     = $ctx->get_type_for_expr($expr->left);
+    $arg_span     = $expr->left->get('span');
+    $replacements = Type::infer_free_types($callee_type->input, $arg_type, $arg_span);
+    $callee_type  = Type::replace_free_types($callee_type, $replacements);
+
+    assert($callee_type instanceof FuncType);
+    if ($callee_type->input->equals($arg_type)) {
+      $callee_type = $callee_type->output;
+    } else {
+      throw Errors::call_with_wrong_arg_type($arg_span, $callee_type->input, $arg_type);
     }
 
     $ctx->set_type_for_expr($expr, $callee_type);

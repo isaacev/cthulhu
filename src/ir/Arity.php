@@ -38,6 +38,9 @@ class Arity {
       'exit(CallExpr)' => function (nodes\CallExpr $expr) {
         self::exit_call_expr($expr);
       },
+      'exit(PipeExpr)' => function (nodes\PipeExpr $expr) {
+        self::exit_pipe_expr($expr);
+      },
       'exit(BinaryExpr|UnaryExpr|ListExpr|VariantConstructorExpr|Literal)' => function (nodes\Expr $expr) {
         self::exit_nullary_expr($expr);
       },
@@ -154,6 +157,12 @@ class Arity {
     $callee_arity    = $expr->callee->get('arity');
     $total_arguments = count($expr->args);
     $return_arity    = $callee_arity->apply_arguments($total_arguments);
+    $expr->set('arity', $return_arity);
+  }
+
+  private static function exit_pipe_expr(nodes\PipeExpr $expr): void {
+    $callee_arity = $expr->right->get('arity');
+    $return_arity = $callee_arity->apply_arguments(1);
     $expr->set('arity', $return_arity);
   }
 

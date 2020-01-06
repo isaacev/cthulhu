@@ -124,10 +124,10 @@ class Errors {
       ->snippet($span);
   }
 
-  public static function call_with_wrong_arg_type(Source\Span $span, int $offset, Type $wanted, Type $found): Error {
-    $ordinal = $offset + 1;
-    $err     = (new Error('wrong argument type'))
-      ->paragraph("Expected argument $ordinal to have the type `$wanted`, found type `$found` instead:")
+  public static function call_with_wrong_arg_type(Source\Span $span, Type $wanted, Type $found, int $offset = -1): Error {
+    $position = $offset >= 0 ? ' ' . ($offset + 1) : '';
+    $err      = (new Error('wrong argument type'))
+      ->paragraph("Expected argument$position to have the type `$wanted`, found type `$found` instead:")
       ->snippet($span);
 
     if ($wanted instanceof FreeType || $wanted instanceof FixedType) {
