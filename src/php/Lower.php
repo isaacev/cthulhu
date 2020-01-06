@@ -17,6 +17,8 @@ class Lower {
 
   // Name resolution variables
   private names\Scope $root_scope;
+  private ?nodes\NamespaceNode $helper_namespace = null;
+  private array $helper_refs = [];
   private array $namespace_scopes = [];
   private array $namespace_refs = [];
   private array $function_scopes = [];
@@ -25,6 +27,28 @@ class Lower {
 
   function __construct() {
     $this->root_scope = new names\Scope();
+    $this->root_scope->use_name('runtime');
+  }
+
+  private function reference_helper(string $helper_name): nodes\Reference {
+    if ($this->helper_namespace === null) {
+      $this->helper_namespace = new nodes\NamespaceNode(
+        new nodes\Reference('runtime', new names\Symbol()),
+        new nodes\BlockNode([]));
+      array_unshift($this->namespaces, $this->helper_namespace);
+    }
+
+    if (array_key_exists($helper_name, $this->helper_refs) === false) {
+      $stmt     = Helpers::get($helper_name, $this->helper_namespace->name);
+      $symbol   = $stmt->head->name->symbol;
+      $segments = $this->helper_namespace->name->segments . '\\' . $stmt->head->name->value;
+      $ref      = new nodes\Reference($segments, $symbol);
+
+      $this->helper_namespace->block->stmts[] = $stmt;
+      return $this->helper_refs[$helper_name] = $ref;
+    }
+
+    return $this->helper_refs[$helper_name];
   }
 
   private function push_block(): void {
