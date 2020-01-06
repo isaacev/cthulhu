@@ -792,15 +792,13 @@ class Lower {
     $callee_arity = $expr->callee->get('arity');
     assert($callee_arity instanceof ir\arity\Arity);
 
+    $total_args = count($expr->args);
+    $args       = $ctx->pop_exprs($total_args);
+    $callee     = $ctx->pop_expr();
     if ($callee_arity instanceof ir\arity\KnownArity) {
-      // Hooray! The callee's arity is known at compile time so solutions #1 and
-      // #2 are available for this call-site.
-      $total_args = count($expr->args);
-      $args       = $ctx->pop_exprs($total_args);
-      $callee     = $ctx->pop_expr();
       $ctx->push_expr(self::over_applied_call_site($ctx, $callee, $args, $callee_arity));
     } else {
-      die("curry function not implemented yet\n");
+      $ctx->push_expr(self::curry_call_site($ctx, $callee, $args));
     }
   }
 
@@ -843,7 +841,7 @@ class Lower {
   private static function over_applied_call_site(self $ctx, nodes\Expr $callee, array $remaining_args, ir\arity\KnownArity $arity): nodes\Expr {
     while (count($remaining_args) > 0 && count($remaining_args) >= $arity->params) {
       if (($arity instanceof ir\arity\KnownArity) === false) {
-        die("over-application of unknown arity is not implemented yet\n");
+        return self::curry_call_site($ctx, $callee, $remaining_args);
       }
 
       $taken_args = array_splice($remaining_args, 0, $arity->params);
@@ -873,6 +871,22 @@ class Lower {
     }
 
     return $callee;
+  }
+
+  /**
+   * @param Lower        $ctx
+   * @param nodes\Expr   $callee
+   * @param nodes\Expr[] $args
+   * @return nodes\Expr
+   */
+  private static function curry_call_site(self $ctx, nodes\Expr $callee, array $args): nodes\Expr {
+    $curry_ref = $ctx->reference_helper('curry');
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr($curry_ref, false),
+      [
+        $callee,
+        new nodes\OrderedArrayExpr($args),
+      ]);
   }
 
   private static function exit_binary_expr(self $ctx, ir\nodes\BinaryExpr $expr): void {

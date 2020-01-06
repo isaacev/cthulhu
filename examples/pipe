@@ -1,3 +1,10 @@
+fn map(f: 'a -> 'b, m: Maybe('a)) -> Maybe('b) {
+  match m {
+    Maybe::Just(n) => Maybe::Just(f(n)),
+    Maybe::None    => Maybe::None,
+  }
+}
+
 fn or_else(fallback: 'a, m: Maybe('a)) -> 'a {
   match m {
     Maybe::Just(a) => a,
@@ -7,7 +14,8 @@ fn or_else(fallback: 'a, m: Maybe('a)) -> 'a {
 
 #[entry]
 fn main() -> () {
-  Maybe::Just("hello world")
-    |> or_else("no message")
+  Maybe::Just(123)
+    |> map(::Fmt::int)
+    |> or_else("nothing")
     |> ::Io::println;
 }
