@@ -27,7 +27,7 @@ class PropertyAccessExpr extends Expr {
 
   function build(): Builder {
     return (new Builder)
-      ->then($this->expr)
+      ->expr($this->expr, $this->precedence())
       ->thin_arrow()
       ->identifier($this->prop->value);
   }
