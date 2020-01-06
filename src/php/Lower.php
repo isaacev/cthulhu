@@ -791,12 +791,13 @@ class Lower {
     $func_scope = new names\ClosureScope($ctx->current_function_scope());
     array_push($ctx->function_scopes, $func_scope);
 
-    /* @var nodes\Variable[] $closure_params */
+    /* @var nodes\FuncParam[] $closure_params */
     $closure_params = [];
     $leftover_args  = $arity->params - count($args);
     for ($i = 0; $i < $leftover_args; $i++) {
-      $var    = $closure_params[] = $ctx->php_tmp_var();
-      $args[] = new nodes\VariableExpr($var);
+      $var              = $ctx->php_tmp_var();
+      $closure_params[] = nodes\FuncParam::from_var($var);
+      $args[]           = new nodes\VariableExpr($var);
     }
 
     array_pop($ctx->function_scopes);

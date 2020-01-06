@@ -9,8 +9,8 @@ class ArrowExpr extends Expr {
   public Expr $body;
 
   /**
-   * @param Variable[] $params
-   * @param Expr       $body
+   * @param FuncParam[] $params
+   * @param Expr        $body
    */
   function __construct(array $params, Expr $body) {
     parent::__construct();
