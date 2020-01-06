@@ -27,6 +27,8 @@ class UnaryExpr extends Expr {
     switch ($this->operator) {
       case '-':
         return Precedence::SUM;
+      case '...':
+        return Precedence::ARGUMENT_UNPACK;
       default:
         throw new Exception("unknown precedence for `$this->operator` operator");
     }

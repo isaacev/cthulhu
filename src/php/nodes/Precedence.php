@@ -31,5 +31,6 @@ class Precedence {
   const INCREMENT_DECREMENT = 240;
   const EXPONENT            = 250;
   const CLONE_AND_NEW       = 260;
+  const ARGUMENT_UNPACK     = 270;
   const HIGHEST             = PHP_INT_MAX;
 }
