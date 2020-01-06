@@ -600,6 +600,7 @@ class Check {
     }
 
     $arg_type     = $ctx->get_type_for_expr($expr->left);
+    $arg_type     = Type::replace_unknowns($arg_type, $callee_type->input);
     $arg_span     = $expr->left->get('span');
     $replacements = Type::infer_free_types($callee_type->input, $arg_type, $arg_span);
     $callee_type  = Type::replace_free_types($callee_type, $replacements);
