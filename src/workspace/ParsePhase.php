@@ -2,14 +2,16 @@
 
 namespace Cthulhu\workspace;
 
-use Cthulhu\Errors\Error;
-use Cthulhu\Parser\Parser;
-use Cthulhu\Source\File;
+use Cthulhu\ast\Lexer;
+use Cthulhu\ast\Parser;
+use Cthulhu\ast\Scanner;
+use Cthulhu\err\Error;
+use Cthulhu\loc\File;
 
 class ParsePhase {
   private File $file;
 
-  function __construct(File $file) {
+  public function __construct(File $file) {
     $this->file = $file;
   }
 
@@ -17,8 +19,11 @@ class ParsePhase {
    * @return LinkPhase
    * @throws Error
    */
-  function parse(): LinkPhase {
-    $syntax_tree = Parser::file_to_ast($this->file);
+  public function parse(): LinkPhase {
+    $scanner     = new Scanner($this->file);
+    $lexer       = new Lexer($scanner);
+    $parser      = new Parser($lexer);
+    $syntax_tree = $parser->file();
     return new LinkPhase($syntax_tree);
   }
 }

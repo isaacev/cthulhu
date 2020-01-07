@@ -2,10 +2,12 @@
 
 namespace Cthulhu\ir;
 
-use Cthulhu\Errors\Error;
+use Cthulhu\ast\Lexer;
+use Cthulhu\ast\Parser;
+use Cthulhu\ast\Scanner;
+use Cthulhu\err\Error;
 use Cthulhu\lib\cycle;
-use Cthulhu\Parser;
-use Cthulhu\Source;
+use Cthulhu\loc\File;
 
 /**
  * Given a starting library, find all other libraries that it depends on and
@@ -18,7 +20,7 @@ class Linker {
    * @return nodes\Program
    * @throws Error
    */
-  static function link(nodes\Library $first_lib): nodes\Program {
+  public static function link(nodes\Library $first_lib): nodes\Program {
     // A object to track connections across a directed graph. By updating this
     // graph with all of the dependency relationships, import cycles can be
     // detected early and a topological ordering for all libraries can be built.
@@ -120,9 +122,11 @@ class Linker {
       exit(1);
     }
 
-    $file = new Source\File($absolute_path, $contents);
-    $ast  = Parser\Parser::file_to_ast($file);
-    $lib  = Lower::file($ast);
-    return $lib;
+    $file    = new File($absolute_path, $contents);
+    $scanner = new Scanner($file);
+    $lexer   = new Lexer($scanner);
+    $parser  = new Parser($lexer);
+    $ast     = $parser->file();
+    return Lower::file($ast);
   }
 }

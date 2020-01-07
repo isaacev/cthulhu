@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\names;
 
-use Cthulhu\Errors\Error;
+use Cthulhu\err\Error;
 use Cthulhu\ir;
 use Cthulhu\ir\nodes;
 
@@ -547,7 +547,7 @@ class Resolve {
         // If the reference exists inside of 1 or more block scopes, explore all
         // available block scopes to see if one of them contains the name. If
         // none of the block scopes have the name, check the most recent func
-        // scope incase the name was a function parameter.
+        // scope in case the name was a function parameter.
         $scopes = array_merge(
           array_reverse($ctx->block_scopes),
           [ $ctx->current_func_scope() ]

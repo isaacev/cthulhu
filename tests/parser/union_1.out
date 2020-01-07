@@ -3,5 +3,5 @@
 
     : union_1
   2 |   | foo;
-    |     ^^^ expected Upper-case Name here
+    |     ^^^ expected uppercase identifier here
 

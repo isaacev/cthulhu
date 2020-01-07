@@ -10,7 +10,7 @@ class WritePhase {
   private Program $php_tree;
   private ?string $written = null;
 
-  function __construct(Program $php_tree) {
+  public function __construct(Program $php_tree) {
     $this->php_tree = $php_tree;
   }
 
@@ -18,7 +18,7 @@ class WritePhase {
    * @return string
    * @throws Exception
    */
-  function run(): string {
+  public function run(): string {
     $descriptors = [
       0 => [ 'pipe', 'r' ], // STDIN
       1 => [ 'pipe', 'w' ], // STDOUT
@@ -51,7 +51,7 @@ class WritePhase {
     }
   }
 
-  function write(): string {
+  public function write(): string {
     if ($this->written !== null) {
       return $this->written;
     }

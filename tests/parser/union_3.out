@@ -3,5 +3,5 @@
 
     : union_3
   2 |   | Bar{};
-    |         ^ expected Lower-case Name here
+    |         ^ expected lowercase identifier here
 

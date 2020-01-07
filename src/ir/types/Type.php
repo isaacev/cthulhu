@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\types;
 
-use Cthulhu\Source\Span;
+use Cthulhu\loc\Spanlike;
 
 abstract class Type implements Walkable {
   abstract public function equals(Type $other): bool;
@@ -20,19 +20,19 @@ abstract class Type implements Walkable {
   abstract public function __toString(): string;
 
   /**
-   * @param Type   $a
-   * @param Type   $b
-   * @param Span   $span
-   * @param Type[] $replacements
+   * @param Type     $a
+   * @param Type     $b
+   * @param Spanlike $spanlike
+   * @param Type[]   $replacements
    * @return Type[]
    */
-  public static function infer_free_types(Type $a, Type $b, Span $span, array &$replacements = []) {
-    $a->compare($b, function (Walkable $c, Walkable $d) use (&$replacements, $span): void {
-      if ($c instanceof FreeType) {
+  public static function infer_free_types(Type $a, Type $b, Spanlike $spanlike, array &$replacements = []) {
+    $a->compare($b, function (Walkable $c, Walkable $d) use (&$replacements, $spanlike): void {
+      if ($c instanceof FreeType && $d instanceof Type) {
         $free_id = $c->symbol->get_id();
         if ($solution = @$replacements[$free_id]) {
           if ($solution->equals($d) === false) {
-            throw Errors::unsolvable_type_parameter($span, $c->name, $solution, $d);
+            throw Errors::unsolvable_type_parameter($spanlike, $c->name, $solution, $d);
           }
         } else {
           $replacements[$free_id] = $d;

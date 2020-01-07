@@ -1,8 +1,6 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-  Found the end of the file instead.
-
     : expr_missing_2
   2 |   let x =
     |          ^

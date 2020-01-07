@@ -1,8 +1,6 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-  Found `+` instead.
-
     : expr_missing_1
   2 |   let x = +123;
     |           ^

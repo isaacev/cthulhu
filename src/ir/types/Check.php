@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\types;
 
-use Cthulhu\Errors\Error;
+use Cthulhu\err\Error;
 use Cthulhu\ir;
 use Cthulhu\ir\names;
 use Cthulhu\ir\nodes;

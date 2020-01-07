@@ -7,7 +7,7 @@ use Cthulhu\lib\fmt\Formatter;
 class Paragraph implements Reportable {
   public array $sentences;
 
-  function __construct(array $sentences) {
+  public function __construct(array $sentences) {
     $this->sentences = $sentences;
   }
 

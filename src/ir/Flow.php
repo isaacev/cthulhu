@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir;
 
-use Cthulhu\Errors\Error;
+use Cthulhu\err\Error;
 
 class Flow {
   private array $match_types = [];

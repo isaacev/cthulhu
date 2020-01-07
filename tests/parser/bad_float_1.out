@@ -1,8 +1,6 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-  Found `.` instead.
-
     : bad_float_1
   3 |   .123;
     |   ^

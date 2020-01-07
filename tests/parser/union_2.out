@@ -1,8 +1,6 @@
 
   EXPECTED TYPE ANNOTATION  --------------------------------------------------
 
-  Found `)` instead.
-
     : union_2
   2 |   | Bar();
     |         ^

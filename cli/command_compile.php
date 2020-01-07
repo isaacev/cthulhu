@@ -1,5 +1,6 @@
 <?php
 
+use Cthulhu\err\Error;
 use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\workspace\ReadPhase;
@@ -22,7 +23,7 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
         'shake' => in_array('shake', $passes),
       ])
       ->write();
-  } catch (\Cthulhu\Errors\Error $err) {
+  } catch (Error $err) {
     $f = new StreamFormatter(STDERR);
     $err->format($f);
     exit(1);

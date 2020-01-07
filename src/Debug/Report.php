@@ -7,11 +7,11 @@ use Cthulhu\lib\fmt\Formatter;
 class Report {
   public array $sections;
 
-  function __construct(Reportable ...$sections) {
+  public function __construct(Reportable ...$sections) {
     $this->sections = $sections;
   }
 
-  function append(Reportable $section): void {
+  public function append(Reportable $section): void {
     array_push($this->sections, $section);
   }
 

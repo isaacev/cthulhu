@@ -1,9 +1,15 @@
 
-  UNEXPECTED SYMBOL  ---------------------------------------------------------
-
-  File contains a symbol that is not part of the syntax. Try removing it?
+  EXPECTED EXPRESSION  -------------------------------------------------------
 
     : lex_unknown_char_1
   4 |   let x = %123;
     |           ^
+
+  An expression can be like one of the following:
+
+    a + b * c
+
+    myFunction("hello")
+
+    if a { b; } else { c; }
 

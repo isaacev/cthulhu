@@ -2,7 +2,7 @@
 
 namespace Cthulhu\workspace;
 
-use Cthulhu\Errors\Error;
+use Cthulhu\err\Error;
 
 class Errors {
   public static function unable_to_read_file(string $filepath): Error {

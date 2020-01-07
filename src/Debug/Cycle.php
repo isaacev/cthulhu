@@ -8,7 +8,7 @@ class Cycle implements Reportable {
   public int $index;
   public array $members;
 
-  function __construct(int $index, array $members) {
+  public function __construct(int $index, array $members) {
     $this->index   = $index;
     $this->members = $members;
   }

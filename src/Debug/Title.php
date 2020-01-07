@@ -8,7 +8,7 @@ use Cthulhu\lib\fmt\Formatter;
 class Title implements Reportable {
   public string $title;
 
-  function __construct(string $title) {
+  public function __construct(string $title) {
     $this->title = $title;
   }
 

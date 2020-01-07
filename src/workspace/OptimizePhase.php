@@ -10,11 +10,11 @@ use Cthulhu\php\passes\TreeShaking;
 class OptimizePhase {
   private Program $php_tree;
 
-  function __construct(Program $php_tree) {
+  public function __construct(Program $php_tree) {
     $this->php_tree = $php_tree;
   }
 
-  function optimize(array $passes = []): WritePhase {
+  public function optimize(array $passes = []): WritePhase {
     $all    = isset($passes['all']) && $passes['all'] === true;
     $inline = isset($passes['inline']) && $passes['inline'] === true;
     $fold   = isset($passes['fold']) && $passes['fold'] === true;

@@ -2,9 +2,9 @@
 
 namespace Cthulhu\lib\test;
 
-use Cthulhu\Errors;
+use Cthulhu\err\Error;
 use Cthulhu\lib\fmt;
-use Cthulhu\Source;
+use Cthulhu\loc\File;
 use Cthulhu\workspace\ReadPhase;
 
 class Test {
@@ -63,7 +63,7 @@ class Test {
 
   protected function eval(bool $do_php_eval): TestOutput {
     try {
-      $file = new Source\File($this->name, $this->input);
+      $file = new File($this->name, $this->input);
       $tree = ReadPhase::from_memory($file)
         ->parse()
         ->link()
@@ -77,7 +77,7 @@ class Test {
       $php = $tree->write();
       $out = $do_php_eval ? $tree->run() : $this->expected->out;
       return new TestOutput($php, $out);
-    } catch (Errors\Error $err) {
+    } catch (Error $err) {
       $out = new fmt\StringFormatter();
       $err->format($out);
       return new TestOutput('', $out);

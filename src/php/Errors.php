@@ -2,7 +2,7 @@
 
 namespace Cthulhu\php;
 
-use Cthulhu\Errors\Error;
+use Cthulhu\err\Error;
 
 class Errors {
   public static function no_main_func(): Error {

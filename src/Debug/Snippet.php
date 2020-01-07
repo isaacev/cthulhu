@@ -2,26 +2,35 @@
 
 namespace Cthulhu\Debug;
 
+use Cthulhu\ast\CommentToken;
+use Cthulhu\ast\ErrorToken;
+use Cthulhu\ast\IdentToken;
+use Cthulhu\ast\Lexer;
+use Cthulhu\ast\LiteralToken;
+use Cthulhu\ast\PunctToken;
+use Cthulhu\ast\Scanner;
+use Cthulhu\ast\StringToken;
+use Cthulhu\ast\TerminalToken;
+use Cthulhu\ast\Token;
+use Cthulhu\err\Error;
 use Cthulhu\lib\fmt\Background;
 use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;
-use Cthulhu\Parser\Lexer\Lexer;
-use Cthulhu\Parser\Lexer\Token;
-use Cthulhu\Parser\Lexer\TokenType;
-use Cthulhu\Source;
-use Cthulhu\Source\File;
+use Cthulhu\loc\File;
+use Cthulhu\loc\Spanlike;
+use const Cthulhu\ast\RESERVED_WORDS;
 
 class Snippet implements Reportable {
-  const LINES_ABOVE    = 0;
-  const LINES_BELOW    = 0;
-  const UNDERLINE_CHAR = '^';
+  public const LINES_ABOVE    = 0;
+  public const LINES_BELOW    = 0;
+  public const UNDERLINE_CHAR = '^';
 
   public File $file;
-  public Source\Span $location;
+  public Spanlike $location;
   public ?string $message;
   public array $options;
 
-  function __construct(File $file, Source\Span $location, ?string $message = null, array $options = []) {
+  public function __construct(File $file, Spanlike $location, ?string $message = null, array $options = []) {
     $this->file     = $file;
     $this->location = $location;
     $this->message  = $message;
@@ -37,13 +46,13 @@ class Snippet implements Reportable {
   }
 
   public function print(Formatter $f): Formatter {
-    $focus_from         = $this->location->from;
-    $focus_to           = $this->location->to;
+    $focus_from         = $this->location->from();
+    $focus_to           = $this->location->to();
     $focus_color        = $this->get_option('color', Foreground::RED);
     $first_focused_line = $focus_from->line;
     $last_focused_line  = $focus_to->line;
 
-    $all_tokens = Lexer::to_tokens($this->file, Lexer::RELAXED_ERRORS | Lexer::KEEP_COMMENTS);
+    $all_tokens = self::all_tokens($this->location->from()->file);
 
     if (empty($all_tokens)) {
       return $f
@@ -188,34 +197,46 @@ class Snippet implements Reportable {
   }
 
   public static function token_styles(Token $token): array {
-    switch ($token->type) {
-      case TokenType::ERROR:
+    switch (true) {
+      case $token instanceof ErrorToken:
         return [ Background::RED, Foreground::DEFAULT ];
-      case TokenType::LITERAL_FLOAT:
-      case TokenType::LITERAL_INT:
-      case TokenType::LITERAL_BOOL:
-      case TokenType::TYPE_PARAM:
-        return [ Foreground::MAGENTA ];
-      case TokenType::LITERAL_STR:
+      case $token instanceof StringToken:
         return [ Foreground::GREEN ];
-      case TokenType::PLUS:
-      case TokenType::DASH:
-      case TokenType::STAR:
-      case TokenType::EQUALS:
-      case TokenType::THIN_ARROW:
-        return [ Foreground::YELLOW ];
-      case TokenType::KEYWORD_LET:
-      case TokenType::KEYWORD_IF:
-      case TokenType::KEYWORD_ELSE:
-      case TokenType::KEYWORD_FN:
-      case TokenType::KEYWORD_USE:
-      case TokenType::KEYWORD_MOD:
-        return [ Foreground::CYAN ];
-      case TokenType::COMMENT:
-      case TokenType::SEMICOLON:
+      case $token instanceof LiteralToken:
+      case $token instanceof IdentToken && $token->lexeme === 'true':
+      case $token instanceof IdentToken && $token->lexeme === 'false':
+        return [ Foreground::MAGENTA ];
+      case $token instanceof PunctToken && $token->lexeme === ';':
+      case $token instanceof CommentToken:
         return [ Foreground::BRIGHT_BLACK ];
+      case $token instanceof PunctToken:
+        return [ Foreground::YELLOW ];
+      case $token instanceof IdentToken && in_array($token->lexeme, RESERVED_WORDS):
+        return [ Foreground::CYAN ];
       default:
-        return [ FOREGROUND::DEFAULT ];
+        return [ Foreground::DEFAULT ];
+    }
+  }
+
+  /**
+   * @param File $file
+   * @return Token[]
+   */
+  public static function all_tokens(File $file): array {
+    $scanner = new Scanner($file);
+    $lexer   = new Lexer($scanner, false, false);
+
+    $tokens = [];
+    try {
+      while ($next = $tokens[] = $lexer->next()) {
+        if ($next instanceof TerminalToken) {
+          break;
+        }
+      }
+    } catch (Error $err) {
+      return $tokens;
+    } finally {
+      return $tokens;
     }
   }
 }

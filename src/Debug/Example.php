@@ -3,19 +3,18 @@
 namespace Cthulhu\Debug;
 
 use Cthulhu\lib\fmt\Formatter;
-use Cthulhu\Parser\Lexer\Lexer;
-use Cthulhu\Source;
+use Cthulhu\loc\File;
 
 class Example implements Reportable {
   public string $example;
 
-  function __construct(string $example) {
+  public function __construct(string $example) {
     $this->example = $example;
   }
 
   public function print(Formatter $f): Formatter {
-    $file       = new Source\File('<example>', $this->example);
-    $all_tokens = Lexer::to_tokens($file, Lexer::RELAXED_ERRORS | Lexer::KEEP_COMMENTS);
+    $file       = new File('<example>', $this->example);
+    $all_tokens = Snippet::all_tokens($file);
 
     $f->increment_tab_stop(2)
       ->newline_if_not_already()

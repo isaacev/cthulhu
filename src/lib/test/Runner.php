@@ -3,8 +3,8 @@
 namespace Cthulhu\lib\test;
 
 class Runner {
-  const DEFAULT_DIR           = './tests';
-  const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'out' ];
+  public const DEFAULT_DIR           = './tests';
+  public const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'out' ];
 
   /**
    * @param string $starting_dir
