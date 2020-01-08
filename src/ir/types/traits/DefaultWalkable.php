@@ -5,6 +5,13 @@ namespace Cthulhu\ir\types\traits;
 use Cthulhu\ir\types\Walkable;
 
 trait DefaultWalkable {
+  public function walk(callable $callback): void {
+    $callback($this);
+    foreach ($this->to_children() as $child) {
+      $child->walk($callback);
+    }
+  }
+
   public function transform(callable $callback): ?Walkable {
     $this_after            = $callback($this);
     $children_before       = ($this_after ?? $this)->to_children();

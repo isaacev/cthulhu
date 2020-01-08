@@ -596,10 +596,9 @@ class Parser {
   private function stmts(): array {
     $stmts = [];
     while (true) {
-      if (
-        $this->ahead_is_delim('}') ||
-        ($stmts[] = $this->stmt()) instanceof nodes\ExprStmt
-      ) {
+      if ($this->ahead_is_right_delim()) {
+        break;
+      } else if (($stmts[] = $this->stmt()) instanceof nodes\ExprStmt) {
         break;
       }
     }

@@ -1,0 +1,10 @@
+
+  STATEMENT NEEDS TYPE ANNOTATION  -------------------------------------------
+
+  The expression with the type `[_]` needs a type annotation to remove
+  ambiguity.
+
+    : list_1
+  3 |   let x = [];
+    |       ^
+

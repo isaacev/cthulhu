@@ -323,7 +323,12 @@ class Check {
     $symbol    = $ctx->get_symbol_for_name($stmt->name);
     $expr_type = $ctx->get_type_for_expr($stmt->expr);
 
-    if ($stmt->note !== null) {
+    if ($stmt->note === null) {
+      if (Type::has_unknowns($expr_type)) {
+        throw Errors::let_stmt_needs_type($stmt, $expr_type);
+      }
+      $type = $expr_type;
+    } else {
       $note_type = self::note_to_type($ctx, $stmt->note);
       $expr_type = Type::replace_unknowns($expr_type, $note_type);
       if ($note_type->equals($expr_type) === false) {
@@ -335,8 +340,6 @@ class Check {
         );
       }
       $type = $note_type;
-    } else {
-      $type = $expr_type;
     }
 
     $ctx->set_type_for_symbol($symbol, $type);

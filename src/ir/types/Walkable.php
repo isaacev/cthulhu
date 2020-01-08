@@ -5,6 +5,8 @@ namespace Cthulhu\ir\types;
 interface Walkable {
   public function similar_to(Walkable $other): bool;
 
+  public function walk(callable $fn): void;
+
   public function transform(callable $fn): ?Walkable;
 
   public function compare(Walkable $other, callable $fn): void;

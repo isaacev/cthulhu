@@ -84,6 +84,16 @@ abstract class Type implements Walkable {
       }) ?? $t;
   }
 
+  public static function has_unknowns(Type $t): bool {
+    $has_unknowns = false;
+    $t->walk(function (Walkable $w) use (&$has_unknowns) {
+      if ($w instanceof UnknownType) {
+        $has_unknowns = true;
+      }
+    });
+    return $has_unknowns;
+  }
+
   /**
    * @param Type $a
    * @param Type $b

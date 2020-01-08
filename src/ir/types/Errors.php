@@ -17,6 +17,13 @@ class Errors {
       ->snippet($spanlike);
   }
 
+  public static function let_stmt_needs_type(nodes\LetStmt $stmt, Type $expr_type): Error {
+    $assignee_span = $stmt->name->get('span');
+    return (new Error('statement needs type annotation'))
+      ->paragraph("The expression with the type `$expr_type` needs a type annotation to remove ambiguity.")
+      ->snippet($assignee_span);
+  }
+
   public static function incompatible_pattern(Spanlike $spanlike, Type $disc_type): Error {
     return (new Error('incompatible pattern'))
       ->paragraph("Pattern is incompatible with the type `$disc_type`:")
