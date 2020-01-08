@@ -6,7 +6,7 @@ class OrderedVariantPatternField extends Node {
   public int $position;
   public Pattern $pattern;
 
-  function __construct(int $position, Pattern $pattern) {
+  public function __construct(int $position, Pattern $pattern) {
     parent::__construct();
     $this->position = $position;
     $this->pattern  = $pattern;

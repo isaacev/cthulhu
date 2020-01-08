@@ -12,14 +12,14 @@ class FuncHead extends Node {
    * @param FuncParam[] $params
    * @param Note        $output
    */
-  function __construct(Name $name, array $params, Note $output) {
+  public function __construct(Name $name, array $params, Note $output) {
     parent::__construct();
     $this->name   = $name;
     $this->params = $params;
     $this->output = $output;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->name ],
       $this->params,

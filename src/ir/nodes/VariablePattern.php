@@ -5,7 +5,7 @@ namespace Cthulhu\ir\nodes;
 class VariablePattern extends Pattern {
   public Name $name;
 
-  function __construct(Name $name) {
+  public function __construct(Name $name) {
     parent::__construct();
     $this->name = $name;
   }
@@ -14,7 +14,7 @@ class VariablePattern extends Pattern {
     return [ $this->name ];
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->name;
   }
 }

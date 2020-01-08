@@ -5,15 +5,15 @@ namespace Cthulhu\ir\patterns;
 use Cthulhu\ir\types;
 
 abstract class Node {
-  abstract function is_covered(): bool;
+  public abstract function is_covered(): bool;
 
-  abstract function is_redundant(Pattern $pattern): bool;
+  public abstract function is_redundant(Pattern $pattern): bool;
 
-  abstract function apply(Pattern $pattern): void;
+  public abstract function apply(Pattern $pattern): void;
 
-  abstract function uncovered_patterns(): array;
+  public abstract function uncovered_patterns(): array;
 
-  static function from_type(types\Type $type): self {
+  public static function from_type(types\Type $type): self {
     switch (true) {
       case $type instanceof types\NamedType:
         return self::from_type($type->pointer);

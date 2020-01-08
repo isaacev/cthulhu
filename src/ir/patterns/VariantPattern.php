@@ -6,12 +6,12 @@ class VariantPattern extends Pattern {
   public string $name;
   public ?VariantFields $fields;
 
-  function __construct(string $name, ?VariantFields $fields) {
+  public function __construct(string $name, ?VariantFields $fields) {
     $this->name   = $name;
     $this->fields = $fields;
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     if ($this->fields) {
       return (string)$this->name . (string)$this->fields;
     } else {

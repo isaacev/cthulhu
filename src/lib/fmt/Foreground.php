@@ -3,21 +3,21 @@
 namespace Cthulhu\lib\fmt;
 
 class Foreground {
-  const BLACK          = 30;
-  const RED            = 31;
-  const GREEN          = 32;
-  const YELLOW         = 33;
-  const BLUE           = 34;
-  const MAGENTA        = 35;
-  const CYAN           = 36;
-  const WHITE          = 37;
-  const DEFAULT        = 39;
-  const BRIGHT_BLACK   = 90;
-  const BRIGHT_RED     = 91;
-  const BRIGHT_GREEN   = 92;
-  const BRIGHT_YELLOW  = 93;
-  const BRIGHT_BLUE    = 94;
-  const BRIGHT_MAGENTA = 95;
-  const BRIGHT_CYAN    = 96;
-  const BRIGHT_WHITE   = 97;
+  public const BLACK          = 30;
+  public const RED            = 31;
+  public const GREEN          = 32;
+  public const YELLOW         = 33;
+  public const BLUE           = 34;
+  public const MAGENTA        = 35;
+  public const CYAN           = 36;
+  public const WHITE          = 37;
+  public const DEFAULT        = 39;
+  public const BRIGHT_BLACK   = 90;
+  public const BRIGHT_RED     = 91;
+  public const BRIGHT_GREEN   = 92;
+  public const BRIGHT_YELLOW  = 93;
+  public const BRIGHT_BLUE    = 94;
+  public const BRIGHT_MAGENTA = 95;
+  public const BRIGHT_CYAN = 96;
+  public const BRIGHT_WHITE = 97;
 }

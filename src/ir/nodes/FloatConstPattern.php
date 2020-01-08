@@ -7,7 +7,7 @@ use Cthulhu\val\FloatValue;
 class FloatConstPattern extends ConstPattern {
   public FloatValue $value;
 
-  function __construct(FloatValue $value) {
+  public function __construct(FloatValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,7 +16,7 @@ class FloatConstPattern extends ConstPattern {
     return [];
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->value->encode_as_php();
   }
 }

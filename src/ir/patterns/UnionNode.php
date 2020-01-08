@@ -13,7 +13,7 @@ class UnionNode extends Node {
   protected bool $has_wildcard = false;
   protected bool $is_uncovered = true;
 
-  function __construct(UnionType $type) {
+  public function __construct(UnionType $type) {
     $this->type = $type;
     foreach ($type->variants as $name => $form) {
       switch (true) {
@@ -32,7 +32,7 @@ class UnionNode extends Node {
     }
   }
 
-  function is_covered(): bool {
+  public function is_covered(): bool {
     if ($this->has_wildcard) {
       return true;
     }
@@ -46,7 +46,7 @@ class UnionNode extends Node {
     return true;
   }
 
-  function is_redundant(Pattern $pattern): bool {
+  public function is_redundant(Pattern $pattern): bool {
     if ($pattern instanceof WildcardPattern) {
       return $this->is_covered();
     } else if ($pattern instanceof VariantPattern) {
@@ -56,7 +56,7 @@ class UnionNode extends Node {
     }
   }
 
-  function apply(Pattern $pattern): void {
+  public function apply(Pattern $pattern): void {
     $this->is_uncovered = false;
 
     if ($pattern instanceof WildcardPattern) {
@@ -69,7 +69,7 @@ class UnionNode extends Node {
     $this->variants[$pattern->name]->apply($pattern);
   }
 
-  function uncovered_patterns(): array {
+  public function uncovered_patterns(): array {
     if ($this->is_uncovered) {
       return [ new WildcardPattern() ];
     } else if ($this->is_covered()) {

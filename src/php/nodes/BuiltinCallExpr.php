@@ -12,7 +12,7 @@ class BuiltinCallExpr extends Expr {
    * @param string $name
    * @param Expr[] $args
    */
-  function __construct(string $name, array $args) {
+  public function __construct(string $name, array $args) {
     parent::__construct();
     $this->name = $name;
     $this->args = $args;

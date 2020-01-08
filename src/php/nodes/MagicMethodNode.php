@@ -14,25 +14,25 @@ class MagicMethodNode extends Node {
    * @param Variable[] $params
    * @param BlockNode  $body
    */
-  function __construct(string $name, array $params, BlockNode $body) {
+  public function __construct(string $name, array $params, BlockNode $body) {
     parent::__construct();
     $this->name   = $name;
     $this->params = $params;
     $this->body   = $body;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return array_merge(
       $this->params,
       [ $this->body ]
     );
   }
 
-  function from_children(array $nodes): Node {
+  public function from_children(array $nodes): Node {
     return new self($this->name, array_slice($nodes, 0, -1), $nodes[-1]);
   }
 
-  function build(): Builder {
+  public function build(): Builder {
     return (new Builder)
       ->keyword('function')
       ->space()

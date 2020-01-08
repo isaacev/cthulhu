@@ -11,13 +11,13 @@ class ModItem extends Item {
    * @param Item[] $items
    * @param array  $attrs
    */
-  function __construct(Name $name, array $items, array $attrs) {
+  public function __construct(Name $name, array $items, array $attrs) {
     parent::__construct($attrs);
     $this->name  = $name;
     $this->items = $items;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->name ],
       $this->items

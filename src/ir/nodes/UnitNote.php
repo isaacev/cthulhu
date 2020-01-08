@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class UnitNote extends Note {
-  function children(): array {
+  public function children(): array {
     return [];
   }
 }

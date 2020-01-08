@@ -8,7 +8,7 @@ class Table {
   protected array $postorder_callbacks = [];
   protected array $preorder_callbacks = [];
 
-  function __construct(array $callbacks) {
+  public function __construct(array $callbacks) {
     foreach ($callbacks as $selector => $callback) {
       [ $order, $node_names ] = self::parse_selector($selector);
       if ($order === 'postorder') {

@@ -12,12 +12,12 @@ class Path {
   public bool $was_removed = false;
   public array $new_sibling_nodes = [];
 
-  function __construct(?self $parent, php\nodes\Node $node) {
+  public function __construct(?self $parent, php\nodes\Node $node) {
     $this->parent = $parent;
     $this->node   = $node;
   }
 
-  function was_changed(): bool {
+  public function was_changed(): bool {
     if ($this->was_changed) {
       return true;
     } else if ($this->parent !== null) {
@@ -27,7 +27,7 @@ class Path {
     }
   }
 
-  function was_removed(): bool {
+  public function was_removed(): bool {
     if ($this->was_removed) {
       return true;
     } else if ($this->parent !== null) {
@@ -44,7 +44,7 @@ class Path {
     );
   }
 
-  function remove(): void {
+  public function remove(): void {
     if ($this->not_stmt_or_namespace()) {
       throw new Exception('can only remove php\nodes\Stmt and php\nodes\NamespaceNode nodes');
     }
@@ -54,7 +54,7 @@ class Path {
     $this->node        = null;
   }
 
-  function replace_with(php\nodes\Node $node) {
+  public function replace_with(php\nodes\Node $node) {
     if ($this->was_removed()) {
       throw new Exception('cannot replace node after it was removed');
     }
@@ -62,7 +62,7 @@ class Path {
     $this->node        = $node;
   }
 
-  function after(array $nodes) {
+  public function after(array $nodes) {
     if ($this->not_stmt_or_namespace()) {
       throw new Exception('can only add siblings after php\nodes\Stmt and php\nodes\NamespaceNode nodes');
     } else if ($this->was_removed()) {
@@ -72,7 +72,7 @@ class Path {
     $this->new_sibling_nodes = $nodes;
   }
 
-  function replace_with_multiple(array $nodes) {
+  public function replace_with_multiple(array $nodes) {
     if ($this->not_stmt_or_namespace()) {
       throw new Exception('can only replace php\nodes\Stmt and php\nodes\NamespaceNode with multiple nodes');
     } else if (empty($nodes)) {

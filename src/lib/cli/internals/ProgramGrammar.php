@@ -12,7 +12,7 @@ class ProgramGrammar {
   public array $subcommand_grammars;
   public array $callback;
 
-  function __construct(string $name, string $version) {
+  public function __construct(string $name, string $version) {
     $this->name                = $name;
     $this->version             = $version;
     $this->flags_grammar       = new FlagsGrammar();
@@ -34,7 +34,7 @@ class ProgramGrammar {
     ));
   }
 
-  function print_help(): void {
+  public function print_help(): void {
     $f = new StreamFormatter(STDOUT);
     Helper::usage($f, $this->name, '[FLAGS]', '[SUBCOMMAND]');
     $f->newline();
@@ -43,15 +43,15 @@ class ProgramGrammar {
     Helper::section($f, 'subcommands', ...$this->subcommand_grammars);
   }
 
-  function print_version(): void {
+  public function print_version(): void {
     echo "$this->name $this->version\n";
   }
 
-  function print_completion_script(): void {
+  public function print_completion_script(): void {
     echo file_get_contents(realpath(__DIR__ . '/completion.sh'));
   }
 
-  function subcommand_completions(): array {
+  public function subcommand_completions(): array {
     $comps = [];
     foreach ($this->subcommand_grammars as $subcommand_grammar) {
       $comps[] = $subcommand_grammar->id;
@@ -59,18 +59,18 @@ class ProgramGrammar {
     return $comps;
   }
 
-  function completions(): array {
+  public function completions(): array {
     return array_merge(
       $this->flags_grammar->completions(),
       $this->subcommand_completions()
     );
   }
 
-  function add_flag(FlagGrammar $flag): void {
+  public function add_flag(FlagGrammar $flag): void {
     $this->flags_grammar->add($flag);
   }
 
-  function add_subcommand(SubcommandGrammar $new_grammar): void {
+  public function add_subcommand(SubcommandGrammar $new_grammar): void {
     foreach ($this->subcommand_grammars as $existing_grammar) {
       if ($existing_grammar->id === $new_grammar->id) {
         $fmt = 'cannot have multiple subcommands named `%s`';
@@ -81,7 +81,7 @@ class ProgramGrammar {
     $this->subcommand_grammars[] = $new_grammar;
   }
 
-  function complete_callback(Lookup $flags, Lookup $args) {
+  public function complete_callback(Lookup $flags, Lookup $args) {
     if (
       !isset($_ENV['COMP_CWORD']) ||
       !isset($_ENV['COMP_LINE']) ||
@@ -130,7 +130,7 @@ class ProgramGrammar {
     echo implode(PHP_EOL, $completions);
   }
 
-  function get_subcommand(string $token): ?SubcommandGrammar {
+  public function get_subcommand(string $token): ?SubcommandGrammar {
     foreach ($this->subcommand_grammars as $grammar) {
       if ($grammar->id === $token) {
         return $grammar;
@@ -147,11 +147,11 @@ class ProgramGrammar {
     return null;
   }
 
-  function add_callback(callable $callback): void {
+  public function add_callback(callable $callback): void {
     $this->callback = $callback;
   }
 
-  function parse_subcommand(Scanner $scanner) {
+  public function parse_subcommand(Scanner $scanner) {
     if ($scanner->is_empty()) {
       return null;
     }
@@ -162,9 +162,10 @@ class ProgramGrammar {
     }
 
     Scanner::fatal_error('unknown subcommand: `%s`', $token);
+    die(1);
   }
 
-  function parse(Scanner $scanner): ProgramResult {
+  public function parse(Scanner $scanner): ProgramResult {
     $flags      = $this->flags_grammar->parse($scanner);
     $subcommand = $this->parse_subcommand($scanner);
 
@@ -175,7 +176,7 @@ class ProgramGrammar {
     return new ProgramResult($this, $flags, $subcommand);
   }
 
-  function dispatch(Lookup $flags) {
+  public function dispatch(Lookup $flags) {
     if ($this->callback) {
       call_user_func($this->callback, $flags);
     }

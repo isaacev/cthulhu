@@ -7,7 +7,7 @@ class WildcardPattern extends Pattern {
     return [];
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return '_';
   }
 }

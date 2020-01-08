@@ -12,14 +12,14 @@ class CompoundRef extends Node {
    * @param Name[]       $body
    * @param StarRef|Name $tail
    */
-  function __construct(bool $extern, array $body, $tail) {
+  public function __construct(bool $extern, array $body, $tail) {
     parent::__construct();
     $this->extern = $extern;
     $this->body   = $body;
     $this->tail   = $tail;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       $this->body,
       [ $this->tail ]

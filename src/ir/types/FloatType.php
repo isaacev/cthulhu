@@ -36,15 +36,15 @@ class FloatType extends Type {
     return parent::apply_operator($op, ...$operands);
   }
 
-  function similar_to(Walkable $other): bool {
+  public function similar_to(Walkable $other): bool {
     return $other instanceof self;
   }
 
-  function equals(Type $other): bool {
+  public function equals(Type $other): bool {
     return $other instanceof FloatType;
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return "Float";
   }
 }

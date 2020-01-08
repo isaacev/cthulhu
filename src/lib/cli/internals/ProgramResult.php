@@ -7,7 +7,7 @@ class ProgramResult {
   public FlagsResult $flags;
   public ?SubcommandResult $subcommand;
 
-  function __construct(ProgramGrammar $grammar, FlagsResult $flags, ?SubcommandResult $subcommand) {
+  public function __construct(ProgramGrammar $grammar, FlagsResult $flags, ?SubcommandResult $subcommand) {
     $this->grammar    = $grammar;
     $this->flags      = $flags;
     $this->subcommand = $subcommand;

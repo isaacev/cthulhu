@@ -8,12 +8,12 @@ class OrderedVariantNode extends VariantNode {
   protected types\OrderedVariant $types;
   protected array $child_nodes = [];
 
-  function __construct(string $name, types\OrderedVariant $types) {
+  public function __construct(string $name, types\OrderedVariant $types) {
     parent::__construct($name);
     $this->types = $types;
   }
 
-  function is_covered(): bool {
+  public function is_covered(): bool {
     foreach ($this->types->order as $index => $type) {
       if (array_key_exists($index, $this->child_nodes)) {
         if ($this->child_nodes[$index]->is_covered() === false) {
@@ -26,7 +26,7 @@ class OrderedVariantNode extends VariantNode {
     return true;
   }
 
-  function is_redundant(Pattern $pattern): bool {
+  public function is_redundant(Pattern $pattern): bool {
     assert($pattern instanceof VariantPattern);
     assert($pattern->name === $this->name);
     assert($pattern->fields instanceof OrderedVariantFields);
@@ -42,7 +42,7 @@ class OrderedVariantNode extends VariantNode {
     return true;
   }
 
-  function apply(Pattern $pattern): void {
+  public function apply(Pattern $pattern): void {
     assert($pattern instanceof VariantPattern);
     assert($pattern->name === $this->name);
     assert($pattern->fields instanceof OrderedVariantFields);
@@ -54,7 +54,7 @@ class OrderedVariantNode extends VariantNode {
     }
   }
 
-  function uncovered_patterns(): array {
+  public function uncovered_patterns(): array {
     if ($this->is_covered()) {
       return [];
     }

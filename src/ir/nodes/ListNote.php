@@ -5,12 +5,12 @@ namespace Cthulhu\ir\nodes;
 class ListNote extends Note {
   public ?Note $elements;
 
-  function __construct(?Note $elements) {
+  public function __construct(?Note $elements) {
     parent::__construct();
     $this->elements = $elements;
   }
 
-  function children(): array {
+  public function children(): array {
     return [ $this->elements ];
   }
 }

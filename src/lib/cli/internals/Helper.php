@@ -5,9 +5,9 @@ namespace Cthulhu\lib\cli\internals;
 use Cthulhu\lib\fmt\Formatter;
 
 class Helper {
-  const COLUMN_SPACER = 4;
+  public const COLUMN_SPACER = 4;
 
-  static function aligned_descriptions(Formatter $f, Describeable ...$pairs): void {
+  public static function aligned_descriptions(Formatter $f, Describeable ...$pairs): void {
     $max_width = 0;
     foreach ($pairs as $pair) {
       $max_width = max($max_width, strlen($pair->full_name()));
@@ -26,7 +26,7 @@ class Helper {
     $f->pop_tab_stop();
   }
 
-  static function section(Formatter $f, string $title, Describeable ...$pairs): void {
+  public static function section(Formatter $f, string $title, Describeable ...$pairs): void {
     $f->printf('%s:', strtoupper($title))
       ->newline();
 
@@ -39,7 +39,7 @@ class Helper {
     }
   }
 
-  static function usage(Formatter $f, string ...$segments): void {
+  public static function usage(Formatter $f, string ...$segments): void {
     $f->print('USAGE:')
       ->newline()
       ->tab_to(self::COLUMN_SPACER)

@@ -3,7 +3,7 @@
 namespace Cthulhu\lib\cli\internals;
 
 class BoolFlagGrammar extends FlagGrammar {
-  function completions(): array {
+  public function completions(): array {
     if ($this->has_short_form()) {
       return [
         "-$this->short",
@@ -18,7 +18,7 @@ class BoolFlagGrammar extends FlagGrammar {
     }
   }
 
-  function matches(string $token): bool {
+  public function matches(string $token): bool {
     return (
       $token === $this->id ||
       $token === "no-$this->id" ||
@@ -26,7 +26,7 @@ class BoolFlagGrammar extends FlagGrammar {
     );
   }
 
-  function parse(string $token, Scanner $scanner): FlagResult {
+  public function parse(string $token, Scanner $scanner): FlagResult {
     if ($token === "no-$this->id") {
       return new FlagResult($this->id, false);
     } else {

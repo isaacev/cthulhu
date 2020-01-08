@@ -5,11 +5,11 @@ namespace Cthulhu\ir\patterns;
 class ParamNode extends Node {
   protected bool $has_wildcard = false;
 
-  function is_covered(): bool {
+  public function is_covered(): bool {
     return $this->has_wildcard;
   }
 
-  function is_redundant(Pattern $pattern): bool {
+  public function is_redundant(Pattern $pattern): bool {
     return $this->is_covered();
   }
 

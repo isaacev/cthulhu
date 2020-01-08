@@ -5,36 +5,36 @@ namespace Cthulhu\lib\cli;
 class Program {
   public internals\ProgramGrammar $grammar;
 
-  function __construct(string $name, string $version) {
+  public function __construct(string $name, string $version) {
     $this->grammar = new internals\ProgramGrammar($name, $version);
   }
 
-  function bool_flag(string $name, string $description): self {
+  public function bool_flag(string $name, string $description): self {
     [ $id, $short ] = self::parse_flag_name($name);
     $flag_grammar = new internals\BoolFlagGrammar($id, $short, $description);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }
 
-  function short_circuit_flag(string $name, string $description, callable $callback): self {
+  public function short_circuit_flag(string $name, string $description, callable $callback): self {
     [ $id, $short ] = self::parse_flag_name($name);
     $flag_grammar = new internals\ShortCircuitFlagGrammar($id, $short, $description, $callback);
     $this->grammar->add_flag($flag_grammar);
     return $this;
   }
 
-  function subcommand(string $id, string $description): Subcommand {
+  public function subcommand(string $id, string $description): Subcommand {
     $subcommand = new Subcommand($this->grammar->name, $id, $description);
     $this->grammar->add_subcommand($subcommand->grammar);
     return $subcommand;
   }
 
-  function callback(callable $callback): self {
+  public function callback(callable $callback): self {
     $this->grammar->add_callback($callback);
     return $this;
   }
 
-  function parse(array $raw): void {
+  public function parse(array $raw): void {
     $scanner = new internals\Scanner(array_slice($raw, 1));
     $result  = $this->grammar->parse($scanner);
 
@@ -54,6 +54,7 @@ class Program {
     } else {
       $fmt = 'cannot parse flag named `%s`';
       internals\Scanner::fatal_error($fmt, $name);
+      die(1);
     }
   }
 }

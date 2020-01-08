@@ -12,7 +12,7 @@ class FuncHead extends Node {
    * @param Name       $name
    * @param Variable[] $params
    */
-  function __construct(Name $name, array $params) {
+  public function __construct(Name $name, array $params) {
     parent::__construct();
     $this->name   = $name;
     $this->params = $params;

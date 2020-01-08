@@ -10,6 +10,8 @@ trait Unary {
   }
 
   public function from_children(array $nodes): nodes\Node {
+    /** @noinspection PhpMethodParametersCountMismatchInspection */
+    /** @noinspection PhpIncompatibleReturnTypeInspection */
     return new self($nodes[0]);
   }
 }

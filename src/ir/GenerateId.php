@@ -6,7 +6,7 @@ trait GenerateId {
   private static int $next_id = 1;
   protected int $id;
 
-  function __construct() {
+  public function __construct() {
     $this->id = self::$next_id++;
   }
 

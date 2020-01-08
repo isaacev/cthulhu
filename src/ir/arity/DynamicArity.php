@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\arity;
 
 class DynamicArity extends KnownArity {
-  function __construct(int $params, Arity $returns) {
+  public function __construct(int $params, Arity $returns) {
     assert($params > 0);
     parent::__construct($params, $returns);
   }

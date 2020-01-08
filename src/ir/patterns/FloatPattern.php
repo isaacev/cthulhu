@@ -7,11 +7,11 @@ use Cthulhu\val\FloatValue;
 class FloatPattern extends Pattern {
   public FloatValue $value;
 
-  function __construct(FloatValue $value) {
+  public function __construct(FloatValue $value) {
     $this->value = $value;
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->value->encode_as_php();
   }
 }

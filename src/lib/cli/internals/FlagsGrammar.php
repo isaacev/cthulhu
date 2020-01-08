@@ -5,11 +5,11 @@ namespace Cthulhu\lib\cli\internals;
 class FlagsGrammar {
   public array $flags = [];
 
-  function add(FlagGrammar $flag) {
+  public function add(FlagGrammar $flag) {
     $this->flags[] = $flag;
   }
 
-  function get(string $token): ?FlagGrammar {
+  public function get(string $token): ?FlagGrammar {
     foreach ($this->flags as $flag) {
       if ($flag->matches($token)) {
         return $flag;
@@ -18,7 +18,7 @@ class FlagsGrammar {
     return null;
   }
 
-  function completions(): array {
+  public function completions(): array {
     $comps = [];
     foreach ($this->flags as $flag) {
       $comps = array_merge($comps, $flag->completions());
@@ -26,7 +26,7 @@ class FlagsGrammar {
     return $comps;
   }
 
-  function parse_single_flag(Scanner $scanner): FlagResult {
+  public function parse_single_flag(Scanner $scanner): FlagResult {
     $next = $scanner->advance();
     if (preg_match('/^(--(\S+))|(-([a-zA-Z0-9]))$/', $next, $matches)) {
       $token = empty($matches[2]) ? $matches[4] : $matches[2];
@@ -35,9 +35,10 @@ class FlagsGrammar {
       }
     }
     Scanner::fatal_error('unknown flag: `%s`', $next);
+    die(1);
   }
 
-  function parse(Scanner $scanner): FlagsResult {
+  public function parse(Scanner $scanner): FlagsResult {
     $flag_results = [];
     while ($scanner->not_empty()) {
       if ($scanner->next_is('/^--$/')) {

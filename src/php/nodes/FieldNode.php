@@ -9,24 +9,24 @@ class FieldNode extends Node {
   public Name $name;
   public Expr $expr;
 
-  function __construct(Name $name, Expr $expr) {
+  public function __construct(Name $name, Expr $expr) {
     parent::__construct();
     $this->name = $name;
     $this->expr = $expr;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return [
       $this->name,
       $this->expr,
     ];
   }
 
-  function from_children(array $nodes): Node {
+  public function from_children(array $nodes): Node {
     return new self($nodes[0], $nodes[1]);
   }
 
-  function build(): Builder {
+  public function build(): Builder {
     return (new Builder)
       ->value(StringValue::from_safe_scalar($this->name->value))
       ->space()

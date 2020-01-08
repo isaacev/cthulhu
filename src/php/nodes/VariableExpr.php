@@ -7,7 +7,7 @@ use Cthulhu\php\Builder;
 class VariableExpr extends Expr {
   public Variable $variable;
 
-  function __construct(Variable $variable) {
+  public function __construct(Variable $variable) {
     parent::__construct();
     $this->variable = $variable;
   }

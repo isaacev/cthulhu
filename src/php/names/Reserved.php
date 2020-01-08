@@ -3,7 +3,7 @@
 namespace Cthulhu\php\names;
 
 class Reserved {
-  const WORDS = [
+  public const WORDS = [
     '__halt_compiler',
     'abstract',
     'and',

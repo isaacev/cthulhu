@@ -12,7 +12,7 @@ class FixedType extends Type {
   public TypeSymbol $symbol;
   public Name $name;
 
-  function __construct(TypeSymbol $symbol, Name $name) {
+  public function __construct(TypeSymbol $symbol, Name $name) {
     $this->symbol = $symbol;
     $this->name   = $name;
   }
@@ -21,7 +21,7 @@ class FixedType extends Type {
     return $other instanceof self;
   }
 
-  function equals(Type $other): bool {
+  public function equals(Type $other): bool {
     return (
       $other instanceof self &&
       $this->symbol->equals($other->symbol)

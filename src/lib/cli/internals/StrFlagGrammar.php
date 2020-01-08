@@ -6,13 +6,13 @@ class StrFlagGrammar extends FlagGrammar {
   public string $arg_name;
   public ?array $pattern;
 
-  function __construct(string $id, ?string $short, string $description, string $arg_name, ?array $pattern) {
+  public function __construct(string $id, ?string $short, string $description, string $arg_name, ?array $pattern) {
     parent::__construct($id, $short, $description);
     $this->arg_name = $arg_name;
     $this->pattern  = $pattern;
   }
 
-  function completions(): array {
+  public function completions(): array {
     if ($this->has_short_form()) {
       return [
         "-$this->short",
@@ -23,14 +23,14 @@ class StrFlagGrammar extends FlagGrammar {
     }
   }
 
-  function matches(string $token): bool {
+  public function matches(string $token): bool {
     return (
       $token === $this->id ||
       $token === $this->short
     );
   }
 
-  function parse(string $token, Scanner $scanner): FlagResult {
+  public function parse(string $token, Scanner $scanner): FlagResult {
     if ($scanner->is_empty()) {
       $fmt = 'flag `$this->id` requires a result';
       Scanner::fatal_error($fmt, $this->id);
@@ -50,7 +50,7 @@ class StrFlagGrammar extends FlagGrammar {
     return new FlagResult($this->id, $value);
   }
 
-  function full_name(): string {
+  public function full_name(): string {
     return parent::full_name() . ' <' . $this->arg_name . '>';
   }
 }

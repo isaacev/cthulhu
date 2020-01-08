@@ -7,14 +7,14 @@ class LetStmt extends Stmt {
   public ?Note $note;
   public Expr $expr;
 
-  function __construct(Name $name, ?Note $note, Expr $expr) {
+  public function __construct(Name $name, ?Note $note, Expr $expr) {
     parent::__construct();
     $this->name = $name;
     $this->note = $note;
     $this->expr = $expr;
   }
 
-  function children(): array {
+  public function children(): array {
     return [
       $this->name,
       $this->note,

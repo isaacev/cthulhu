@@ -3,14 +3,13 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
-use Exception;
 
 class BinaryExpr extends Expr {
   public string $operator;
   public Expr $left;
   public Expr $right;
 
-  function __construct(string $operator, Expr $left, Expr $right) {
+  public function __construct(string $operator, Expr $left, Expr $right) {
     parent::__construct();
     $this->operator = $operator;
     $this->left     = $left;
@@ -52,7 +51,7 @@ class BinaryExpr extends Expr {
       case '**':
         return Precedence::EXPONENT;
       default:
-        throw new Exception("unknown precedence for `$this->operator` operator");
+        die("unknown precedence for `$this->operator` operator\n");
     }
   }
 

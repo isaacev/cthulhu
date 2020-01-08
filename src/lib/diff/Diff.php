@@ -41,7 +41,7 @@ class Diff {
     );
   }
 
-  static function lines(string $before, string $after): array {
+  public static function lines(string $before, string $after): array {
     $before = explode(PHP_EOL, $before);
     $after  = explode(PHP_EOL, $after);
     $lines  = [];

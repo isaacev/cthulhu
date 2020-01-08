@@ -9,7 +9,7 @@ class Variable extends Node {
   public string $value;
   public names\Symbol $symbol;
 
-  function __construct(string $value, names\Symbol $symbol) {
+  public function __construct(string $value, names\Symbol $symbol) {
     parent::__construct();
     $this->value  = $value;
     $this->symbol = $symbol;

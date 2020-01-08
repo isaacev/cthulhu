@@ -8,12 +8,12 @@ class Program extends Node {
   /**
    * @param Library[] $libs
    */
-  function __construct(array $libs) {
+  public function __construct(array $libs) {
     parent::__construct();
     $this->libs = $libs;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->libs;
   }
 }

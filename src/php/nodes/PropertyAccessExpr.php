@@ -8,24 +8,24 @@ class PropertyAccessExpr extends Expr {
   public Expr $expr;
   public Variable $prop;
 
-  function __construct(Expr $expr, Variable $prop) {
+  public function __construct(Expr $expr, Variable $prop) {
     parent::__construct();
     $this->expr = $expr;
     $this->prop = $prop;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return [
       $this->expr,
       $this->prop,
     ];
   }
 
-  function from_children(array $nodes): Node {
+  public function from_children(array $nodes): Node {
     return new self($nodes[0], $nodes[1]);
   }
 
-  function build(): Builder {
+  public function build(): Builder {
     return (new Builder)
       ->expr($this->expr, $this->precedence())
       ->thin_arrow()

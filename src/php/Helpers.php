@@ -10,7 +10,7 @@ class Helpers {
    * @param nodes\Reference $runtime_namespace
    * @return nodes\FuncStmt
    */
-  static function get(string $helper_name, nodes\Reference $runtime_namespace): nodes\FuncStmt {
+  public static function get(string $helper_name, nodes\Reference $runtime_namespace): nodes\FuncStmt {
     switch ($helper_name) {
       case 'curry':
         return self::get_curry_helper($runtime_namespace);
@@ -19,7 +19,7 @@ class Helpers {
     }
   }
 
-  static function get_curry_helper(nodes\Reference $runtime_namespace): nodes\FuncStmt {
+  public static function get_curry_helper(nodes\Reference $runtime_namespace): nodes\FuncStmt {
     $fn             = new nodes\Variable('fn', new names\Symbol());
     $argv           = new nodes\Variable('argv', new names\Symbol());
     $arity          = new nodes\Variable('arity', new names\Symbol());

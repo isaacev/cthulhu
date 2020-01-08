@@ -10,7 +10,7 @@ class CallExpr extends Expr {
    * @param Expr   $callee
    * @param Expr[] $args
    */
-  function __construct(Expr $callee, array $args) {
+  public function __construct(Expr $callee, array $args) {
     parent::__construct();
     assert(($callee instanceof self) === false);
     assert(empty($args) === false);
@@ -18,7 +18,7 @@ class CallExpr extends Expr {
     $this->args   = $args;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->callee ],
       $this->args

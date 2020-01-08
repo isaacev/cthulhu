@@ -6,7 +6,7 @@ abstract class KnownArity extends Arity {
   public int $params;
   public Arity $returns;
 
-  function __construct(int $params, Arity $returns) {
+  public function __construct(int $params, Arity $returns) {
     $this->params  = $params;
     $this->returns = $returns;
   }

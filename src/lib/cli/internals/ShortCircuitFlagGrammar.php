@@ -16,12 +16,12 @@ namespace Cthulhu\lib\cli\internals;
 class ShortCircuitFlagGrammar extends FlagGrammar {
   public $callback;
 
-  function __construct(string $id, ?string $short, string $description, callable $callback) {
+  public function __construct(string $id, ?string $short, string $description, callable $callback) {
     parent::__construct($id, $short, $description);
     $this->callback = $callback;
   }
 
-  function completions(): array {
+  public function completions(): array {
     if ($this->has_short_form()) {
       return [
         "-$this->short",
@@ -32,14 +32,14 @@ class ShortCircuitFlagGrammar extends FlagGrammar {
     }
   }
 
-  function matches(string $token): bool {
+  public function matches(string $token): bool {
     return (
       $token === $this->id ||
       $token === $this->short
     );
   }
 
-  function parse(string $token, Scanner $scanner): FlagResult {
+  public function parse(string $token, Scanner $scanner): FlagResult {
     call_user_func($this->callback);
     exit(0);
   }

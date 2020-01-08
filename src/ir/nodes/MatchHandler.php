@@ -5,12 +5,12 @@ namespace Cthulhu\ir\nodes;
 class MatchHandler extends Node {
   public ReturnStmt $stmt;
 
-  function __construct(ReturnStmt $stmt) {
+  public function __construct(ReturnStmt $stmt) {
     parent::__construct();
     $this->stmt = $stmt;
   }
 
-  function children(): array {
+  public function children(): array {
     return [ $this->stmt ];
   }
 }

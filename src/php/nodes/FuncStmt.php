@@ -9,7 +9,7 @@ class FuncStmt extends Stmt {
   public BlockNode $body;
   public array $attrs;
 
-  function __construct(FuncHead $head, BlockNode $body, array $attrs) {
+  public function __construct(FuncHead $head, BlockNode $body, array $attrs) {
     parent::__construct();
     $this->head  = $head;
     $this->body  = $body;

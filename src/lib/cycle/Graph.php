@@ -9,7 +9,7 @@ class Graph {
   protected array $lookup = [];
   protected array $edges = [];
 
-  function __construct(HasId $root) {
+  public function __construct(HasId $root) {
     $this->lookup[$this->root_id = $root->get_id()] = $root;
   }
 

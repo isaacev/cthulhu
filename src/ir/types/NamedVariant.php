@@ -48,11 +48,11 @@ class NamedVariant extends Variant {
     return false;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return $this->mapping;
   }
 
-  function from_children(array $children): self {
+  public function from_children(array $children): self {
     return new NamedVariant($children);
   }
 

@@ -298,7 +298,7 @@ class Check {
    * @param names\RefSymbol $tail_symbol
    * @return nodes\Ref
    */
-  static function build_ref_from_symbol(names\RefSymbol $tail_symbol): nodes\Ref {
+  public static function build_ref_from_symbol(names\RefSymbol $tail_symbol): nodes\Ref {
     $tail_segment = $tail_symbol->get('node');
     assert($tail_segment instanceof nodes\Name);
 
@@ -396,7 +396,7 @@ class Check {
    * @param NamedType            $discriminant_alias
    * @throws Error
    */
-  private static function check_variant_pattern(self $ctx, nodes\VariantPattern $pattern, NamedType $discriminant_alias): void {
+  private static function check_variant_pattern(self $ctx, nodes\VariantPattern $pattern, Type $discriminant_alias): void {
     $discriminant_union = $discriminant_alias->pointer;
     assert($discriminant_union instanceof UnionType);
 

@@ -8,12 +8,12 @@ class NamedVariantPatternFields extends VariantPatternFields {
   /**
    * @param NamedPatternField[] $mapping
    */
-  function __construct(array $mapping) {
+  public function __construct(array $mapping) {
     parent::__construct();
     $this->mapping = $mapping;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->mapping;
   }
 }

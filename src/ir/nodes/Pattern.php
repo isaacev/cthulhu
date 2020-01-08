@@ -3,5 +3,5 @@
 namespace Cthulhu\ir\nodes;
 
 abstract class Pattern extends Node {
-  abstract function __toString(): string;
+  public abstract function __toString(): string;
 }

@@ -10,7 +10,7 @@ class BlockNode extends Node {
   /**
    * @param Stmt[] $stmts
    */
-  function __construct(array $stmts) {
+  public function __construct(array $stmts) {
     parent::__construct();
     $this->stmts = $stmts;
   }

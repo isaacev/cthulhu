@@ -8,7 +8,7 @@ use Cthulhu\val\FloatValue;
 class FloatLiteral extends Literal {
   public FloatValue $value;
 
-  function __construct(FloatValue $value) {
+  public function __construct(FloatValue $value) {
     parent::__construct();
     $this->value = $value;
   }

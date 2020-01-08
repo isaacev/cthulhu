@@ -10,7 +10,7 @@ class ArgumentResult {
    * @param string $id
    * @param mixed  $value
    */
-  function __construct(string $id, $value) {
+  public function __construct(string $id, $value) {
     $this->id    = $id;
     $this->value = $value;
   }

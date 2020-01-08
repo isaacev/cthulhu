@@ -12,20 +12,20 @@ class AssociativeArrayExpr extends Expr {
   /**
    * @param FieldNode[] $fields
    */
-  function __construct(array $fields) {
+  public function __construct(array $fields) {
     parent::__construct();
     $this->fields = $fields;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return $this->fields;
   }
 
-  function from_children(array $nodes): Node {
+  public function from_children(array $nodes): Node {
     return new self($nodes);
   }
 
-  function build(): Builder {
+  public function build(): Builder {
     if (empty($this->fields)) {
       return (new Builder)
         ->bracket_left()

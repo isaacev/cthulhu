@@ -9,7 +9,7 @@ abstract class Node implements ir\HasId {
 
   protected array $metadata = [];
 
-  function has(string $key): bool {
+  public function has(string $key): bool {
     return array_key_exists($key, $this->metadata);
   }
 
@@ -17,7 +17,7 @@ abstract class Node implements ir\HasId {
    * @param string $key
    * @return mixed|null
    */
-  function get(string $key) {
+  public function get(string $key) {
     return $this->has($key) ? $this->metadata[$key] : null;
   }
 
@@ -26,10 +26,10 @@ abstract class Node implements ir\HasId {
    * @param mixed  $value
    * @return $this
    */
-  function set(string $key, $value): self {
+  public function set(string $key, $value): self {
     $this->metadata[$key] = $value;
     return $this;
   }
 
-  abstract function children(): array;
+  public abstract function children(): array;
 }

@@ -8,7 +8,7 @@ class FuncParam extends Node {
   public bool $is_variadic;
   public Variable $variable;
 
-  function __construct(bool $is_variadic, Variable $variable) {
+  public function __construct(bool $is_variadic, Variable $variable) {
     parent::__construct();
     $this->is_variadic = $is_variadic;
     $this->variable    = $variable;
@@ -29,7 +29,7 @@ class FuncParam extends Node {
       ->then($this->variable);
   }
 
-  static function from_var(Variable $variable) {
+  public static function from_var(Variable $variable) {
     return new self(false, $variable);
   }
 }

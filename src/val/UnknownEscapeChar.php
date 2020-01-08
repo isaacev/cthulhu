@@ -2,7 +2,9 @@
 
 namespace Cthulhu\val;
 
-class UnknownEscapeChar extends \Exception {
+use Exception;
+
+class UnknownEscapeChar extends Exception {
   public int $char_offset;
 
   public function __construct(int $char_offset) {

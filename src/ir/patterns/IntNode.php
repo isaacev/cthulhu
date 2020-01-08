@@ -6,11 +6,11 @@ class IntNode extends Node {
   protected bool $has_wildcard = false;
   protected array $has_values = [];
 
-  function is_covered(): bool {
+  public function is_covered(): bool {
     return $this->has_wildcard;
   }
 
-  function is_redundant(Pattern $pattern): bool {
+  public function is_redundant(Pattern $pattern): bool {
     if ($this->is_covered()) {
       return true;
     } else if ($pattern instanceof WildcardPattern) {
@@ -21,7 +21,7 @@ class IntNode extends Node {
     return in_array($pattern->value, $this->has_values);
   }
 
-  function apply(Pattern $pattern): void {
+  public function apply(Pattern $pattern): void {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else if ($pattern instanceof IntPattern) {
@@ -31,7 +31,7 @@ class IntNode extends Node {
     }
   }
 
-  function uncovered_patterns(): array {
+  public function uncovered_patterns(): array {
     if ($this->is_covered()) {
       return [];
     } else {

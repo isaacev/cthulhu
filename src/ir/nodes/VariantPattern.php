@@ -6,7 +6,7 @@ class VariantPattern extends Pattern {
   public Ref $ref;
   public ?VariantPatternFields $fields;
 
-  function __construct(Ref $ref, ?VariantPatternFields $fields) {
+  public function __construct(Ref $ref, ?VariantPatternFields $fields) {
     parent::__construct();
     $this->ref    = $ref;
     $this->fields = $fields;

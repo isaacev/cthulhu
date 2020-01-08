@@ -8,16 +8,16 @@ class OrderedVariantPatternFields extends VariantPatternFields {
   /**
    * @param OrderedVariantPatternField[] $order
    */
-  function __construct(array $order) {
+  public function __construct(array $order) {
     parent::__construct();
     $this->order = $order;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->order;
   }
 
-  function __toString() {
+  public function __toString() {
     return '(' . implode(', ', $this->order) . ')';
   }
 }

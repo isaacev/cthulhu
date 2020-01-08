@@ -5,11 +5,11 @@ namespace Cthulhu\lib\cli;
 class Lookup {
   protected array $table;
 
-  function __construct(array $table) {
+  public function __construct(array $table) {
     $this->table = $table;
   }
 
-  function get(string $id, $fallback = null) {
+  public function get(string $id, $fallback = null) {
     if (array_key_exists($id, $this->table) && !empty($this->table[$id])) {
       return end($this->table[$id]);
     } else {
@@ -17,7 +17,7 @@ class Lookup {
     }
   }
 
-  function get_all(string $id, $fallback = null) {
+  public function get_all(string $id, $fallback = null) {
     if (array_key_exists($id, $this->table)) {
       return $this->table[$id];
     } else {
@@ -25,7 +25,7 @@ class Lookup {
     }
   }
 
-  static function from_flat_array(array $list): self {
+  public static function from_flat_array(array $list): self {
     $table = [];
     foreach ($list as $flag) {
       if (array_key_exists($flag->id, $table)) {

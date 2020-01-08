@@ -6,9 +6,9 @@ use Cthulhu\ir\nodes;
 use Cthulhu\ir\types;
 
 abstract class Pattern {
-  abstract function __toString(): string;
+  public abstract function __toString(): string;
 
-  static function from(nodes\Pattern $pattern, types\Type $type): self {
+  public static function from(nodes\Pattern $pattern, types\Type $type): self {
     if ($pattern instanceof nodes\VariantPattern) {
       assert($type instanceof types\NamedType);
       assert($type->pointer instanceof types\UnionType);

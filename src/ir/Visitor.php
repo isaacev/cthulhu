@@ -3,7 +3,7 @@
 namespace Cthulhu\ir;
 
 class Visitor {
-  static function walk(nodes\Node $start, array $callbacks): void {
+  public static function walk(nodes\Node $start, array $callbacks): void {
     $path      = new Path(null, $start);
     $callbacks = new CallbackTable($callbacks);
     self::_walk($path, $callbacks);
@@ -23,7 +23,7 @@ class Visitor {
 class CallbackTable {
   private array $callbacks = [];
 
-  function __construct(array $callbacks) {
+  public function __construct(array $callbacks) {
     foreach ($callbacks as $selector => $callback) {
       $direction = 'enter';
       if (preg_match('/^enter\((.+)\)$/', $selector, $matches)) {
@@ -45,7 +45,7 @@ class CallbackTable {
     }
   }
 
-  function preorder(Path $path) {
+  public function preorder(Path $path) {
     foreach (self::get_node_kinds($path->node) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('enter', $this->callbacks[$kind])) {
@@ -55,7 +55,7 @@ class CallbackTable {
     }
   }
 
-  function postorder(Path $path) {
+  public function postorder(Path $path) {
     foreach (self::get_node_kinds($path->node) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('exit', $this->callbacks[$kind])) {

@@ -28,7 +28,7 @@ class Lower {
   private array $function_heads = [];
   private array $block_exit_handlers = [];
 
-  function __construct() {
+  public function __construct() {
     $this->root_scope = new names\Scope();
     $this->root_scope->use_name('runtime');
   }

@@ -16,7 +16,7 @@ class SubcommandGrammar implements Describeable {
    */
   public $callback;
 
-  function __construct(string $program_name, string $id, string $description) {
+  public function __construct(string $program_name, string $id, string $description) {
     $this->program_name      = $program_name;
     $this->id                = $id;
     $this->description       = $description;
@@ -32,7 +32,7 @@ class SubcommandGrammar implements Describeable {
     ));
   }
 
-  function print_help(): void {
+  public function print_help(): void {
     $f = new StreamFormatter(STDOUT);
     Helper::usage($f, $this->program_name, $this->id, '[FLAGS]', ...$this->argument_grammars);
     $f->newline();
@@ -41,23 +41,23 @@ class SubcommandGrammar implements Describeable {
     Helper::section($f, 'arguments', ...$this->argument_grammars);
   }
 
-  function completions(): array {
+  public function completions(): array {
     return $this->flags_grammar->completions();
   }
 
-  function full_name(): string {
+  public function full_name(): string {
     return $this->id;
   }
 
-  function description(): string {
+  public function description(): string {
     return $this->description;
   }
 
-  function add_flag(FlagGrammar $new_grammar): void {
+  public function add_flag(FlagGrammar $new_grammar): void {
     $this->flags_grammar->add($new_grammar);
   }
 
-  function add_argument(ArgumentGrammar $new_grammar): void {
+  public function add_argument(ArgumentGrammar $new_grammar): void {
     foreach ($this->argument_grammars as $existing_grammar) {
       $both_are_variadic = (
         $existing_grammar instanceof VariadicArgumentGrammar &&
@@ -76,11 +76,11 @@ class SubcommandGrammar implements Describeable {
     $this->argument_grammars[] = $new_grammar;
   }
 
-  function add_callback(callable $callback): void {
+  public function add_callback(callable $callback): void {
     $this->callback = $callback;
   }
 
-  function parse_args(Scanner $scanner): array {
+  public function parse_args(Scanner $scanner): array {
     $args = [];
     foreach ($this->argument_grammars as $grammar) {
       $args[] = $grammar->parse($scanner);
@@ -88,7 +88,7 @@ class SubcommandGrammar implements Describeable {
     return $args;
   }
 
-  function parse(ProgramGrammar $program, Scanner $scanner): SubcommandResult {
+  public function parse(ProgramGrammar $program, Scanner $scanner): SubcommandResult {
     $flags = $this->flags_grammar->parse($scanner);
     $args  = $this->parse_args($scanner);
 
@@ -102,7 +102,7 @@ class SubcommandGrammar implements Describeable {
     return new SubcommandResult($this, $flags, $args);
   }
 
-  function dispatch(ProgramResult $program_result) {
+  public function dispatch(ProgramResult $program_result) {
     $flags = Lookup::from_flat_array($program_result->subcommand->flags->flags);
     $args  = Lookup::from_flat_array($program_result->subcommand->arguments);
     if ($this->callback) {

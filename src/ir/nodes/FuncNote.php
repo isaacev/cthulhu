@@ -10,13 +10,13 @@ class FuncNote extends Note {
    * @param Note[] $inputs
    * @param Note   $output
    */
-  function __construct(array $inputs, Note $output) {
+  public function __construct(array $inputs, Note $output) {
     parent::__construct();
     $this->inputs = $inputs;
     $this->output = $output;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       $this->inputs,
       [ $this->output ]

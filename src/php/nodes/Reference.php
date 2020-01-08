@@ -9,7 +9,7 @@ class Reference extends Node {
   public string $segments;
   public names\Symbol $symbol;
 
-  function __construct(string $segments, names\Symbol $symbol) {
+  public function __construct(string $segments, names\Symbol $symbol) {
     parent::__construct();
     $this->segments = $segments;
     $this->symbol   = $symbol;

@@ -10,24 +10,24 @@ class Library extends Node {
    * @param Name   $name
    * @param Item[] $items
    */
-  function __construct(Name $name, array $items) {
+  public function __construct(Name $name, array $items) {
     parent::__construct();
     $this->name  = $name;
     $this->items = $items;
   }
 
-  function get_name(): string {
+  public function get_name(): string {
     return $this->name->value;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->name ],
       $this->items
     );
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->get_name();
   }
 }

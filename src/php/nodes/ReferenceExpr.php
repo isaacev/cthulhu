@@ -8,7 +8,7 @@ class ReferenceExpr extends Expr {
   public Reference $reference;
   public bool $is_quoted;
 
-  function __construct(Reference $reference, bool $is_quoted) {
+  public function __construct(Reference $reference, bool $is_quoted) {
     parent::__construct();
     $this->reference = $reference;
     $this->is_quoted = $is_quoted;

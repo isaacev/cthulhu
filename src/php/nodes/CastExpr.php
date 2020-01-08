@@ -8,13 +8,13 @@ class CastExpr extends Expr {
   public string $to_type;
   public Expr $expr;
 
-  function __construct(string $to_type, Expr $expr) {
+  public function __construct(string $to_type, Expr $expr) {
     parent::__construct();
     $this->to_type = $to_type;
     $this->expr    = $expr;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return [ $this->expr ];
   }
 

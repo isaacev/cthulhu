@@ -12,7 +12,7 @@ class ArrowExpr extends Expr {
    * @param FuncParam[] $params
    * @param Expr        $body
    */
-  function __construct(array $params, Expr $body) {
+  public function __construct(array $params, Expr $body) {
     parent::__construct();
     $this->params = $params;
     $this->body   = $body;

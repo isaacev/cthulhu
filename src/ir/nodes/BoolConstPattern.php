@@ -7,7 +7,7 @@ use Cthulhu\val\BooleanValue;
 class BoolConstPattern extends ConstPattern {
   public BooleanValue $value;
 
-  function __construct(BooleanValue $value) {
+  public function __construct(BooleanValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,7 +16,7 @@ class BoolConstPattern extends ConstPattern {
     return [];
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->value->encode_as_php();
   }
 }

@@ -48,11 +48,11 @@ class OrderedVariant extends Variant {
     return false;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return $this->order;
   }
 
-  function from_children(array $children): self {
+  public function from_children(array $children): self {
     return new OrderedVariant($children);
   }
 

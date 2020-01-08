@@ -9,6 +9,7 @@ trait Atomic {
     return [];
   }
 
+  /** @noinspection PhpIncompatibleReturnTypeInspection */
   public function from_children(array $nodes): nodes\Node {
     return $this;
   }

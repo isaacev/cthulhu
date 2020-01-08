@@ -8,11 +8,11 @@ class NamedVariantFields extends VariantFields {
   /**
    * @param Pattern[] $mapping
    */
-  function __construct(array $mapping) {
+  public function __construct(array $mapping) {
     $this->mapping = $mapping;
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     $out = '';
     foreach ($this->mapping as $name => $pattern) {
       if (empty($out)) {

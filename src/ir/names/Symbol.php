@@ -9,7 +9,7 @@ abstract class Symbol implements ir\HasId {
 
   protected array $metadata = [];
 
-  function has(string $key): bool {
+  public function has(string $key): bool {
     return array_key_exists($key, $this->metadata);
   }
 
@@ -17,7 +17,7 @@ abstract class Symbol implements ir\HasId {
    * @param string $key
    * @return mixed|null
    */
-  function get(string $key) {
+  public function get(string $key) {
     return $this->has($key) ? $this->metadata[$key] : null;
   }
 
@@ -26,14 +26,14 @@ abstract class Symbol implements ir\HasId {
    * @param mixed  $value
    * @return $this
    */
-  function set(string $key, $value) {
+  public function set(string $key, $value) {
     $this->metadata[$key] = $value;
     return $this;
   }
 
-  function equals(Symbol $other): bool {
+  public function equals(Symbol $other): bool {
     return $this->get_id() === $other->get_id();
   }
 
-  abstract function __toString(): string;
+  public abstract function __toString(): string;
 }

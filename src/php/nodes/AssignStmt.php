@@ -8,7 +8,7 @@ class AssignStmt extends Stmt {
   public Node $assignee;
   public Expr $expr;
 
-  function __construct(Node $assignee, Expr $expr) {
+  public function __construct(Node $assignee, Expr $expr) {
     parent::__construct();
     $this->assignee = $assignee;
     $this->expr     = $expr;

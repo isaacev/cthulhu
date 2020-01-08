@@ -7,7 +7,7 @@ use Cthulhu\php\Builder;
 class EchoStmt extends Stmt {
   public Expr $expr;
 
-  function __construct(Expr $expr) {
+  public function __construct(Expr $expr) {
     parent::__construct();
     $this->expr = $expr;
   }

@@ -8,7 +8,7 @@ trait NoChildren {
   /**
    * @return Type[]
    */
-  function to_children(): array {
+  public function to_children(): array {
     return [];
   }
 
@@ -16,7 +16,7 @@ trait NoChildren {
    * @param Type[] $children
    * @return $this
    */
-  function from_children(array $children): self {
+  public function from_children(array $children): self {
     return $this;
   }
 }

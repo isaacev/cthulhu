@@ -6,7 +6,7 @@ class PipeExpr extends Expr {
   public Expr $left;
   public Expr $right;
 
-  function __construct(Expr $left, Expr $right) {
+  public function __construct(Expr $left, Expr $right) {
     parent::__construct();
     $this->left  = $left;
     $this->right = $right;

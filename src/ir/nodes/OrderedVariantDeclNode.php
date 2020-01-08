@@ -9,12 +9,12 @@ class OrderedVariantDeclNode extends VariantDeclNode {
    * @param Name   $name
    * @param Note[] $members
    */
-  function __construct(Name $name, array $members) {
+  public function __construct(Name $name, array $members) {
     parent::__construct($name);
     $this->members = $members;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->name ],
       $this->members

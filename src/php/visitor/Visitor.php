@@ -5,7 +5,7 @@ namespace Cthulhu\php\visitor;
 use Cthulhu\php;
 
 class Visitor {
-  static function walk(php\nodes\Node $node, array $callbacks): void {
+  public static function walk(php\nodes\Node $node, array $callbacks): void {
     $path  = new Path(null, $node);
     $table = new Table($callbacks);
     self::_walk($path, $table);
@@ -22,7 +22,7 @@ class Visitor {
     $table->postorder($path);
   }
 
-  static function edit(php\nodes\Node $node, array $callbacks): php\nodes\Node {
+  public static function edit(php\nodes\Node $node, array $callbacks): php\nodes\Node {
     $path  = new Path(null, $node);
     $table = new Table($callbacks);
     self::_edit($path, $table);
@@ -120,7 +120,7 @@ class Visitor {
    * traverse the node replacing any references to symbols in the mapping with
    * the appropriate expression.
    */
-  static function replace_references(php\nodes\Node $node, array $mapping): php\nodes\Node {
+  public static function replace_references(php\nodes\Node $node, array $mapping): php\nodes\Node {
     return self::edit($node, [
       'VariableExpr' => function (Path $path) use (&$mapping) {
         $symbol_id = $path->node->variable->symbol->get_id();

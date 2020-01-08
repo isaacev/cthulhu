@@ -7,7 +7,7 @@ use Cthulhu\php\Builder;
 class ThisExpr extends Expr {
   use traits\Atomic;
 
-  function build(): Builder {
+  public function build(): Builder {
     return (new Builder)
       ->variable('this');
   }

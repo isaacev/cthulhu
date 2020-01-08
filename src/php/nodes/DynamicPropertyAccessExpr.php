@@ -8,24 +8,24 @@ class DynamicPropertyAccessExpr extends Expr {
   public Expr $expr;
   public Expr $prop;
 
-  function __construct(Expr $expr, Expr $prop) {
+  public function __construct(Expr $expr, Expr $prop) {
     parent::__construct();
     $this->expr = $expr;
     $this->prop = $prop;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return [
       $this->expr,
       $this->prop,
     ];
   }
 
-  function from_children(array $nodes): Node {
+  public function from_children(array $nodes): Node {
     return new self($nodes[0], $nodes[1]);
   }
 
-  function build(): Builder {
+  public function build(): Builder {
     return (new Builder)
       ->then($this->expr)
       ->thin_arrow()

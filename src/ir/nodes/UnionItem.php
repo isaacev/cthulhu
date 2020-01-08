@@ -19,14 +19,14 @@ class UnionItem extends Item {
    * @param ParamNote[]       $params
    * @param VariantDeclNode[] $variants
    */
-  function __construct(array $attrs, Name $name, array $params, array $variants) {
+  public function __construct(array $attrs, Name $name, array $params, array $variants) {
     parent::__construct($attrs);
     $this->name     = $name;
     $this->params   = $params;
     $this->variants = $variants;
   }
 
-  function children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->name ],
       $this->params,

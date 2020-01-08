@@ -10,9 +10,6 @@ use Cthulhu\val\Value;
 class Builder implements Buildable {
   private array $frames = [];
 
-  /**
-   * Internal methods
-   */
   private function push_frame(callable $frame): self {
     array_push($this->frames, $frame);
     return $this;
@@ -38,6 +35,9 @@ class Builder implements Buildable {
 
   /**
    * Apply accumulated frames to a fmt\Formatter
+   *
+   * @param fmt\Formatter $f
+   * @return fmt\Formatter
    */
   public function write(fmt\Formatter $f): fmt\Formatter {
     foreach ($this->frames as $frame) {
@@ -46,9 +46,6 @@ class Builder implements Buildable {
     return $f;
   }
 
-  /**
-   * Operators and other symbols
-   */
   public function opening_php_tag(): self {
     return $this
       ->push_str('<?php')
@@ -111,9 +108,6 @@ class Builder implements Buildable {
     return $this->push_str('\'');
   }
 
-  /**
-   * Variables, keywords, and other literals
-   */
   public function variable(string $name): self {
     return $this->push_str('$' . $name);
   }
@@ -188,9 +182,6 @@ class Builder implements Buildable {
     });
   }
 
-  /**
-   * Statements, expressions, and other syntax nodes
-   */
   public function expr(nodes\Expr $expr, int $parent_precedence = Precedence::LOWEST): self {
     $should_group = $expr->precedence() < $parent_precedence;
     return $this
@@ -226,9 +217,6 @@ class Builder implements Buildable {
       ->brace_right();
   }
 
-  /**
-   * Builder composition
-   */
   public function then(Buildable $buildable): self {
     return $this->push_builder($buildable->build());
   }

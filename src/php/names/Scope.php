@@ -2,11 +2,13 @@
 
 namespace Cthulhu\php\names;
 
+use Generator;
+
 class Scope {
   protected array $names = [];
-  protected \Generator $tmp_generator;
+  protected Generator $tmp_generator;
 
-  function __construct() {
+  public function __construct() {
     $this->tmp_generator = self::generate_tmp_var_name();
   }
 
@@ -53,7 +55,7 @@ class Scope {
     'z',
   ];
 
-  static function generate_tmp_var_name() {
+  public static function generate_tmp_var_name() {
     $index = 0;
     $loops = 0;
     while (true) {
@@ -63,8 +65,7 @@ class Scope {
       }
 
       $letter = self::alphabet[$index++];
-      $value  = str_repeat($letter, $loops + 1);
-      yield $value;
+      yield str_repeat($letter, $loops + 1);
     }
   }
 }

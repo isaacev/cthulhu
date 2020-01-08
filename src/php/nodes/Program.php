@@ -10,7 +10,7 @@ class Program extends Node {
   /**
    * @param NamespaceNode[] $namespaces
    */
-  function __construct(array $namespaces) {
+  public function __construct(array $namespaces) {
     parent::__construct();
     $this->namespaces = $namespaces;
   }

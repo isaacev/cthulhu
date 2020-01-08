@@ -8,12 +8,12 @@ class NamedVariantConstructorFields extends VariantConstructorFields {
   /**
    * @param FieldExprNode[] $pairs
    */
-  function __construct(array $pairs) {
+  public function __construct(array $pairs) {
     parent::__construct();
     $this->pairs = $pairs;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->pairs;
   }
 }

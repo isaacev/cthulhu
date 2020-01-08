@@ -8,14 +8,14 @@ class Block extends Expr {
   /**
    * @param Stmt[] $stmts
    */
-  function __construct(array $stmts) {
+  public function __construct(array $stmts) {
     parent::__construct();
     assert(count($stmts) > 0);
     assert(end($stmts) instanceof ReturnStmt);
     $this->stmts = $stmts;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->stmts;
   }
 }

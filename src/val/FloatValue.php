@@ -2,6 +2,8 @@
 
 namespace Cthulhu\val;
 
+use function number_format;
+
 class FloatValue extends Value {
   public string $raw;
   public float $value;
@@ -14,6 +16,6 @@ class FloatValue extends Value {
   }
 
   public function encode_as_php(): string {
-    return \number_format($this->value, $this->precision);
+    return number_format($this->value, $this->precision);
   }
 }

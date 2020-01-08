@@ -7,7 +7,7 @@ use Cthulhu\val\IntegerValue;
 class IntConstPattern extends ConstPattern {
   public IntegerValue $value;
 
-  function __construct(IntegerValue $value) {
+  public function __construct(IntegerValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,7 +16,7 @@ class IntConstPattern extends ConstPattern {
     return [];
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->value->encode_as_php();
   }
 }

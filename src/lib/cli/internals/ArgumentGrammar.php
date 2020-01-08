@@ -6,20 +6,20 @@ abstract class ArgumentGrammar implements Describeable {
   public string $id;
   public string $description;
 
-  function __construct(string $id, string $description) {
+  public function __construct(string $id, string $description) {
     $this->id          = $id;
     $this->description = $description;
   }
 
-  abstract function parse(Scanner $scanner): ArgumentResult;
+  public abstract function parse(Scanner $scanner): ArgumentResult;
 
-  abstract function full_name(): string;
+  public abstract function full_name(): string;
 
-  function description(): string {
+  public function description(): string {
     return $this->description;
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return $this->full_name();
   }
 }

@@ -8,7 +8,7 @@ class ListType extends Type {
 
   public Type $element;
 
-  function __construct(Type $element) {
+  public function __construct(Type $element) {
     $this->element = $element;
   }
 
@@ -16,21 +16,21 @@ class ListType extends Type {
     return $other instanceof self;
   }
 
-  function equals(Type $other): bool {
+  public function equals(Type $other): bool {
     return (
       $other instanceof ListType &&
       $this->element->equals($other->element)
     );
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return "[$this->element]";
   }
 
   /**
    * @return Type[]
    */
-  function to_children(): array {
+  public function to_children(): array {
     return [ $this->element ];
   }
 
@@ -38,7 +38,7 @@ class ListType extends Type {
    * @param Type[] $children
    * @return $this
    */
-  function from_children(array $children): ListType {
+  public function from_children(array $children): ListType {
     return new ListType($children[0]);
   }
 }

@@ -8,12 +8,12 @@ class ListExpr extends Expr {
   /**
    * @param Expr[] $elements
    */
-  function __construct(array $elements) {
+  public function __construct(array $elements) {
     parent::__construct();
     $this->elements = $elements;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->elements;
   }
 }

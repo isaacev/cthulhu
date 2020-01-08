@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 class UnitLiteral extends Literal {
-  function children(): array {
+  public function children(): array {
     return [];
   }
 }

@@ -5,12 +5,12 @@ namespace Cthulhu\lib\cli\internals;
 class IntFlagGrammar extends FlagGrammar {
   public string $arg_name;
 
-  function __construct(string $id, ?string $short, string $description, string $arg_name) {
+  public function __construct(string $id, ?string $short, string $description, string $arg_name) {
     parent::__construct($id, $short, $description);
     $this->arg_name = $arg_name;
   }
 
-  function completions(): array {
+  public function completions(): array {
     if ($this->has_short_form()) {
       return [
         "-$this->short",
@@ -21,14 +21,14 @@ class IntFlagGrammar extends FlagGrammar {
     }
   }
 
-  function matches(string $token): bool {
+  public function matches(string $token): bool {
     return (
       $token === $this->id ||
       $token === $this->short
     );
   }
 
-  function parse(string $token, Scanner $scanner): FlagResult {
+  public function parse(string $token, Scanner $scanner): FlagResult {
     if ($scanner->is_empty()) {
       $fmt = 'flag `$this->id` requires a result';
       Scanner::fatal_error($fmt, $this->id);
@@ -46,7 +46,7 @@ class IntFlagGrammar extends FlagGrammar {
     return new FlagResult($this->id, intval($value));
   }
 
-  function full_name(): string {
+  public function full_name(): string {
     return parent::full_name() . ' <' . $this->arg_name . '>';
   }
 }

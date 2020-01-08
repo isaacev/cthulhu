@@ -2,16 +2,18 @@
 
 namespace Cthulhu\ir\patterns;
 
+use Cthulhu\val\BooleanValue;
+
 class BoolNode extends Node {
   protected bool $has_wildcard = false;
   protected bool $has_true = false;
   protected bool $has_false = false;
 
-  function is_covered(): bool {
+  public function is_covered(): bool {
     return $this->has_wildcard || ($this->has_true && $this->has_false);
   }
 
-  function is_redundant(Pattern $pattern): bool {
+  public function is_redundant(Pattern $pattern): bool {
     if ($this->is_covered()) {
       return true;
     } else if ($pattern instanceof WildcardPattern) {
@@ -26,7 +28,7 @@ class BoolNode extends Node {
     }
   }
 
-  function apply(Pattern $pattern): void {
+  public function apply(Pattern $pattern): void {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else if ($pattern instanceof BoolPattern) {
@@ -40,13 +42,13 @@ class BoolNode extends Node {
     }
   }
 
-  function uncovered_patterns(): array {
+  public function uncovered_patterns(): array {
     if ($this->is_covered()) {
       return [];
     } else if ($this->has_true) {
-      return [ new BoolPattern(false) ];
+      return [ new BoolPattern(BooleanValue::from_scalar(false)) ];
     } else if ($this->has_false) {
-      return [ new BoolPattern(true) ];
+      return [ new BoolPattern(BooleanValue::from_scalar(true)) ];
     } else {
       return [ new WildcardPattern() ];
     }

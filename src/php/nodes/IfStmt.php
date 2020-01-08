@@ -14,7 +14,7 @@ class IfStmt extends Stmt {
    * @param BlockNode             $consequent
    * @param null|IfStmt|BlockNode $alternate
    */
-  function __construct(Expr $test, BlockNode $consequent, $alternate) {
+  public function __construct(Expr $test, BlockNode $consequent, $alternate) {
     parent::__construct();
     $this->test       = $test;
     $this->consequent = $consequent;

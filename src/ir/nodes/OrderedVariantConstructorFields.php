@@ -8,12 +8,12 @@ class OrderedVariantConstructorFields extends VariantConstructorFields {
   /**
    * @param Expr[] $order
    */
-  function __construct(array $order) {
+  public function __construct(array $order) {
     parent::__construct();
     $this->order = $order;
   }
 
-  function children(): array {
+  public function children(): array {
     return $this->order;
   }
 }

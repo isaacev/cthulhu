@@ -12,28 +12,28 @@ class NewExpr extends Expr {
    * @param ReferenceExpr $ref
    * @param Expr[]        $args
    */
-  function __construct(ReferenceExpr $ref, array $args) {
+  public function __construct(ReferenceExpr $ref, array $args) {
     parent::__construct();
     $this->ref  = $ref;
     $this->args = $args;
   }
 
-  function to_children(): array {
+  public function to_children(): array {
     return array_merge(
       [ $this->ref ],
       $this->args
     );
   }
 
-  function from_children(array $nodes): Node {
+  public function from_children(array $nodes): Node {
     return new self($nodes[0], array_slice($nodes, 1));
   }
 
-  function precedence(): int {
+  public function precedence(): int {
     return Precedence::CLONE_AND_NEW;
   }
 
-  function build(): Builder {
+  public function build(): Builder {
     return (new Builder)
       ->keyword('new')
       ->space()

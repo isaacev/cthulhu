@@ -7,23 +7,23 @@ abstract class FlagGrammar implements Describeable {
   protected ?string $short;
   protected string $description;
 
-  function __construct(string $id, ?string $short, string $description) {
+  public function __construct(string $id, ?string $short, string $description) {
     $this->id          = $id;
     $this->short       = $short;
     $this->description = $description;
   }
 
-  function has_short_form(): bool {
+  public function has_short_form(): bool {
     return $this->short !== null;
   }
 
-  abstract function completions(): array;
+  public abstract function completions(): array;
 
-  abstract function matches(string $token): bool;
+  public abstract function matches(string $token): bool;
 
-  abstract function parse(string $token, Scanner $scanner): FlagResult;
+  public abstract function parse(string $token, Scanner $scanner): FlagResult;
 
-  function full_name(): string {
+  public function full_name(): string {
     if ($this->has_short_form()) {
       return "-$this->short, --$this->id";
     } else {
@@ -31,7 +31,7 @@ abstract class FlagGrammar implements Describeable {
     }
   }
 
-  function description(): string {
+  public function description(): string {
     return $this->description;
   }
 }

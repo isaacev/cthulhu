@@ -3,5 +3,5 @@
 namespace Cthulhu\ir;
 
 interface HasId {
-  function get_id(): int;
+  public function get_id(): int;
 }

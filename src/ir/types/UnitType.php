@@ -7,15 +7,15 @@ class UnitType extends Type {
   use traits\DefaultWalkable;
   use traits\StaticEquality;
 
-  function similar_to(Walkable $other): bool {
+  public function similar_to(Walkable $other): bool {
     return $other instanceof self;
   }
 
-  function equals(Type $other): bool {
+  public function equals(Type $other): bool {
     return $other instanceof self;
   }
 
-  function __toString(): string {
+  public function __toString(): string {
     return "()";
   }
 }

@@ -7,11 +7,11 @@ use Exception;
 class Node {
   public array $to_nodes = [];
 
-  function __construct(array $to_nodes) {
+  public function __construct(array $to_nodes) {
     $this->to_nodes = $to_nodes;
   }
 
-  function find_guarded(): array {
+  public function find_guarded(): array {
     $guarded = [];
     foreach ($this->to_nodes as $node) {
       if ($node instanceof GuardedNode) {
@@ -27,20 +27,20 @@ class Node {
 abstract class GuardedNode extends Node {
   public array $completions = [];
 
-  function __construct(Node $to_node, array $completions) {
+  public function __construct(Node $to_node, array $completions) {
     parent::__construct([ $to_node ]);
     $this->completions = $completions;
   }
 
-  abstract function matches(string $token): bool;
+  public abstract function matches(string $token): bool;
 
-  function completions(): array {
+  public function completions(): array {
     return $this->completions;
   }
 }
 
 class LiteralNode extends GuardedNode {
-  function matches(string $token): bool {
+  public function matches(string $token): bool {
     return in_array($token, $this->completions);
   }
 }
@@ -48,12 +48,12 @@ class LiteralNode extends GuardedNode {
 class PatternNode extends GuardedNode {
   public string $pattern = '';
 
-  function __construct(Node $to_node, string $pattern) {
+  public function __construct(Node $to_node, string $pattern) {
     parent::__construct($to_node, []);
     $this->pattern = $pattern;
   }
 
-  function matches(string $token): bool {
+  public function matches(string $token): bool {
     return preg_match($this->pattern, $token);
   }
 }
@@ -129,7 +129,7 @@ class Completions {
       return new PatternNode($after, '/\S/');
     } else if ($arg instanceof VariadicArgumentGrammar) {
       $start             = new Node([ $after ]);
-      $start->to_edges[] = new PatternNode($start, '/\S/');
+      $start->to_nodes[] = new PatternNode($start, '/\S/');
       return $start;
     } else {
       throw new Exception('unknown argument type: ' . get_class($arg));
