@@ -447,7 +447,9 @@ class Lower {
     if ($does_return) {
       $callback = function () use ($ctx) {
         $expr = $ctx->pop_expr();
-        $ctx->push_stmt(new nodes\ReturnStmt($expr));
+        if (($expr instanceof nodes\NullLiteral) === false) {
+          $ctx->push_stmt(new nodes\ReturnStmt($expr));
+        }
       };
     } else {
       $callback = function () use ($ctx) {
