@@ -19,7 +19,7 @@ class BoolNode extends Node {
     }
 
     assert($pattern instanceof BoolPattern);
-    if ($pattern->value) {
+    if ($pattern->value->value) {
       return $this->has_true;
     } else {
       return $this->has_false;
@@ -30,7 +30,7 @@ class BoolNode extends Node {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else if ($pattern instanceof BoolPattern) {
-      if ($pattern->value) {
+      if ($pattern->value->value) {
         $this->has_true = true;
       } else {
         $this->has_false = true;

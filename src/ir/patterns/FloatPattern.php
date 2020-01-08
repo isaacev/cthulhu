@@ -2,14 +2,16 @@
 
 namespace Cthulhu\ir\patterns;
 
-class FloatPattern extends Pattern {
-  public float $value;
+use Cthulhu\val\FloatValue;
 
-  function __construct(float $value) {
+class FloatPattern extends Pattern {
+  public FloatValue $value;
+
+  function __construct(FloatValue $value) {
     $this->value = $value;
   }
 
   function __toString(): string {
-    return (string)$this->value; // TODO: floating point precision?
+    return $this->value->encode_as_php();
   }
 }

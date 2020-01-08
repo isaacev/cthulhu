@@ -2,6 +2,8 @@
 
 namespace Cthulhu\php;
 
+use Cthulhu\val\IntegerValue;
+
 class Helpers {
   /**
    * @param string          $helper_name
@@ -122,7 +124,7 @@ class Helpers {
                       new nodes\ReferenceExpr($array_splice, false),
                       [
                         new nodes\VariableExpr($argv),
-                        new nodes\IntLiteral(0),
+                        new nodes\IntLiteral(IntegerValue::from_scalar(0)),
                         new nodes\VariableExpr($arity),
                       ]
                     )

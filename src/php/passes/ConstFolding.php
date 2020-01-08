@@ -22,7 +22,7 @@ class ConstFolding {
     if ($left instanceof php\nodes\StrLiteral && $right instanceof php\nodes\StrLiteral) {
       switch ($expr->operator) {
         case '.':
-          return new php\nodes\StrLiteral($left->value . $right->value);
+          return new php\nodes\StrLiteral($left->value->append($right->value));
         default:
           return $expr;
       }

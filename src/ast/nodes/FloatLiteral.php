@@ -3,16 +3,13 @@
 namespace Cthulhu\ast\nodes;
 
 use Cthulhu\loc\Span;
+use Cthulhu\val\FloatValue;
 
 class FloatLiteral extends Literal {
-  public float $value;
-  public int $precision;
-  public string $raw;
+  public FloatValue $value;
 
-  public function __construct(Span $span, float $value, int $precision, string $raw) {
+  public function __construct(Span $span, FloatValue $value) {
     parent::__construct($span);
-    $this->value     = $value;
-    $this->precision = $precision;
-    $this->raw       = $raw;
+    $this->value = $value;
   }
 }

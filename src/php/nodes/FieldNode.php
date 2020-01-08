@@ -3,6 +3,7 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Cthulhu\val\StringValue;
 
 class FieldNode extends Node {
   public Name $name;
@@ -27,7 +28,7 @@ class FieldNode extends Node {
 
   function build(): Builder {
     return (new Builder)
-      ->string_literal($this->name->value)
+      ->value(StringValue::from_safe_scalar($this->name->value))
       ->space()
       ->fat_arrow()
       ->space()

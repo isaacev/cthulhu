@@ -1,0 +1,4 @@
+#[entry]
+fn main () -> () {
+  ::Io::println("hello\n\nworld");
+}

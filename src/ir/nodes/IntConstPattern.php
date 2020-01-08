@@ -2,10 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-class IntConstPattern extends ConstPattern {
-  public int $value;
+use Cthulhu\val\IntegerValue;
 
-  function __construct(int $value) {
+class IntConstPattern extends ConstPattern {
+  public IntegerValue $value;
+
+  function __construct(IntegerValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -15,6 +17,6 @@ class IntConstPattern extends ConstPattern {
   }
 
   function __toString(): string {
-    return "$this->literal";
+    return $this->value->encode_as_php();
   }
 }

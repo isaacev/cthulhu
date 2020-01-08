@@ -3,11 +3,12 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Cthulhu\val\StringValue;
 
 class StrLiteral extends Literal {
-  public string $value;
+  public StringValue $value;
 
-  function __construct(string $value) {
+  function __construct(StringValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,6 +17,6 @@ class StrLiteral extends Literal {
 
   public function build(): Builder {
     return (new Builder)
-      ->string_literal($this->value);
+      ->value($this->value);
   }
 }

@@ -2,10 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-class IntLiteral extends Literal {
-  public int $value;
+use Cthulhu\val\IntegerValue;
 
-  function __construct(int $value) {
+class IntLiteral extends Literal {
+  public IntegerValue $value;
+
+  function __construct(IntegerValue $value) {
     parent::__construct();
     $this->value = $value;
   }

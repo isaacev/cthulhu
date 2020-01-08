@@ -2,10 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-class BoolLiteral extends Literal {
-  public bool $value;
+use Cthulhu\val\BooleanValue;
 
-  function __construct(bool $value) {
+class BoolLiteral extends Literal {
+  public BooleanValue $value;
+
+  function __construct(BooleanValue $value) {
     parent::__construct();
     $this->value = $value;
   }

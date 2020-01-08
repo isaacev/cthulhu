@@ -5,6 +5,11 @@ namespace Cthulhu\ast;
 use Cthulhu\err\Error;
 use Cthulhu\loc\Point;
 use Cthulhu\loc\Span;
+use Cthulhu\val\BooleanValue;
+use Cthulhu\val\FloatValue;
+use Cthulhu\val\IntegerValue;
+use Cthulhu\val\StringValue;
+use Cthulhu\val\UnknownEscapeChar;
 
 const RESERVED_WORDS = [
   'else',
@@ -18,12 +23,6 @@ const RESERVED_WORDS = [
   'true',
   'type',
   'use',
-];
-
-const ESCAPE_KEYS = [
-  'n' => "\n",
-  't' => "\t",
-  '\\' => '\\',
 ];
 
 /**
@@ -856,62 +855,27 @@ class Parser {
     $token = $this->lexer->next();
     $span  = $token->span;
     if ($token instanceof StringToken) {
-      $value = substr($token->lexeme, 1, -1);
-      $raw   = $token->lexeme;
-      return new nodes\StrLiteral($span, $value, $raw);
+      try {
+        return new nodes\StrLiteral($span, StringValue::from_scalar($token->lexeme));
+      } catch (UnknownEscapeChar $err) {
+        $file   = $span->from->file;
+        $line   = $span->from->line;
+        $column = $span->from->column + $err->char_offset;
+        $span   = (new Point($file, $line, $column))->span();
+        throw Errors::unknown_escape_char($span);
+      }
     } else if ($token instanceof FloatToken) {
-      $value     = floatval($token->lexeme);
-      $precision = $token->precision;
-      $raw       = $token->lexeme;
-      return new nodes\FloatLiteral($span, $value, $precision, $raw);
+      $value = new FloatValue($token->lexeme, floatval($token->lexeme), $token->precision);
+      return new nodes\FloatLiteral($span, $value);
     } else if ($token instanceof IntegerToken) {
-      $value = intval($token->lexeme, 10);
-      $raw   = $token->lexeme;
-      return new nodes\IntLiteral($span, $value, $raw);
+      $value = new IntegerValue($token->lexeme, intval($token->lexeme, 10));
+      return new nodes\IntLiteral($span, $value);
     } else if ($token instanceof BooleanToken) {
-      $value = $token->lexeme === 'true';
-      return new nodes\BoolLiteral($span, $value, $token->lexeme);
+      $value = BooleanValue::from_scalar($token->lexeme === 'true');
+      return new nodes\BoolLiteral($span, $value);
     }
 
     die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
-  }
-
-  /**
-   * @param Span   $span
-   * @param string $raw
-   * @return string
-   * @throws Error
-   */
-  private function unescape_raw_string(Span $span, string $raw): string {
-    $len = strlen($raw);
-    assert($len >= 2 && $raw[0] === '"' && $raw[$len - 1] === '"');
-
-    $value  = '';
-    $is_esc = false;
-    for ($i = 1; $i < $len - 1; $i++) {
-      $char = $raw[$i];
-      if ($is_esc) {
-        if (array_key_exists($char, ESCAPE_KEYS)) {
-          $value  .= ESCAPE_KEYS[$char];
-          $is_esc = false;
-          continue;
-        } else {
-          $file = $span->from()->file;
-          $line = $span->from()->line;
-          $from = new Point($file, $line, $span->from() + $i - 1);
-          $to   = new Point($file, $line, $span->from() + $i + 1);
-          $span = new Span($from, $to);
-          throw Errors::unknown_escape_char($span);
-        }
-      } else if ($char === '\\') {
-        $is_esc = true;
-        continue;
-      } else {
-        $value .= $char;
-      }
-    }
-
-    return $value;
   }
 
   /**

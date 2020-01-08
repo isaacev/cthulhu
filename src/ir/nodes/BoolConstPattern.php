@@ -2,10 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-class BoolConstPattern extends ConstPattern {
-  public bool $value;
+use Cthulhu\val\BooleanValue;
 
-  function __construct(bool $value) {
+class BoolConstPattern extends ConstPattern {
+  public BooleanValue $value;
+
+  function __construct(BooleanValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -15,6 +17,6 @@ class BoolConstPattern extends ConstPattern {
   }
 
   function __toString(): string {
-    return $this->value ? 'true' : 'false';
+    return $this->value->encode_as_php();
   }
 }

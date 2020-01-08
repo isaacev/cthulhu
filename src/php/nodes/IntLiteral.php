@@ -3,11 +3,12 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Cthulhu\val\IntegerValue;
 
 class IntLiteral extends Literal {
-  public int $value;
+  public IntegerValue $value;
 
-  function __construct(int $value) {
+  function __construct(IntegerValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,6 +17,6 @@ class IntLiteral extends Literal {
 
   public function build(): Builder {
     return (new Builder)
-      ->int_literal($this->value);
+      ->value($this->value);
   }
 }

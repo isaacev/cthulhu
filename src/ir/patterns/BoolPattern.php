@@ -2,14 +2,16 @@
 
 namespace Cthulhu\ir\patterns;
 
-class BoolPattern extends Pattern {
-  public bool $value;
+use Cthulhu\val\BooleanValue;
 
-  function __construct(bool $value) {
+class BoolPattern extends Pattern {
+  public BooleanValue $value;
+
+  function __construct(BooleanValue $value) {
     $this->value = $value;
   }
 
   function __toString(): string {
-    return $this->value ? 'true' : 'false';
+    return $this->value->encode_as_php();
   }
 }

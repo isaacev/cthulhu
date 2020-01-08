@@ -2,14 +2,14 @@
 
 namespace Cthulhu\ir\nodes;
 
-class FloatLiteral extends Literal {
-  public float $value;
-  public int $precision;
+use Cthulhu\val\FloatValue;
 
-  function __construct(float $value, int $precision) {
+class FloatLiteral extends Literal {
+  public FloatValue $value;
+
+  function __construct(FloatValue $value) {
     parent::__construct();
-    $this->value     = $value;
-    $this->precision = $precision;
+    $this->value = $value;
   }
 
   function children(): array {

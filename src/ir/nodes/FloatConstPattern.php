@@ -2,10 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-class FloatConstPattern extends ConstPattern {
-  public float $value;
+use Cthulhu\val\FloatValue;
 
-  function __construct(float $value) {
+class FloatConstPattern extends ConstPattern {
+  public FloatValue $value;
+
+  function __construct(FloatValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -15,6 +17,6 @@ class FloatConstPattern extends ConstPattern {
   }
 
   function __toString(): string {
-    return "$this->literal"; // TODO: floating point precision?
+    return $this->value->encode_as_php();
   }
 }

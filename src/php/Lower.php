@@ -4,6 +4,9 @@ namespace Cthulhu\php;
 
 use Cthulhu\err\Error;
 use Cthulhu\ir;
+use Cthulhu\val\BooleanValue;
+use Cthulhu\val\IntegerValue;
+use Cthulhu\val\StringValue;
 
 class Lower {
   private array $namespaces = [];
@@ -523,7 +526,8 @@ class Lower {
                 $php_var),
               new nodes\SubscriptExpr(
                 new nodes\VariableExpr($params[0]),
-                new nodes\StrLiteral($php_var->value))));
+                new nodes\StrLiteral(
+                  StringValue::from_safe_scalar($php_var->value)))));
           }
           $body[] = new nodes\MagicMethodNode('__construct', $params, $ctx->exit_method());
           break;
@@ -539,8 +543,8 @@ class Lower {
               new nodes\AssignStmt(
                 new nodes\DynamicPropertyAccessExpr(
                   new nodes\ThisExpr(),
-                  new nodes\IntLiteral($i)
-                ),
+                  new nodes\IntLiteral(
+                    IntegerValue::from_scalar($i))),
                 new nodes\VariableExpr($php_var)
               )
             );
@@ -660,7 +664,7 @@ class Lower {
       'enter(OrderedVariantPatternField)' => function (ir\nodes\OrderedVariantPatternField $node) use ($ctx, &$accessors) {
         $next_accessor = new nodes\DynamicPropertyAccessExpr(
           end($accessors),
-          new nodes\IntLiteral($node->position)
+          new nodes\IntLiteral(IntegerValue::from_scalar($node->position))
         );
         array_push($accessors, $next_accessor);
       },
@@ -679,7 +683,7 @@ class Lower {
         $next_condition = new nodes\BinaryExpr(
           '==',
           end($accessors),
-          new nodes\FloatLiteral($node->value, 5) // TODO: floating point precision?
+          new nodes\FloatLiteral($node->value)
         );
         array_push($conditions, $next_condition);
       },
@@ -710,7 +714,7 @@ class Lower {
 
     switch (count($conditions)) {
       case 0:
-        $test = new nodes\BoolLiteral(true);
+        $test = new nodes\BoolLiteral(BooleanValue::from_scalar(true));
         break;
       case 1:
         $test = $conditions[0];
@@ -1000,7 +1004,7 @@ class Lower {
   }
 
   private static function float_literal(self $ctx, ir\nodes\FloatLiteral $expr): void {
-    $php_expr = new nodes\FloatLiteral($expr->value, $expr->precision);
+    $php_expr = new nodes\FloatLiteral($expr->value);
     $ctx->push_expr($php_expr);
   }
 

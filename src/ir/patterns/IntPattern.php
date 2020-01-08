@@ -2,14 +2,16 @@
 
 namespace Cthulhu\ir\patterns;
 
-class IntPattern extends Pattern {
-  public int $value;
+use Cthulhu\val\IntegerValue;
 
-  function __construct(int $value) {
+class IntPattern extends Pattern {
+  public IntegerValue $value;
+
+  function __construct(IntegerValue $value) {
     $this->value = $value;
   }
 
   function __toString(): string {
-    return (string)$this->value;
+    return $this->value->encode_as_php();
   }
 }

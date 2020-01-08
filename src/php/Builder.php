@@ -5,6 +5,7 @@ namespace Cthulhu\php;
 use Cthulhu\lib\fmt;
 use Cthulhu\php\nodes\Precedence;
 use Cthulhu\php\nodes\Reference;
+use Cthulhu\val\Value;
 
 class Builder implements Buildable {
   private array $frames = [];
@@ -135,21 +136,8 @@ class Builder implements Buildable {
     return $this->push_str($operator);
   }
 
-  public function string_literal(string $value): self {
-    // TODO: will string escaping be handled here or by the parser?
-    return $this->push_str('"' . $value . '"');
-  }
-
-  public function float_literal(float $value, int $precision): self {
-    return $this->push_str(number_format($value, $precision, '.', ''));
-  }
-
-  public function int_literal(int $value): self {
-    return $this->push_str("$value");
-  }
-
-  public function bool_literal(bool $value): self {
-    return $this->push_str($value ? 'true' : 'false');
+  public function value(Value $value): self {
+    return $this->push_str($value->encode_as_php());
   }
 
   public function null_literal(): self {

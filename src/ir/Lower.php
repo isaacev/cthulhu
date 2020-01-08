@@ -527,23 +527,19 @@ class Lower {
   }
 
   private static function str_literal(ast\nodes\StrLiteral $expr): nodes\StrLiteral {
-    $value = $expr->value;
-    return (new nodes\StrLiteral($value))->set('span', $expr->span);
+    return (new nodes\StrLiteral($expr->value))->set('span', $expr->span);
   }
 
   private static function float_literal(ast\nodes\FloatLiteral $expr): nodes\FloatLiteral {
-    $value = $expr->value;
-    return (new nodes\FloatLiteral($value, $expr->precision))->set('span', $expr->span);
+    return (new nodes\FloatLiteral($expr->value))->set('span', $expr->span);
   }
 
   private static function int_literal(ast\nodes\IntLiteral $expr): nodes\IntLiteral {
-    $value = $expr->value;
-    return (new nodes\IntLiteral($value))->set('span', $expr->span);
+    return (new nodes\IntLiteral($expr->value))->set('span', $expr->span);
   }
 
   private static function bool_literal(ast\nodes\BoolLiteral $expr): nodes\BoolLiteral {
-    $value = $expr->value;
-    return (new nodes\BoolLiteral($value))->set('span', $expr->span);
+    return (new nodes\BoolLiteral($expr->value))->set('span', $expr->span);
   }
 
   private static function unit(ast\nodes\UnitLiteral $expr): nodes\UnitLiteral {

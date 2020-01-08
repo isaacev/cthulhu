@@ -3,11 +3,12 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Cthulhu\val\BooleanValue;
 
 class BoolLiteral extends Literal {
-  public bool $value;
+  public BooleanValue $value;
 
-  function __construct(bool $value) {
+  function __construct(BooleanValue $value) {
     parent::__construct();
     $this->value = $value;
   }
@@ -16,6 +17,6 @@ class BoolLiteral extends Literal {
 
   public function build(): Builder {
     return (new Builder)
-      ->bool_literal($this->value);
+      ->value($this->value);
   }
 }
