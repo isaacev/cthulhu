@@ -275,7 +275,6 @@ class Lower {
       $php_params[] = $this->php_tmp_var();
     }
 
-    array_pop($this->function_scopes);
     return new nodes\FuncHead($php_name, $php_params);
   }
 
@@ -484,23 +483,31 @@ class Lower {
       $args[] = new nodes\VariableExpr($param);
     }
 
-    if ($item->get_attr('construct', false)) {
-      $ctx->push_expr(self::builtins($item->name->value, $args));
+    if ($item->get_attr('intrinsic', false)) {
+      switch ($item->name->value) {
+        default:
+          die("no intrinsic named '$item->name'\n");
+      }
     } else {
-      $ctx->push_expr(
-        new nodes\CallExpr(
-          new nodes\ReferenceExpr(
-            new nodes\Reference($item->name->value, new names\Symbol()),
-            false),
-          $args));
+      if ($item->get_attr('construct', false)) {
+        $ctx->push_expr(self::builtins($item->name->value, $args));
+      } else {
+        $ctx->push_expr(
+          new nodes\CallExpr(
+            new nodes\ReferenceExpr(
+              new nodes\Reference($item->name->value, new names\Symbol()),
+              false),
+            $args));
+      }
+
+      $type = $item->name->get('symbol')->get('type');
+      $ctx->push_stmt(ir\types\UnitType::matches($type->output)
+        ? new nodes\SemiStmt($ctx->pop_expr())
+        : new nodes\ReturnStmt($ctx->pop_expr()));
     }
 
-    $type = $item->name->get('symbol')->get('type');
-    $ctx->push_stmt(ir\types\UnitType::matches($type->output)
-      ? new nodes\SemiStmt($ctx->pop_expr())
-      : new nodes\ReturnStmt($ctx->pop_expr()));
-
     $php_body = $ctx->pop_block();
+    array_pop($ctx->function_scopes);
     $php_func = new nodes\FuncStmt($php_head, $php_body, $item->attrs);
     $ctx->push_stmt($php_func);
   }
