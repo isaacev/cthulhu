@@ -71,31 +71,60 @@ class Inline {
         $func_def = $inline_func_defs[$call_id];
         assert($func_def instanceof php\nodes\FuncStmt);
 
-        if ($func_def->body->length() > 1 && !($path->parent->node instanceof php\nodes\SemiStmt)) {
+        if ($func_def->body->length() > 1 && $path->parent->node instanceof php\nodes\Expr) {
           // Function body is too complex to be used inside of another expression
           return;
         }
 
-        $param_ids            = array_map(function ($p) {
-          return $p->symbol->get_id();
-        }, $func_def->head->params);
+        $param_ids            = array_map(fn($p) => $p->symbol->get_id(), $func_def->head->params);
         $param_id_to_arg_expr = array_combine($param_ids, $path->node->args);
         $rewritten_body       = visitor\Visitor::replace_references($func_def->body, $param_id_to_arg_expr);
+        assert($rewritten_body instanceof php\nodes\BlockNode);
 
-        if ($path->parent->node instanceof php\nodes\SemiStmt) {
-          $path->parent->replace_with_multiple($rewritten_body->stmts);
-          return;
-        }
+        $return_expr    = self::func_body_return_expr($rewritten_body);
+        $rewritten_body = self::func_body_without_return_stmt($rewritten_body);
 
-        if (!empty($rewritten_body->stmts) && $rewritten_body->stmts[0] instanceof php\nodes\ReturnStmt) {
-          $path->replace_with($rewritten_body->stmts[0]->expr);
-          return;
+        if ($path->parent->node instanceof php\nodes\Expr && empty($rewritten_body->stmts)) {
+          $path->replace_with($return_expr);
+        } else if ($path->parent->node instanceof php\nodes\SemiStmt) {
+          $path->parent->replace_with_multiple([
+            ...$rewritten_body->stmts,
+            new php\nodes\SemiStmt($return_expr),
+          ]);
+        } else if ($path->parent->node instanceof php\nodes\ReturnStmt) {
+          $path->parent->replace_with_multiple([
+            ...$rewritten_body->stmts,
+            new php\nodes\ReturnStmt($return_expr),
+          ]);
+        } else if ($path->parent->node instanceof php\nodes\AssignStmt) {
+          $path->parent->replace_with_multiple([
+            ...$rewritten_body->stmts,
+            new php\nodes\AssignStmt($path->parent->node->assignee, $return_expr),
+          ]);
         }
       },
     ]);
 
     assert($new_prog instanceof php\nodes\Program);
     return $new_prog;
+  }
+
+  private static function func_body_return_expr(php\nodes\BlockNode $block): php\nodes\Expr {
+    $last_stmt = end($block->stmts);
+    if ($last_stmt instanceof php\nodes\ReturnStmt) {
+      return $last_stmt->expr;
+    } else {
+      return new php\nodes\NullLiteral();
+    }
+  }
+
+  private static function func_body_without_return_stmt(php\nodes\BlockNode $block): php\nodes\BlockNode {
+    $last_stmt = end($block->stmts);
+    if ($last_stmt instanceof php\nodes\ReturnStmt) {
+      return new php\nodes\BlockNode(array_slice($block->stmts, 0, -1));
+    } else {
+      return $block;
+    }
   }
 }
 

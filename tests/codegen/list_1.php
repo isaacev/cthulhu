@@ -12,10 +12,17 @@ namespace Kernel\Types {
   class None extends \Kernel\Types\Maybe {}
 }
 
+namespace Kernel\Builtins {
+  // #[inline]
+  function array_key_exists($a, $b) {
+    return \array_key_exists($a, $b);
+  }
+}
+
 namespace _List {
   // #[inline]
   function nth($ls, $n) {
-    if (\array_key_exists($n, $ls)) {
+    if (\Kernel\Builtins\array_key_exists($n, $ls)) {
       $a = new \Kernel\Types\Just($ls[$n]);
     } else {
       $a = new \Kernel\Types\None();
