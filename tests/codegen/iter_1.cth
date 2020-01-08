@@ -1,0 +1,7 @@
+use ::Io;
+use ::List;
+
+#[entry]
+fn main() -> () {
+  ["Rick", "Morty", "Summer"] |> List::iter(Io::println);
+}

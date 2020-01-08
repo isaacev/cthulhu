@@ -474,6 +474,30 @@ class Lower {
     }
   }
 
+  /**
+   * @param Lower                $ctx
+   * @param nodes\VariableExpr[] $args
+   */
+  private static function intrinsic_for_each(self $ctx, array $args): void {
+    assert(count($args) === 2);
+    $ptr = $ctx->php_tmp_var();
+    [ $fn_arg, $iter_arg ] = $args;
+    $ctx->push_stmt(
+      new nodes\ForEachStmt(
+        $iter_arg,
+        $ptr,
+        new nodes\BlockNode([
+          new nodes\SemiStmt(
+            new nodes\CallExpr(
+              $fn_arg,
+              [ new nodes\VariableExpr($ptr) ]
+            )
+          ),
+        ])
+      )
+    );
+  }
+
   private static function native_func_item(self $ctx, ir\nodes\NativeFuncItem $item): void {
     $ctx->push_block();
     $php_head = $ctx->native_function($item->name, count($item->note->inputs));
@@ -485,6 +509,9 @@ class Lower {
 
     if ($item->get_attr('intrinsic', false)) {
       switch ($item->name->value) {
+        case 'for_each':
+          self::intrinsic_for_each($ctx, $args);
+          break;
         default:
           die("no intrinsic named '$item->name'\n");
       }

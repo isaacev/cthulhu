@@ -11,3 +11,8 @@ fn nth(ls: ['a], n: Int) -> Maybe('a) {
 fn length(ls: ['a]) -> Int {
   ::Kernel::Builtins::count(ls)
 }
+
+#[inline]
+fn iter(f: 'a -> (), l: ['a]) -> () {
+  ::Kernel::Builtins::for_each(f, l);
+}

@@ -52,4 +52,8 @@ mod Builtins {
 
   #[inline]
   native fn count(['a]) -> Int;
+
+  #[inline]
+  #[intrinsic]
+  native fn for_each('a -> (), ['a]) -> ();
 }
