@@ -4,7 +4,7 @@ namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
 
-class NullLiteral extends Expr {
+class NullLiteral extends Literal {
   use traits\Atomic;
 
   public function build(): Builder {

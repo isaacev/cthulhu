@@ -5,6 +5,7 @@ namespace Cthulhu\workspace;
 use Cthulhu\php\nodes\Program;
 use Cthulhu\php\passes\ConstFolding;
 use Cthulhu\php\passes\Inline;
+use Cthulhu\php\passes\NoOp;
 use Cthulhu\php\passes\TreeShaking;
 
 class OptimizePhase {
@@ -19,6 +20,7 @@ class OptimizePhase {
     $inline = isset($passes['inline']) && $passes['inline'] === true;
     $fold   = isset($passes['fold']) && $passes['fold'] === true;
     $shake  = isset($passes['shake']) && $passes['shake'] === true;
+    $noop   = isset($passes['noop']) && $passes['noop'] === true;
 
     if ($all || $inline) {
       $this->php_tree = Inline::apply($this->php_tree);
@@ -30,6 +32,10 @@ class OptimizePhase {
 
     if ($all || $shake) {
       $this->php_tree = TreeShaking::apply($this->php_tree);
+    }
+
+    if ($all || $noop) {
+      $this->php_tree = NoOp::apply($this->php_tree);
     }
 
     return new WritePhase($this->php_tree);

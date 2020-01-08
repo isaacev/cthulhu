@@ -5,7 +5,6 @@ namespace if_5 {
   function main() {
     if (true) {
       "hello";
-      null;
     }
   }
 }

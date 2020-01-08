@@ -21,6 +21,7 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
         'inline' => in_array('inline', $passes),
         'fold' => in_array('fold', $passes),
         'shake' => in_array('shake', $passes),
+        'noop' => in_array('noop', $passes),
       ])
       ->write();
   } catch (Error $err) {

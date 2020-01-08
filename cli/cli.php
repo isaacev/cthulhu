@@ -36,6 +36,7 @@ $root->subcommand('compile', 'Convert source code to PHP')
     'inline',
     'fold',
     'shake',
+    'noop',
   ])
   ->short_circuit_flag('--list-optimizations', 'List available optimization passes', function () {
     $passes = [
@@ -43,6 +44,7 @@ $root->subcommand('compile', 'Convert source code to PHP')
       [ 'inline', 'Replace function call sites with function body' ],
       [ 'fold', 'Evaluate some constant expressions at compile time' ],
       [ 'shake', 'Remove function and namespace definitions that are never used' ],
+      [ 'noop', 'Remove constant expressions that are not used inside another expression' ],
     ];
 
     foreach ($passes as [$name, $desc]) {

@@ -4,9 +4,9 @@ namespace if_1 {
   // #[entry]
   function main() {
     if (true) {
-      null;
+      // empty
     } else {
-      null;
+      // empty
     }
   }
 }
