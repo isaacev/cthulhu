@@ -1,0 +1,7 @@
+
+  USE OF RESERVED WORD  ------------------------------------------------------
+
+    : ident_2
+  1 | fn match(a: Int) -> Int {
+    |    ^^^^^ reserved words cannot be used as identifiers
+

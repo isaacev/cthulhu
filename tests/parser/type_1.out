@@ -1,0 +1,9 @@
+
+  UNNAMED TYPE PARAMETER  ----------------------------------------------------
+
+  Type parameters should look like `'a`.
+
+    : type_1
+  1 | fn id(a: ' a) -> 'a {
+    |          ^
+

@@ -1,0 +1,9 @@
+fn add(a: Int, b: Int) -> Int {
+  a + b
+}
+
+#[entry]
+fn main() -> () {
+  let x = add(1);
+  x(2, 3);
+}

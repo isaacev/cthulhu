@@ -1,0 +1,8 @@
+fn match(a: Int) -> Int {
+  a
+}
+
+#[entry]
+fn main() -> () {
+  -- todo
+}

@@ -1,0 +1,9 @@
+
+  CALL TO NON-FUNCTION  ------------------------------------------------------
+
+  Tried to call an expression with the type `Int`:
+
+    : call_3
+  7 |   add(1, 2, 3);
+    |             ^
+

@@ -1,0 +1,8 @@
+fn id(a: 'a) -> 'A {
+  a
+}
+
+#[entry]
+fn main() -> () {
+  -- empty
+}
