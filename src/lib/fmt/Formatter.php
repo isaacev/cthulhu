@@ -260,8 +260,8 @@ abstract class Formatter {
           continue 2;
 
           // IDEA: in the future, instead of immediately pushing a word to the
-          // next line when it doesn't fit, consider trying to hephenate the
-          // word and split it accross multiple lines:
+          // next line when it doesn't fit, consider trying to hyphenate the
+          // word and split it across multiple lines:
           // https://nedbatchelder.com/code/modules/hyphenate.html
         }
 

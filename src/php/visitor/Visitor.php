@@ -34,7 +34,7 @@ class Visitor {
     $preorder_sibling_nodes = $path->new_sibling_nodes;
     if ($path->was_removed()) {
       // If the path was removed, immediately exit this call to the edit function
-      // because all subsequent steps would be operating on a non-existant node.
+      // because all subsequent steps would be operating on a nonexistent node.
       return [];
     }
 
@@ -69,7 +69,7 @@ class Visitor {
       $child_path = new Path($path, $child_node);
 
       // Recursively pass the child path to the edit method and capture any new
-      // sibilng nodes that the child path has added to the tree.
+      // sibling nodes that the child path has added to the tree.
       $new_sibling_nodes = self::_edit($child_path, $table);
 
       if ($path->was_removed()) {
@@ -108,7 +108,7 @@ class Visitor {
 
     if ($path->was_removed()) {
       // Check if the current node was removed in the postorder callback. If so,
-      // ignore any sibilng nodes it tried to add to the tree.
+      // ignore any sibling nodes it tried to add to the tree.
       return [];
     } else {
       return $path->new_sibling_nodes;

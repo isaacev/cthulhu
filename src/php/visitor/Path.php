@@ -66,7 +66,7 @@ class Path {
     if ($this->not_stmt_or_namespace()) {
       throw new Exception('can only add siblings after php\nodes\Stmt and php\nodes\NamespaceNode nodes');
     } else if ($this->was_removed()) {
-      throw new Exception('cannot add sibilngs to a node after it was removed');
+      throw new Exception('cannot add siblings to a node after it was removed');
     }
     $this->was_changed       = true;
     $this->new_sibling_nodes = $nodes;

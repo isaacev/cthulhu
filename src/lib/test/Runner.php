@@ -46,10 +46,10 @@ class Runner {
         if (@is_dir($child_path)) {
           $directory_queue[] = $child_path;
         } else if (@is_file($child_path)) {
-          $child_pathinfo  = pathinfo($child_path);
-          $child_dirname   = $child_pathinfo['dirname'];
-          $child_filename  = $child_pathinfo['filename'];
-          $child_extension = $child_pathinfo['extension'];
+          $child_path_info = pathinfo($child_path);
+          $child_dirname   = $child_path_info['dirname'];
+          $child_filename  = $child_path_info['filename'];
+          $child_extension = $child_path_info['extension'];
 
           if (in_array($child_extension, self::VALID_TEST_EXTENSIONS) === false) {
             continue;
