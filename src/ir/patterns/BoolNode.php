@@ -38,7 +38,7 @@ class BoolNode extends Node {
         $this->has_false = true;
       }
     } else {
-      die('unreachable');
+      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 

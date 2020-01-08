@@ -167,7 +167,7 @@ class Lower {
         return new nodes\Variable($candidate, $php_symbol);
       }
     }
-    die('unreachable');
+    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
   }
 
   private function php_var_from_string(string $basis): nodes\Variable {
@@ -184,7 +184,7 @@ class Lower {
         return new nodes\Variable($candidate, $php_symbol);
       }
     }
-    die('unreachable');
+    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
   }
 
   private function rename_ir_name(ir\names\Symbol $ir_symbol, ir\nodes\Name $ir_name): string {

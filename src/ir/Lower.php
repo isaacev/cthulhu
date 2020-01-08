@@ -51,7 +51,7 @@ class Lower {
       case $item instanceof ast\nodes\UnionItem:
         return self::union_item($item);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -131,7 +131,7 @@ class Lower {
       case $variant instanceof ast\nodes\UnitVariantDeclNode:
         return self::unit_variant_decl($variant);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -174,7 +174,7 @@ class Lower {
       case $stmt instanceof ast\nodes\ExprStmt:
         return self::expr_stmt($stmt);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -240,7 +240,7 @@ class Lower {
       case $expr instanceof ast\nodes\UnitLiteral:
         return self::unit($expr);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -285,7 +285,7 @@ class Lower {
       case $pattern instanceof ast\nodes\WildcardPattern:
         return self::wildcard_pattern($pattern);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -376,7 +376,7 @@ class Lower {
       case $literal instanceof ast\nodes\BoolLiteral:
         return (new nodes\BoolConstPattern($literal->value))->set('span', $pattern->span);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -522,7 +522,7 @@ class Lower {
       case $literal instanceof ast\nodes\BoolLiteral:
         return self::bool_literal($literal);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
@@ -561,7 +561,7 @@ class Lower {
       case $note instanceof ast\nodes\ParameterizedAnnotation:
         return self::parameterized_note($note);
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 

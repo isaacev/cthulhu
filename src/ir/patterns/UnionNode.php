@@ -27,7 +27,7 @@ class UnionNode extends Node {
           $this->variants[$name] = new NamedVariantNode($name, $form);
           break;
         default:
-          die('unreachable');
+          die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
       }
     }
   }
@@ -52,7 +52,7 @@ class UnionNode extends Node {
     } else if ($pattern instanceof VariantPattern) {
       return $this->variants[$pattern->name]->is_redundant($pattern);
     } else {
-      die('unreachable');
+      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 

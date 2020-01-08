@@ -31,7 +31,7 @@ abstract class Node {
       case $type instanceof types\FixedType:
         return new ParamNode();
       default:
-        die("unreachable");
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 }

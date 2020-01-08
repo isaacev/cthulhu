@@ -17,7 +17,7 @@ class ParamNode extends Node {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else {
-      die('unreachable');
+      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 

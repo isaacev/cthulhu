@@ -27,7 +27,7 @@ class FloatNode extends Node {
     } else if ($pattern instanceof FloatPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      die('unreachable');
+      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 

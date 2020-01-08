@@ -27,7 +27,7 @@ class IntNode extends Node {
     } else if ($pattern instanceof IntPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      die('unreachable');
+      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 

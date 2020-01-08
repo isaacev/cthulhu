@@ -389,7 +389,7 @@ class Check {
         self::check_bool_pattern($pattern, $type);
         break;
       default:
-        die('unreachable');
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
   }
 
