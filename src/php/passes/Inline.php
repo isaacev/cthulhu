@@ -82,7 +82,7 @@ class Inline {
           return;
         }
 
-        if ($rewritten_body->stmts[0] instanceof php\nodes\ReturnStmt) {
+        if (!empty($rewritten_body->stmts) && $rewritten_body->stmts[0] instanceof php\nodes\ReturnStmt) {
           $path->replace_with($rewritten_body->stmts[0]->expr);
           return;
         }
