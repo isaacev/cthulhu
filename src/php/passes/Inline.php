@@ -12,6 +12,9 @@ class Inline {
    * ## Current caveats:
    * - If the function returns a non-unit value, the inline optimization will
    *   only be applied if the function body contains a single ReturnStmt.
+   *
+   * @param php\nodes\Program $prog
+   * @return php\nodes\Program
    */
   public static function apply(php\nodes\Program $prog): php\nodes\Program {
     $inline_func_syms = [];
@@ -66,6 +69,8 @@ class Inline {
         }
 
         $func_def = $inline_func_defs[$call_id];
+        assert($func_def instanceof php\nodes\FuncStmt);
+
         if ($func_def->body->length() > 1 && !($path->parent->node instanceof php\nodes\SemiStmt)) {
           // Function body is too complex to be used inside of another expression
           return;

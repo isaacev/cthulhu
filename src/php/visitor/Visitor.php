@@ -119,6 +119,10 @@ class Visitor {
    * Given a starting node and an array that maps IR\Symbol ids => php\nodes\Node,
    * traverse the node replacing any references to symbols in the mapping with
    * the appropriate expression.
+   *
+   * @param php\nodes\Node $node
+   * @param array          $mapping
+   * @return php\nodes\Node
    */
   public static function replace_references(php\nodes\Node $node, array $mapping): php\nodes\Node {
     return self::edit($node, [
