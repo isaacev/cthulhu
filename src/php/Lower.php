@@ -485,12 +485,42 @@ class Lower {
     $ctx->push_stmt(
       new nodes\ForEachStmt(
         $iter_arg,
+        null,
         $ptr,
         new nodes\BlockNode([
           new nodes\SemiStmt(
             new nodes\CallExpr(
               $fn_arg,
               [ new nodes\VariableExpr($ptr) ]
+            )
+          ),
+        ])
+      )
+    );
+  }
+
+  /**
+   * @param Lower                $ctx
+   * @param nodes\VariableExpr[] $args
+   */
+  private static function intrinsic_for_each_with_index(self $ctx, array $args): void {
+    assert(count($args) === 2);
+    $ptr = $ctx->php_tmp_var();
+    $idx = $ctx->php_tmp_var();
+    [ $fn_arg, $iter_arg ] = $args;
+    $ctx->push_stmt(
+      new nodes\ForEachStmt(
+        $iter_arg,
+        $idx,
+        $ptr,
+        new nodes\BlockNode([
+          new nodes\SemiStmt(
+            new nodes\CallExpr(
+              $fn_arg,
+              [
+                new nodes\VariableExpr($idx),
+                new nodes\VariableExpr($ptr),
+              ]
             )
           ),
         ])
@@ -511,6 +541,9 @@ class Lower {
       switch ($item->name->value) {
         case 'for_each':
           self::intrinsic_for_each($ctx, $args);
+          break;
+        case 'for_each_with_index':
+          self::intrinsic_for_each_with_index($ctx, $args);
           break;
         default:
           die("no intrinsic named '$item->name'\n");

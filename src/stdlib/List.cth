@@ -16,3 +16,8 @@ fn length(ls: ['a]) -> Int {
 fn iter(f: 'a -> (), l: ['a]) -> () {
   ::Kernel::Builtins::for_each(f, l);
 }
+
+#[inline]
+fn iter_index(f: Int -> 'a -> (), l: ['a]) -> () {
+  ::Kernel::Builtins::for_each_with_index(f, l);
+}

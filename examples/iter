@@ -1,7 +1,13 @@
 use ::Io;
+use ::Fmt;
 use ::List;
+
+fn xyz(i: Int, s: Str) -> () {
+  Io::println("#" ++ Fmt::int(i) ++ " " ++ s);
+}
 
 #[entry]
 fn main() -> () {
-  ["Rick", "Morty", "Summer"] |> List::iter(Io::println);
+  [ "Rick", "Morty", "Summer" ] |> List::iter(Io::println);
+  [ "Rick", "Morty", "Summer" ] |> List::iter_index(xyz);
 }

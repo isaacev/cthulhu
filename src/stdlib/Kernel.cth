@@ -56,4 +56,8 @@ mod Builtins {
   #[inline]
   #[intrinsic]
   native fn for_each('a -> (), ['a]) -> ();
+
+  #[inline]
+  #[intrinsic]
+  native fn for_each_with_index(Int -> 'a -> (), ['a]) -> ();
 }
