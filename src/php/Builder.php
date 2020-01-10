@@ -7,45 +7,7 @@ use Cthulhu\php\nodes\Precedence;
 use Cthulhu\php\nodes\Reference;
 use Cthulhu\val\Value;
 
-class Builder implements Buildable {
-  private array $frames = [];
-
-  private function push_frame(callable $frame): self {
-    array_push($this->frames, $frame);
-    return $this;
-  }
-
-  private function push_str(string $str): self {
-    return $this->push_frame(function (fmt\Formatter $f) use ($str) {
-      $f->print($str);
-    });
-  }
-
-  private function push_builder(Builder $builder): self {
-    $this->frames = array_merge($this->frames, $builder->frames);
-    return $this;
-  }
-
-  /**
-   * Interface implementation methods
-   */
-  public function build(): Builder {
-    return $this;
-  }
-
-  /**
-   * Apply accumulated frames to a fmt\Formatter
-   *
-   * @param fmt\Formatter $f
-   * @return fmt\Formatter
-   */
-  public function write(fmt\Formatter $f): fmt\Formatter {
-    foreach ($this->frames as $frame) {
-      call_user_func($frame, $f);
-    }
-    return $f;
-  }
-
+class Builder extends fmt\Builder {
   public function opening_php_tag(): self {
     return $this
       ->push_str('<?php')
@@ -215,35 +177,5 @@ class Builder implements Buildable {
       ->decrease_indentation()
       ->newline_then_indent()
       ->brace_right();
-  }
-
-  public function then(Buildable $buildable): self {
-    return $this->push_builder($buildable->build());
-  }
-
-  public function maybe(bool $test, Buildable $if_true): self {
-    if ($test) {
-      return $this->then($if_true);
-    } else {
-      return $this;
-    }
-  }
-
-  public function choose(bool $test, Buildable $if_true, Buildable $if_false): self {
-    if ($test) {
-      return $this->then($if_true);
-    } else {
-      return $this->then($if_false);
-    }
-  }
-
-  public function each(array $buildables, ?Buildable $glue = null): self {
-    foreach ($buildables as $i => $buildable) {
-      if ($glue !== null && $i > 0) {
-        $this->then($glue);
-      }
-      $this->then($buildable);
-    }
-    return $this;
   }
 }
