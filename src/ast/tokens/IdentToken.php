@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\ast;
+namespace Cthulhu\ast\tokens;
 
 class IdentToken extends Token {
   public function is_lowercase(): bool {

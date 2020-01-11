@@ -58,7 +58,7 @@ class Parser {
    * @throws Error
    */
   private function ahead_is_eof(): bool {
-    return $this->lexer->peek() instanceof TerminalToken;
+    return $this->lexer->peek() instanceof tokens\TerminalToken;
   }
 
   /**
@@ -68,7 +68,7 @@ class Parser {
    */
   private function ahead_is_delim(string $delim): bool {
     return (
-      $this->lexer->peek() instanceof DelimToken &&
+      $this->lexer->peek() instanceof tokens\DelimToken &&
       $this->lexer->peek()->lexeme === $delim
     );
   }
@@ -80,19 +80,19 @@ class Parser {
   private function ahead_is_right_delim(): bool {
     $token = $this->lexer->peek();
     return (
-      $token instanceof DelimToken &&
+      $token instanceof tokens\DelimToken &&
       $token->is_left() === false
     );
   }
 
   /**
    * @param string $delim
-   * @return DelimToken
+   * @return tokens\DelimToken
    * @throws Error
    */
-  private function next_delim(string $delim): DelimToken {
+  private function next_delim(string $delim): tokens\DelimToken {
     $next = $this->lexer->next();
-    if ($next instanceof DelimToken && $next->lexeme === $delim) {
+    if ($next instanceof tokens\DelimToken && $next->lexeme === $delim) {
       return $next;
     }
     throw Errors::expected_token($next, $delim);
@@ -109,7 +109,7 @@ class Parser {
       $tok  = $tokens[$i];
       $char = $punct[$i];
       if (
-        $tok instanceof PunctToken &&
+        $tok instanceof tokens\PunctToken &&
         $tok->lexeme === $char &&
         ($i === $len - 1 || $tok->is_joint)
       ) {
@@ -122,7 +122,7 @@ class Parser {
 
   /**
    * @param string $punct
-   * @return PunctToken[]
+   * @return tokens\PunctToken[]
    * @throws Error
    */
   private function next_punct(string $punct): array {
@@ -132,7 +132,7 @@ class Parser {
         $tok  = $tokens[$i];
         $char = $punct[$i];
         if (
-          $tok instanceof PunctToken &&
+          $tok instanceof tokens\PunctToken &&
           $tok->lexeme === $char &&
           ($i === $len - 1 || $tok->is_joint)
         ) {
@@ -146,14 +146,14 @@ class Parser {
   }
 
   /**
-   * @return PunctToken[]
+   * @return tokens\PunctToken[]
    * @throws Error
    */
   private function peek_longest_punct(): array {
     $tokens = [];
     do {
       $tok = $this->lexer->peek_ahead_by(count($tokens) + 1);
-      if ($tok instanceof PunctToken) {
+      if ($tok instanceof tokens\PunctToken) {
         $tokens[] = $tok;
       } else {
         break;
@@ -164,7 +164,7 @@ class Parser {
   }
 
   /**
-   * @return PunctToken[]
+   * @return tokens\PunctToken[]
    * @throws Error
    */
   private function next_longest_punct(): array {
@@ -182,12 +182,12 @@ class Parser {
   }
 
   /**
-   * @return PunctToken
+   * @return tokens\PunctToken
    * @throws Error
    */
-  private function next_semicolon(): PunctToken {
+  private function next_semicolon(): tokens\PunctToken {
     $next = $this->lexer->next();
-    if ($next instanceof PunctToken && $next->lexeme === ';') {
+    if ($next instanceof tokens\PunctToken && $next->lexeme === ';') {
       return $next;
     }
     throw Errors::expected_token($next, 'semicolon');
@@ -201,19 +201,19 @@ class Parser {
   private function ahead_is_keyword(string $keyword): bool {
     assert(in_array($keyword, RESERVED_WORDS));
     return (
-      $this->lexer->peek() instanceof IdentToken &&
+      $this->lexer->peek() instanceof tokens\IdentToken &&
       $this->lexer->peek()->lexeme === $keyword
     );
   }
 
   /**
    * @param string $keyword
-   * @return IdentToken
+   * @return tokens\IdentToken
    * @throws Error
    */
-  private function next_keyword(string $keyword): IdentToken {
+  private function next_keyword(string $keyword): tokens\IdentToken {
     $next = $this->lexer->next();
-    if ($next instanceof IdentToken && $next->lexeme === $keyword) {
+    if ($next instanceof tokens\IdentToken && $next->lexeme === $keyword) {
       return $next;
     }
     throw Errors::expected_token($next, "'$keyword' keyword");
@@ -224,7 +224,7 @@ class Parser {
    * @throws Error
    */
   private function ahead_is_ident(): bool {
-    return $this->lexer->peek() instanceof IdentToken;
+    return $this->lexer->peek() instanceof tokens\IdentToken;
   }
 
   /**
@@ -233,7 +233,7 @@ class Parser {
    */
   private function ahead_is_lower_ident(): bool {
     $tok = $this->lexer->peek();
-    return $tok instanceof IdentToken && $tok->is_lowercase();
+    return $tok instanceof tokens\IdentToken && $tok->is_lowercase();
   }
 
   /**
@@ -242,16 +242,16 @@ class Parser {
    */
   private function ahead_is_upper_ident(): bool {
     $tok = $this->lexer->peek();
-    return $tok instanceof IdentToken && $tok->is_uppercase();
+    return $tok instanceof tokens\IdentToken && $tok->is_uppercase();
   }
 
   /**
-   * @return IdentToken
+   * @return tokens\IdentToken
    * @throws Error
    */
-  private function next_lower_ident(): IdentToken {
+  private function next_lower_ident(): tokens\IdentToken {
     $next = $this->lexer->next();
-    if ($next instanceof IdentToken && $next->is_lowercase()) {
+    if ($next instanceof tokens\IdentToken && $next->is_lowercase()) {
       if (in_array($next->lexeme, RESERVED_WORDS)) {
         throw Errors::used_reserved_ident($next);
       }
@@ -270,12 +270,12 @@ class Parser {
   }
 
   /**
-   * @return IdentToken
+   * @return tokens\IdentToken
    * @throws Error
    */
-  private function next_upper_ident(): IdentToken {
+  private function next_upper_ident(): tokens\IdentToken {
     $next = $this->lexer->next();
-    if ($next instanceof IdentToken && $next->is_uppercase()) {
+    if ($next instanceof tokens\IdentToken && $next->is_uppercase()) {
       if (in_array($next->lexeme, RESERVED_WORDS)) {
         throw Errors::used_reserved_ident($next);
       }
@@ -298,11 +298,11 @@ class Parser {
    * @throws Error
    */
   private function ahead_is_literal(): bool {
-    return $this->lexer->peek() instanceof LiteralToken;
+    return $this->lexer->peek() instanceof tokens\LiteralToken;
   }
 
   /**
-   * @param Token[] $tokens
+   * @param tokens\Token[] $tokens
    * @return string
    */
   private function string_from_tokens(array $tokens): string {
@@ -853,7 +853,7 @@ class Parser {
   private function literal_expr(): nodes\Literal {
     $token = $this->lexer->next();
     $span  = $token->span;
-    if ($token instanceof StringToken) {
+    if ($token instanceof tokens\StringToken) {
       try {
         return new nodes\StrLiteral($span, StringValue::from_scalar($token->lexeme));
       } catch (UnknownEscapeChar $err) {
@@ -863,13 +863,13 @@ class Parser {
         $span   = (new Point($file, $line, $column))->span();
         throw Errors::unknown_escape_char($span);
       }
-    } else if ($token instanceof FloatToken) {
+    } else if ($token instanceof tokens\FloatToken) {
       $value = new FloatValue($token->lexeme, floatval($token->lexeme), $token->precision);
       return new nodes\FloatLiteral($span, $value);
-    } else if ($token instanceof IntegerToken) {
+    } else if ($token instanceof tokens\IntegerToken) {
       $value = new IntegerValue($token->lexeme, intval($token->lexeme, 10));
       return new nodes\IntLiteral($span, $value);
-    } else if ($token instanceof BooleanToken) {
+    } else if ($token instanceof tokens\BooleanToken) {
       $value = BooleanValue::from_scalar($token->lexeme === 'true');
       return new nodes\BoolLiteral($span, $value);
     }

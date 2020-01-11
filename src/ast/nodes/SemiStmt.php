@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\ast\PunctToken;
+use Cthulhu\ast\tokens\PunctToken;
 
 class SemiStmt extends Stmt {
   public Expr $expr;

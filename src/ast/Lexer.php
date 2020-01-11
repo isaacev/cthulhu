@@ -18,10 +18,10 @@ class Lexer {
   }
 
   /**
-   * @return Token
+   * @return tokens\Token
    * @throws Error
    */
-  public function peek(): Token {
+  public function peek(): tokens\Token {
     if (empty($this->buffer)) {
       $this->buffer = [ $this->read() ];
     }
@@ -31,7 +31,7 @@ class Lexer {
 
   /**
    * @param int $n
-   * @return Token[]
+   * @return tokens\Token[]
    * @throws Error
    */
   public function peek_multiple(int $n): array {
@@ -44,19 +44,19 @@ class Lexer {
 
   /**
    * @param int $n
-   * @return Token
+   * @return tokens\Token
    * @throws Error
    */
-  public function peek_ahead_by(int $n): Token {
+  public function peek_ahead_by(int $n): tokens\Token {
     $this->peek_multiple($n);
     return $this->buffer[$n - 1];
   }
 
   /**
-   * @return Token
+   * @return tokens\Token
    * @throws Error
    */
-  public function next(): Token {
+  public function next(): tokens\Token {
     if (empty($this->buffer)) {
       return $this->read();
     } else {
@@ -66,7 +66,7 @@ class Lexer {
 
   /**
    * @param int $n
-   * @return Token[]
+   * @return tokens\Token[]
    * @throws Error
    */
   public function next_multiple(int $n): array {
@@ -78,10 +78,10 @@ class Lexer {
   }
 
   /**
-   * @return Token
+   * @return tokens\Token
    * @throws Error
    */
-  private function read(): Token {
+  private function read(): tokens\Token {
     $this->scanner->skip_while([ '\Cthulhu\ast\Char', 'is_whitespace' ]);
 
     $next = $this->scanner->next();
@@ -101,11 +101,11 @@ class Lexer {
     }
   }
 
-  private function next_terminal(Char $next): TerminalToken {
-    return TerminalToken::from_char($next);
+  private function next_terminal(Char $next): tokens\TerminalToken {
+    return tokens\TerminalToken::from_char($next);
   }
 
-  private function next_num_literal(Char $next): LiteralToken {
+  private function next_num_literal(Char $next): tokens\LiteralToken {
     $lexeme = $next->raw_char;
     $from   = $next->point;
 
@@ -127,20 +127,20 @@ class Lexer {
 
       $to   = $next->point->next_column();
       $span = new Span($from, $to);
-      return new FloatToken($span, $lexeme, $precision);
+      return new tokens\FloatToken($span, $lexeme, $precision);
     }
 
     $to   = $next->point->next_column();
     $span = new Span($from, $to);
-    return new IntegerToken($span, $lexeme);
+    return new tokens\IntegerToken($span, $lexeme);
   }
 
   /**
    * @param Char $next
-   * @return StringToken
+   * @return tokens\StringToken
    * @throws Error
    */
-  private function next_str_literal(Char $next): Token {
+  private function next_str_literal(Char $next): tokens\Token {
     $lexeme = $next->raw_char;
     $from   = $next->point;
     $is_esc = false;
@@ -152,7 +152,7 @@ class Lexer {
           throw Errors::unclosed_string($next->point);
         } else {
           $span = new Span($from, $next->point);
-          return new ErrorToken($span, $lexeme, 'unclosed string');
+          return new tokens\ErrorToken($span, $lexeme, 'unclosed string');
         }
       } else if ($is_esc) {
         $lexeme .= $next->raw_char;
@@ -165,7 +165,7 @@ class Lexer {
       } else if (Char::is_double_quote($next)) {
         $lexeme .= '"';
         $span   = new Span($from, $next->point->next_column());
-        return new StringToken($span, $lexeme);
+        return new tokens\StringToken($span, $lexeme);
       } else {
         $lexeme .= $next->raw_char;
         continue;
@@ -175,7 +175,7 @@ class Lexer {
     die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
   }
 
-  private function next_ident(Char $next): Token {
+  private function next_ident(Char $next): tokens\Token {
     $lexeme = $next->raw_char;
     $from   = $next->point;
 
@@ -188,35 +188,35 @@ class Lexer {
     $span = new Span($from, $to);
 
     if ($lexeme === 'true' || $lexeme === 'false') {
-      return new BooleanToken($span, $lexeme);
+      return new tokens\BooleanToken($span, $lexeme);
     }
-    return new IdentToken($span, $lexeme);
+    return new tokens\IdentToken($span, $lexeme);
   }
 
-  private function next_delim(Char $next): DelimToken {
-    return DelimToken::from_char($next);
+  private function next_delim(Char $next): tokens\DelimToken {
+    return tokens\DelimToken::from_char($next);
   }
 
   /**
    * @param Char $next
-   * @return Token
+   * @return tokens\Token
    * @throws Error
    */
-  private function next_punct_or_comment(Char $next): Token {
+  private function next_punct_or_comment(Char $next): tokens\Token {
     if ($next->raw_char === '-' && $this->scanner->peek()->raw_char === '-') {
       return $this->next_comment($next);
     }
 
     $is_joint = Char::is_whitespace($this->scanner->peek()) === false;
-    return PunctToken::from_char($next, $is_joint);
+    return tokens\PunctToken::from_char($next, $is_joint);
   }
 
   /**
    * @param Char $next
-   * @return Token
+   * @return tokens\Token
    * @throws Error
    */
-  private function next_comment(Char $next): Token {
+  private function next_comment(Char $next): tokens\Token {
     $lexeme = $next->raw_char;
     $from   = $next->point;
 
@@ -231,6 +231,6 @@ class Lexer {
 
     $to   = $next->point;
     $span = new Span($from, $to);
-    return new CommentToken($span, $lexeme);
+    return new tokens\CommentToken($span, $lexeme);
   }
 }

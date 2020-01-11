@@ -2,16 +2,9 @@
 
 namespace Cthulhu\Debug;
 
-use Cthulhu\ast\CommentToken;
-use Cthulhu\ast\ErrorToken;
-use Cthulhu\ast\IdentToken;
 use Cthulhu\ast\Lexer;
-use Cthulhu\ast\LiteralToken;
-use Cthulhu\ast\PunctToken;
 use Cthulhu\ast\Scanner;
-use Cthulhu\ast\StringToken;
-use Cthulhu\ast\TerminalToken;
-use Cthulhu\ast\Token;
+use Cthulhu\ast\tokens;
 use Cthulhu\err\Error;
 use Cthulhu\lib\fmt\Background;
 use Cthulhu\lib\fmt\Foreground;
@@ -196,22 +189,22 @@ class Snippet implements Reportable {
     return $f;
   }
 
-  public static function token_styles(Token $token): array {
+  public static function token_styles(tokens\Token $token): array {
     switch (true) {
-      case $token instanceof ErrorToken:
+      case $token instanceof tokens\ErrorToken:
         return [ Background::RED, Foreground::DEFAULT ];
-      case $token instanceof StringToken:
+      case $token instanceof tokens\StringToken:
         return [ Foreground::GREEN ];
-      case $token instanceof LiteralToken:
-      case $token instanceof IdentToken && $token->lexeme === 'true':
-      case $token instanceof IdentToken && $token->lexeme === 'false':
+      case $token instanceof tokens\LiteralToken:
+      case $token instanceof tokens\IdentToken && $token->lexeme === 'true':
+      case $token instanceof tokens\IdentToken && $token->lexeme === 'false':
         return [ Foreground::MAGENTA ];
-      case $token instanceof PunctToken && $token->lexeme === ';':
-      case $token instanceof CommentToken:
+      case $token instanceof tokens\PunctToken && $token->lexeme === ';':
+      case $token instanceof tokens\CommentToken:
         return [ Foreground::BRIGHT_BLACK ];
-      case $token instanceof PunctToken:
+      case $token instanceof tokens\PunctToken:
         return [ Foreground::YELLOW ];
-      case $token instanceof IdentToken && in_array($token->lexeme, RESERVED_WORDS):
+      case $token instanceof tokens\IdentToken && in_array($token->lexeme, RESERVED_WORDS):
         return [ Foreground::CYAN ];
       default:
         return [ Foreground::DEFAULT ];
@@ -220,7 +213,7 @@ class Snippet implements Reportable {
 
   /**
    * @param File $file
-   * @return Token[]
+   * @return tokens\Token[]
    */
   public static function all_tokens(File $file): array {
     $scanner = new Scanner($file);
@@ -229,7 +222,7 @@ class Snippet implements Reportable {
     $tokens = [];
     try {
       while ($next = $tokens[] = $lexer->next()) {
-        if ($next instanceof TerminalToken) {
+        if ($next instanceof tokens\TerminalToken) {
           break;
         }
       }

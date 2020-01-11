@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\ast;
+namespace Cthulhu\ast\tokens;
 
 class CommentToken extends Token {
 }

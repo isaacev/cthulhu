@@ -1,7 +1,8 @@
 <?php
 
-namespace Cthulhu\ast;
+namespace Cthulhu\ast\tokens;
 
+use Cthulhu\ast\Char;
 use Cthulhu\loc\Span;
 
 class PunctToken extends Token {

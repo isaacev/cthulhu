@@ -1,6 +1,8 @@
 <?php
 
-namespace Cthulhu\ast;
+namespace Cthulhu\ast\tokens;
+
+use Cthulhu\ast\Char;
 
 class DelimToken extends Token {
   public function is_left(): bool {

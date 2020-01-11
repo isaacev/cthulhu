@@ -23,7 +23,7 @@ class Errors {
       ->snippet($spanlike);
   }
 
-  public static function expected_item(Token $found): Error {
+  public static function expected_item(tokens\Token $found): Error {
     return (new Error('expected item'))
       ->snippet($found)
       ->paragraph('An item can be like one of the following:')
@@ -32,7 +32,7 @@ class Errors {
       ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n}");
   }
 
-  public static function expected_pattern(Token $found): Error {
+  public static function expected_pattern(tokens\Token $found): Error {
     return (new Error('expected pattern'))
       ->snippet($found)
       ->paragraph('A pattern can be like one of the following:')
@@ -41,7 +41,7 @@ class Errors {
       ->example('Maybe::Just(x)');
   }
 
-  public static function expected_note(Token $found): Error {
+  public static function expected_note(tokens\Token $found): Error {
     return (new Error('expected type annotation'))
       ->snippet($found)
       ->paragraph('A type annotation can be like one of the following:')
@@ -49,7 +49,7 @@ class Errors {
       ->example("[Int]");
   }
 
-  public static function expected_expression(Token $found): Error {
+  public static function expected_expression(tokens\Token $found): Error {
     return (new Error('expected expression'))
       ->snippet($found)
       ->paragraph('An expression can be like one of the following:')
@@ -58,7 +58,7 @@ class Errors {
       ->example('if a { b; } else { c; }');
   }
 
-  public static function used_reserved_ident(Token $found): Error {
+  public static function used_reserved_ident(tokens\Token $found): Error {
     return (new Error('use of reserved word'))
       ->snippet($found, 'reserved words cannot be used as identifiers');
   }
