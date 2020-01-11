@@ -11,4 +11,12 @@ class IdentToken extends Token {
   public function is_uppercase(): bool {
     return !$this->is_lowercase();
   }
+
+  public function __debugInfo() {
+    return [
+      'type' => 'Ident',
+      'lexeme' => $this->lexeme,
+      'is_lowercase' => $this->is_lowercase(),
+    ];
+  }
 }

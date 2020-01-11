@@ -16,4 +16,12 @@ class PunctToken extends Token {
   public static function from_char(Char $char, bool $is_joint): self {
     return new self($char->point->to_span(), $char->raw_char, $is_joint);
   }
+
+  public function __debugInfo() {
+    return [
+      'type' => 'Punct',
+      'lexeme' => $this->lexeme,
+      'is_joint' => $this->is_joint,
+    ];
+  }
 }

@@ -16,7 +16,34 @@ class DelimToken extends Token {
     }
   }
 
+  public function balanced_with(self $other): bool {
+    switch ($this->lexeme) {
+      case '(':
+        return $other->lexeme === ')';
+      case ')':
+        return $other->lexeme === '(';
+      case '[':
+        return $other->lexeme === ']';
+      case ']':
+        return $other->lexeme === '[';
+      case '{':
+        return $other->lexeme === '}';
+      case '}':
+        return $other->lexeme === '{';
+      default:
+        return false;
+    }
+  }
+
   public static function from_char(Char $char): self {
     return new self($char->point->to_span(), $char->raw_char);
+  }
+
+  public function __debugInfo() {
+    return [
+      'type' => 'Delim',
+      'lexeme' => $this->lexeme,
+      'is_left' => $this->is_left(),
+    ];
   }
 }

@@ -11,4 +11,11 @@ class FloatToken extends LiteralToken {
     parent::__construct($span, $lexeme);
     $this->precision = $precision;
   }
+
+  public function __debugInfo() {
+    return [
+      'type' => 'Float',
+      'lexeme' => $this->lexeme,
+    ];
+  }
 }

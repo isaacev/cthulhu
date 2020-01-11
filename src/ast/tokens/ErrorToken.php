@@ -11,4 +11,12 @@ class ErrorToken extends LiteralToken {
     parent::__construct($span, $lexeme);
     $this->message = $message;
   }
+
+  public function __debugInfo() {
+    return [
+      'type' => 'Error',
+      'lexeme' => $this->lexeme,
+      'message' => $this->message,
+    ];
+  }
 }

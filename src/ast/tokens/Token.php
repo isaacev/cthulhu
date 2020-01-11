@@ -26,4 +26,6 @@ abstract class Token implements Spanlike {
   public function to(): Point {
     return $this->span->to;
   }
+
+  abstract public function __debugInfo();
 }
