@@ -44,6 +44,9 @@ abstract class Formatter {
 
   /**
    * Add a new tab stop.
+   *
+   * @param int $tab_stop
+   * @return $this
    */
   public function push_tab_stop(int $tab_stop): self {
     array_push($this->tab, $tab_stop);
@@ -52,6 +55,9 @@ abstract class Formatter {
 
   /**
    * Add a new tab stop that is the current tab stop + `$increment`
+   *
+   * @param int $increment
+   * @return $this
    */
   public function increment_tab_stop(int $increment): self {
     return $this->push_tab_stop($this->current_tab_stop() + $increment);
@@ -60,6 +66,10 @@ abstract class Formatter {
   /**
    * Write spaces until the cursor is at the given tab stop. Does not save the
    * tab stop. If the tab stop is left of the cursor, write nothing.
+   *
+   * @param int    $tab_stop
+   * @param string $char
+   * @return $this
    */
   public function tab_to(int $tab_stop, string $char = ' '): self {
     $total = max(0, $tab_stop - $this->col);
@@ -70,6 +80,9 @@ abstract class Formatter {
    * If the most recent tab stop is right of the current cursor position, write
    * spaces until the cursor is at the tab stop position. If the tab stop is
    * left of the cursor, write nothing.
+   *
+   * @param string $char
+   * @return $this
    */
   public function tab(string $char = ' '): self {
     return $this->tab_to($this->current_tab_stop(), $char);
@@ -86,6 +99,10 @@ abstract class Formatter {
   /**
    * If the current line is shorter than the MAX_LINE_LENGTH, write as many
    * whole `$str`'s as possible without exceeding the MAX_LINE_LENGTH.
+   *
+   * @param string $str
+   * @param int    $right_margin
+   * @return $this
    */
   public function fill_line(string $str, int $right_margin = 0): self {
     $available = $this->remaining_space_on_line();
@@ -103,8 +120,11 @@ abstract class Formatter {
   /**
    * Write 0 or more ANSI escape codes. If the concrete class has disabled
    * colors, this method will write nothing.
+   *
+   * @param int ...$attrs
+   * @return $this
    */
-  public function apply_styles(int ...$attrs): self {
+  public function apply_styles(...$attrs): self {
     $this->write_escape_code(...$attrs);
     $this->applied_styles = array_unique(array_merge($this->applied_styles, $attrs));
     return $this;
@@ -121,6 +141,8 @@ abstract class Formatter {
    *
    * The `stash_applied_styles` records which styles are currently applied then
    * clears all styling.
+   *
+   * @return $this
    */
   protected function stash_applied_styles(): self {
     array_push($this->stashed_styles, $this->applied_styles);
@@ -129,6 +151,8 @@ abstract class Formatter {
 
   /**
    * The `pop_applied_styles` re-applies the stashed styles.
+   *
+   * @return $this
    */
   protected function pop_applied_styles(): self {
     return $this->apply_styles(...array_pop($this->stashed_styles));
@@ -138,8 +162,12 @@ abstract class Formatter {
    * Write 0 or more ANSI escape codes if-and-only-if the `$test` parameter is
    * true. If the concrete class has disabled colors, this method will write
    * nothing even if `$test` is true.
+   *
+   * @param bool $test
+   * @param int  ...$attrs
+   * @return $this
    */
-  public function apply_styles_if(bool $test, int ...$attrs): self {
+  public function apply_styles_if(bool $test, ...$attrs): self {
     if ($test) {
       return $this->apply_styles(...$attrs);
     } else {
@@ -150,6 +178,8 @@ abstract class Formatter {
   /**
    * Write the ANSI reset escape code. If the concrete class had disabled
    * colors, this method will write nothing.
+   *
+   * @return $this
    */
   public function reset_styles(): self {
     $this->applied_styles = [];
@@ -161,6 +191,9 @@ abstract class Formatter {
    * Write the ANSI reset escape code if-and-only-if the `$test` parameter is
    * true. If the concrete class has disabled colors, this method will write
    * nothing even if `$test` is true.
+   *
+   * @param bool $test
+   * @return $this
    */
   public function reset_styles_if(bool $test): self {
     if ($test) {
@@ -172,6 +205,9 @@ abstract class Formatter {
 
   /**
    * Write a string literal.
+   *
+   * @param string $str
+   * @return $this
    */
   public function print(string $str): self {
     $this->write_text($str);
@@ -180,6 +216,10 @@ abstract class Formatter {
 
   /**
    * Write a formatted string using the same syntax as PHP's `sprintf`.
+   *
+   * @param string $format
+   * @param array  $args
+   * @return $this
    */
   public function printf(string $format, ...$args): self {
     $this->write_text(sprintf($format, ...$args));
@@ -188,6 +228,10 @@ abstract class Formatter {
 
   /**
    * Write a string `$num` times. This method does NOT check for line overflow.
+   *
+   * @param string $str
+   * @param int    $num
+   * @return $this
    */
   public function repeat(string $str, int $num): self {
     $this->write_text(str_repeat($str, $num));
@@ -197,6 +241,8 @@ abstract class Formatter {
   /**
    * Write a space `$num` (default 1) times. This method does NOT check for line
    * overflow.
+   * @param int $num
+   * @return $this
    */
   public function spaces(int $num): self {
     return $this->repeat(' ', $num);
@@ -204,6 +250,8 @@ abstract class Formatter {
 
   /**
    * Write a single space character.
+   *
+   * @return $this
    */
   public function space(): self {
     return $this->spaces(1);
@@ -211,6 +259,9 @@ abstract class Formatter {
 
   /**
    * Write a newline `$num` (default 1) times.
+   *
+   * @param int $num
+   * @return $this
    */
   public function newlines(int $num): self {
     return $this->repeat(PHP_EOL, $num);
@@ -218,6 +269,8 @@ abstract class Formatter {
 
   /**
    * Write a single newline character.
+   *
+   * @return $this
    */
   public function newline(): self {
     return $this->newlines(1);
@@ -231,7 +284,15 @@ abstract class Formatter {
     }
   }
 
-  public function text_wrap(string ...$parts): self {
+  /**
+   * Given 1 or more strings, output the strings but insert a newline if the
+   * text reaches the MAX_LINE_LENGTH. Line breaks will preserve indentation and
+   * styling across lines.
+   *
+   * @param string ...$parts
+   * @return $this
+   */
+  public function text_wrap(...$parts): self {
     $whole = implode(' ', $parts);
     $words = preg_split('/\s+/', $whole);
     $count = count($words);
