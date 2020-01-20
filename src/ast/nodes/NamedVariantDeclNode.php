@@ -9,10 +9,10 @@ class NamedVariantDeclNode extends VariantDeclNode {
 
   /**
    * @param Span            $span
-   * @param UpperNameNode   $name
+   * @param UpperName       $name
    * @param FieldDeclNode[] $fields
    */
-  public function __construct(Span $span, UpperNameNode $name, array $fields) {
+  public function __construct(Span $span, UpperName $name, array $fields) {
     parent::__construct($span, $name);
     $this->fields = $fields;
   }

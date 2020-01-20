@@ -2,15 +2,17 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class FieldExprNode extends Node {
-  public LowerNameNode $name;
+  public LowerName $name;
   public Expr $expr;
 
-  public function __construct(Span $span, LowerNameNode $name, Expr $expr) {
-    parent::__construct($span);
+  public function __construct(LowerName $name, Expr $expr) {
+    parent::__construct();
     $this->name = $name;
     $this->expr = $expr;
+  }
+
+  public function children(): array {
+    return [ $this->name, $this->expr ];
   }
 }

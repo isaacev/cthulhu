@@ -2,24 +2,24 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class LetStmt extends Stmt {
-  public LowerNameNode $name;
-  public ?Annotation $note;
+  public LowerName $name;
+  public ?Note $note;
   public Expr $expr;
 
   /**
-   * @param Span            $span
-   * @param LowerNameNode   $name
-   * @param Annotation|null $note
-   * @param Expr            $expr
-   * @param Attribute[]     $attrs
+   * @param LowerName $name
+   * @param Note|null $note
+   * @param Expr      $expr
    */
-  public function __construct(Span $span, LowerNameNode $name, ?Annotation $note, Expr $expr, array $attrs) {
-    parent::__construct($span, $attrs);
+  public function __construct(LowerName $name, ?Note $note, Expr $expr) {
+    parent::__construct();
     $this->name = $name;
     $this->note = $note;
     $this->expr = $expr;
+  }
+
+  public function children(): array {
+    return [ $this->name, $this->note, $this->expr ];
   }
 }

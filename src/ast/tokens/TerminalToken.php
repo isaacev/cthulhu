@@ -11,7 +11,7 @@ class TerminalToken extends Token {
   }
 
   public static function from_char(Char $char): self {
-    return new TerminalToken($char->point->to_span());
+    return new TerminalToken($char->point->span());
   }
 
   public function __debugInfo() {

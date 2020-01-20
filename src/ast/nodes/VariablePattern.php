@@ -3,10 +3,18 @@
 namespace Cthulhu\ast\nodes;
 
 class VariablePattern extends Pattern {
-  public LowerNameNode $name;
+  public LowerName $name;
 
-  public function __construct(LowerNameNode $name) {
-    parent::__construct($name->span);
+  public function __construct(LowerName $name) {
+    parent::__construct();
     $this->name = $name;
+  }
+
+  public function children(): array {
+    return [];
+  }
+
+  public function __toString(): string {
+    return "$this->name";
   }
 }

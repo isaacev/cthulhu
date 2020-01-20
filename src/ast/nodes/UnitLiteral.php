@@ -2,5 +2,10 @@
 
 namespace Cthulhu\ast\nodes;
 
-class UnitLiteral extends Expr {
+use Cthulhu\val\UnitValue;
+
+class UnitLiteral extends Literal {
+  public function __construct() {
+    parent::__construct(new UnitValue());
+  }
 }

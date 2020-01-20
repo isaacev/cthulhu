@@ -2,29 +2,35 @@
 
 namespace Cthulhu\workspace;
 
+use Cthulhu\ast\nodes\Program;
 use Cthulhu\err\Error;
-use Cthulhu\ir\Arity;
-use Cthulhu\ir\Flow;
-use Cthulhu\ir\nodes\Program;
-use Cthulhu\ir\types\Check;
+use Cthulhu\ir\Compiler;
+use Cthulhu\ir\types\Env;
+use Cthulhu\ir\types\hm\TypeSet;
+use Cthulhu\ir\types\TypeSolver;
+use Cthulhu\types\TypeCompiler;
 
 class CheckPhase {
-  private Program $ir_tree;
+  private Program $deep;
 
-  public function __construct(Program $ir_tree) {
-    $this->ir_tree = $ir_tree;
+  public function __construct(Program $deep) {
+    $this->deep = $deep;
   }
 
   /**
-   * @return CodegenPhase
+   * @return OptimizePhase
    * @throws Error
    */
-  public function check(): CodegenPhase {
-    Check::types($this->ir_tree);
-    Check::validate($this->ir_tree);
-    Flow::analyze($this->ir_tree);
-    Arity::analyze($this->ir_tree);
-    Arity::validate($this->ir_tree);
-    return new CodegenPhase($this->ir_tree);
+  public function check(): OptimizePhase {
+    $exprs   = (new TypeCompiler($this->deep))->exprs();
+    $env     = new Env();
+    $non_gen = new TypeSet();
+
+    foreach ($exprs as $expr) {
+      TypeSolver::expr($expr, $env, $non_gen);
+    }
+
+    $ir = Compiler::program($this->deep, $env);
+    return new OptimizePhase($ir);
   }
 }

@@ -2,26 +2,12 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Point;
-use Cthulhu\loc\Span;
-use Cthulhu\loc\Spanlike;
+use Cthulhu\lib\trees\DefaultMetadata;
+use Cthulhu\lib\trees\DefaultUniqueId;
+use Cthulhu\lib\trees\HasMetadata;
+use Cthulhu\lib\trees\Nodelike;
 
-abstract class Node implements Spanlike {
-  public Span $span;
-
-  public function __construct(Span $span) {
-    $this->span = $span;
-  }
-
-  public function span(): Span {
-    return $this->span;
-  }
-
-  public function from(): Point {
-    return $this->span->from;
-  }
-
-  public function to(): Point {
-    return $this->span->to;
-  }
+abstract class Node implements Nodelike, HasMetadata {
+  use DefaultMetadata;
+  use DefaultUniqueId;
 }

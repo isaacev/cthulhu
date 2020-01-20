@@ -2,14 +2,13 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
 use Cthulhu\val\BooleanValue;
 
 class BoolLiteral extends Literal {
-  public BooleanValue $value;
+  public BooleanValue $bool_value;
 
-  public function __construct(Span $span, BooleanValue $value) {
-    parent::__construct($span);
-    $this->value = $value;
+  public function __construct(BooleanValue $value) {
+    parent::__construct($value);
+    $this->bool_value = $value;
   }
 }

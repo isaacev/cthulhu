@@ -2,17 +2,21 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class File extends Node {
+  public UpperName $name;
   public array $items;
 
   /**
-   * @param Span   $span
-   * @param Item[] $items
+   * @param UpperName $name
+   * @param Item[]    $items
    */
-  public function __construct(Span $span, array $items) {
-    parent::__construct($span);
+  public function __construct(UpperName $name, array $items) {
+    parent::__construct();
+    $this->name  = $name;
     $this->items = $items;
+  }
+
+  public function children(): array {
+    return $this->items;
   }
 }

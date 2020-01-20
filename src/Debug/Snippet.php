@@ -4,6 +4,7 @@ namespace Cthulhu\Debug;
 
 use Cthulhu\ast\Lexer;
 use Cthulhu\ast\Scanner;
+use Cthulhu\ast\ShallowParser;
 use Cthulhu\ast\tokens;
 use Cthulhu\err\Error;
 use Cthulhu\lib\fmt\Background;
@@ -11,7 +12,6 @@ use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;
 use Cthulhu\loc\File;
 use Cthulhu\loc\Spanlike;
-use const Cthulhu\ast\RESERVED_WORDS;
 
 class Snippet implements Reportable {
   public const LINES_ABOVE    = 0;
@@ -204,7 +204,7 @@ class Snippet implements Reportable {
         return [ Foreground::BRIGHT_BLACK ];
       case $token instanceof tokens\PunctToken:
         return [ Foreground::YELLOW ];
-      case $token instanceof tokens\IdentToken && in_array($token->lexeme, RESERVED_WORDS):
+      case $token instanceof tokens\IdentToken && in_array($token->lexeme, ShallowParser::RESERVED_WORDS):
         return [ Foreground::CYAN ];
       default:
         return [ Foreground::DEFAULT ];

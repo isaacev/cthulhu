@@ -36,7 +36,7 @@ class DelimToken extends Token {
   }
 
   public static function from_char(Char $char): self {
-    return new self($char->point->to_span(), $char->raw_char);
+    return new self($char->point->span(), $char->raw_char);
   }
 
   public function __debugInfo() {

@@ -2,15 +2,17 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class ParamNode extends Node {
-  public LowerNameNode $name;
-  public Annotation $note;
+  public LowerName $name;
+  public Note $note;
 
-  public function __construct(Span $span, LowerNameNode $name, Annotation $note) {
-    parent::__construct($span);
+  public function __construct(LowerName $name, Note $note) {
+    parent::__construct();
     $this->name = $name;
     $this->note = $note;
+  }
+
+  public function children(): array {
+    return [ $this->name, $this->note ];
   }
 }

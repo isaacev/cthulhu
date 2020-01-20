@@ -2,18 +2,15 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class NativeTypeItem extends Item {
-  public UpperNameNode $name;
+  public UpperName $name;
 
-  /**
-   * @param Span          $span
-   * @param UpperNameNode $name
-   * @param Attribute[]   $attrs
-   */
-  public function __construct(Span $span, UpperNameNode $name, array $attrs) {
-    parent::__construct($span, $attrs);
+  public function __construct(UpperName $name) {
+    parent::__construct();
     $this->name = $name;
+  }
+
+  public function children(): array {
+    return [ $this->name ];
   }
 }

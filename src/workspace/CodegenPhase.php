@@ -2,23 +2,16 @@
 
 namespace Cthulhu\workspace;
 
-use Cthulhu\err\Error;
-use Cthulhu\ir\nodes\Program;
-use Cthulhu\php\Lower;
+use Cthulhu\ir\nodes2\Root;
 
 class CodegenPhase {
-  private Program $ir_tree;
+  private Root $tree;
 
-  public function __construct(Program $ir_tree) {
-    $this->ir_tree = $ir_tree;
+  public function __construct(Root $tree) {
+    $this->tree = $tree;
   }
 
-  /**
-   * @return OptimizePhase
-   * @throws Error
-   */
-  public function codegen(): OptimizePhase {
-    $php_tree = Lower::from($this->ir_tree);
-    return new OptimizePhase($php_tree);
+  public function codegen(): WritePhase {
+    // TODO
   }
 }

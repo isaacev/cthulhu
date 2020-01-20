@@ -2,20 +2,21 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class MatchExpr extends Expr {
-  public Expr $disc;
+  public Expr $discriminant;
   public array $arms;
 
   /**
-   * @param Span       $span
-   * @param Expr       $disc
+   * @param Expr       $discriminant
    * @param MatchArm[] $arms
    */
-  public function __construct(Span $span, Expr $disc, array $arms) {
-    parent::__construct($span);
-    $this->disc = $disc;
-    $this->arms = $arms;
+  public function __construct(Expr $discriminant, array $arms) {
+    parent::__construct();
+    $this->discriminant = $discriminant;
+    $this->arms         = $arms;
+  }
+
+  public function children(): array {
+    return array_merge([ $this->discriminant ], $this->arms);
   }
 }

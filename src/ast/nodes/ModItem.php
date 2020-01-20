@@ -2,21 +2,21 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class ModItem extends Item {
-  public UpperNameNode $name;
+  public UpperName $name;
   public array $items;
 
   /**
-   * @param Span          $span
-   * @param UpperNameNode $name
-   * @param Item[]        $items
-   * @param Attribute[]   $attrs
+   * @param UpperName $name
+   * @param Item[]    $items
    */
-  public function __construct(Span $span, UpperNameNode $name, array $items, array $attrs) {
-    parent::__construct($span, $attrs);
+  public function __construct(UpperName $name, array $items) {
+    parent::__construct();
     $this->name  = $name;
     $this->items = $items;
+  }
+
+  public function children(): array {
+    return array_merge([ $this->name ], $this->items);
   }
 }
