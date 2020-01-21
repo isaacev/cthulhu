@@ -1,22 +1,24 @@
-#[inline]
-fn str(s: Str) -> Str {
+intrinsic {
+  fn cast_int_to_string(Int) -> Str;
+  fn cast_float_to_string(Float) -> Str;
+}
+
+pub fn str(s: Str) -> Str {
   s
 }
 
-#[inline]
-fn int(i: Int) -> Str {
-  ::Kernel::Builtins::cast_int_to_string(i)
+pub fn int(i: Int) -> Str {
+  cast_int_to_string(i)
 }
 
-#[inline]
-fn float(f: Float) -> Str {
-  ::Kernel::Builtins::cast_float_to_string(f)
+pub fn float(f: Float) -> Str {
+  cast_float_to_string(f)
 }
 
-#[inline]
-fn bool(b: Bool) -> Str {
+pub fn bool(b: Bool) -> Str {
   match b {
     true => "true",
     false => "false",
+    _ => "???",
   }
 }

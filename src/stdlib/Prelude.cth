@@ -1,0 +1,98 @@
+--
+-- Define the primitive types and accompanying binary operators
+--
+
+pub use ::Kernel::Bool;
+
+intrinsic {
+  fn bool_and(Bool, Bool) -> Bool;
+  fn bool_or(Bool, Bool) -> Bool;
+}
+
+#[infixr(rel)]
+pub fn (&&) (a: Bool, b: Bool) -> Bool {
+  bool_and(a, b)
+}
+
+#[infixr(rel)]
+pub fn (||) (a: Bool, b: Bool) -> Bool {
+  bool_or(a, b)
+}
+
+pub use ::Kernel::Int;
+
+intrinsic {
+  fn int_add(Int, Int) -> Int;
+  fn int_sub(Int, Int) -> Int;
+  fn int_mul(Int, Int) -> Int;
+}
+
+#[infix(sum)]
+pub fn (+) (a: Int, b: Int) -> Int {
+  int_add(a, b)
+}
+
+#[infix(sum)]
+pub fn (-) (a: Int, b: Int) -> Int {
+  int_sub(a, b)
+}
+
+#[infix(prod)]
+pub fn (*) (a: Int, b: Int) -> Int {
+  int_mul(a, b)
+}
+
+pub use ::Kernel::Float;
+
+intrinsic {
+  fn float_add(Float, Float) -> Float;
+  fn float_sub(Float, Float) -> Float;
+  fn float_mul(Float, Float) -> Float;
+}
+
+#[infix(sum)]
+pub fn (+.) (a: Float, b: Float) -> Float {
+  float_add(a, b)
+}
+
+#[infix(sum)]
+pub fn (-.) (a: Float, b: Float) -> Float {
+  float_sub(a, b)
+}
+
+#[infix(prod)]
+pub fn (*.) (a: Float, b: Float) -> Float {
+  float_mul(a, b)
+}
+
+pub use ::Kernel::Str;
+
+intrinsic {
+  fn str_concat(Str, Str) -> Str;
+}
+
+#[infix(sum)]
+pub fn (++) (a: Str, b: Str) -> Str {
+  str_concat(a, b)
+}
+
+--
+-- Define other useful binary operators
+--
+
+#[infix(pipe)]
+pub fn (|>) (lhs: 'a, rhs: 'a -> 'b) -> 'b {
+  rhs(lhs)
+}
+
+--
+-- Define commonly used composite types
+--
+
+pub type Maybe('a) =
+  | Some('a)
+  | None;
+
+pub type Either('a, 'b) =
+  | Left('a)
+  | Right('b);

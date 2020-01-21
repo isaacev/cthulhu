@@ -1,23 +1,31 @@
+intrinsic {
+  fn array_key_exists(Int, ['a]) -> Bool;
+  fn subscript(['a], Int) -> 'a;
+  fn count(['a]) -> Int;
+  fn for_each('a -> (), ['a]) -> ();
+  fn for_each_with_index(Int -> 'a -> (), ['a]) -> ();
+}
+
 #[inline]
-fn nth(ls: ['a], n: Int) -> Maybe('a) {
-  if ::Kernel::Builtins::array_key_exists(n, ls) {
-    Maybe::Just(::Kernel::Builtins::subscript(ls, n))
+pub fn nth(ls: ['a], n: Int) -> Maybe('a) {
+  if array_key_exists(n, ls) {
+    Maybe::Just(subscript(ls, n))
   } else {
     Maybe::None
   }
 }
 
 #[inline]
-fn length(ls: ['a]) -> Int {
-  ::Kernel::Builtins::count(ls)
+pub fn length(ls: ['a]) -> Int {
+  count(ls)
 }
 
 #[inline]
-fn iter(f: 'a -> (), l: ['a]) -> () {
-  ::Kernel::Builtins::for_each(f, l);
+pub fn iter(f: 'a -> (), l: ['a]) -> () {
+  for_each(f, l);
 }
 
 #[inline]
-fn iter_index(f: Int -> 'a -> (), l: ['a]) -> () {
-  ::Kernel::Builtins::for_each_with_index(f, l);
+pub fn iter_index(f: Int -> 'a -> (), l: ['a]) -> () {
+  for_each_with_index(f, l);
 }

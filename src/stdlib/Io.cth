@@ -1,4 +1,13 @@
+intrinsic {
+  fn php_print(Str) -> ();
+}
+
 #[inline]
-fn println(str: Str) -> () {
-  ::Kernel::Builtins::print(str ++ "\n");
+pub fn print(str: Str) -> () {
+  php_print(str);
+}
+
+#[inline]
+pub fn println(str: Str) -> () {
+  php_print(str ++ "\n");
 }

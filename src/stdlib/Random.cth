@@ -1,9 +1,13 @@
-#[inline]
-fn bool() -> Bool {
-  ::Kernel::Builtins::mt_rand(0, 1) == 1
+intrinsic {
+  fn mt_rand(Int, Int) -> Int;
 }
 
 #[inline]
-fn integer(min: Int, max: Int) -> Int {
-  ::Kernel::Builtins::mt_rand(min, max)
+pub fn bool() -> Bool {
+  mt_rand(0, 1) == 1
+}
+
+#[inline]
+pub fn integer(min: Int, max: Int) -> Int {
+  mt_rand(min, max)
 }
