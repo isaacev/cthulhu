@@ -27,8 +27,18 @@ class CallbackTable {
     }
   }
 
+  /**
+   * Pass the current node (and any arguments) to all callbacks that are
+   * registered for the node's class or any of its parent classes. Queries are
+   * matched from starting with the most general class name (ex: Node) and
+   * ending with the most specific class name (ex: BinaryExpr). *Note:* This
+   * order is opposite of the order in {@link CallbackTable::postorder}.
+   *
+   * @param Nodelike $node
+   * @param mixed    ...$args
+   */
   public function preorder(Nodelike $node, ...$args) {
-    foreach (self::get_node_kinds($node) as $kind) {
+    foreach (array_reverse(self::get_node_kinds($node)) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('enter', $this->callbacks[$kind])) {
           $this->callbacks[$kind]['enter']($node, ...$args);
@@ -37,6 +47,16 @@ class CallbackTable {
     }
   }
 
+  /**
+   * Pass the current node (and any arguments) to all callbacks that are
+   * registered for the node's class or any of its parent classes. Queries are
+   * matched starting from the most specific class name (ex: BinaryExpr) and
+   * ending with the most general class name (ex: Node). *Note:* This order is
+   * opposite of the order in {@link CallbackTable::preorder}.
+   *
+   * @param Nodelike $node
+   * @param mixed    ...$args
+   */
   public function postorder(Nodelike $node, ...$args) {
     foreach (self::get_node_kinds($node) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
