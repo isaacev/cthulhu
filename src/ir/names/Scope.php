@@ -3,21 +3,50 @@
 namespace Cthulhu\ir\names;
 
 class Scope {
-  public array $table = [];
+  /* @var Binding[] $table */
+  private array $table = [];
 
   public function has_name(string $name): bool {
     return array_key_exists($name, $this->table);
   }
 
-  public function add_binding(string $name, Symbol $symbol): void {
-    $this->table[$name] = $symbol;
+  public function add_binding(Binding $binding): void {
+    $this->table[$binding->name] = $binding;
   }
 
-  public function get_name(string $name): ?Symbol {
+  public function get_name(string $name): ?Binding {
     if ($this->has_name($name)) {
       return $this->table[$name];
     } else {
       return null;
     }
+  }
+
+  public function get_public_name(string $name): ?Binding {
+    if (($binding = $this->get_name($name)) && $binding->is_public) {
+      return $binding;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * @return Binding[]
+   */
+  public function get_any_bindings(): array {
+    return $this->table;
+  }
+
+  /**
+   * @return Binding[]
+   */
+  public function get_public_bindings(): array {
+    $bindings = [];
+    foreach ($this->table as $name => $binding) {
+      if ($binding->is_public) {
+        $bindings[$name] = $binding;
+      }
+    }
+    return $bindings;
   }
 }

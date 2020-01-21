@@ -35,5 +35,5 @@ abstract class Symbol implements ir\HasId {
     return $this->get_id() === $other->get_id();
   }
 
-  public abstract function __toString(): string;
+  abstract public function __toString(): string;
 }

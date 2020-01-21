@@ -14,10 +14,11 @@ class RefSymbol extends Symbol {
   }
 
   public function __toString(): string {
+    $ref = $this->get('text') ?? $this->get_id();
     if ($this->parent === null) {
-      return "-> $this->id";
+      return "::$ref";
     } else {
-      return "$this->parent -> $this->id";
+      return "$this->parent::$ref";
     }
   }
 }
