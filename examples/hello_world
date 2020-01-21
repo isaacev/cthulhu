@@ -1,5 +1,0 @@
-#[entry]
-#[inline]
-fn main () -> () {
-  ::Io::println("hello world");
-}
