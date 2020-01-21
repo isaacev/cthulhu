@@ -12,6 +12,7 @@ class StreamFormatter extends Formatter {
    * @param resource  $resource
    * @param bool|null $use_color
    * @throws Exception
+   * @noinspection PhpComposerExtensionStubsInspection
    */
   public function __construct($resource, ?bool $use_color = null) {
     if (is_resource($resource) === false) {
