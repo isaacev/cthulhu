@@ -2,7 +2,7 @@
 
 namespace Cthulhu\workspace;
 
-use Cthulhu\ir\nodes2\Root;
+use Cthulhu\ir\nodes\Root;
 use Cthulhu\ir\passes;
 
 class OptimizePhase {

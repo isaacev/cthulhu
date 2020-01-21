@@ -2,13 +2,13 @@
 
 namespace Cthulhu\ir\passes;
 
-use Cthulhu\ir\nodes2\Apply;
-use Cthulhu\ir\nodes2\Expr;
-use Cthulhu\ir\nodes2\Exprs;
-use Cthulhu\ir\nodes2\Func;
-use Cthulhu\ir\nodes2\Let;
-use Cthulhu\ir\nodes2\NameExpr;
-use Cthulhu\ir\nodes2\Root;
+use Cthulhu\ir\nodes\Apply;
+use Cthulhu\ir\nodes\Expr;
+use Cthulhu\ir\nodes\Exprs;
+use Cthulhu\ir\nodes\Func;
+use Cthulhu\ir\nodes\Let;
+use Cthulhu\ir\nodes\NameExpr;
+use Cthulhu\ir\nodes\Root;
 use Cthulhu\lib\trees\EditablePath;
 use Cthulhu\lib\trees\Visitor;
 

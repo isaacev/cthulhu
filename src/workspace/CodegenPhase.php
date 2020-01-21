@@ -2,7 +2,7 @@
 
 namespace Cthulhu\workspace;
 
-use Cthulhu\ir\nodes2\Root;
+use Cthulhu\ir\nodes\Root;
 
 class CodegenPhase {
   private Root $tree;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\ir\nodes2;
+namespace Cthulhu\ir\nodes;
 
 use Cthulhu\lib\trees\Nodelike;
 use Cthulhu\lib\trees\RemovalHandler;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\ir\nodes2;
+namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ast\nodes\Pattern;
 use Cthulhu\lib\trees\EditableNodelike;

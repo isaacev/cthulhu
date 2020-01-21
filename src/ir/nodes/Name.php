@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\ir\nodes2;
+namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\types\hm\Type;

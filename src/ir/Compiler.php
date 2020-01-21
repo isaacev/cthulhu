@@ -6,7 +6,7 @@ use Cthulhu\ast\nodes as ast;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\names\VarSymbol;
-use Cthulhu\ir\nodes2 as ir;
+use Cthulhu\ir\nodes as ir;
 use Cthulhu\ir\types\hm;
 
 class Compiler {
