@@ -27,21 +27,21 @@ class CallbackTable {
     }
   }
 
-  public function preorder(Path $path) {
-    foreach (self::get_node_kinds($path->node) as $kind) {
+  public function preorder(Nodelike $node, ...$args) {
+    foreach (self::get_node_kinds($node) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('enter', $this->callbacks[$kind])) {
-          $this->callbacks[$kind]['enter']($path->node, $path);
+          $this->callbacks[$kind]['enter']($node, ...$args);
         }
       }
     }
   }
 
-  public function postorder(Path $path) {
-    foreach (self::get_node_kinds($path->node) as $kind) {
+  public function postorder(Nodelike $node, ...$args) {
+    foreach (self::get_node_kinds($node) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('exit', $this->callbacks[$kind])) {
-          $this->callbacks[$kind]['exit']($path->node, $path);
+          $this->callbacks[$kind]['exit']($node, ...$args);
         }
       }
     }

@@ -25,6 +25,29 @@ trait DefaultMetadata {
   }
 
   /**
+   * @param string $head
+   * @param string ...$rest
+   * @return mixed|null
+   */
+  public function chain(string $head, string ...$rest) {
+    $curr  = $this;
+    $total = 1 + count($rest);
+    foreach ([ $head, ...$rest ] as $index => $key) {
+      $is_last = $index === $total - 1;
+      $next    = $curr->get($key);
+      if ($is_last) {
+        return $next;
+      } else if ($curr->get($key) instanceof HasMetadata) {
+        $curr = $curr->get($key);
+        continue;
+      } else {
+        break;
+      }
+    }
+    return null;
+  }
+
+  /**
    * @param string $key
    * @param mixed  $value
    * @return $this

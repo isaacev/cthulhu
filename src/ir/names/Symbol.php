@@ -3,9 +3,10 @@
 namespace Cthulhu\ir\names;
 
 use Cthulhu\ir;
+use Cthulhu\lib\trees\DefaultUniqueId;
 
 abstract class Symbol implements ir\HasId {
-  use ir\GenerateId;
+  use DefaultUniqueId;
 
   protected array $metadata = [];
 

@@ -2,18 +2,18 @@
 
 namespace Cthulhu\lib\cycle;
 
-use Cthulhu\ir\HasId;
+use Cthulhu\lib\trees\Nodelike;
 
 class Graph {
   protected int $root_id;
   protected array $lookup = [];
   protected array $edges = [];
 
-  public function __construct(HasId $root) {
+  public function __construct(Nodelike $root) {
     $this->lookup[$this->root_id = $root->get_id()] = $root;
   }
 
-  public function add_edge(HasId $from, HasId $to): void {
+  public function add_edge(Nodelike $from, Nodelike $to): void {
     $this->lookup[$from_id = $from->get_id()] = $from;
     $this->lookup[$to_id = $to->get_id()]     = $to;
 
