@@ -60,10 +60,6 @@ class Point implements Spanlike {
     return $this->lt($other) || $this->eq($other);
   }
 
-  public function to_span(): Span {
-    return new Span($this, $this->next_column());
-  }
-
   public function __toString() {
     return "($this->line:$this->column)";
   }
