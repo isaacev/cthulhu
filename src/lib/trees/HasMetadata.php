@@ -21,11 +21,11 @@ interface HasMetadata {
    * @param mixed  $value
    * @return self
    */
-  public function set(string $key, $value): self;
+  public function set(string $key, $value);
 
   /**
    * @param HasMetadata $other
-   * @return $this
+   * @return self
    */
-  public function copy(HasMetadata $other): self;
+  public function copy(HasMetadata $other);
 }

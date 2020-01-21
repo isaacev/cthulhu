@@ -6,7 +6,7 @@ trait DefaultMetadata {
   protected array $metadata = [];
 
   /**
-   * @return array
+   * @return string[]
    */
   public function list(): array {
     return array_keys($this->metadata);
@@ -27,7 +27,7 @@ trait DefaultMetadata {
   /**
    * @param string $key
    * @param mixed  $value
-   * @return $this
+   * @return self
    */
   public function set(string $key, $value): self {
     $this->metadata[$key] = $value;
@@ -36,7 +36,7 @@ trait DefaultMetadata {
 
   /**
    * @param HasMetadata $other
-   * @return $this
+   * @return self
    */
   public function copy(HasMetadata $other): self {
     foreach ($other->list() as $key) {
