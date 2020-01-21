@@ -17,13 +17,6 @@ interface HasMetadata {
   public function get(string $key);
 
   /**
-   * @param string $head
-   * @param string ...$rest
-   * @return mixed
-   */
-  public function chain(string $head, string ...$rest);
-
-  /**
    * @param string $key
    * @param mixed  $value
    * @return self
