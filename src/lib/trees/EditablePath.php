@@ -11,6 +11,14 @@ class EditablePath {
     $this->node   = $original;
   }
 
+  /**
+   * IDEA:
+   *  This method is NOT allowed to be invoked by a callback. To prevent this
+   *  method being called accidentally, maybe pass a more sanitized "Path"
+   *  object to callbacks that implements only APIs that are allowed in callbacks?
+   *
+   * @param EditableNodelike $new_node
+   */
   public function set_node(EditableNodelike $new_node): void {
     $this->node = $new_node;
   }

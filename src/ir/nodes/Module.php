@@ -2,12 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
+use Cthulhu\lib\trees\EditableSuccessor;
 use Cthulhu\lib\trees\Nodelike;
 use Cthulhu\lib\trees\RemovalHandler;
 use Cthulhu\lib\trees\ReplacementHandler;
 
-class Module extends Node implements RemovalHandler, ReplacementHandler, \Countable {
+class Module extends Node implements RemovalHandler, ReplacementHandler, EditableSuccessor, \Countable {
   public Name $name;
   public ?Stmt $stmt;
   private ?Module $next;
@@ -20,11 +20,21 @@ class Module extends Node implements RemovalHandler, ReplacementHandler, \Counta
   }
 
   public function children(): array {
-    return [ $this->name, $this->stmt, $this->next ];
+    return [ $this->name, $this->stmt ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self(...$children))
+  public function from_children(array $children): Module {
+    return (new self($children[0], $children[1], $this->next))
+      ->copy($this);
+  }
+
+  public function successor(): ?Module {
+    return $this->next;
+  }
+
+  public function from_successor(?EditableSuccessor $successor): Module {
+    assert($successor === null || $successor instanceof Module);
+    return (new self($this->name, $this->stmt, $successor))
       ->copy($this);
   }
 

@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
+use Cthulhu\lib\trees\EditableSuccessor;
 
 class Ret extends Stmt {
   public Expr $expr;
@@ -13,11 +13,17 @@ class Ret extends Stmt {
   }
 
   public function children(): array {
-    return [ $this->expr, $this->next ];
+    return [ $this->expr ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self(...$children))
+  public function from_children(array $children): Ret {
+    return (new self($children[0], $this->next))
+      ->copy($this);
+  }
+
+  public function from_successor(?EditableSuccessor $successor): Ret {
+    assert($successor === null || $successor instanceof Stmt);
+    return (new self($this->expr, $successor))
       ->copy($this);
   }
 
