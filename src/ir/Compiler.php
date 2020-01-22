@@ -45,7 +45,7 @@ class Compiler {
   private static function file(self $ctx, ast\File $file): void {
     $symbol = $file->name->get('symbol');
     $text   = self::symbol_to_text($symbol);
-    $type   = new hm\Nullary('Unit');
+    $type   = new hm\Unit();
     $name   = new ir\Name($type, $text, $symbol);
     $stmts  = self::items($ctx, $file->items);
     $mod    = new ir\Module($name, $stmts, null);

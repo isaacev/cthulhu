@@ -77,7 +77,7 @@ class TypeCompiler {
             };
           } else {
             $forms[$form_name] = function (): hm\Type {
-              return new hm\Nullary('Unit');
+              return new hm\Unit();
             };
           }
         }
@@ -99,7 +99,7 @@ class TypeCompiler {
         $body = array_pop($this->exprs);
         if (empty($item->params)) {
           $body = new hm\LamExpr(
-            new hm\Param(new VarSymbol(), new hm\Nullary('Unit')),
+            new hm\Param(new VarSymbol(), new hm\Unit()),
             $body, $this->note($item->returns));
         } else {
           $returns = $this->note($item->returns);
@@ -201,7 +201,7 @@ class TypeCompiler {
     $sym = $sig->name->get('symbol');
     assert($sym instanceof Symbol);
     if ($sig->params instanceof ast\nodes\UnitNote) {
-      $type = new hm\Func(new hm\Nullary('Unit'), $this->note($sig->returns));
+      $type = new hm\Func(new hm\Unit(), $this->note($sig->returns));
     } else if ($sig->params instanceof ast\nodes\TupleNote) {
       $params  = array_map(fn($t) => $this->note($t), $sig->params->members);
       $returns = $this->note($sig->returns);
@@ -246,7 +246,7 @@ class TypeCompiler {
       case $note instanceof ast\nodes\GroupedNote:
         return $this->note($note->inner, $var_handler);
       case $note instanceof ast\nodes\UnitNote:
-        return new hm\Nullary('Unit');
+        return new hm\Unit();
       case $note instanceof ast\nodes\TypeParamNote:
         if ($var_handler !== null) {
           return $var_handler($note);

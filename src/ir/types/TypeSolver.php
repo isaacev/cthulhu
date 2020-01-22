@@ -265,7 +265,7 @@ class TypeSolver {
   }
 
   private static function unit_expr(hm\UnitExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
-    $type = new hm\Nullary('Unit');
+    $type = new hm\Unit();
 
     if ($expr->has('node')) {
       $expr->get('node')->set('type', $type);
@@ -311,10 +311,7 @@ class TypeSolver {
         }
       } else {
         $form_type = $enum_type->get_form($pattern->path->tail->value);
-        assert(
-          $form_type instanceof hm\Nullary &&
-          $form_type->name === 'Unit'
-        );
+        assert($form_type instanceof hm\Unit);
       }
 
       return $enum_type;
@@ -326,7 +323,7 @@ class TypeSolver {
   private static function value_to_type(Value $value): hm\Type {
     switch (true) {
       case $value instanceof UnitValue:
-        return new hm\Nullary('Unit');
+        return new hm\Unit();
       case $value instanceof BooleanValue:
         return new hm\Nullary('Bool');
       case $value instanceof IntegerValue:
