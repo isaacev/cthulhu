@@ -5,7 +5,7 @@ namespace Cthulhu\ir\nodes;
 use Cthulhu\ir\types\hm;
 use Cthulhu\lib\trees\EditableNodelike;
 
-class Func extends Expr {
+class Closure extends Expr {
   public Names $names;
   public ?Stmt $stmt;
 

@@ -108,7 +108,7 @@ class Compiler {
       $args   = new ir\Exprs($exprs);
 
       $app  = new ir\Apply($type, $int, $args);
-      $func = new ir\Func($type, $params, new ir\Ret($app, null));
+      $func = new ir\Closure($type, $params, new ir\Ret($app, null));
       $let  = new ir\Let($name, $func, null);
       $ctx->push_stmt($let);
     }
@@ -129,7 +129,7 @@ class Compiler {
     $name  = new ir\Name($type, $text, $symbol);
     $names = self::params($ctx, $item->params);
     $stmts = self::stmts($ctx, $item->body->stmts);
-    $func  = new ir\Func($type, $names, $stmts);
+    $func  = new ir\Closure($type, $names, $stmts);
     $let   = new ir\Let($name, $func, null);
 
     if (self::is_entry_point($item)) {

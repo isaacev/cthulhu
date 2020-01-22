@@ -2,8 +2,7 @@
 
 namespace Cthulhu\ir\passes;
 
-use Cthulhu\ir\nodes\Func;
-use Cthulhu\ir\nodes\Intrinsic;
+use Cthulhu\ir\nodes\Closure;
 use Cthulhu\ir\nodes\Let;
 use Cthulhu\ir\nodes\Module;
 use Cthulhu\ir\nodes\NameExpr;
@@ -32,11 +31,7 @@ class ShakeTree implements Pass {
 
     Visitor::walk($root, [
       'enter(Let)' => function (Let $let) use (&$stack, &$reach) {
-        $func_or_intrinsic = (
-          $let->expr instanceof Func ||
-          $let->expr instanceof Intrinsic
-        );
-        if ($func_or_intrinsic && $let->name !== null) {
+        if ($let->expr instanceof Closure && $let->name !== null) {
           array_push($stack, $let->name->symbol->get_id());
         }
 
@@ -46,11 +41,7 @@ class ShakeTree implements Pass {
         }
       },
       'exit(Let)' => function (Let $let) use (&$stack) {
-        $func_or_intrinsic = (
-          $let->expr instanceof Func ||
-          $let->expr instanceof Intrinsic
-        );
-        if ($func_or_intrinsic && $let->name !== null) {
+        if ($let->expr instanceof Closure && $let->name !== null) {
           array_pop($stack);
         }
       },
@@ -76,11 +67,7 @@ class ShakeTree implements Pass {
 
     $new_root = Visitor::edit($root, [
       'Let' => function (Let $let, EditablePath $path) use (&$reach) {
-        $func_or_intrinsic = (
-          $let->expr instanceof Func ||
-          $let->expr instanceof Intrinsic
-        );
-        if ($func_or_intrinsic && $let->name !== null) {
+        if ($let->expr instanceof Closure && $let->name !== null) {
           $id = $let->name->symbol->get_id();
           if (array_key_exists($id, $reach) === false) {
             $path->remove();
