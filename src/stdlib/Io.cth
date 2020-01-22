@@ -4,10 +4,10 @@ intrinsic {
 
 #[inline]
 pub fn print(str: Str) -> () {
-  php_print(str);
+  php_print(str)
 }
 
 #[inline]
 pub fn println(str: Str) -> () {
-  php_print(str ++ "\n");
+  php_print(str ++ "\n")
 }

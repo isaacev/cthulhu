@@ -2,5 +2,5 @@ use ::Io;
 
 #[entry]
 fn main () -> () {
-  Io::println("hello world");
+  Io::println("hello world")
 }
