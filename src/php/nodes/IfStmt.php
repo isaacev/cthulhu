@@ -21,7 +21,7 @@ class IfStmt extends Stmt {
     $this->alternate  = $alternate;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [
       $this->test,
       $this->consequent,

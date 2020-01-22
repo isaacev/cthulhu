@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes\traits;
 use Cthulhu\php\nodes;
 
 trait Unary {
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->expr ];
   }
 

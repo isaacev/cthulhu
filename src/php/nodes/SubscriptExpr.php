@@ -14,7 +14,7 @@ class SubscriptExpr extends Expr {
     $this->index = $index;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->arr, $this->index ];
   }
 

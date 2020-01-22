@@ -15,7 +15,7 @@ class Program extends Node {
     $this->namespaces = $namespaces;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return $this->namespaces;
   }
 

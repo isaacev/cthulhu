@@ -14,7 +14,7 @@ class AssignStmt extends Stmt {
     $this->expr     = $expr;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [
       $this->assignee,
       $this->expr,

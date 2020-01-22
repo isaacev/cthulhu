@@ -16,7 +16,7 @@ class BinaryExpr extends Expr {
     $this->right    = $right;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->left, $this->right ];
   }
 

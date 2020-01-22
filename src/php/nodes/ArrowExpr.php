@@ -18,7 +18,7 @@ class ArrowExpr extends Expr {
     $this->body   = $body;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return array_merge([ $this->body ], $this->params);
   }
 

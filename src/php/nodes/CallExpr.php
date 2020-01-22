@@ -18,7 +18,7 @@ class CallExpr extends Expr {
     $this->args   = $args;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return array_merge([ $this->callee ], $this->args);
   }
 

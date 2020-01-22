@@ -24,7 +24,7 @@ class ClassStmt extends Stmt {
     $this->body         = $body;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [
       $this->name,
       $this->parent_class,

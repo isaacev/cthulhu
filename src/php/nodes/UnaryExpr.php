@@ -15,7 +15,7 @@ class UnaryExpr extends Expr {
     $this->operand  = $operand;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->operand ];
   }
 

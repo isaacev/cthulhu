@@ -17,7 +17,7 @@ class AssociativeArrayExpr extends Expr {
     $this->fields = $fields;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return $this->fields;
   }
 

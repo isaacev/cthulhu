@@ -21,7 +21,7 @@ class MagicMethodNode extends Node {
     $this->body   = $body;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return array_merge(
       $this->params,
       [ $this->body ]

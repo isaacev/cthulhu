@@ -18,7 +18,7 @@ class FuncHead extends Node {
     $this->params = $params;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return array_merge(
       [ $this->name ],
       $this->params

@@ -18,7 +18,7 @@ class ForEachStmt extends Stmt {
     $this->body    = $body;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->source, $this->index, $this->pointer, $this->body ];
   }
 

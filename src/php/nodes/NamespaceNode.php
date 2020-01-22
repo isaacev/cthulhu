@@ -14,7 +14,7 @@ class NamespaceNode extends Node {
     $this->block = $block;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->block ];
   }
 

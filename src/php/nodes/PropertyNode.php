@@ -14,7 +14,7 @@ class PropertyNode extends Node {
     $this->name      = $name;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->name ];
   }
 

@@ -16,7 +16,7 @@ class TernaryExpr extends Expr {
     $this->if_false = $if_false;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->cond, $this->if_true, $this->if_false ];
   }
 

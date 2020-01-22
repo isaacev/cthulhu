@@ -16,7 +16,7 @@ class FuncStmt extends Stmt {
     $this->attrs = $attrs;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->head, $this->body ];
   }
 

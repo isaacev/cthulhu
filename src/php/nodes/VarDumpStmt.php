@@ -12,7 +12,7 @@ class VarDumpStmt extends Stmt {
     $this->expr = $expr;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->expr ];
   }
 

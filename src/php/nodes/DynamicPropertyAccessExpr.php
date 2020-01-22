@@ -14,7 +14,7 @@ class DynamicPropertyAccessExpr extends Expr {
     $this->prop = $prop;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [
       $this->expr,
       $this->prop,

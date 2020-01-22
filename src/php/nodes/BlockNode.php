@@ -19,7 +19,7 @@ class BlockNode extends Node {
     return count($this->stmts) === 0;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return $this->stmts;
   }
 

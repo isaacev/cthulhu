@@ -14,7 +14,7 @@ class FuncParam extends Node {
     $this->variable    = $variable;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return [ $this->variable ];
   }
 

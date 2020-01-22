@@ -15,7 +15,7 @@ class OrderedArrayExpr extends Expr {
     $this->elements = $elements;
   }
 
-  public function to_children(): array {
+  public function children(): array {
     return $this->elements;
   }
 
