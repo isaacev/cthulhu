@@ -3,9 +3,10 @@
 namespace Cthulhu\php\names;
 
 use Cthulhu\ir;
+use Cthulhu\lib\trees\DefaultUniqueId;
 
 class Symbol implements ir\HasId {
-  use ir\GenerateId;
+  use DefaultUniqueId;
 
   public function equals(Symbol $other): bool {
     return $this->get_id() === $other->get_id();
