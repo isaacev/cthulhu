@@ -98,8 +98,8 @@ class Compiler {
       $input_type = $type;
       while ($input_type instanceof hm\Func) {
         $name_type   = $input_type->input;
-        $name_symbol = new VarSymbol();
         $name_text   = chr(ord('a') + count($names));
+        $name_symbol = (new VarSymbol())->set('text', $name_text);
         $names[]     = $param_name = new ir\Name($name_type, $name_text, $name_symbol);
         $exprs[]     = new ir\NameExpr($param_name);
         $input_type  = $input_type->output;
