@@ -144,11 +144,7 @@ class Loader {
    * @param nodes\UpperName $name
    * @return false|string
    */
-  private function resolve_name_in_stdlib(nodes\UpperName $name) {
-    if (!preg_match('/^[A-Z][a-zA-Z]*$/', $name->value)) {
-      return false;
-    }
-
+  private function resolve_name(nodes\UpperName $name) {
     foreach ($this->path as $dir) {
       $filepath = $dir . '/' . $name->value . '.cth';
       if ($absolute_path = realpath($filepath)) {
@@ -164,7 +160,7 @@ class Loader {
    * @throws Error
    */
   private function parse(nodes\UpperName $name): nodes\ShallowFile {
-    $absolute_path = self::resolve_name_in_stdlib($name);
+    $absolute_path = self::resolve_name($name);
     if ($absolute_path === false) {
       throw Errors::unknown_library($name);
     }
