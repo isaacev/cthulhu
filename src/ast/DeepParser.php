@@ -648,7 +648,7 @@ class DeepParser extends AbstractParser {
   private function stmts(): array {
     $stmts = [];
     while (true) {
-      if ($this->peek_token() === null) {
+      if ($this->peek_token() === null && $this->peek_group() === null) {
         break;
       } else if (($stmts[] = $this->stmt()) instanceof nodes\ExprStmt) {
         break;
@@ -776,9 +776,9 @@ class DeepParser extends AbstractParser {
         return $this->match_expr();
       case $this->ahead_is_keyword('if'):
         // conditional
-      case $this->ahead_is_group('{'):
+      case $this->ahead_is_group('{}'):
         // closure definition
-      case $this->ahead_is_group('['):
+      case $this->ahead_is_group('[]'):
         // list literal
         die('unimplemented at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
       case $this->ahead_is_group('()'):

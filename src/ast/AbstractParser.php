@@ -236,6 +236,7 @@ abstract class AbstractParser {
   }
 
   protected function ahead_is_group(string $delim): bool {
+    assert(in_array($delim, [ '{}', '[]', '()' ]));
     if ($peek = $this->peek_group()) {
       return $peek->delim === $delim;
     }
@@ -283,12 +284,19 @@ abstract class AbstractParser {
     }
   }
 
+  /**
+   * @param string $delim
+   * @return TokenGroup
+   * @throws Error
+   */
   protected function exit_group_matches(string $delim): TokenGroup {
     assert(in_array($delim, [ '{}', '[]', '()' ]));
     $curr_offset = end($this->offset_stack);
     $curr_group  = end($this->group_stack);
     assert($curr_group->delim === $delim);
-    assert($curr_offset >= count($curr_group)); // FIXME: this should throw
+    if ($peek = $this->peek_token()) {
+      throw Errors::expected_token($peek, "expected " . $delim[1]);
+    }
     array_pop($this->offset_stack);
     return array_pop($this->group_stack);
   }
