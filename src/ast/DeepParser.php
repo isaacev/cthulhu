@@ -48,9 +48,6 @@ class DeepParser extends AbstractParser {
   /* @var Scope[] $block_scopes */
   public array $block_scopes = [];
 
-  /* @var RefSymbol[] $ref_path */
-  public array $ref_symbols = [];
-
   /* @var Trie[] $infix_precedence */
   public array $infix_precedence = [];
 
@@ -115,10 +112,6 @@ class DeepParser extends AbstractParser {
     return array_pop($this->func_scopes);
   }
 
-  private function has_param_scope(): bool {
-    return !empty($this->param_scopes);
-  }
-
   private function current_param_scope(): Scope {
     return end($this->param_scopes);
   }
@@ -145,18 +138,6 @@ class DeepParser extends AbstractParser {
 
   private function pop_block_scope(): Scope {
     return array_pop($this->block_scopes);
-  }
-
-  private function current_ref_symbol(): RefSymbol {
-    return end($this->ref_symbols);
-  }
-
-  private function push_ref_symbol(RefSymbol $symbol): void {
-    array_push($this->ref_symbols, $symbol);
-  }
-
-  private function pop_ref_symbol(): RefSymbol {
-    return array_pop($this->ref_symbols);
   }
 
   private function add_namespace(Symbol $symbol, Scope $namespace): void {
