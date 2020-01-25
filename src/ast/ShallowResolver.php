@@ -34,9 +34,10 @@ class ShallowResolver {
   private function make_ref_symbol_for_oper(nodes\Operator $node, ?RefSymbol $parent): RefSymbol {
     $symbol = new RefSymbol($parent);
     $this->set_symbol($node, $symbol);
-    $symbol->set('node', $node);
-    $symbol->set('text', '(' . $node->value . ')');
-    return $symbol;
+    return $symbol
+      ->set('node', $node)
+      ->set('text', '(' . $node->value . ')')
+      ->set('operator', $node->value);
   }
 
   private function make_type_symbol(nodes\UpperName $node): TypeSymbol {
