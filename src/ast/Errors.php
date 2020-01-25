@@ -76,35 +76,35 @@ class Errors {
       ->example("-- create a function\nfn hello() -> Str {\n  \"world\"\n}");
   }
 
-  public static function expected_pattern(tokens\Token $found): Error {
+  public static function expected_pattern(Spanlike $spanlike): Error {
     return (new Error('expected pattern'))
-      ->snippet($found)
+      ->snippet($spanlike)
       ->paragraph('A pattern can be like one of the following:')
       ->example('_')
       ->example('"abc"')
       ->example('Maybe::Just(x)');
   }
 
-  public static function expected_note(tokens\Token $found): Error {
+  public static function expected_note(Spanlike $spanlike): Error {
     return (new Error('expected type annotation'))
-      ->snippet($found)
+      ->snippet($spanlike)
       ->paragraph('A type annotation can be like one of the following:')
       ->example("Str")
       ->example("[Int]");
   }
 
-  public static function expected_expression(tokens\Token $found): Error {
+  public static function expected_expression(Spanlike $spanlike): Error {
     return (new Error('expected expression'))
-      ->snippet($found)
+      ->snippet($spanlike)
       ->paragraph('An expression can be like one of the following:')
       ->example('a + b * c')
       ->example('myFunction("hello")')
       ->example('if a { b; } else { c; }');
   }
 
-  public static function used_reserved_ident(tokens\Token $found): Error {
+  public static function used_reserved_ident(Spanlike $spanlike): Error {
     return (new Error('use of reserved word'))
-      ->snippet($found, 'reserved words cannot be used as identifiers');
+      ->snippet($spanlike, 'reserved words cannot be used as identifiers');
   }
 
   public static function expected_token(Spanlike $found, string $description): Error {

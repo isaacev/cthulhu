@@ -7,6 +7,7 @@ use Cthulhu\ast\Errors;
 use Cthulhu\ast\Loader;
 use Cthulhu\ast\ShallowResolver;
 use Cthulhu\err\Error;
+use Cthulhu\loc\File;
 
 class LoadPhase {
   private string $relative_filepath;
@@ -28,6 +29,23 @@ class LoadPhase {
   public function load(): CheckPhase {
     $loader  = new Loader($this->options);
     $shallow = $loader->from_string($this->relative_filepath);
+    ShallowResolver::resolve($shallow);
+    $deep = (new DeepParser($shallow))->program();
+    return new CheckPhase($deep);
+  }
+
+  /**
+   * @param File $file
+   * @return CheckPhase
+   * @throws Error
+   */
+  public static function from_memory(File $file): CheckPhase {
+    $loader  = new Loader([
+      'path' => [
+        realpath(__DIR__ . '/../stdlib'),
+      ],
+    ]);
+    $shallow = $loader->from_file($file);
     ShallowResolver::resolve($shallow);
     $deep = (new DeepParser($shallow))->program();
     return new CheckPhase($deep);

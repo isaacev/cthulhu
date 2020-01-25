@@ -314,6 +314,10 @@ class ShallowParser extends AbstractParser {
   private function fn_name(array $attrs): nodes\FnName {
     if ($this->ahead_is_lower_ident()) {
       return $this->next_lower_name();
+    } else if ($this->ahead_is_upper_ident()) {
+      throw Errors::expected_token($this->peek_token(), 'lowercase identifier');
+    } else if ($this->ahead_is_reserved()) {
+      throw Errors::used_reserved_ident($this->peek_token());
     } else {
       $enter_parens = $this->next_group_matches('()');
 

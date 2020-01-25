@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : union_3
+    : Union_3
   2 |   | Bar{};
     |         ^ expected lowercase identifier here
 

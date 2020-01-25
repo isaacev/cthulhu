@@ -3,7 +3,7 @@
 
   String extends to the end of a line without a closing double quote.
 
-    : str_unclosed_1
+    : Str_unclosed_1
   4 |   let y = "abc def
     |                   ^
 

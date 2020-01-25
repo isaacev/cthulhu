@@ -1,9 +1,9 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-    : bad_float_1
-  3 |   .123;
-    |   ^
+    : Expr_missing_2
+  2 |   let x =}
+    |          ^
 
   An expression can be like one of the following:
 

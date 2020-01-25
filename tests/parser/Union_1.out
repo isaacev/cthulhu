@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : union_1
+    : Union_1
   2 |   | foo;
     |     ^^^ expected uppercase identifier here
 

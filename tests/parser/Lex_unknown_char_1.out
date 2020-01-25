@@ -1,7 +1,7 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-    : lex_unknown_char_1
+    : Lex_unknown_char_1
   4 |   let x = %123;
     |           ^
 

@@ -354,6 +354,14 @@ abstract class AbstractParser {
     );
   }
 
+  protected function ahead_is_reserved(): bool {
+    return (
+      ($token = $this->peek_token()) &&
+      $token instanceof IdentToken &&
+      $this->not_reserved($token) === false
+    );
+  }
+
   protected function ahead_is_keyword(string $keyword): bool {
     return (
       ($token = $this->peek_token()) &&
@@ -397,8 +405,13 @@ abstract class AbstractParser {
       return (new nodes\LowerName($token->lexeme))
         ->set('span', $token->span);
     }
+
+    if ($this->ahead_is_reserved()) {
+      throw Errors::used_reserved_ident($this->peek_token());
+    }
+
     $span = ($peek = $this->peek_token()) ? $peek->span : $this->end_of_current_group();
-    throw Errors::expected_token($span, 'lower-case identifier');
+    throw Errors::expected_token($span, 'lowercase identifier');
   }
 
   /**
@@ -412,7 +425,7 @@ abstract class AbstractParser {
         ->set('span', $token->span);
     }
     $span = ($peek = $this->peek_token()) ? $peek->span : $this->end_of_current_group();
-    throw Errors::expected_token($span, 'upper-case identifier');
+    throw Errors::expected_token($span, 'uppercase identifier');
   }
 
   /**
@@ -495,8 +508,8 @@ abstract class AbstractParser {
     } else if ($this->ahead_is_group('[]')) {
       $prefix = $this->list_note();
     } else {
-      $span = $this->peek_token() ?? $this->end_of_current_group();
-      throw Errors::expected_note($span);
+      $span = $this->peek_token() ?? $this->peek_group() ?? $this->end_of_current_group();
+      throw Errors::expected_note($span->from()->span());
     }
 
     while ($this->ahead_is_punct('->')) {

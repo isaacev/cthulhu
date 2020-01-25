@@ -1,9 +1,9 @@
 
   EXPECTED TYPE ANNOTATION  --------------------------------------------------
 
-    : note_missing_1
-  1 | fn x() -> {
-    |           ^
+    : Union_2
+  2 |   | Bar();
+    |         ^
 
   A type annotation can be like one of the following:
 

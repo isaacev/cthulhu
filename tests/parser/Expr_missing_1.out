@@ -1,9 +1,9 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-    : expr_missing_2
-  2 |   let x =
-    |          ^
+    : Expr_missing_1
+  2 |   let x = +123;
+    |           ^
 
   An expression can be like one of the following:
 

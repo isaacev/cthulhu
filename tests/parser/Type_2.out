@@ -3,7 +3,7 @@
 
   Type parameters should look like `'a`.
 
-    : type_2
+    : Type_2
   1 | fn id(a: 'a) -> 'A {
     |                 ^
 

@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : union_4
+    : Union_4
   2 |   | Bar { Thing: Int };
     |           ^^^^^ expected lowercase identifier here
 

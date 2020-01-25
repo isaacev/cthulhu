@@ -788,7 +788,8 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_literal():
         return $this->literal_expr();
       default:
-        throw Errors::expected_expression($this->peek_token());
+        $span = $this->peek_token() ?? $this->end_of_current_group();
+        throw Errors::expected_expression($span);
     }
   }
 

@@ -28,6 +28,16 @@ class Loader {
   }
 
   /**
+   * @param loc\File $file
+   * @return nodes\ShallowProgram
+   * @throws Error
+   */
+  public function from_file(loc\File $file): nodes\ShallowProgram {
+    $file = $this->parse_file($file);
+    return $this->load_from_first($file);
+  }
+
+  /**
    * @param nodes\ShallowFile $first
    * @return nodes\ShallowProgram
    * @throws Error
@@ -164,7 +174,16 @@ class Loader {
       throw Errors::unable_to_read_file($absolute_path);
     }
 
-    $file           = new loc\File($absolute_path, $contents);
+    $file = new loc\File($absolute_path, $contents);
+    return $this->parse_file($file);
+  }
+
+  /**
+   * @param loc\File $file
+   * @return nodes\ShallowFile
+   * @throws Error
+   */
+  private function parse_file(loc\File $file): nodes\ShallowFile {
     $scanner        = new Scanner($file);
     $lexer          = new Lexer($scanner);
     $nester         = new Nester($lexer);

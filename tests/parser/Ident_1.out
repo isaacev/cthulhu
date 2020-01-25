@@ -1,7 +1,7 @@
 
   USE OF RESERVED WORD  ------------------------------------------------------
 
-    : ident_1
+    : Ident_1
   3 |   let fn = "abcdef";
     |       ^^ reserved words cannot be used as identifiers
 
