@@ -2,13 +2,17 @@
 
 namespace Cthulhu\ir\types\hm;
 
+use Cthulhu\loc\Spanlike;
+
 class TupleExpr extends Expr {
   public array $fields;
 
   /**
-   * @param Expr[] $fields
+   * @param Spanlike $spanlike
+   * @param Expr[]   $fields
    */
-  public function __construct(array $fields) {
+  public function __construct(Spanlike $spanlike, array $fields) {
+    parent::__construct($spanlike);
     $this->fields = $fields;
   }
 

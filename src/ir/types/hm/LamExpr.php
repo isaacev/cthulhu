@@ -2,15 +2,21 @@
 
 namespace Cthulhu\ir\types\hm;
 
+use Cthulhu\loc\Span;
+use Cthulhu\loc\Spanlike;
+
 class LamExpr extends Expr {
   public Param $param;
   public Expr $body;
   public Type $note;
+  public ?Span $note_span;
 
-  public function __construct(Param $param, Expr $body, Type $note) {
-    $this->param = $param;
-    $this->body  = $body;
-    $this->note  = $note;
+  public function __construct(Spanlike $spanlike, Param $param, Expr $body, Type $note, ?Span $note_span) {
+    parent::__construct($spanlike);
+    $this->param     = $param;
+    $this->body      = $body;
+    $this->note      = $note;
+    $this->note_span = $note_span;
   }
 
   public function build(): Builder {

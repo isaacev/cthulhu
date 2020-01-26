@@ -1,9 +1,0 @@
-
-  CONSTRUCTOR ON A MODULE  ---------------------------------------------------
-
-  A constructor was called on the name of a module.
-
-    : bad_ref_4
-  3 |   ::Fmt::Bool(true);
-    |     ^^^
-

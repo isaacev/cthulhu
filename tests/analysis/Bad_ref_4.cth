@@ -1,0 +1,6 @@
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  Fmt::Bool(true);
+}

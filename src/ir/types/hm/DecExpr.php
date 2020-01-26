@@ -3,12 +3,14 @@
 namespace Cthulhu\ir\types\hm;
 
 use Cthulhu\ir\names\Symbol;
+use Cthulhu\loc\Spanlike;
 
 class DecExpr extends Expr {
   public Symbol $name;
   public Type $note;
 
-  public function __construct(Symbol $name, Type $note) {
+  public function __construct(Spanlike $spanlike, Symbol $name, Type $note) {
+    parent::__construct($spanlike);
     $this->name = $name;
     $this->note = $note;
   }

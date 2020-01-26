@@ -3,6 +3,7 @@
 namespace Cthulhu\ir;
 
 use Cthulhu\ast\nodes as ast;
+use Cthulhu\err\Error;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\names\VarSymbol;
@@ -16,6 +17,9 @@ class Compiler {
 
   /* @var ir\Stmt[] $stmts */
   private array $stmts = [];
+
+  /* @var ir\Apply[] $entry_calls */
+  private array $entry_calls = [];
 
   private function __construct(types\Env $env) {
     $this->env = $env;
@@ -32,11 +36,29 @@ class Compiler {
     }
   }
 
+  /**
+   * @param ast\Program $prog
+   * @param types\Env   $env
+   * @return ir\Root
+   * @throws Error
+   */
   public static function program(ast\Program $prog, types\Env $env): ir\Root {
     $ctx = new self($env);
 
     foreach ($prog->files as $file) {
       self::file($ctx, $file);
+    }
+
+    if (empty($ctx->entry_calls)) {
+      throw Errors::no_main_func();
+    } else {
+      $entry_stmt = null;
+      foreach (array_reverse($ctx->entry_calls) as $entry_call) {
+        $entry_stmt = new ir\Let(null, $entry_call, $entry_stmt);
+      }
+
+      $entry_mod = new ir\Module(null, $entry_stmt, null);
+      $ctx->module->mutable_append($entry_mod);
     }
 
     return new ir\Root($ctx->module);
@@ -91,7 +113,6 @@ class Compiler {
       assert($type instanceof hm\Func);
       $name  = new ir\Name($type, $text, $symbol);
       $ident = $sig->name->value;
-      $int   = new ir\Intrinsic($ident, $type);
 
       $names      = [];
       $exprs      = [];
@@ -107,16 +128,15 @@ class Compiler {
       $params = new ir\Names($names);
       $args   = new ir\Exprs($exprs);
 
-      $app  = new ir\Apply($type, $int, $args);
-      $func = new ir\Closure($type, $params, new ir\Ret($app, null));
-      $let  = new ir\Let($name, $func, null);
-      $ctx->push_stmt($let);
+      $int = new ir\Intrinsic($type, $ident, $args);
+      $def = new ir\Def($name, $params, new ir\Ret($int, null), null);
+      $ctx->push_stmt($def);
     }
   }
 
   private static function fn_item(self $ctx, ast\FnItem $item): void {
-    if ($item->name instanceof ast\OperatorRef) {
-      $symbol = $item->name->oper->get('symbol');
+    if ($item->name instanceof ast\Operator) {
+      $symbol = $item->name->get('symbol');
     } else {
       assert($item->name instanceof ast\LowerName);
       $symbol = $item->name->get('symbol');
@@ -126,17 +146,19 @@ class Compiler {
     $type = $ctx->env->read($symbol);
     assert($type instanceof hm\Func);
 
-    $name  = new ir\Name($type, $text, $symbol);
-    $names = self::params($ctx, $item->params);
-    $stmts = self::stmts($ctx, $item->body->stmts);
-    $func  = new ir\Closure($type, $names, $stmts);
-    $let   = new ir\Let($name, $func, null);
+    $name   = new ir\Name($type, $text, $symbol);
+    $params = self::params($ctx, $item->params);
+    $body   = self::stmts($ctx, $item->body->stmts);
+    $def    = new ir\Def($name, $params, $body, null);
 
     if (self::is_entry_point($item)) {
-      $let->set('entry', true);
+      $def->set('entry', true);
+      $callee             = new ir\NameExpr($name);
+      $args               = new ir\Exprs([ new ir\UnitLit() ]);
+      $ctx->entry_calls[] = new ir\Apply($type->output, $callee, $args);
     }
 
-    $ctx->push_stmt($let);
+    $ctx->push_stmt($def);
   }
 
   private static function is_entry_point(ast\FnItem $item): bool {
@@ -153,14 +175,14 @@ class Compiler {
   }
 
   /**
-   * @param Compiler        $ctx
-   * @param ast\ParamNode[] $params
+   * @param Compiler     $ctx
+   * @param ast\FnParams $params
    * @return ir\Names
    */
-  private static function params(self $ctx, array $params): ir\Names {
+  private static function params(self $ctx, ast\FnParams $params): ir\Names {
     $names = [];
 
-    foreach ($params as $param) {
+    foreach ($params->params as $param) {
       $symbol  = $param->name->get('symbol');
       $type    = $ctx->env->read($symbol);
       $text    = $param->name->value;
@@ -223,15 +245,10 @@ class Compiler {
     $ctx->push_stmt($ret);
   }
 
-  /**
-   * @param Compiler   $ctx
-   * @param ast\Expr[] $exprs
-   * @return ir\Exprs
-   */
-  private static function exprs(self $ctx, array $exprs): ir\Exprs {
+  private static function exprs(self $ctx, ast\Exprs $exprs): ir\Exprs {
     $new_exprs = [];
 
-    foreach ($exprs as $expr) {
+    foreach ($exprs->exprs as $expr) {
       $new_exprs[] = self::expr($ctx, $expr);
     }
 
@@ -262,8 +279,6 @@ class Compiler {
         echo get_class($expr) . PHP_EOL;
         die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
-
-    // UnitLiteral
   }
 
   private static function match_expr(self $ctx, ast\MatchExpr $expr): ir\Match {

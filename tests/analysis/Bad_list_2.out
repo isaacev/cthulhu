@@ -1,0 +1,15 @@
+
+  INCORRECT RETURN TYPE  -----------------------------------------------------
+
+  The function is defined as returning the type `List(Str)`:
+
+    : Bad_list_2
+  2 | fn main() -> [Str] {
+    |              ^^^^^
+
+  But the function body returns the type `List(Int)` instead:
+
+    : Bad_list_2
+  3 |   [1, 2, 3]
+    |   ^^^^^^^^^
+

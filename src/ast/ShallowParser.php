@@ -325,13 +325,9 @@ class ShallowParser extends AbstractParser {
       $span   = Span::join(...$tokens);
       $value  = $this->tokens_to_string($tokens);
       [ $prec, $is_right_assoc ] = $this->find_precedence_attr($span, $attrs);
-      $oper = (new nodes\Operator($prec, $is_right_assoc, $value))
-        ->set('span', $span);
-
+      $oper        = (new nodes\Operator($prec, $is_right_assoc, $value))->set('span', $span);
       $exit_parens = $this->exit_group_matches('()');
-      $span        = Span::join($enter_parens, $exit_parens);
-      return (new nodes\OperatorRef($oper))
-        ->set('span', $span);
+      return $oper;
     }
   }
 
@@ -384,6 +380,7 @@ class ShallowParser extends AbstractParser {
     $enter_params = $this->next_group_matches('()');
     $params       = $this->zero_or_more_name_type_pairs();
     $exit_params  = $this->exit_group_matches('()');
+    $params       = (new nodes\FnParams($params))->set('span', Span::join($enter_params, $exit_params));
     $arrow        = $this->next_punct('->');
     $returns      = $this->note();
     $body         = $this->shallow_block();

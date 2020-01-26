@@ -3,11 +3,13 @@
 namespace Cthulhu\ir\types\hm;
 
 use Cthulhu\ir\names\Symbol;
+use Cthulhu\loc\Spanlike;
 
 class VarExpr extends Expr {
   public Symbol $name;
 
-  public function __construct(Symbol $name) {
+  public function __construct(Spanlike $spanlike, Symbol $name) {
+    parent::__construct($spanlike);
     $this->name = $name;
   }
 

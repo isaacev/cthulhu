@@ -2,15 +2,19 @@
 
 namespace Cthulhu\ir\types\hm;
 
+use Cthulhu\loc\Spanlike;
+
 class MatchExpr extends Expr {
   public Expr $discriminant;
   public array $arms;
 
   /**
-   * @param Expr  $discriminant
-   * @param Arm[] $arms
+   * @param Spanlike $spanlike
+   * @param Expr     $discriminant
+   * @param Arm[]    $arms
    */
-  public function __construct(Expr $discriminant, array $arms) {
+  public function __construct(Spanlike $spanlike, Expr $discriminant, array $arms) {
+    parent::__construct($spanlike);
     $this->discriminant = $discriminant;
     $this->arms         = $arms;
   }

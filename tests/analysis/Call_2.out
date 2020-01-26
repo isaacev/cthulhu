@@ -1,0 +1,10 @@
+
+  WRONG ARGUMENT TYPE  -------------------------------------------------------
+
+  Expected an argument of the type `Int` but found an argument of the type
+  `Unit` instead:
+
+    : Call_2
+  7 |   plus_one();
+    |           ^^
+

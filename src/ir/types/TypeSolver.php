@@ -9,7 +9,9 @@ use Cthulhu\ast\nodes\OrderedFormPattern;
 use Cthulhu\ast\nodes\Pattern;
 use Cthulhu\ast\nodes\VariablePattern;
 use Cthulhu\ast\nodes\WildcardPattern;
+use Cthulhu\err\Error;
 use Cthulhu\ir\names\Symbol;
+use Cthulhu\ir\types\hm\TypeMismatch;
 use Cthulhu\val\BooleanValue;
 use Cthulhu\val\FloatValue;
 use Cthulhu\val\IntegerValue;
@@ -25,21 +27,24 @@ class TypeSolver {
    * @param Env        $env
    * @param hm\TypeSet $non_gen
    * @return hm\Type
+   * @throws Error
    */
   public static function expr(hm\Expr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     switch (true) {
       case $expr instanceof hm\LitExpr:
-        return self::lit_expr($expr, $env, $non_gen);
+        return self::lit_expr($expr);
       case $expr instanceof hm\VarExpr:
         return self::var_expr($expr, $env, $non_gen);
       case $expr instanceof hm\AppExpr:
         return self::app_expr($expr, $env, $non_gen);
       case $expr instanceof hm\LamExpr:
         return self::lam_expr($expr, $env, $non_gen);
+      case $expr instanceof hm\ListExpr:
+        return self::list_expr($expr, $env, $non_gen);
       case $expr instanceof hm\LetExpr:
         return self::let_expr($expr, $env, $non_gen);
       case $expr instanceof hm\DecExpr:
-        return self::dec_expr($expr, $env, $non_gen);
+        return self::dec_expr($expr, $env);
       case $expr instanceof hm\DoExpr:
         return self::do_expr($expr, $env, $non_gen);
       case $expr instanceof hm\MatchExpr:
@@ -51,7 +56,7 @@ class TypeSolver {
       case $expr instanceof hm\TupleExpr:
         return self::tuple_expr($expr, $env, $non_gen);
       case $expr instanceof hm\UnitExpr:
-        return self::unit_expr($expr, $env, $non_gen);
+        return self::unit_expr($expr);
       default:
         die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
@@ -59,11 +64,9 @@ class TypeSolver {
 
   /**
    * @param hm\LitExpr $expr
-   * @param Env        $env
-   * @param hm\TypeSet $non_gen
    * @return hm\Type
    */
-  private static function lit_expr(hm\LitExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
+  private static function lit_expr(hm\LitExpr $expr): hm\Type {
     return self::value_to_type($expr->value);
   }
 
@@ -94,13 +97,31 @@ class TypeSolver {
    * @param Env        $env
    * @param hm\TypeSet $non_gen
    * @return hm\Type
+   * @throws Error
    */
   private static function app_expr(hm\AppExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $func_type = self::expr($expr->func, $env, $non_gen);
     $arg_type  = self::expr($expr->arg, $env, $non_gen);
     $res_type  = new hm\TypeVar();
     $app_type  = new hm\Func($arg_type, $res_type);
-    self::unify($app_type, $func_type);
+
+    if ($func_type->flatten() instanceof hm\Func) {
+      try {
+        self::unify($func_type->flatten()->input, $arg_type);
+      } catch (TypeMismatch $mismatch) {
+        throw Errors::wrong_arg_type($expr->arg->span, $mismatch->left, $mismatch->right);
+      }
+    }
+
+    try {
+      self::unify($app_type, $func_type);
+    } catch (TypeMismatch $mismatch) {
+      if (($func_type->flatten() instanceof hm\Func) === false) {
+        throw Errors::call_to_non_func($expr->arg->span, $func_type, $arg_type);
+      } else {
+        throw Errors::type_mismatch($expr->arg->span, $mismatch->left, $mismatch->right);
+      }
+    }
 
     if ($expr->has('node')) {
       $expr->get('node')->set('type', $res_type);
@@ -116,6 +137,7 @@ class TypeSolver {
    * @param Env        $env
    * @param hm\TypeSet $non_gen
    * @return hm\Func
+   * @throws Error
    */
   private static function lam_expr(hm\LamExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Func {
     $param_type = new hm\TypeVar($expr->param->note);
@@ -124,8 +146,18 @@ class TypeSolver {
     $new_non_gen->add($param_type);
     $result_type = self::expr($expr->body, $env, $new_non_gen);
 
+    $result_span = $expr->body->span;
+    if ($expr->body instanceof hm\DoExpr && count($expr->body) > 0) {
+      $last_expr   = end($expr->body->body);
+      $result_span = $last_expr->span;
+    }
+
     if ($expr->note) {
-      self::unify($result_type, $expr->note);
+      try {
+        self::unify($result_type, $expr->note);
+      } catch (TypeMismatch $mismatch) {
+        throw Errors::wrong_ret_type($result_span, $expr->note_span, $expr->note, $result_type);
+      }
     }
 
     $type = new hm\Func($param_type, $result_type);
@@ -138,17 +170,40 @@ class TypeSolver {
   }
 
   /**
+   * @param hm\ListExpr $expr
+   * @param Env         $env
+   * @param hm\TypeSet  $non_gen
+   * @return hm\Type
+   * @throws Error
+   */
+  private static function list_expr(hm\ListExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
+    $inner_type = new hm\TypeVar();
+
+    foreach ($expr->elements as $index => $elem) {
+      $elem_type = self::expr($elem, $env, $non_gen);
+      try {
+        self::unify($inner_type, $elem_type);
+      } catch (TypeMismatch $mismatch) {
+        throw Errors::list_elem_mismatch($elem->span, $index, $inner_type, $elem_type);
+      }
+    }
+
+    return new hm\Unary('List', $inner_type);
+  }
+
+  /**
    * Evaluates a let-expression which binds a type to a name in the environment.
    *
    * @param hm\LetExpr $expr
    * @param Env        $env
    * @param hm\TypeSet $non_gen
    * @return hm\Type
+   * @throws Error
    */
   private static function let_expr(hm\LetExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $body_type = self::expr($expr->body, $env, $non_gen);
     $env->write($expr->name, $body_type);
-    return $body_type;
+    return new hm\Unit();
   }
 
   /**
@@ -156,10 +211,9 @@ class TypeSolver {
    *
    * @param hm\DecExpr $expr
    * @param Env        $env
-   * @param hm\TypeSet $non_gen
    * @return hm\Type
    */
-  private static function dec_expr(hm\DecExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
+  private static function dec_expr(hm\DecExpr $expr, Env $env): hm\Type {
     $body_type = $expr->note;
     $env->write($expr->name, $body_type);
     return $body_type;
@@ -170,6 +224,7 @@ class TypeSolver {
    * @param Env        $env
    * @param hm\TypeSet $non_gen
    * @return hm\Type
+   * @throws Error
    */
   private static function do_expr(hm\DoExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $result = null;
@@ -188,6 +243,7 @@ class TypeSolver {
    * @param Env          $env
    * @param hm\TypeSet   $non_gen
    * @return hm\Type
+   * @throws Error
    */
   private static function match_expr(hm\MatchExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $in_type  = self::expr($expr->discriminant, $env, $non_gen);
@@ -196,19 +252,31 @@ class TypeSolver {
       /**
        * Step 1: determine the type structure required by the pattern.
        */
-      $arm_type = self::bind_pattern($arm->pattern, $env, $non_gen);
+      try {
+        $arm_type = self::bind_pattern($arm->pattern, $env, $non_gen);
+      } catch (TypeMismatch $mismatch) {
+        throw Errors::type_mismatch($expr->get('node')->get('span'), $mismatch->left, $mismatch->right);
+      }
 
       /**
        * Step 2: make sure that the type structure required by the pattern is
        * consistent with the discriminant's type.
        */
-      self::unify($in_type, $arm_type);
+      try {
+        self::unify($in_type, $arm_type);
+      } catch (TypeMismatch $mismatch) {
+        throw Errors::type_mismatch($expr->get('node')->get('span'), $mismatch->left, $mismatch->right);
+      }
 
       /**
        * Step 3: make sure that the return type of handler is consistent with
        * the return type of previous handlers.
        */
-      self::unify($out_type, self::expr($arm->handler, $env, $non_gen));
+      try {
+        self::unify($out_type, self::expr($arm->handler, $env, $non_gen));
+      } catch (TypeMismatch $mismatch) {
+        throw Errors::type_mismatch($expr->get('node')->get('span'), $mismatch->left, $mismatch->right);
+      }
     }
 
     if ($expr->has('node')) {
@@ -218,6 +286,13 @@ class TypeSolver {
     return $out_type;
   }
 
+  /**
+   * @param hm\CtorExpr $expr
+   * @param Env         $env
+   * @param hm\TypeSet  $non_gen
+   * @return hm\Type
+   * @throws Error
+   */
   private static function ctor_expr(hm\CtorExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $enum_type = $expr->enum_symbol->get('type');
     $enum_type = self::fresh($enum_type, $non_gen);
@@ -225,7 +300,11 @@ class TypeSolver {
     $form_type = $enum_type->get_form($form_name);
     $args_type = self::expr($expr->args, $env, $non_gen);
 
-    self::unify($form_type, $args_type);
+    try {
+      self::unify($form_type, $args_type);
+    } catch (TypeMismatch $mismatch) {
+      throw Errors::type_mismatch($expr->get('node')->get('span'), $mismatch->left, $mismatch->right);
+    }
 
     if ($expr->has('node')) {
       $expr->get('node')->set('type', $enum_type);
@@ -234,6 +313,13 @@ class TypeSolver {
     return $enum_type;
   }
 
+  /**
+   * @param hm\RecordExpr $expr
+   * @param Env           $env
+   * @param hm\TypeSet    $non_gen
+   * @return hm\Type
+   * @throws Error
+   */
   private static function record_expr(hm\RecordExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $fields = [];
     foreach ($expr->fields as $field_name => $field_expr) {
@@ -249,6 +335,13 @@ class TypeSolver {
     return $type;
   }
 
+  /**
+   * @param hm\TupleExpr $expr
+   * @param Env          $env
+   * @param hm\TypeSet   $non_gen
+   * @return hm\Type
+   * @throws Error
+   */
   private static function tuple_expr(hm\TupleExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $fields = [];
     foreach ($expr->fields as $field_expr) {
@@ -264,7 +357,7 @@ class TypeSolver {
     return $type;
   }
 
-  private static function unit_expr(hm\UnitExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
+  private static function unit_expr(hm\UnitExpr $expr): hm\Type {
     $type = new hm\Unit();
 
     if ($expr->has('node')) {
@@ -274,6 +367,13 @@ class TypeSolver {
     return $type;
   }
 
+  /**
+   * @param Pattern    $pattern
+   * @param Env        $env
+   * @param hm\TypeSet $non_gen
+   * @return hm\Type
+   * @throws TypeMismatch
+   */
   private static function bind_pattern(Pattern $pattern, Env $env, hm\TypeSet $non_gen): hm\Type {
     if ($pattern instanceof ConstPattern) {
       return self::value_to_type($pattern->literal->value);
@@ -337,6 +437,11 @@ class TypeSolver {
     }
   }
 
+  /**
+   * @param hm\Type $t1
+   * @param hm\Type $t2
+   * @throws hm\TypeMismatch
+   */
   public static function unify(hm\Type $t1, hm\Type $t2): void {
     $t1 = self::prune($t1);
     $t2 = self::prune($t2);
@@ -349,13 +454,21 @@ class TypeSolver {
         $t1->instance = $t2;
       }
     } else if ($t1 instanceof hm\TypeOper && $t2 instanceof hm\TypeVar) {
-      self::unify($t2, $t1);
+      try {
+        self::unify($t2, $t1);
+      } catch (hm\TypeMismatch $mismatch) {
+        throw new TypeMismatch($t1, $t2);
+      }
     } else if ($t1 instanceof hm\TypeOper && $t2 instanceof hm\TypeOper) {
       if ($t1->name !== $t2->name || $t1->arity() !== $t2->arity()) {
-        die("type mismatch between $t1 and $t2\n");
+        throw new hm\TypeMismatch($t1, $t2);
       }
       for ($i = 0; $i < $t1->arity(); $i++) {
-        self::unify($t1->types[$i], $t2->types[$i]);
+        try {
+          self::unify($t1->types[$i], $t2->types[$i]);
+        } catch (hm\TypeMismatch $mismatch) {
+          throw new TypeMismatch($t1, $t2);
+        }
       }
     } else {
       die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);

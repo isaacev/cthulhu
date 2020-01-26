@@ -36,6 +36,14 @@ class Builder extends fmt\Builder {
     return $this->apply_styles(fmt\Reset::ALL);
   }
 
+  public function bracket_left(): self {
+    return $this->push_str('[');
+  }
+
+  public function bracket_right(): self {
+    return $this->push_str(']');
+  }
+
   public function paren_left(): self {
     return $this->push_str('(');
   }

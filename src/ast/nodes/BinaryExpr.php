@@ -3,11 +3,11 @@
 namespace Cthulhu\ast\nodes;
 
 class BinaryExpr extends Expr {
-  public Operator $operator;
+  public OperatorRef $operator;
   public Expr $left;
   public Expr $right;
 
-  public function __construct(Operator $operator, Expr $left, Expr $right) {
+  public function __construct(OperatorRef $operator, Expr $left, Expr $right) {
     parent::__construct();
     $this->operator = $operator;
     $this->left     = $left;

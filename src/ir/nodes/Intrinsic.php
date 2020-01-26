@@ -7,19 +7,21 @@ use Cthulhu\lib\trees\EditableNodelike;
 
 class Intrinsic extends Expr {
   public string $ident;
-  public Type $type;
+  public Exprs $args;
 
-  public function __construct(string $ident, Type $type) {
+  public function __construct(Type $type, string $ident, Exprs $args) {
     parent::__construct($type);
     $this->ident = $ident;
+    $this->args  = $args;
   }
 
   public function children(): array {
-    return [];
+    return [ $this->args ];
   }
 
   public function from_children(array $children): EditableNodelike {
-    return $this;
+    return (new self($this->type, $this->ident, $children[0]))
+      ->copy($this);
   }
 
   public function build(): Builder {
@@ -28,10 +30,12 @@ class Intrinsic extends Expr {
       ->keyword('intrinsic')
       ->space()
       ->ident($this->ident)
+      ->colon()
+      ->type($this->type)
       ->space()
       ->paren_left()
       ->increase_indentation()
-      ->type($this->type)
+      ->then($this->args)
       ->decrease_indentation()
       ->paren_right()
       ->paren_right();

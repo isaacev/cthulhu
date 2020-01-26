@@ -25,17 +25,26 @@ class Apply extends Expr {
   }
 
   public function build(): Builder {
+    if (count($this->args) === 0) {
+      $args = (new Builder)
+        ->paren_left()
+        ->paren_right();
+    } else {
+      $args = (new Builder)
+        ->paren_left()
+        ->increase_indentation()
+        ->then($this->args)
+        ->decrease_indentation()
+        ->paren_right();
+    }
+
     return (new Builder)
       ->paren_left()
       ->keyword('apply')
       ->space()
       ->then($this->callee)
       ->space()
-      ->paren_left()
-      ->increase_indentation()
-      ->then($this->args)
-      ->decrease_indentation()
-      ->paren_right()
+      ->then($args)
       ->paren_right();
   }
 }

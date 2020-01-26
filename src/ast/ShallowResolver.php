@@ -23,6 +23,9 @@ class ShallowResolver {
   /* @var RefSymbol[] $ref_path */
   private array $ref_symbols = [];
 
+  /* @var Binding[] $synthetic_types */
+  private array $synthetic_types = [];
+
   private function make_ref_symbol_for_name(nodes\Name $node, ?RefSymbol $parent): RefSymbol {
     $symbol = new RefSymbol($parent);
     $this->set_symbol($node, $symbol);
@@ -100,7 +103,11 @@ class ShallowResolver {
     }
   }
 
-  public static function resolve(nodes\ShallowProgram $prog): void {
+  /**
+   * @param nodes\ShallowProgram $prog
+   * @return Binding[]
+   */
+  public static function resolve(nodes\ShallowProgram $prog): array {
     $ctx = new self();
 
     Visitor::walk($prog, [
@@ -132,6 +139,8 @@ class ShallowResolver {
         self::enter_fn_item($ctx, $item);
       },
     ]);
+
+    return $ctx->synthetic_types;
   }
 
   private static function instantiate_kernel_type(self $ctx, string $type_name): void {
@@ -139,6 +148,7 @@ class ShallowResolver {
     $type_is_public = true;
     $type_binding   = new Binding($type_name, $type_symbol, $type_is_public);
     $ctx->current_module_scope()->add_binding($type_binding);
+    $ctx->synthetic_types[] = $type_binding;
   }
 
   private static function enter_program(self $ctx): void {
@@ -258,8 +268,8 @@ class ShallowResolver {
 
   private static function enter_fn_item(self $ctx, nodes\ShallowFnItem $item): void {
     $fn_is_public = $item->get('pub') ?? false;
-    if ($item->name instanceof nodes\OperatorRef) {
-      $fn_oper    = $item->name->oper;
+    if ($item->name instanceof nodes\Operator) {
+      $fn_oper    = $item->name;
       $fn_symbol  = $ctx->make_ref_symbol_for_oper($fn_oper, $ctx->current_ref_symbol());
       $fn_binding = new OperatorBinding($fn_symbol, $fn_is_public, $fn_oper);
     } else {

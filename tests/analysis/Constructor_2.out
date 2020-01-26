@@ -1,0 +1,9 @@
+
+  TYPE MISMATCH  -------------------------------------------------------------
+
+  Mismatch between the type `{ x: Str }` and the type `{ x: Int }`:
+
+    : Constructor_2
+  6 |   Foo::Bar { x: 123 };
+    |   ^^^^^^^^^^^^^^^^^^^
+

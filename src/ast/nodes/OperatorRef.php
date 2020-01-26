@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ast\nodes;
 
-class OperatorRef extends Expr implements FnName {
+class OperatorRef extends Expr {
   public Operator $oper;
 
   public function __construct(Operator $oper) {

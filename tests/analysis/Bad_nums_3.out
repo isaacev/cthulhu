@@ -1,0 +1,10 @@
+
+  WRONG ARGUMENT TYPE  -------------------------------------------------------
+
+  Expected an argument of the type `Int` but found an argument of the type
+  `Float` instead:
+
+    : Bad_nums_3
+  3 |   0.1 * 1;
+    |   ^^^
+

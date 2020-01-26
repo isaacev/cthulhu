@@ -3,11 +3,14 @@
 namespace Cthulhu\types;
 
 use Cthulhu\ast;
+use Cthulhu\ir\names\Binding;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\types\hm;
+use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
+use Cthulhu\val;
 
 class TypeCompiler {
   private ast\nodes\Program $program;
@@ -15,17 +18,22 @@ class TypeCompiler {
   /* @var hm\Expr[] $exprs */
   private array $exprs = [];
 
+  /* @var int[] $expr_depth */
+  private array $expr_depth = [];
+
   /* @var hm\Type[] $types */
   private array $types = [];
 
-  public function __construct(ast\nodes\Program $program) {
+  /**
+   * @param Binding[]         $bindings
+   * @param ast\nodes\Program $program
+   */
+  public function __construct(array $bindings, ast\nodes\Program $program) {
     $this->program = $program;
-    $this->types   = [
-      2 => new hm\Nullary('Bool'),  // FIXME
-      3 => new hm\Nullary('Int'),   // FIXME
-      4 => new hm\Nullary('Float'), // FIXME
-      5 => new hm\Nullary('Str'),   // FIXME
-    ];
+
+    foreach ($bindings as $binding) {
+      $this->types[$binding->symbol->get_id()] = new hm\Nullary($binding->name);
+    }
   }
 
   private function named_form_constructor(ast\nodes\NamedFormDecl $form, array $new_params, array $mapping): hm\Type {
@@ -89,57 +97,68 @@ class TypeCompiler {
         $this->types[$enum_sym->get_id()] = $enum_type;
       },
       'exit(FnItem)' => function (ast\nodes\FnItem $item): void {
-        if ($item->name instanceof ast\nodes\OperatorRef) {
-          $sym = $item->name->oper->get('symbol');
+        if ($item->name instanceof ast\nodes\Operator) {
+          $sym = $item->name->get('symbol');
         } else {
           assert($item->name instanceof ast\nodes\LowerName);
           $sym = $item->name->get('symbol');
         }
         assert($sym instanceof Symbol);
         $body = array_pop($this->exprs);
-        if (empty($item->params)) {
+        if (empty($item->params->params)) {
           $body = new hm\LamExpr(
-            new hm\Param(new VarSymbol(), new hm\Unit()),
-            $body, $this->note($item->returns));
+            $item->get('span'),
+            new hm\Param(
+              $item->params->get('span'),
+              new VarSymbol(),
+              new hm\Unit()),
+            $body,
+            $this->note($item->returns),
+            $item->returns->get('span'));
         } else {
-          $returns = $this->note($item->returns);
-          for ($i = count($item->params) - 1; $i >= 0; $i--) {
-            $param = $item->params[$i];
+          $returns     = $this->note($item->returns);
+          $return_span = $item->returns->get('span');
+          for ($i = count($item->params->params) - 1; $i >= 0; $i--) {
+            $param = $item->params->params[$i];
             $body  = new hm\LamExpr(
+              $item->get('span'),
               new hm\Param(
+                $param->get('span'),
                 $param->name->get('symbol'),
                 $this->note($param->note)),
               $body,
-              $returns);
+              $returns,
+              $return_span);
             if ($i > 0) {
-              $returns = new hm\TypeVar();
+              $returns     = new hm\TypeVar();
+              $return_span = null;
             }
           }
         }
-        $this->exprs[] = new hm\LetExpr($sym, $body);
+        $this->exprs[] = new hm\LetExpr($item->get('span'), $sym, $body);
       },
       'exit(BlockNode)' => function (ast\nodes\BlockNode $block) {
-        $this->exprs[] = new hm\DoExpr(array_splice($this->exprs, -count($block->stmts)));
+        $this->exprs[] = new hm\DoExpr(
+          $block->get('span'),
+          array_splice($this->exprs, -count($block->stmts)));
       },
       'exit(LetStmt)' => function (ast\nodes\LetStmt $stmt) {
         $sym = $stmt->name->get('symbol');
         assert($sym instanceof Symbol);
         $rhs           = array_pop($this->exprs);
-        $this->exprs[] = new hm\LetExpr($sym, $rhs);
+        $this->exprs[] = new hm\LetExpr($stmt->get('span'), $sym, $rhs);
       },
       'exit(MatchExpr)' => function (ast\nodes\MatchExpr $expr) {
         $handlers     = array_splice($this->exprs, -count($expr->arms));
         $discriminant = array_pop($this->exprs);
         $arms         = [];
         foreach ($expr->arms as $index => $arm) {
-          $bindings    = [];
-          $new_handler = new hm\DoExpr([
-            ...$bindings,
+          $new_handler = new hm\DoExpr($arm->handler->get('span'), [
             $handlers[$index],
           ]);
           $arms[]      = new hm\Arm($arm->pattern, $new_handler);
         }
-        $this->exprs[] = (new hm\MatchExpr($discriminant, $arms))
+        $this->exprs[] = (new hm\MatchExpr($expr->get('span'), $discriminant, $arms))
           ->set('node', $expr);
       },
       'exit(VariantConstructorExpr)' => function (ast\nodes\VariantConstructorExpr $expr) {
@@ -160,37 +179,60 @@ class TypeCompiler {
             $pair_expr          = $popped_args[$index];
             $fields[$pair_name] = $pair_expr;
           }
-          $args = (new hm\RecordExpr($fields))->set('node', $expr->fields);
+          $args = (new hm\RecordExpr($expr->fields->get('span'), $fields))->set('node', $expr->fields);
         } else if ($expr->fields instanceof ast\nodes\OrderedVariantConstructorFields) {
           $popped_args = array_splice($this->exprs, -count($expr->fields->order));
-          $args        = (new hm\TupleExpr($popped_args))->set('node', $expr->fields);
+          $args        = (new hm\TupleExpr($expr->fields->get('span'), $popped_args))->set('node', $expr->fields);
         } else {
           assert($expr->fields === null);
-          $args = new hm\UnitExpr();
+          $args = new hm\UnitExpr($expr->get('span'));
         }
 
-        $this->exprs[] = (new hm\CtorExpr($enum_sym, $form_sym, $args))
+        $this->exprs[] = (new hm\CtorExpr($expr->get('span'), $enum_sym, $form_sym, $args))
           ->set('node', $expr);
+      },
+      'OperatorRef' => function (ast\nodes\OperatorRef $ref) {
+        $oper          = $ref->oper;
+        $this->exprs[] = (new hm\VarExpr($oper->get('span'), $oper->get('symbol')))->set('node', $oper);
       },
       'exit(BinaryExpr)' => function (ast\nodes\BinaryExpr $expr) {
         $rhs           = array_pop($this->exprs);
         $lhs           = array_pop($this->exprs);
-        $op            = (new hm\VarExpr($expr->operator->get('symbol')))->set('node', $expr->operator);
-        $this->exprs[] = (new hm\AppExpr(new hm\AppExpr($op, $lhs), $rhs))->set('node', $expr);
+        $op            = array_pop($this->exprs);
+        $this->exprs[] = (new hm\AppExpr($expr->get('span'), new hm\AppExpr($expr->get('span'), $op, $lhs), $rhs))->set('node', $expr);
       },
       'exit(CallExpr)' => function (ast\nodes\CallExpr $expr) {
-        $args   = array_splice($this->exprs, -count($expr->args));
+        $args   = count($expr->args) === 0
+          ? [ new hm\LitExpr($expr->args->get('span'), new val\UnitValue()) ]
+          : array_splice($this->exprs, -count($expr->args));
         $callee = array_pop($this->exprs);
         foreach ($args as $arg) {
-          $callee = (new hm\AppExpr($callee, $arg))->set('node', $expr);
+          $callee = (new hm\AppExpr($expr->get('span'), $callee, $arg))->set('node', $expr);
         }
         $this->exprs[] = $callee;
       },
+      'exit(ListExpr)' => function (ast\nodes\ListExpr $expr) {
+        $elements      = array_splice($this->exprs, -count($expr->elements));
+        $this->exprs[] = (new hm\ListExpr($expr->get('span'), $elements))->set('node', $expr);
+      },
       'PathExpr' => function (ast\nodes\PathExpr $expr) {
-        $this->exprs[] = (new hm\VarExpr($expr->path->tail->get('symbol')))->set('node', $expr);
+        $this->exprs[] = (new hm\VarExpr($expr->get('span'), $expr->path->tail->get('symbol')))->set('node', $expr);
       },
       'Literal' => function (ast\nodes\Literal $expr) {
-        $this->exprs[] = (new hm\LitExpr($expr->value))->set('node', $expr);
+        $this->exprs[] = (new hm\LitExpr($expr->get('span'), $expr->value))->set('node', $expr);
+      },
+
+      'enter(Expr)' => function () {
+        array_push($this->expr_depth, count($this->exprs));
+      },
+      'exit(Expr)' => function (ast\nodes\Expr $expr, Path $path) {
+        $depth_before = array_pop($this->expr_depth);
+        $depth_now    = count($this->exprs);
+        if ($depth_now === $depth_before) {
+          die($path->kind . " did not push an expression to the stack\n");
+        } else if ($depth_now > $depth_before + 1) {
+          die($path->kind . " pushed too many expressions to the stack\n");
+        }
       },
     ]);
 
@@ -214,7 +256,7 @@ class TypeCompiler {
         $this->note($sig->params),
         $this->note($sig->returns));
     }
-    $this->exprs[] = new hm\DecExpr($sym, $type);
+    $this->exprs[] = new hm\DecExpr($sig->get('span'), $sym, $type);
   }
 
   private function default_var_handler(ast\nodes\TypeParamNote $note): hm\Type {
@@ -263,6 +305,8 @@ class TypeCompiler {
           die("unknown type: " . $note->inner->path->tail->value . PHP_EOL);
         }
       }
+      case $note instanceof ast\nodes\ListNote:
+        return new hm\Unary('List', $this->note($note->elements, $var_handler));
       default:
         die('unable to parse note with the type ' . get_class($note) . PHP_EOL);
     }

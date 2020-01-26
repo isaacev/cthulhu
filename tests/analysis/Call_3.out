@@ -1,9 +1,10 @@
 
   CALL TO NON-FUNCTION  ------------------------------------------------------
 
-  Tried to call an expression with the type `Int`:
+  Tried to pass an argument with the type `Int` to an expression with the type
+  `Int`:
 
-    : call_3
+    : Call_3
   7 |   add(1, 2, 3);
     |             ^
 

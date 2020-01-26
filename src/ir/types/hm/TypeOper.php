@@ -15,6 +15,14 @@ class TypeOper extends Type {
     $this->types = $types;
   }
 
+  public function flatten(): Type {
+    return $this;
+  }
+
+  public function is_unit(): bool {
+    return false;
+  }
+
   public function fresh(callable $fresh_rec): Type {
     return new self(
       $this->name,

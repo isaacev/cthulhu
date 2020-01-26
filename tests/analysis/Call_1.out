@@ -1,9 +1,10 @@
 
   WRONG ARGUMENT TYPE  -------------------------------------------------------
 
-  Expected argument 1 to have the type `Int`, found type `Str` instead:
+  Expected an argument of the type `Int` but found an argument of the type `Str`
+  instead:
 
-    : call_1
+    : Call_1
   7 |   plus_one("1");
     |            ^^^
 

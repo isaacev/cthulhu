@@ -27,11 +27,11 @@ class LoadPhase {
    * @throws Error
    */
   public function load(): CheckPhase {
-    $loader  = new Loader($this->options);
-    $shallow = $loader->from_string($this->relative_filepath);
-    ShallowResolver::resolve($shallow);
-    $deep = (new DeepParser($shallow))->program();
-    return new CheckPhase($deep);
+    $loader   = new Loader($this->options);
+    $shallow  = $loader->from_string($this->relative_filepath);
+    $bindings = ShallowResolver::resolve($shallow);
+    $deep     = (new DeepParser($shallow))->program();
+    return new CheckPhase($bindings, $deep);
   }
 
   /**
@@ -40,15 +40,15 @@ class LoadPhase {
    * @throws Error
    */
   public static function from_memory(File $file): CheckPhase {
-    $loader  = new Loader([
+    $loader   = new Loader([
       'path' => [
         realpath(__DIR__ . '/../stdlib'),
       ],
     ]);
-    $shallow = $loader->from_file($file);
-    ShallowResolver::resolve($shallow);
-    $deep = (new DeepParser($shallow))->program();
-    return new CheckPhase($deep);
+    $shallow  = $loader->from_file($file);
+    $bindings = ShallowResolver::resolve($shallow);
+    $deep     = (new DeepParser($shallow))->program();
+    return new CheckPhase($bindings, $deep);
   }
 
   /**

@@ -2,16 +2,25 @@
 
 namespace Cthulhu\ir\types\hm;
 
-class DoExpr extends Expr {
+use Countable;
+use Cthulhu\loc\Spanlike;
+
+class DoExpr extends Expr implements Countable {
   /* @var Expr[] $body */
   public array $body;
 
   /**
-   * @param Expr[] $body
+   * @param Spanlike $spanlike
+   * @param Expr[]   $body
    */
-  public function __construct(array $body) {
+  public function __construct(Spanlike $spanlike, array $body) {
+    parent::__construct($spanlike);
     assert(!empty($body));
     $this->body = $body;
+  }
+
+  public function count() {
+    return count($this->body);
   }
 
   public function build(): Builder {

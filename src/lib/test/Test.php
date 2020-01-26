@@ -5,7 +5,8 @@ namespace Cthulhu\lib\test;
 use Cthulhu\err\Error;
 use Cthulhu\lib\fmt;
 use Cthulhu\loc\File;
-use Cthulhu\workspace\ReadPhase;
+use Cthulhu\workspace\LoadPhase;
+use Exception;
 
 class Test {
   public string $dir;
@@ -64,15 +65,10 @@ class Test {
   protected function eval(bool $do_php_eval): TestOutput {
     try {
       $file = new File($this->name, $this->input);
-      $tree = ReadPhase::from_memory($file)
-        ->parse()
-        ->link()
-        ->resolve()
+      $tree = LoadPhase::from_memory($file)
         ->check()
-        ->codegen()
-        ->optimize([
-          'all' => true,
-        ]);
+        ->optimize()
+        ->codegen();
 
       $php = $tree->write();
       $out = $do_php_eval ? $tree->run() : $this->expected->out;
@@ -81,6 +77,8 @@ class Test {
       $out = new fmt\StringFormatter();
       $err->format($out);
       return new TestOutput('', $out);
+    } catch (Exception $ex) {
+      return new TestOutput('', "$ex");
     }
   }
 }

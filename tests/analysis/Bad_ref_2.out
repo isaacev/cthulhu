@@ -1,0 +1,9 @@
+
+  UNKNOWN FIELD  -------------------------------------------------------------
+
+  Reference to an unknown field in a namespace.
+
+    : Bad_ref_2
+  4 |   Io::doesNotExist();
+    |       ^^^^^^^^^^^^
+

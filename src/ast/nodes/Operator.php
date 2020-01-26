@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ast\nodes;
 
-class Operator extends Node {
+class Operator extends Node implements FnName {
   public int $precedence;
   public bool $is_right_assoc;
   public string $value;

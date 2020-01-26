@@ -8,11 +8,11 @@ use Cthulhu\lib\trees\RemovalHandler;
 use Cthulhu\lib\trees\ReplacementHandler;
 
 class Module extends Node implements RemovalHandler, ReplacementHandler, EditableSuccessor, \Countable {
-  public Name $name;
+  public ?Name $name;
   public ?Stmt $stmt;
   private ?Module $next;
 
-  public function __construct(Name $name, ?Stmt $stmt, ?Module $next) {
+  public function __construct(?Name $name, ?Stmt $stmt, ?Module $next) {
     parent::__construct();
     $this->name = $name;
     $this->stmt = $stmt;
@@ -74,7 +74,7 @@ class Module extends Node implements RemovalHandler, ReplacementHandler, Editabl
       ->paren_left()
       ->keyword('mod')
       ->space()
-      ->then($this->name)
+      ->then($this->name ?? (new Builder)->paren_left()->paren_right())
       ->increase_indentation()
       ->then($this->stmt ?? (new Builder))
       ->decrease_indentation()

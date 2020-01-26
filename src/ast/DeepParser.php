@@ -349,11 +349,11 @@ class DeepParser extends AbstractParser {
   }
 
   /**
-   * @param nodes\ParamNode[] $params
+   * @param nodes\FnParams $params
    * @throws Error
    */
-  private function resolve_fn_params(array $params) {
-    foreach ($params as $param) {
+  private function resolve_fn_params(nodes\FnParams $params) {
+    foreach ($params->params as $param) {
       $this->resolve_fn_param($param);
     }
   }
@@ -759,9 +759,9 @@ class DeepParser extends AbstractParser {
         // conditional
       case $this->ahead_is_group('{}'):
         // closure definition
-      case $this->ahead_is_group('[]'):
-        // list literal
         die('unimplemented at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+      case $this->ahead_is_group('[]'):
+        return $this->list_expr();
       case $this->ahead_is_group('()'):
         return $this->paren_expr();
       case $this->ahead_is_ident():
@@ -982,6 +982,19 @@ class DeepParser extends AbstractParser {
   }
 
   /**
+   * @return nodes\ListExpr
+   * @throws Error
+   */
+  private function list_expr(): nodes\ListExpr {
+    $enter_bracket = $this->next_group_matches('[]');
+    $elements      = $this->zero_or_more_exprs();
+    $exit_bracket  = $this->exit_group_matches('[]');
+    $span          = Span::join($enter_bracket, $exit_bracket);
+    return (new nodes\ListExpr($elements))
+      ->set('span', $span);
+  }
+
+  /**
    * @return nodes\Expr
    * @throws Error
    */
@@ -1188,10 +1201,11 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   private function call_expr(nodes\Expr $prefix): nodes\CallExpr {
-    $parens = $this->next_group_matches('()');
-    $args   = $this->zero_or_more_exprs();
-    $this->exit_group_matches('()');
-    $span = Span::join($prefix->get('span'), $parens);
+    $enter_parens = $this->next_group_matches('()');
+    $args         = $this->zero_or_more_exprs();
+    $exit_parens  = $this->exit_group_matches('()');
+    $args         = (new nodes\Exprs($args))->set('span', Span::join($enter_parens, $exit_parens));
+    $span         = Span::join($prefix->get('span'), $args->get('span'));
     return (new nodes\CallExpr($prefix, $args))
       ->set('span', $span);
   }
@@ -1205,7 +1219,8 @@ class DeepParser extends AbstractParser {
   private function binary_infix_expr(nodes\Expr $prefix, nodes\Operator $oper): nodes\BinaryExpr {
     $postfix = $this->expr($oper->precedence);
     $span    = Span::join($prefix->get('span'), $postfix->get('span'));
-    return (new nodes\BinaryExpr($oper, $prefix, $postfix))
+    $ref     = (new nodes\OperatorRef($oper))->set('span', $oper->get('span'));
+    return (new nodes\BinaryExpr($ref, $prefix, $postfix))
       ->set('span', $span);
   }
 

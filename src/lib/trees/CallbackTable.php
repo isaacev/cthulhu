@@ -67,7 +67,7 @@ class CallbackTable {
     }
   }
 
-  private static function get_node_kinds(Nodelike $node): array {
+  public static function get_node_kinds(Nodelike $node): array {
     $parents   = array_values(class_parents($node));
     $child     = get_class($node);
     $hierarchy = array_merge([ $child ], $parents);
