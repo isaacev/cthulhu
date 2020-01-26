@@ -2,8 +2,7 @@
 
 namespace Cthulhu\ir\passes;
 
-use Cthulhu\ir\nodes\Closure;
-use Cthulhu\ir\nodes\Let;
+use Cthulhu\ir\nodes\Def;
 use Cthulhu\ir\nodes\Module;
 use Cthulhu\ir\nodes\NameExpr;
 use Cthulhu\ir\nodes\Root;
@@ -30,26 +29,29 @@ class ShakeTree implements Pass {
     };
 
     Visitor::walk($root, [
-      'enter(Let)' => function (Let $let) use (&$stack, &$reach) {
-        if ($let->expr instanceof Closure && $let->name !== null) {
-          array_push($stack, $let->name->symbol->get_id());
-        }
+      'enter(Def)' => function (Def $def) use (&$stack, &$reach) {
+        array_push($stack, $def->name->symbol->get_id());
+      },
+      'exit(Def)' => function (Def $def) use (&$stack) {
+        array_pop($stack);
+      },
+      'NameExpr' => function (NameExpr $expr) use (&$stack, &$add_edge, &$reach) {
+        $name  = $expr->name;
+        $to_id = $name->symbol->get_id();
 
-        if ($let->name !== null && $let->get('entry') === true) {
-          $ref_id         = $let->name->symbol->get_id();
-          $reach[$ref_id] = false;
+        if (empty($stack)) {
+          // If the reference isn't inside of a function body (identified by the
+          // empty function reference stack) then the function will always be
+          // called so mark the function as reachable in the graph:
+          $reach[$to_id] = false;
+        } else {
+          // If the reference is inside of a function body, create an edge
+          // between the parent function and the referenced function to indicate
+          // that the referenced function *may* be reachable if the parent
+          // function is reachable itself.
+          $from_id = end($stack);
+          $add_edge($from_id, $to_id);
         }
-      },
-      'exit(Let)' => function (Let $let) use (&$stack) {
-        if ($let->expr instanceof Closure && $let->name !== null) {
-          array_pop($stack);
-        }
-      },
-      'NameExpr' => function (NameExpr $expr) use (&$stack, &$add_edge) {
-        $name    = $expr->name;
-        $to_id   = $name->symbol->get_id();
-        $from_id = end($stack);
-        $add_edge($from_id, $to_id);
       },
     ]);
 
@@ -66,12 +68,10 @@ class ShakeTree implements Pass {
     }
 
     $new_root = Visitor::edit($root, [
-      'Let' => function (Let $let, EditablePath $path) use (&$reach) {
-        if ($let->expr instanceof Closure && $let->name !== null) {
-          $id = $let->name->symbol->get_id();
-          if (array_key_exists($id, $reach) === false) {
-            $path->remove();
-          }
+      'Def' => function (Def $def, EditablePath $path) use (&$reach) {
+        $id = $def->name->symbol->get_id();
+        if (array_key_exists($id, $reach) === false) {
+          $path->remove();
         }
       },
       'exit(Module)' => function (Module $mod, EditablePath $path) {
