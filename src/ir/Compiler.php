@@ -306,7 +306,7 @@ class Compiler {
   }
 
   private static function binary_expr(self $ctx, ast\BinaryExpr $expr): ir\Apply {
-    $symbol = $expr->operator->get('symbol');
+    $symbol = $expr->operator->oper->get('symbol');
     $type   = $ctx->env->read($symbol);
     $text   = self::symbol_to_text($symbol);
     $oper   = new ir\NameExpr(new ir\Name($type, $text, $symbol));
