@@ -148,6 +148,10 @@ class TypeCompiler {
         $rhs           = array_pop($this->exprs);
         $this->exprs[] = new hm\LetExpr($stmt->get('span'), $sym, $rhs);
       },
+      'exit(SemiStmt)' => function (ast\nodes\SemiStmt $stmt) {
+        $rhs           = array_pop($this->exprs);
+        $this->exprs[] = new hm\SemiExpr($stmt->get('span'), $rhs);
+      },
       'exit(MatchExpr)' => function (ast\nodes\MatchExpr $expr) {
         $handlers     = array_splice($this->exprs, -count($expr->arms));
         $discriminant = array_pop($this->exprs);

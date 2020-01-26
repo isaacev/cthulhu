@@ -43,6 +43,8 @@ class TypeSolver {
         return self::list_expr($expr, $env, $non_gen);
       case $expr instanceof hm\LetExpr:
         return self::let_expr($expr, $env, $non_gen);
+      case $expr instanceof hm\SemiExpr:
+        return self::semi_expr($expr, $env, $non_gen);
       case $expr instanceof hm\DecExpr:
         return self::dec_expr($expr, $env);
       case $expr instanceof hm\DoExpr:
@@ -203,6 +205,18 @@ class TypeSolver {
   private static function let_expr(hm\LetExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
     $body_type = self::expr($expr->body, $env, $non_gen);
     $env->write($expr->name, $body_type);
+    return new hm\Unit();
+  }
+
+  /**
+   * @param hm\SemiExpr $expr
+   * @param Env         $env
+   * @param hm\TypeSet  $non_gen
+   * @return hm\Type
+   * @throws Error
+   */
+  private static function semi_expr(hm\SemiExpr $expr, Env $env, hm\TypeSet $non_gen): hm\Type {
+    self::expr($expr->body, $env, $non_gen);
     return new hm\Unit();
   }
 
