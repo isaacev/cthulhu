@@ -73,7 +73,8 @@ class Compiler {
         // If the function returns a value, append a return statement to the
         // end of the function body. The return expression will be a variable
         // that references the result of the last expression in the function.
-        if ($def->type->output->is_unit() === false) {
+        $return_type = $def->type->return_type(max(1, count($def->params)));
+        if ($return_type->is_unit() === false) {
           $ret_val = new php\VariableExpr($ctx->statements->peek_return_var());
           $ctx->statements->push_stmt(new php\ReturnStmt($ret_val));
         }

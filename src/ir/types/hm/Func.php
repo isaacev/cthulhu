@@ -27,6 +27,16 @@ class Func extends TypeOper {
     }
   }
 
+  public function return_type(int $args): Type {
+    assert($args >= 0 && $args <= $this->max_arguments());
+    if ($args === 1) {
+      return $this->output;
+    } else {
+      assert($this->output instanceof self);
+      return $this->output->return_type($args - 1);
+    }
+  }
+
   public function __toString(): string {
     if (self::is_func($this->input)) {
       return "($this->input) → $this->output";
