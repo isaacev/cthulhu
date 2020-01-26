@@ -180,6 +180,9 @@ class Compiler {
       'StrLit' => function (ir\StrLit $lit) use ($ctx) {
         $ctx->expressions->push(new php\StrLiteral($lit->str_value));
       },
+      'IntLit' => function (ir\IntLit $lit) use ($ctx) {
+        $ctx->expressions->push(new php\IntLiteral($lit->int_value));
+      },
       'UnitLit' => function () use ($ctx) {
         $ctx->expressions->push(new php\NullLiteral());
       },
