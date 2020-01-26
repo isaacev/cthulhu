@@ -2,7 +2,9 @@
 
 namespace Cthulhu\workspace;
 
+use Cthulhu\ir\Arity;
 use Cthulhu\ir\nodes\Root;
+use Cthulhu\php\Compiler;
 
 class CodegenPhase {
   private Root $tree;
@@ -12,6 +14,8 @@ class CodegenPhase {
   }
 
   public function codegen(): WritePhase {
-    // TODO
+    Arity::inspect($this->tree);
+    $prog = Compiler::root($this->tree);
+    return new WritePhase($prog);
   }
 }

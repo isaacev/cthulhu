@@ -875,7 +875,7 @@ class Lower {
     $total_args = count($expr->args);
     $args       = $ctx->pop_exprs($total_args);
     $callee     = $ctx->pop_expr();
-    if ($callee_arity instanceof ir\arity\KnownArity) {
+    if ($callee_arity instanceof ir\arity\KnownMultiArity) {
       $ctx->push_expr(self::over_applied_call_site($ctx, $callee, $args, $callee_arity));
     } else {
       $ctx->push_expr(self::curry_call_site($ctx, $callee, $args));
@@ -883,13 +883,13 @@ class Lower {
   }
 
   /**
-   * @param self                $ctx
-   * @param nodes\Expr          $callee
-   * @param nodes\Expr[]        $args
-   * @param ir\arity\KnownArity $arity
+   * @param self                     $ctx
+   * @param nodes\Expr               $callee
+   * @param nodes\Expr[]             $args
+   * @param ir\arity\KnownMultiArity $arity
    * @return nodes\Expr
    */
-  private static function under_applied_call_site(self $ctx, nodes\Expr $callee, array $args, ir\arity\KnownArity $arity): nodes\Expr {
+  private static function under_applied_call_site(self $ctx, nodes\Expr $callee, array $args, ir\arity\KnownMultiArity $arity): nodes\Expr {
     $func_scope = new names\ClosureScope($ctx->current_function_scope());
     array_push($ctx->function_scopes, $func_scope);
 
@@ -919,12 +919,12 @@ class Lower {
    * @return nodes\Expr
    */
   private static function over_applied_call_site(self $ctx, nodes\Expr $callee, array $args, ir\arity\Arity $arity): nodes\Expr {
-    if (($arity instanceof ir\arity\KnownArity) === false) {
+    if (($arity instanceof ir\arity\KnownMultiArity) === false) {
       return self::curry_call_site($ctx, $callee, $args);
     }
 
     while (count($args) > 0 && count($args) >= $arity->params) {
-      if (($arity instanceof ir\arity\KnownArity) === false) {
+      if (($arity instanceof ir\arity\KnownMultiArity) === false) {
         return self::curry_call_site($ctx, $callee, $args);
       } else if ($arity->params === 0) {
         return $callee;
@@ -935,7 +935,7 @@ class Lower {
       $callee     = self::fully_applied_call_site($callee, $taken_args);
     }
 
-    if (!empty($args) && $arity instanceof ir\arity\KnownArity) {
+    if (!empty($args) && $arity instanceof ir\arity\KnownMultiArity) {
       if (($callee instanceof nodes\ReferenceExpr) === false) {
         /**
          * If the callee is more complex than a reference expression then it
