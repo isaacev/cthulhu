@@ -80,6 +80,39 @@ pub fn (++) (a: Str, b: Str) -> Str {
 -- Define other useful binary operators
 --
 
+intrinsic {
+  fn any_eq('a, 'a) -> Bool;
+  fn any_lt('a, 'a) -> Bool;
+  fn any_gt('a, 'a) -> Bool;
+  fn any_lte('a, 'a) -> Bool;
+  fn any_gte('a, 'a) -> Bool;
+}
+
+#[infix(rel)]
+pub fn (==) (a: 'a, b: 'a) -> Bool {
+  any_eq(a, b)
+}
+
+#[infix(rel)]
+pub fn (<) (a: 'a, b: 'a) -> Bool {
+  any_lt(a, b)
+}
+
+#[infix(rel)]
+pub fn (>) (a: 'a, b: 'a) -> Bool {
+  any_gt(a, b)
+}
+
+#[infix(rel)]
+pub fn (<=) (a: 'a, b: 'a) -> Bool {
+  any_lte(a, b)
+}
+
+#[infix(rel)]
+pub fn (>=) (a: 'a, b: 'a) -> Bool {
+  any_gte(a, b)
+}
+
 #[infix(pipe)]
 pub fn (|>) (lhs: 'a, rhs: 'a -> 'b) -> 'b {
   rhs(lhs)
