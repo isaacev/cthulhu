@@ -1,22 +1,19 @@
 <?php
 
+use Cthulhu\err\Error;
 use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
-use Cthulhu\workspace\ReadPhase;
+use Cthulhu\workspace\LoadPhase;
 
 function command_run(cli\Lookup $flags, cli\Lookup $args) {
   try {
-    $relpath = $args->get('file');
-    $abspath = realpath($relpath);
-    echo ReadPhase::from_file_system($abspath ? $abspath : $relpath)
-      ->parse()
-      ->link()
-      ->resolve()
+    $filepath = $args->get('file');
+    echo LoadPhase::from_filepath($filepath)
       ->check()
+      ->optimize()
       ->codegen()
-      ->optimize([])
       ->run();
-  } catch (\Cthulhu\Errors\Error $err) {
+  } catch (Error $err) {
     $f = new StreamFormatter(STDERR);
     $err->format($f);
     exit(1);
