@@ -756,7 +756,7 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_keyword('match'):
         return $this->match_expr();
       case $this->ahead_is_keyword('if'):
-        // conditional
+        return $this->if_expr();
       case $this->ahead_is_group('{}'):
         // closure definition
         die('unimplemented at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
@@ -978,6 +978,27 @@ class DeepParser extends AbstractParser {
   private function wildcard_pattern(): nodes\WildcardPattern {
     $span = $this->next_punct_span('_');
     return (new nodes\WildcardPattern())
+      ->set('span', $span);
+  }
+
+  /**
+   * @return nodes\IfExpr
+   * @throws Error
+   */
+  private function if_expr(): nodes\IfExpr {
+    $if         = $this->next_keyword('if');
+    $condition  = $this->expr();
+    $consequent = $this->block();
+
+    if ($this->ahead_is_keyword('else')) {
+      $else      = $this->next_keyword('else');
+      $alternate = $this->block();
+    } else {
+      $alternate = null;
+    }
+
+    $span = Span::join($if, ($alternate ?? $consequent)->get('span'));
+    return (new nodes\IfExpr($condition, $consequent, $alternate))
       ->set('span', $span);
   }
 

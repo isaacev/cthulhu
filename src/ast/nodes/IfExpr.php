@@ -2,17 +2,19 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class IfExpr extends Expr {
   public Expr $condition;
-  public BlockNode $if_clause;
-  public ?BlockNode $else_clause;
+  public BlockNode $consequent;
+  public ?BlockNode $alternate;
 
-  public function __construct(Span $span, Expr $condition, BlockNode $if_clause, ?BlockNode $else_clause) {
-    parent::__construct($span);
-    $this->condition   = $condition;
-    $this->if_clause   = $if_clause;
-    $this->else_clause = $else_clause;
+  public function __construct(Expr $condition, BlockNode $consequent, ?BlockNode $alternate) {
+    parent::__construct();
+    $this->condition  = $condition;
+    $this->consequent = $consequent;
+    $this->alternate  = $alternate;
+  }
+
+  public function children(): array {
+    return [ $this->condition, $this->consequent, $this->alternate ];
   }
 }
