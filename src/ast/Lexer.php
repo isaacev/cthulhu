@@ -229,7 +229,7 @@ class Lexer {
       return $this->read();
     }
 
-    $to   = $next->point;
+    $to   = $next->point->next_column();
     $span = new Span($from, $to);
     return new tokens\CommentToken($span, $lexeme);
   }
