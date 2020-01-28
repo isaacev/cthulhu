@@ -17,4 +17,8 @@ class Operator extends Node implements FnName {
   public function children(): array {
     return [];
   }
+
+  public function __toString(): string {
+    return $this->value;
+  }
 }
