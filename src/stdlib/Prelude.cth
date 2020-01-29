@@ -81,7 +81,7 @@ intrinsic {
 }
 
 #[infixr(exp)]
-pub fn (**) (a: 'a, b: 'a) -> 'a {
+pub fn (^) (a: 'a, b: 'a) -> 'a {
   any_pow(a, b)
 }
 
