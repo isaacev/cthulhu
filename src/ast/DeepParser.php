@@ -1298,7 +1298,7 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   private function binary_infix_expr(nodes\Expr $prefix, nodes\Operator $oper): nodes\BinaryExpr {
-    $postfix = $this->expr($oper->precedence);
+    $postfix = $this->expr($oper->precedence + ($oper->is_right_assoc ? -1 : 0));
     $span    = Span::join($prefix->get('span'), $postfix->get('span'));
     $ref     = (new nodes\OperatorRef($oper))->set('span', $oper->get('span'));
     return (new nodes\BinaryExpr($ref, $prefix, $postfix))
