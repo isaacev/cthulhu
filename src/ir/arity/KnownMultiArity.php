@@ -21,8 +21,4 @@ class KnownMultiArity extends Arity {
       return $this->returns->apply(abs($leftover));
     }
   }
-
-  public function __toString(): string {
-    return "known($this->params) -> $this->returns";
-  }
 }

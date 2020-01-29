@@ -18,18 +18,6 @@ class Lexer {
   }
 
   /**
-   * @return tokens\Token
-   * @throws Error
-   */
-  public function peek(): tokens\Token {
-    if (empty($this->buffer)) {
-      $this->buffer = [ $this->read() ];
-    }
-
-    return $this->buffer[0];
-  }
-
-  /**
    * @param int $n
    * @return tokens\Token[]
    * @throws Error
@@ -43,16 +31,6 @@ class Lexer {
   }
 
   /**
-   * @param int $n
-   * @return tokens\Token
-   * @throws Error
-   */
-  public function peek_ahead_by(int $n): tokens\Token {
-    $this->peek_multiple($n);
-    return $this->buffer[$n - 1];
-  }
-
-  /**
    * @return tokens\Token
    * @throws Error
    */
@@ -62,19 +40,6 @@ class Lexer {
     } else {
       return array_shift($this->buffer);
     }
-  }
-
-  /**
-   * @param int $n
-   * @return tokens\Token[]
-   * @throws Error
-   */
-  public function next_multiple(int $n): array {
-    for ($i = count($this->buffer); $i < $n; $i++) {
-      $this->buffer[] = $this->read();
-    }
-
-    return array_splice($this->buffer, 0, $n);
   }
 
   /**

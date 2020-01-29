@@ -8,7 +8,6 @@ use Cthulhu\ir\names\OperatorBinding;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Scope;
 use Cthulhu\ir\names\Symbol;
-use Cthulhu\ir\names\TypeSymbol;
 use Cthulhu\lib\trees\Visitor;
 
 class ShallowResolver {
@@ -41,14 +40,6 @@ class ShallowResolver {
       ->set('node', $node)
       ->set('text', '(' . $node->value . ')')
       ->set('operator', $node->value);
-  }
-
-  private function make_type_symbol(nodes\UpperName $node): TypeSymbol {
-    $symbol = new TypeSymbol();
-    $this->set_symbol($node, $symbol);
-    $symbol->set('node', $node);
-    $symbol->set('text', $node->value);
-    return $symbol;
   }
 
   private function set_symbol(nodes\Node $node, Symbol $symbol): void {

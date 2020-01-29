@@ -32,9 +32,5 @@ abstract class Symbol implements ir\HasId {
     return $this;
   }
 
-  public function equals(Symbol $other): bool {
-    return $this->get_id() === $other->get_id();
-  }
-
   abstract public function __toString(): string;
 }
