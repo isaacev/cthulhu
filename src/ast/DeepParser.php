@@ -754,8 +754,12 @@ class DeepParser extends AbstractParser {
       }
       if ($peek->is_joint) {
         $peek_tokens = $this->peek_tokens(count($tokens) + 1);
-        $peek        = end($peek_tokens);
-        continue;
+        if ($peek_tokens === null) {
+          break;
+        } else {
+          $peek = end($peek_tokens);
+          continue;
+        }
       } else {
         break;
       }
