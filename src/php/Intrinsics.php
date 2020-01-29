@@ -14,6 +14,12 @@ class Intrinsics {
         return self::php_print(...$args);
       case 'str_concat':
         return self::str_concat(...$args);
+      case 'cast_int_to_string':
+        return self::cast_int_to_string(...$args);
+      case 'any_lt':
+        return self::any_lt(...$args);
+      case 'any_gt':
+        return self::any_gt(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
@@ -25,5 +31,17 @@ class Intrinsics {
 
   private static function str_concat(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('.', $a, $b);
+  }
+
+  private static function cast_int_to_string(nodes\Expr $a): nodes\Expr {
+    return new nodes\CastExpr('string', $a);
+  }
+
+  private static function any_lt(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('<', $a, $b);
+  }
+
+  private static function any_gt(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('>', $a, $b);
   }
 }
