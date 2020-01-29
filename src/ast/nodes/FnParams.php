@@ -2,7 +2,9 @@
 
 namespace Cthulhu\ast\nodes;
 
-class FnParams extends Node {
+use Countable;
+
+class FnParams extends Node implements Countable {
   public array $params;
 
   /**
@@ -11,6 +13,10 @@ class FnParams extends Node {
   public function __construct(array $params) {
     parent::__construct();
     $this->params = $params;
+  }
+
+  public function count() {
+    return count($this->params);
   }
 
   public function children(): array {

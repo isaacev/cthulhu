@@ -51,18 +51,24 @@ class ShallowParser extends AbstractParser {
         }
         $precedence_name = $attr->args[0]->value;
         $is_right_assoc  = $attr->name->value === 'infixr';
+        $minimum_arity   = 2;
         switch ($precedence_name) {
           case 'rel':
-            return [ Precedence::RELATION, $is_right_assoc ];
+            return [ Precedence::RELATION, $is_right_assoc, $minimum_arity ];
           case 'sum':
-            return [ Precedence::SUM, $is_right_assoc ];
+            return [ Precedence::SUM, $is_right_assoc, $minimum_arity ];
           case 'prod':
-            return [ Precedence::PRODUCT, $is_right_assoc ];
+            return [ Precedence::PRODUCT, $is_right_assoc, $minimum_arity ];
           case 'pipe':
-            return [ Precedence::PIPE, $is_right_assoc ];
+            return [ Precedence::PIPE, $is_right_assoc, $minimum_arity ];
           default:
             throw Errors::unknown_attr_arg($attr->args[0]);
         }
+      } else if ($attr->name->value === 'prefix') {
+        $precedence_name = 'prefix';
+        $is_right_assoc  = false;
+        $minimum_arity   = 1;
+        return [ Precedence::UNARY, $is_right_assoc, $minimum_arity ];
       }
     }
     throw Errors::missing_precedence_attr($spanlike);
@@ -324,8 +330,8 @@ class ShallowParser extends AbstractParser {
       $tokens = $this->next_contiguous_punct();
       $span   = Span::join(...$tokens);
       $value  = $this->tokens_to_string($tokens);
-      [ $prec, $is_right_assoc ] = $this->find_precedence_attr($span, $attrs);
-      $oper        = (new nodes\Operator($prec, $is_right_assoc, $value))->set('span', $span);
+      [ $prec, $is_right_assoc, $min_arity ] = $this->find_precedence_attr($span, $attrs);
+      $oper        = (new nodes\Operator($prec, $is_right_assoc, $value, $min_arity))->set('span', $span);
       $exit_parens = $this->exit_group_matches('()');
       return $oper;
     }
@@ -381,9 +387,14 @@ class ShallowParser extends AbstractParser {
     $params       = $this->zero_or_more_name_type_pairs();
     $exit_params  = $this->exit_group_matches('()');
     $params       = (new nodes\FnParams($params))->set('span', Span::join($enter_params, $exit_params));
-    $arrow        = $this->next_punct('->');
-    $returns      = $this->note();
-    $body         = $this->shallow_block();
+
+    if ($name instanceof nodes\Operator && count($params) < $name->min_arity) {
+      throw Errors::wrong_prec_arity($params->get('span'), $name->min_arity, count($params));
+    }
+
+    $arrow   = $this->next_punct('->');
+    $returns = $this->note();
+    $body    = $this->shallow_block();
 
     $span = Span::join($maybe_pub ?? $keyword, $body->get('span'));
     return (new nodes\ShallowFnItem($name, $params, $returns, $body))

@@ -354,6 +354,23 @@ class TypeCheck {
         $expr->set(self::TYPE_KEY, $type);
       },
 
+      'exit(UnaryExpr)' => function (ast\UnaryExpr $expr) {
+        $right_type = $expr->right->get(self::TYPE_KEY);
+        $call_type  = $expr->operator->get(self::TYPE_KEY);
+        assert($call_type instanceof types\Func);
+
+        try {
+          self::unify($call_type->input, $right_type);
+        } catch (types\UnificationFailure $failure) {
+          $right_span = $expr->right->get('span');
+          $sig_type   = $call_type->input;
+          throw Errors::wrong_unary_type($expr->operator->oper, $right_span, $right_type, $sig_type);
+        }
+
+        $type = $call_type->output;
+        $expr->set(self::TYPE_KEY, $type);
+      },
+
       'PathExpr' => function (ast\PathExpr $expr) {
         $type = $expr->path->tail->get('symbol')->get(self::TYPE_KEY);
         $expr->set(self::TYPE_KEY, $type);

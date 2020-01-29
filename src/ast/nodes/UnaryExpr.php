@@ -2,15 +2,17 @@
 
 namespace Cthulhu\ast\nodes;
 
-use Cthulhu\loc\Span;
-
 class UnaryExpr extends Expr {
-  public string $operator;
-  public Expr $operand;
+  public OperatorRef $operator;
+  public Expr $right;
 
-  public function __construct(Span $span, string $operator, Expr $operand) {
-    parent::__construct($span);
+  public function __construct(OperatorRef $operator, Expr $right) {
+    parent::__construct();
     $this->operator = $operator;
-    $this->operand  = $operand;
+    $this->right    = $right;
+  }
+
+  public function children(): array {
+    return [ $this->operator, $this->right ];
   }
 }

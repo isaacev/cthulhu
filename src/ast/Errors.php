@@ -67,6 +67,15 @@ class Errors {
       ->example("#[precedence(sum)]\nfn +> custom_adder(a: Int, b: Int) -> Int {\n  -- code\n}");
   }
 
+  public static function wrong_prec_arity(Spanlike $span, int $min_arity, int $found_arity): Error {
+    return (new Error('wrong operator arity'))
+      ->paragraph(
+        "Expected the function to accept at least $min_arity parameters.",
+        "Instead the function accepts only $found_arity"
+      )
+      ->snippet($span);
+  }
+
   public static function expected_item(Spanlike $span): Error {
     return (new Error('expected item'))
       ->snippet($span)

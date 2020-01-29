@@ -51,6 +51,9 @@ class DeepParser extends AbstractParser {
   /* @var Trie[] $infix_precedence */
   public array $infix_precedence = [];
 
+  /* @var Trie[] $prefix_precedence */
+  public array $prefix_precedence = [];
+
   public function __construct(nodes\ShallowProgram $prog) {
     $this->prog       = $prog;
     $this->root_scope = new Scope();
@@ -573,23 +576,37 @@ class DeepParser extends AbstractParser {
     }
   }
 
-  private function push_infix_precedence_trie(): void {
-    $mod_scope = $this->current_module_scope();
-    $trie      = new Trie();
+  private function push_precedence_tries(): void {
+    $mod_scope   = $this->current_module_scope();
+    $infix_trie  = new Trie();
+    $prefix_trie = new Trie();
     foreach ($mod_scope->get_any_bindings() as $binding) {
       if ($binding instanceof OperatorBinding) {
-        $trie->write_or_create($binding->name, $binding->operator);
+        switch ($binding->operator->min_arity) {
+          case 2:
+            $infix_trie->write_or_create($binding->name, $binding->operator);
+            break;
+          case 1:
+            $prefix_trie->write_or_create($binding->name, $binding->operator);
+            break;
+        }
       }
     }
-    array_push($this->infix_precedence, $trie);
+    array_push($this->infix_precedence, $infix_trie);
+    array_push($this->prefix_precedence, $prefix_trie);
   }
 
-  private function current_precedence_trie(): Trie {
+  private function current_infix_precedence_trie(): Trie {
     return end($this->infix_precedence);
   }
 
-  private function pop_infix_precedence_trie(): void {
+  private function current_prefix_precedence_trie(): Trie {
+    return end($this->prefix_precedence);
+  }
+
+  private function pop_precedence_tries(): void {
     array_pop($this->infix_precedence);
+    array_pop($this->prefix_precedence);
   }
 
   /**
@@ -612,11 +629,11 @@ class DeepParser extends AbstractParser {
    */
   private function fn_body(nodes\ShallowBlock $block): nodes\BlockNode {
     $this->begin_parsing($block->group);
-    $this->push_infix_precedence_trie();
+    $this->push_precedence_tries();
     $this->push_block_scope(new Scope());
     $stmts = $this->stmts();
     $this->pop_block_scope();
-    $this->pop_infix_precedence_trie();
+    $this->pop_precedence_tries();
 
     return (new nodes\BlockNode($stmts))
       ->set('span', $block->get('span'));
@@ -714,15 +731,14 @@ class DeepParser extends AbstractParser {
       return Precedence::ACCESS;
     }
 
-    if ($maybe_operator = $this->peek_operator()) {
+    if ($maybe_operator = $this->peek_infix_operator()) {
       return $maybe_operator->precedence;
     }
 
     return Precedence::LOWEST;
   }
 
-  private function peek_operator(): ?nodes\Operator {
-    $trie   = $this->current_precedence_trie();
+  private function peek_operator(Trie $trie): ?nodes\Operator {
     $peek   = $this->peek_token();
     $best   = null;
     $tokens = [];
@@ -747,6 +763,29 @@ class DeepParser extends AbstractParser {
     return $best;
   }
 
+  private function peek_infix_operator(): ?nodes\Operator {
+    $trie = $this->current_infix_precedence_trie();
+    return $this->peek_operator($trie);
+  }
+
+  private function peek_prefix_operator(): ?nodes\Operator {
+    $trie = $this->current_prefix_precedence_trie();
+    return $this->peek_operator($trie);
+  }
+
+  /**
+   * @return nodes\Operator
+   * @throws Error
+   */
+  private function next_prefix_operator(): nodes\Operator {
+    $operator = $this->peek_prefix_operator();
+    assert($operator instanceof nodes\Operator);
+    $span = $this->next_punct_span($operator->value);
+    return $operator->duplicate()
+      ->copy($operator)
+      ->set('span', $span);
+  }
+
   /**
    * @return nodes\Expr
    * @throws Error
@@ -769,9 +808,26 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_literal():
         return $this->literal_expr();
       default:
-        $span = $this->peek_token() ?? $this->end_of_current_group();
-        throw Errors::expected_expression($span);
+        if ($oper = $this->peek_prefix_operator()) {
+          return $this->unary_prefix_expr();
+        } else {
+          $span = $this->peek_token() ?? $this->end_of_current_group();
+          throw Errors::expected_expression($span);
+        }
     }
+  }
+
+  /**
+   * @return nodes\Expr
+   * @throws Error
+   */
+  private function unary_prefix_expr(): nodes\Expr {
+    $oper = $this->next_prefix_operator();
+    $ref  = (new nodes\OperatorRef($oper))->set('span', $oper->get('span'));
+    $expr = $this->expr(Precedence::UNARY);
+    $span = Span::join($ref->get('span'), $expr->get('span'));
+    return (new nodes\UnaryExpr($ref, $expr))
+      ->set('span', $span);
   }
 
   /**
@@ -1192,11 +1248,11 @@ class DeepParser extends AbstractParser {
   }
 
   /**
-   * @return nodes\Operator|null
+   * @return nodes\Operator
    * @throws Error
    */
-  private function next_operator() {
-    $operator = $this->peek_operator();
+  private function next_infix_operator(): nodes\Operator {
+    $operator = $this->peek_infix_operator();
     assert($operator instanceof nodes\Operator);
     $this->next_punct($operator->value);
     return $operator;
@@ -1211,7 +1267,7 @@ class DeepParser extends AbstractParser {
     if ($this->ahead_is_group('()')) {
       return $this->call_expr($prefix);
     } else {
-      $operator = $this->next_operator();
+      $operator = $this->next_infix_operator();
       return $this->binary_infix_expr($prefix, $operator);
     }
   }

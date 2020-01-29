@@ -257,6 +257,8 @@ class Compiler {
         return self::call_expr($ctx, $expr);
       case $expr instanceof ast\BinaryExpr:
         return self::binary_expr($ctx, $expr);
+      case $expr instanceof ast\UnaryExpr:
+        return self::unary_expr($ctx, $expr);
       case $expr instanceof ast\VariantConstructorExpr:
         return self::ctor_expr($ctx, $expr);
       case $expr instanceof ast\PathExpr:
@@ -316,6 +318,17 @@ class Compiler {
     $right  = self::expr($ctx, $expr->right);
     $type   = $expr->get(TypeCheck::TYPE_KEY);
     $args   = new ir\Exprs([ $left, $right ]);
+    return new ir\Apply($type, $oper, $args);
+  }
+
+  private static function unary_expr(self $ctx, ast\UnaryExpr $expr): ir\Apply {
+    $symbol  = $expr->operator->oper->get('symbol');
+    $type    = $symbol->get(TypeCheck::TYPE_KEY);
+    $text    = self::symbol_to_text($symbol);
+    $oper    = new ir\NameExpr(new ir\Name($type, $text, $symbol));
+    $operand = self::expr($ctx, $expr->right);
+    $type    = $expr->get(TypeCheck::TYPE_KEY);
+    $args    = new ir\Exprs([ $operand ]);
     return new ir\Apply($type, $oper, $args);
   }
 

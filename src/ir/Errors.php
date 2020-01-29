@@ -50,6 +50,15 @@ class Errors {
       ->snippet($arg_span);
   }
 
+  public static function wrong_unary_type(Operator $oper, Spanlike $arg_span, Type $arg_type, Type $sig_type): Error {
+    return (new Error('incorrect operand type'))
+      ->paragraph(
+        "The `$oper` operator expected the operand to have the type `$sig_type`.",
+        "But the expression provided an operand of the type `$arg_type`:"
+      )
+      ->snippet($arg_span);
+  }
+
   public static function no_main_func(): Error {
     return (new Error('no main function'))
       ->paragraph(
