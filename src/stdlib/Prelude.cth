@@ -119,6 +119,19 @@ pub fn (|>) (lhs: 'a, rhs: 'a -> 'b) -> 'b {
 }
 
 --
+-- Define some prefix operators
+--
+
+intrinsic {
+  fn negate('a) -> 'a;
+}
+
+#[prefix]
+pub fn (~) (a: 'a) -> 'a {
+  negate(a)
+}
+
+--
 -- Define commonly used composite types
 --
 

@@ -20,6 +20,8 @@ class Intrinsics {
         return self::any_lt(...$args);
       case 'any_gt':
         return self::any_gt(...$args);
+      case 'negate':
+        return self::negate(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
@@ -43,5 +45,9 @@ class Intrinsics {
 
   private static function any_gt(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('>', $a, $b);
+  }
+
+  private static function negate(nodes\Expr $a): nodes\Expr {
+    return new nodes\UnaryExpr('-', $a);
   }
 }
