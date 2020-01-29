@@ -5,7 +5,7 @@ assert_options(ASSERT_BAIL, 1);
 
 use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
-use Cthulhu\workspace\ReadPhase;
+use Cthulhu\workspace\LoadPhase;
 
 $root = (new cli\Program('cthulhu', '0.1.0'));
 
@@ -15,14 +15,11 @@ $root->subcommand('check', 'Check that a source file is free of errors')
     try {
       $relpath = $args->get('file');
       $abspath = realpath($relpath);
-      ReadPhase::from_file_system($abspath ? $abspath : $relpath)
-        ->parse()
-        ->link()
-        ->resolve()
+      LoadPhase::from_filepath($abspath ? $abspath : $relpath)
         ->check();
 
       echo "no errors in $abspath\n";
-    } catch (\Cthulhu\Errors\Error $err) {
+    } catch (\Cthulhu\err\Error $err) {
       $f = new StreamFormatter(STDERR);
       $err->format($f);
       exit(1);
