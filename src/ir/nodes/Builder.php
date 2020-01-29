@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\names\Symbol;
-use Cthulhu\ir\types\hm\Type;
+use Cthulhu\ir\types\Type;
 use Cthulhu\lib\fmt;
 use Cthulhu\val\Value;
 
@@ -94,6 +94,21 @@ class Builder extends fmt\Builder {
       ->apply_styles(fmt\Foreground::CYAN)
       ->push_str($type)
       ->clear_styles();
+  }
+
+  public function stmts(?Stmt $first): self {
+    if ($first) {
+      return $this
+        ->paren_left()
+        ->increase_indentation()
+        ->then($first)
+        ->decrease_indentation()
+        ->paren_right();
+    }
+
+    return $this
+      ->paren_left()
+      ->paren_right();
   }
 
   /**

@@ -2,14 +2,14 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\ir\types\hm;
+use Cthulhu\ir\types\Func;
 use Cthulhu\lib\trees\EditableNodelike;
 
 class Closure extends Expr {
   public Names $names;
   public ?Stmt $stmt;
 
-  public function __construct(hm\Func $type, Names $names, ?Stmt $stmt) {
+  public function __construct(Func $type, Names $names, ?Stmt $stmt) {
     parent::__construct($type);
     $this->names = $names;
     $this->stmt  = $stmt;
@@ -20,7 +20,7 @@ class Closure extends Expr {
   }
 
   public function from_children(array $children): EditableNodelike {
-    assert($this->type instanceof hm\Func);
+    assert($this->type instanceof Func);
     return (new self($this->type, $children[0], $children[1]))
       ->copy($this);
   }

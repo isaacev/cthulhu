@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\ir\types\hm\Type;
+use Cthulhu\ir\types\Type;
 use Cthulhu\lib\trees\EditableNodelike;
 use Cthulhu\val\Value;
 

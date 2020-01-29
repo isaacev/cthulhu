@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\ir\types\hm\Type;
+use Cthulhu\ir\types\Type;
 
 abstract class Expr extends Node {
   public Type $type;

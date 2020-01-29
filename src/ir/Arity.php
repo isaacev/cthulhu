@@ -2,10 +2,9 @@
 
 namespace Cthulhu\ir;
 
-use Cthulhu\ir\types\hm\Func;
-use Cthulhu\ir\types\hm\Type;
-use Cthulhu\ir\types\hm\TypeOper;
-use Cthulhu\ir\types\hm\TypeVar;
+use Cthulhu\ir\types\ConcreteType;
+use Cthulhu\ir\types\Func;
+use Cthulhu\ir\types\Type;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 
@@ -67,11 +66,11 @@ class Arity {
   }
 
   private static function type_to_arity(Type $type): arity\Arity {
-    $type = self::simplify_type($type);
+    $type = $type->flatten();
 
     if ($type instanceof Func) {
-      $output          = self::simplify_type($type->output);
-      $output_is_oper  = $output instanceof TypeOper;
+      $output          = $type->output->flatten();
+      $output_is_oper  = $output instanceof ConcreteType;
       $output_not_func = ($output instanceof Func) === false;
       if ($output_is_oper && $output_not_func) {
         return new arity\KnownMultiArity(1, new arity\UnknownArity());
@@ -79,14 +78,6 @@ class Arity {
     }
 
     return new arity\UnknownArity();
-  }
-
-  private static function simplify_type(Type $type): Type {
-    if ($type instanceof TypeVar && $type->instance !== null) {
-      return self::simplify_type($type->instance);
-    } else {
-      return $type;
-    }
   }
 }
 

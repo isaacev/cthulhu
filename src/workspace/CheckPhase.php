@@ -6,10 +6,7 @@ use Cthulhu\ast\nodes\Program;
 use Cthulhu\err\Error;
 use Cthulhu\ir\Compiler;
 use Cthulhu\ir\names\Binding;
-use Cthulhu\ir\types\Env;
-use Cthulhu\ir\types\hm\TypeSet;
-use Cthulhu\ir\types\TypeSolver;
-use Cthulhu\types\TypeCompiler;
+use Cthulhu\ir\TypeCheck;
 
 class CheckPhase {
   private array $types;
@@ -29,15 +26,8 @@ class CheckPhase {
    * @throws Error
    */
   public function check(): OptimizePhase {
-    $exprs   = (new TypeCompiler($this->types, $this->deep))->exprs();
-    $env     = new Env();
-    $non_gen = new TypeSet();
-
-    foreach ($exprs as $expr) {
-      TypeSolver::expr($expr, $env, $non_gen);
-    }
-
-    $ir = Compiler::program($this->deep, $env);
+    TypeCheck::syntax_tree($this->types, $this->deep);
+    $ir = Compiler::program($this->deep);
     return new OptimizePhase($ir);
   }
 }

@@ -8,11 +8,8 @@ use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
-use Cthulhu\ir\types\hm;
 
 class Compiler {
-  private types\Env $env;
-
   private ?ir\Module $module = null;
 
   /* @var ir\Stmt[] $stmts */
@@ -20,10 +17,6 @@ class Compiler {
 
   /* @var ir\Apply[] $entry_calls */
   private array $entry_calls = [];
-
-  private function __construct(types\Env $env) {
-    $this->env = $env;
-  }
 
   private function push_stmt(ir\Stmt $next): void {
     assert(!empty($this->stmts));
@@ -38,12 +31,11 @@ class Compiler {
 
   /**
    * @param ast\Program $prog
-   * @param types\Env   $env
    * @return ir\Root
    * @throws Error
    */
-  public static function program(ast\Program $prog, types\Env $env): ir\Root {
-    $ctx = new self($env);
+  public static function program(ast\Program $prog): ir\Root {
+    $ctx = new self();
 
     foreach ($prog->files as $file) {
       self::file($ctx, $file);
@@ -67,7 +59,7 @@ class Compiler {
   private static function file(self $ctx, ast\File $file): void {
     $symbol = $file->name->get('symbol');
     $text   = self::symbol_to_text($symbol);
-    $type   = new hm\Unit();
+    $type   = types\Atomic::unit();
     $name   = new ir\Name($type, $text, $symbol);
     $stmts  = self::items($ctx, $file->items);
     $mod    = new ir\Module($name, $stmts, null);
@@ -109,15 +101,15 @@ class Compiler {
     foreach ($item->signatures as $sig) {
       $symbol = $sig->name->get('symbol');
       $text   = self::symbol_to_text($symbol);
-      $type   = $ctx->env->read($symbol);
-      assert($type instanceof hm\Func);
+      $type   = $sig->name->get('symbol')->get(TypeCheck::TYPE_KEY);
+      assert($type instanceof types\Func);
       $name  = new ir\Name($type, $text, $symbol);
       $ident = $sig->name->value;
 
       $names      = [];
       $exprs      = [];
       $input_type = $type;
-      while ($input_type instanceof hm\Func) {
+      while ($input_type instanceof types\Func) {
         $name_type   = $input_type->input;
         $name_text   = chr(ord('a') + count($names));
         $name_symbol = (new VarSymbol())->set('text', $name_text);
@@ -143,8 +135,8 @@ class Compiler {
     }
 
     $text = self::symbol_to_text($symbol);
-    $type = $ctx->env->read($symbol);
-    assert($type instanceof hm\Func);
+    $type = $symbol->get(TypeCheck::TYPE_KEY);
+    assert($type instanceof types\Func);
 
     $name   = new ir\Name($type, $text, $symbol);
     $params = self::params($ctx, $item->params);
@@ -184,7 +176,7 @@ class Compiler {
 
     foreach ($params->params as $param) {
       $symbol  = $param->name->get('symbol');
-      $type    = $ctx->env->read($symbol);
+      $type    = $symbol->get(TypeCheck::TYPE_KEY);
       $text    = $param->name->value;
       $names[] = new ir\Name($type, $text, $symbol);
     }
@@ -225,7 +217,7 @@ class Compiler {
 
   private static function let_stmt(self $ctx, ast\LetStmt $stmt): void {
     $symbol = $stmt->name->get('symbol');
-    $type   = $ctx->env->read($symbol);
+    $type   = $symbol->get(TypeCheck::TYPE_KEY);
     $text   = $stmt->name->value;
     $name   = new ir\Name($type, $text, $symbol);
     $expr   = self::expr($ctx, $stmt->expr);
@@ -283,10 +275,10 @@ class Compiler {
 
   private static function match_expr(self $ctx, ast\MatchExpr $expr): ir\Match {
     $disc      = self::expr($ctx, $expr->discriminant);
-    $disc_type = $expr->discriminant->get('type');
-    $out_type  = $expr->get('type');
-    assert($disc_type instanceof hm\Type);
-    assert($out_type instanceof hm\Type);
+    $disc_type = $expr->discriminant->get(TypeCheck::TYPE_KEY);
+    $out_type  = $expr->get(TypeCheck::TYPE_KEY);
+    assert($disc_type instanceof types\Type);
+    assert($out_type instanceof types\Type);
 
     $arms = [];
     foreach ($expr->arms as $arm) {
@@ -300,25 +292,25 @@ class Compiler {
 
   private static function call_expr(self $ctx, ast\CallExpr $expr): ir\Apply {
     $callee = self::expr($ctx, $expr->callee);
-    $type   = $expr->get('type');
+    $type   = $expr->get(TypeCheck::TYPE_KEY);
     $args   = self::exprs($ctx, $expr->args);
     return new ir\Apply($type, $callee, $args);
   }
 
   private static function binary_expr(self $ctx, ast\BinaryExpr $expr): ir\Apply {
     $symbol = $expr->operator->oper->get('symbol');
-    $type   = $ctx->env->read($symbol);
+    $type   = $symbol->get(TypeCheck::TYPE_KEY);
     $text   = self::symbol_to_text($symbol);
     $oper   = new ir\NameExpr(new ir\Name($type, $text, $symbol));
     $left   = self::expr($ctx, $expr->left);
     $right  = self::expr($ctx, $expr->right);
-    $type   = $expr->get('type');
+    $type   = $expr->get(TypeCheck::TYPE_KEY);
     $args   = new ir\Exprs([ $left, $right ]);
     return new ir\Apply($type, $oper, $args);
   }
 
   private static function ctor_expr(self $ctx, ast\VariantConstructorExpr $expr): ir\Ctor {
-    $type        = $expr->get('type');
+    $type        = $expr->get(TypeCheck::TYPE_KEY);
     $form_symbol = $expr->path->tail->get('symbol');
     $args        = self::ctor_args($ctx, $expr->fields);
     return new ir\Ctor($type, $form_symbol, $args);
@@ -330,13 +322,13 @@ class Compiler {
       foreach ($fields->pairs as $pair_name => $pair) {
         $record_fields[$pair_name] = self::expr($ctx, $pair->expr);
       }
-      return new ir\Record($fields->get('type'), $record_fields);
+      return new ir\Record($fields->get(TypeCheck::TYPE_KEY), $record_fields);
     } else if ($fields instanceof ast\OrderedVariantConstructorFields) {
       $tuple_fields = [];
       foreach ($fields->order as $tuple_expr) {
         $tuple_fields[] = self::expr($ctx, $tuple_expr);
       }
-      return new ir\Tuple($fields->get('type'), $tuple_fields);
+      return new ir\Tuple($fields->get(TypeCheck::TYPE_KEY), $tuple_fields);
     } else {
       assert($fields === null);
       return new ir\UnitLit();
@@ -345,7 +337,7 @@ class Compiler {
 
   private static function path_expr(self $ctx, ast\PathExpr $expr): ir\NameExpr {
     $symbol = $expr->path->tail->get('symbol');
-    $type   = $ctx->env->read($symbol);
+    $type   = $symbol->get(TypeCheck::TYPE_KEY);
     $text   = self::symbol_to_text($symbol);
     return new ir\NameExpr(new ir\Name($type, $text, $symbol));
   }

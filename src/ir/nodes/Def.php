@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\ir\types\hm\Func;
+use Cthulhu\ir\types\Func;
 use Cthulhu\lib\trees\EditableSuccessor;
 
 class Def extends Stmt {
@@ -36,19 +36,6 @@ class Def extends Stmt {
   }
 
   public function build(): Builder {
-    if ($this->body) {
-      $body = (new Builder)
-        ->paren_left()
-        ->increase_indentation()
-        ->then($this->body)
-        ->decrease_indentation()
-        ->paren_right();
-    } else {
-      $body = (new Builder)
-        ->paren_left()
-        ->paren_right();
-    }
-
     return (new Builder)
       ->newline()
       ->indent()
@@ -57,7 +44,7 @@ class Def extends Stmt {
       ->space()
       ->then($this->name)
       ->space()
-      ->then($body)
+      ->stmts($this->body)
       ->paren_right()
       ->then($this->next ?? (new Builder));
   }

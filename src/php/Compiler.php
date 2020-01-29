@@ -6,6 +6,7 @@ use Cthulhu\ir\arity\Arity;
 use Cthulhu\ir\arity\KnownMultiArity;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
+use Cthulhu\ir\types\Atomic;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 use Cthulhu\php\nodes as php;
@@ -56,7 +57,8 @@ class Compiler {
         }
 
         // Create a block to collect statements inside of the function body
-        $ctx->statements->push_block($ctx->names->tmp_var());
+        $ctx->statements->push_return_var($ctx->names->tmp_var());
+        $ctx->statements->push_block();
       },
       'exit(Def)' => function (ir\Def $def) use ($ctx) {
         $name = $ctx->names->name_to_name($def->name, $ctx->namespaces->current_ref());
@@ -73,9 +75,10 @@ class Compiler {
         // If the function returns a value, append a return statement to the
         // end of the function body. The return expression will be a variable
         // that references the result of the last expression in the function.
-        $return_type = $def->type->return_type(max(1, count($def->params)));
-        if ($return_type->is_unit() === false) {
-          $ret_val = new php\VariableExpr($ctx->statements->peek_return_var());
+        $return_type = $def->type->advance(max(1, count($def->params)));
+        $return_var  = $ctx->statements->pop_return_var();
+        if (Atomic::is_unit($return_type->flatten()) === false) {
+          $ret_val = new php\VariableExpr($return_var);
           $ctx->statements->push_stmt(new php\ReturnStmt($ret_val));
         }
 
