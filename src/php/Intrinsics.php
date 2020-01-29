@@ -22,6 +22,8 @@ class Intrinsics {
         return self::any_gt(...$args);
       case 'negate':
         return self::negate(...$args);
+      case 'any_pow':
+        return self::any_pow(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
@@ -49,5 +51,9 @@ class Intrinsics {
 
   private static function negate(nodes\Expr $a): nodes\Expr {
     return new nodes\UnaryExpr('-', $a);
+  }
+
+  private static function any_pow(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BuiltinCallExpr('pow', [ $a, $b ]);
   }
 }

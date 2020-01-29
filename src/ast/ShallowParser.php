@@ -61,6 +61,8 @@ class ShallowParser extends AbstractParser {
             return [ Precedence::PRODUCT, $is_right_assoc, $minimum_arity ];
           case 'pipe':
             return [ Precedence::PIPE, $is_right_assoc, $minimum_arity ];
+          case 'exp':
+            return [ Precedence::EXPONENT, $is_right_assoc, $minimum_arity ];
           default:
             throw Errors::unknown_attr_arg($attr->args[0]);
         }

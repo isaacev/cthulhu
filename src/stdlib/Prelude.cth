@@ -76,6 +76,15 @@ pub fn (++) (a: Str, b: Str) -> Str {
   str_concat(a, b)
 }
 
+intrinsic {
+  fn any_pow('a, 'a) -> 'a;
+}
+
+#[infixr(exp)]
+pub fn (**) (a: 'a, b: 'a) -> 'a {
+  any_pow(a, b)
+}
+
 --
 -- Define other useful binary operators
 --
