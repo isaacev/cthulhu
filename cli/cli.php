@@ -1,6 +1,7 @@
 <?php
 
 ini_set('display_errors', 'stderr');
+ini_set('assert.exception', true);
 assert_options(ASSERT_BAIL, 1);
 
 use Cthulhu\lib\cli;
