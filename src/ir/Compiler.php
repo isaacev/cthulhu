@@ -251,6 +251,8 @@ class Compiler {
     switch (true) {
       case $expr instanceof ast\MatchExpr:
         return self::match_expr($ctx, $expr);
+      case $expr instanceof ast\IfExpr:
+        return self::if_expr($ctx, $expr);
       case $expr instanceof ast\CallExpr:
         return self::call_expr($ctx, $expr);
       case $expr instanceof ast\BinaryExpr:
@@ -288,6 +290,14 @@ class Compiler {
     }
 
     return new ir\Match($out_type, $disc, $arms);
+  }
+
+  private static function if_expr(self $ctx, ast\IfExpr $expr): ir\IfExpr {
+    $type       = $expr->get(TypeCheck::TYPE_KEY);
+    $condition  = self::expr($ctx, $expr->condition);
+    $consequent = new ir\Stmts(self::stmts($ctx, $expr->consequent->stmts));
+    $alternate  = new ir\Stmts(self::stmts($ctx, $expr->alternate->stmts));
+    return new ir\IfExpr($type, $condition, $consequent, $alternate);
   }
 
   private static function call_expr(self $ctx, ast\CallExpr $expr): ir\Apply {

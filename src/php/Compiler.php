@@ -86,13 +86,6 @@ class Compiler {
         $ctx->names->exit_func_scope();
         $ctx->statements->push_stmt($stmt);
       },
-      'exit(Stmt)' => function (ir\Stmt $stmt) use ($ctx) {
-        if ($ctx->expressions->current_stack_depth() > 0) {
-          $stmt_name_parts = explode('\\', get_class($stmt));
-          $stmt_name       = end($stmt_name_parts);
-          die("$stmt_name did not clear expression stack\n");
-        }
-      },
       'exit(Let)' => function (ir\Let $let) use ($ctx) {
         $expr = $ctx->expressions->pop();
         if ($let->name) {
@@ -128,6 +121,27 @@ class Compiler {
           $abs_pushed_exprs = abs($pushed_exprs);
           die("$expr_name removed $abs_pushed_exprs expressions from the stack\n");
         }
+      },
+      'enter(Stmts)' => function () use ($ctx) {
+        $ctx->statements->push_block();
+      },
+      'exit(Stmts)' => function () use ($ctx) {
+        $block = $ctx->statements->pop_block();
+        $ctx->statements->stash_block($block);
+      },
+      'enter(IfExpr)' => function () use ($ctx) {
+        $tmp_var = $ctx->names->tmp_var();
+        $ctx->statements->push_return_var($tmp_var);
+      },
+      'exit(IfExpr)' => function () use ($ctx) {
+        $alternate  = $ctx->statements->unstash_block();
+        $consequent = $ctx->statements->unstash_block();
+        $condition  = $ctx->expressions->pop();
+        $ret_var    = $ctx->statements->pop_return_var();
+
+        $if_stmt = new php\IfStmt($condition, $consequent, $alternate);
+        $ctx->statements->push_stmt($if_stmt);
+        $ctx->expressions->push(new php\VariableExpr($ret_var));
       },
       'exit(Apply)' => function (ir\Apply $app) use ($ctx) {
         /**

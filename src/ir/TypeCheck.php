@@ -170,6 +170,34 @@ class TypeCheck {
         $block->set(self::TYPE_KEY, $type);
       },
 
+      'exit(IfExpr)' => function (ast\IfExpr $expr) {
+        $cond_type = $expr->condition->get(self::TYPE_KEY);
+        if (!($cond_type instanceof types\Atomic) && $cond_type->name !== 'Bool') {
+          // TODO
+          die("condition must return the type `Bool`, found the type `$cond_type` instead");
+        }
+
+        $consequent_type = $expr->consequent->get(self::TYPE_KEY);
+        if ($expr->alternate) {
+          $alternate_type = $expr->alternate->get(self::TYPE_KEY);
+          try {
+            self::unify($consequent_type, $alternate_type);
+          } catch (types\UnificationFailure $failure) {
+            // TODO
+            die("the consequent and alternate branches must return values of the same type. found `$consequent_type` and `$alternate_type` instead\n");
+          }
+        } else {
+          try {
+            self::unify($consequent_type, types\Atomic::unit());
+          } catch (types\UnificationFailure $failure) {
+            // TODO
+            die("if no alternate branch is given, the consequent branch must return the type `()`, found `$consequent_type` instead\n");
+          }
+        }
+
+        $expr->set(self::TYPE_KEY, $consequent_type);
+      },
+
       'enter(MatchArm)' => function (ast\MatchArm $arm, Path $path) use (&$context_stack) {
         $match_expr = $path->parent->node;
         assert($match_expr instanceof ast\MatchExpr);

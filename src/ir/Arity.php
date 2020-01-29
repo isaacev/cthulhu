@@ -23,6 +23,10 @@ class Arity {
         $arity = $expr->name->symbol->get('arity');
         $expr->set('arity', $arity);
       },
+      'exit(IfExpr)' => function (nodes\IfExpr $expr) {
+        $arity = self::type_to_arity($expr->type);
+        $expr->set('arity', $arity);
+      },
       'exit(Apply)' => function (nodes\Apply $expr) {
         $callee_arity = $expr->callee->get('arity');
         $total_args   = count($expr->args);
