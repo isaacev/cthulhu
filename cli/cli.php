@@ -28,26 +28,6 @@ $root->subcommand('check', 'Check that a source file is free of errors')
 
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
-  ->str_flag('-o --optimize', 'Apply an optimization pass', 'pass', [
-    'all',
-    'inline',
-    'fold',
-    'shake',
-    'noop',
-  ])
-  ->short_circuit_flag('--list-optimizations', 'List available optimization passes', function () {
-    $passes = [
-      [ 'all', 'Apply all optimizations' ],
-      [ 'inline', 'Replace function call sites with function body' ],
-      [ 'fold', 'Evaluate some constant expressions at compile time' ],
-      [ 'shake', 'Remove function and namespace definitions that are never used' ],
-      [ 'noop', 'Remove constant expressions that are not used inside another expression' ],
-    ];
-
-    foreach ($passes as [$name, $desc]) {
-      printf("%-16s %s\n", $name, $desc);
-    }
-  })
   ->single_argument('file', 'Path to the source file')
   ->callback('command_compile');
 
