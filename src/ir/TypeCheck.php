@@ -255,8 +255,7 @@ class TypeCheck {
           self::unify($form_type, $arg_type);
         } catch (types\UnificationFailure $failure) {
           $ctor_span = $ctor->get('span');
-          // TODO
-          die("the constructor expected arguments of the form $form_type, found $arg_type instead at $ctor_span\n");
+          throw Errors::wrong_ctor_args($ctor_span, $form_type, $arg_type);
         }
 
         $ctor->set(self::TYPE_KEY, $enum_type);
@@ -457,6 +456,21 @@ class TypeCheck {
       if ($t1 instanceof types\ListType) {
         if ($t2 instanceof types\ListType) {
           self::unify($t1->elements, $t2->elements);
+        } else {
+          throw new types\UnificationFailure();
+        }
+      }
+
+      if ($t1 instanceof types\Record) {
+        if (
+          $t2 instanceof types\Record &&
+          count($t1) === count($t2) &&
+          empty(array_diff_key($t1->fields, $t2->fields))
+        ) {
+          foreach ($t1->fields as $field_name => $t1_field) {
+            $t2_field = $t2->fields[$field_name];
+            self::unify($t1_field, $t2_field);
+          }
         } else {
           throw new types\UnificationFailure();
         }

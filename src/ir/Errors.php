@@ -67,6 +67,15 @@ class Errors {
       ->snippet($elem_span);
   }
 
+  public static function wrong_ctor_args(Spanlike $ctor_span, Type $ctor_type, Type $args_type): Error {
+    return (new Error('wrong constructor arguments'))
+      ->paragraph("The constructor expected arguments of the form:")
+      ->example("$ctor_type")
+      ->paragraph("But arguments were provided in the form:")
+      ->example("$args_type")
+      ->snippet($ctor_span);
+  }
+
   public static function no_main_func(): Error {
     return (new Error('no main function'))
       ->paragraph(

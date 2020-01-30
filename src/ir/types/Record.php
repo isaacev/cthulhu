@@ -2,7 +2,9 @@
 
 namespace Cthulhu\ir\types;
 
-class Record extends ConcreteType {
+use Countable;
+
+class Record extends ConcreteType implements Countable {
   public array $fields;
 
   /**
@@ -11,6 +13,10 @@ class Record extends ConcreteType {
   public function __construct(array $fields) {
     parent::__construct('Record', array_values($fields));
     $this->fields = $fields;
+  }
+
+  public function count() {
+    return count($this->fields);
   }
 
   public function fresh(ParameterContext $ctx): Type {
