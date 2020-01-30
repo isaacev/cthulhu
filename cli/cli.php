@@ -5,27 +5,13 @@ ini_set('assert.exception', true);
 assert_options(ASSERT_BAIL, 1);
 
 use Cthulhu\lib\cli;
-use Cthulhu\lib\fmt\StreamFormatter;
-use Cthulhu\workspace\LoadPhase;
 
 $root = (new cli\Program('cthulhu', '0.1.0'));
 
+require_once __DIR__ . '/command_check.php';
 $root->subcommand('check', 'Check that a source file is free of errors')
   ->single_argument('file', 'Path to the source file')
-  ->callback(function (cli\Lookup $flags, cli\Lookup $args) {
-    try {
-      $relpath = $args->get('file');
-      $abspath = realpath($relpath);
-      LoadPhase::from_filepath($abspath ? $abspath : $relpath)
-        ->check();
-
-      echo "no errors in $abspath\n";
-    } catch (\Cthulhu\err\Error $err) {
-      $f = new StreamFormatter(STDERR);
-      $err->format($f);
-      exit(1);
-    }
-  });
+  ->callback('command_check');
 
 require_once __DIR__ . '/command_compile.php';
 $root->subcommand('compile', 'Convert source code to PHP')
