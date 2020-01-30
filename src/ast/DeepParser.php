@@ -685,6 +685,7 @@ class DeepParser extends AbstractParser {
     if ($this->ahead_is_punct(':')) {
       $colon = $this->next_punct(':');
       $note  = $this->note();
+      $this->resolve_note($note);
     }
 
     $equals = $this->next_punct('=');

@@ -76,6 +76,16 @@ class Errors {
       ->snippet($ctor_span);
   }
 
+  public static function wrong_let_type(Spanlike $note_span, Type $note_type, Spanlike $expr_span, Type $expr_type): Error {
+    return (new Error('annotation disagreement'))
+      ->paragraph("The let-statement was marked as having the type:")
+      ->example("$note_type")
+      ->snippet($note_span, null, [ 'color' => Foreground::BLUE ])
+      ->paragraph("But the expression had the type:")
+      ->example("$expr_type")
+      ->snippet($expr_span);
+  }
+
   public static function no_main_func(): Error {
     return (new Error('no main function'))
       ->paragraph(

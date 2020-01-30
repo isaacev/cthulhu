@@ -142,7 +142,14 @@ class TypeCheck {
         if ($stmt->note) {
           $param_ctx = end($context_stack);
           $note_type = self::note_to_type($param_ctx, $stmt->note, false);
-          self::unify($note_type, $expr_type);
+
+          try {
+            self::unify($note_type, $expr_type);
+          } catch (types\UnificationFailure $failure) {
+            $note_span = $stmt->note->get('span');
+            $expr_span = $stmt->expr->get('span');
+            throw Errors::wrong_let_type($note_span, $note_type, $expr_span, $expr_type);
+          }
         }
 
         $stmt->name->get('symbol')->set(self::TYPE_KEY, $expr_type);
