@@ -86,6 +86,39 @@ class Errors {
       ->snippet($expr_span);
   }
 
+  public static function wrong_cond_type(Spanlike $cond_span, Type $cond_type): Error {
+    return (new Error('non-boolean condition'))
+      ->paragraph(
+        "If-conditions must return the `Bool` type.",
+        "Instead the condition returned the type:"
+      )
+      ->example("$cond_type")
+      ->snippet($cond_span);
+  }
+
+  public static function cons_alt_mismatch(Spanlike $cons_span, Type $cons_type, Spanlike $alt_span, Type $alt_type): Error {
+    return (new Error('branch disagreement'))
+      ->paragraph(
+        "Both branches of an if-expression must return the same type.",
+        "The first branch returned the type:"
+      )
+      ->example("$cons_type")
+      ->snippet($cons_span, null, [ 'color' => Foreground::BLUE ])
+      ->paragraph("But the second branch returned the type:")
+      ->example("$alt_type")
+      ->snippet($alt_span);
+  }
+
+  public static function cons_non_unit(Spanlike $cons_span, Type $cons_type): Error {
+    return (new Error('branch disagreement'))
+      ->paragraph(
+        "When an if-expression has only one branch, that branch must return the `()` type.",
+        "Instead the first branch returned the type:"
+      )
+      ->example("$cons_type")
+      ->snippet($cons_span);
+  }
+
   public static function no_main_func(): Error {
     return (new Error('no main function'))
       ->paragraph(

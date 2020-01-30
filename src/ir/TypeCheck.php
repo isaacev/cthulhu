@@ -9,6 +9,7 @@ use Cthulhu\ir\types\ParameterContext;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 use Cthulhu\loc\Span;
+use Cthulhu\loc\Spanlike;
 use Cthulhu\val;
 
 /**
@@ -128,9 +129,7 @@ class TypeCheck {
         try {
           self::unify($sig_type, $ret_type);
         } catch (types\UnificationFailure $failure) {
-          $ret_span = empty($item->body->stmts)
-            ? $item->body->get('span')
-            : end($item->body->stmts)->get('span');
+          $ret_span = self::block_ret_span($item->body);
           $sig_span = $item->returns->get('span');
           throw Errors::wrong_ret_type($ret_span, $sig_span, $ret_type, $sig_type);
         }
@@ -179,9 +178,9 @@ class TypeCheck {
 
       'exit(IfExpr)' => function (ast\IfExpr $expr) {
         $cond_type = $expr->condition->get(self::TYPE_KEY);
-        if (!($cond_type instanceof types\Atomic) && $cond_type->name !== 'Bool') {
-          // TODO
-          die("condition must return the type `Bool`, found the type `$cond_type` instead");
+        if (!($cond_type instanceof types\Atomic) || $cond_type->name !== 'Bool') {
+          $cond_span = $expr->condition->get('span');
+          throw Errors::wrong_cond_type($cond_span, $cond_type);
         }
 
         $consequent_type = $expr->consequent->get(self::TYPE_KEY);
@@ -190,15 +189,16 @@ class TypeCheck {
           try {
             self::unify($consequent_type, $alternate_type);
           } catch (types\UnificationFailure $failure) {
-            // TODO
-            die("the consequent and alternate branches must return values of the same type. found `$consequent_type` and `$alternate_type` instead\n");
+            $cons_span = self::block_ret_span($expr->consequent);
+            $alt_span  = self::block_ret_span($expr->alternate);
+            throw Errors::cons_alt_mismatch($cons_span, $consequent_type, $alt_span, $alternate_type);
           }
         } else {
           try {
             self::unify($consequent_type, types\Atomic::unit());
           } catch (types\UnificationFailure $failure) {
-            // TODO
-            die("if no alternate branch is given, the consequent branch must return the type `()`, found `$consequent_type` instead\n");
+            $cons_span = self::block_ret_span($expr->consequent);
+            throw Errors::cons_non_unit($cons_span, $consequent_type);
           }
         }
 
@@ -632,5 +632,21 @@ class TypeCheck {
     }
 
     die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+  }
+
+  private static function block_ret_span(ast\BlockNode $block): Spanlike {
+    if (empty($block->stmts)) {
+      return $block->get('span');
+    }
+
+    $last_stmt      = end($block->stmts);
+    $last_stmt_span = $last_stmt->get('span');
+    assert($last_stmt_span instanceof Spanlike);
+
+    if ($last_stmt instanceof ast\SemiStmt) {
+      return $last_stmt_span->to()->prev_column();
+    } else {
+      return $last_stmt_span;
+    }
   }
 }
