@@ -17,10 +17,12 @@ class Errors {
       ->snippet($ret_span);
   }
 
-  public static function call_non_func(Spanlike $call_span, Type $call_type): Error {
+  public static function call_non_func(Spanlike $call_span, Spanlike $arg_span, Type $call_type, Type $arg_type): Error {
     return (new Error('call to non-function'))
       ->paragraph("A value of type `$call_type` was called as a function:")
-      ->snippet($call_span);
+      ->snippet($call_span, null, [ 'color' => Foreground::BLUE ])
+      ->paragraph("An argument with the type `$arg_type` was passed:")
+      ->snippet($arg_span);
   }
 
   public static function wrong_arg_type(Spanlike $arg_span, Type $arg_type, Type $sig_type): Error {

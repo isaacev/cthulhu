@@ -291,7 +291,7 @@ class TypeCheck {
               $arg_span  = $arg->get('span');
 
               if (($call_type->flatten() instanceof types\Func) === false) {
-                throw Errors::call_non_func($call_span, $call_type);
+                throw Errors::call_non_func($call_span, $arg_span, $call_type, $arg_type);
               }
 
               assert($call_type instanceof types\Func);
@@ -316,7 +316,9 @@ class TypeCheck {
           $expr->set(self::TYPE_KEY, $ret_type);
         } else {
           $call_span = $expr->get('span');
-          throw Errors::call_non_func($call_span, $call_type);
+          $arg_span  = $expr->args->get('span');
+          $arg_type  = types\Atomic::unit();
+          throw Errors::call_non_func($call_span, $arg_span, $call_type, $arg_type);
         }
       },
 
