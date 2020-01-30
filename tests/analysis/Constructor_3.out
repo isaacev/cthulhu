@@ -1,7 +1,13 @@
 
-  TYPE MISMATCH  -------------------------------------------------------------
+  WRONG CONSTRUCTOR ARGUMENTS  -----------------------------------------------
 
-  Mismatch between the type `(Str)` and the type `{ x: Int }`:
+  The constructor expected arguments of the form:
+
+    (Str)
+
+  But arguments were provided in the form:
+
+    { x: Int }
 
     : Constructor_3
   6 |   Foo::Bar { x: 123 };

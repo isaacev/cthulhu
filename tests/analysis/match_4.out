@@ -1,9 +1,0 @@
-
-  UNSUPPORTED BINARY OPERATOR  -----------------------------------------------
-
-  The type `Int` doesn't support the binary operator `+` with the type `Str`:
-
-    : match_4
-  5 |     x => 123 + x,
-    |          ^^^^^^^
-

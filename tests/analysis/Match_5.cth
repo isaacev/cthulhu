@@ -1,0 +1,12 @@
+type Thing =
+  | Coordinate { x: Int, y: Int }
+  | None;
+
+#[entry]
+fn main() -> () {
+  let c = Thing::Coordinate { x: 2, y: 4 };
+  match c {
+    Thing::Coordinate { x: x, x: y } => ::Io::println("hello"),
+    _ => ::Io::println("empty"),
+  };
+}

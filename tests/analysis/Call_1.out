@@ -1,8 +1,8 @@
 
-  WRONG ARGUMENT TYPE  -------------------------------------------------------
+  INCORRECT ARGUMENT TYPE  ---------------------------------------------------
 
-  Expected an argument of the type `Int` but found an argument of the type `Str`
-  instead:
+  The function expected an argument of the type `Int`. But the function call
+  provided an argument of the type `Str`:
 
     : Call_1
   7 |   plus_one("1");

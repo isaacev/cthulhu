@@ -1,8 +1,13 @@
 
   CALL TO NON-FUNCTION  ------------------------------------------------------
 
-  Tried to pass an argument with the type `Int` to an expression with the type
-  `Int`:
+  A value of type `Int` was called as a function:
+
+    : Call_4
+  8 |   x(2, 3);
+    |   ^^^
+
+  An argument with the type `Int` was passed:
 
     : Call_4
   8 |   x(2, 3);

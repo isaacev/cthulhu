@@ -4,7 +4,7 @@
   The type parameter `'b` could not be derived from the inputs to the current
   function.
 
-    : generic_3
+    : Generic_3
   1 | fn id(a: 'a) -> 'b {
     |                 ^^
 

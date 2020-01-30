@@ -1,0 +1,9 @@
+
+  DUPLICATE FIELD  -----------------------------------------------------------
+
+  The field named 'x' was already bound to a pattern
+
+    : Match_5
+  9 |     Thing::Coordinate { x: x, x: y } => ::Io::println("hello"),
+    |                               ^^^^
+

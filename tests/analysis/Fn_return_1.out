@@ -1,0 +1,15 @@
+
+  INCORRECT RETURN TYPE  -----------------------------------------------------
+
+  The function is defined as returning the type `Int`:
+
+    : Fn_return_1
+  1 | fn main() -> Int {
+    |              ^^^
+
+  But the function body returns the type `()` instead:
+
+    : Fn_return_1
+  3 |   x;
+    |    ^
+

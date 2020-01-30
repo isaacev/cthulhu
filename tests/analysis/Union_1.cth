@@ -1,13 +1,15 @@
+use ::Io;
+
 #[entry]
 fn main() -> () {
   let x = if 0 < 5 {
-    Maybe::Just(123)
+    Maybe::Some(123)
   } else {
     Maybe::None
   };
 
-  ::Io::println(match x {
-    Maybe::Just(s) => "just: " ++ s,
+  Io::println(match x {
+    Maybe::Some(s) => "just: " ++ s,
     Maybe::None => "none",
   });
 }

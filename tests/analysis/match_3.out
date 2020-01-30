@@ -1,9 +1,0 @@
-
-  INCOMPATIBLE PATTERN  ------------------------------------------------------
-
-  Pattern is incompatible with the type `Str`:
-
-    : match_3
-  5 |     0 => "def",
-    |     ^
-

@@ -1,0 +1,10 @@
+
+  INCORRECT OPERAND TYPE  ----------------------------------------------------
+
+  The `++` operator expected the right-hand operand to have the type `Str`. But
+  the expression provided a right-hand operand of the type `Int`:
+
+     : Union_1
+  12 |     Maybe::Some(s) => "just: " ++ s,
+     |                                   ^
+

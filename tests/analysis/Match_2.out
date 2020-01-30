@@ -1,0 +1,15 @@
+
+  INCOMPATIBLE BRANCH TYPES  -------------------------------------------------
+
+  Previous branches of the match expression returned the type:
+
+    Str
+
+  But this branch returned the type:
+
+    Int
+
+    : Match_2
+  6 |     n => 123,
+    |          ^^^
+

@@ -1,9 +1,0 @@
-
-  INCOMPATIBLE PATTERN  ------------------------------------------------------
-
-  Pattern is incompatible with the type `Int`:
-
-     : union_2
-  16 |     Result::Left(true) => ::Io::println("was true"),
-     |                  ^^^^
-

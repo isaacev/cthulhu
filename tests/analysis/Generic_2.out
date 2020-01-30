@@ -1,0 +1,19 @@
+
+  ANNOTATION DISAGREEMENT  ---------------------------------------------------
+
+  The let-statement was marked as having the type:
+
+    Int
+
+    : Generic_2
+  7 |   let x: Int = id("abc");
+    |          ^^^
+
+  But the expression had the type:
+
+    Str
+
+    : Generic_2
+  7 |   let x: Int = id("abc");
+    |                ^^^^^^^^^
+

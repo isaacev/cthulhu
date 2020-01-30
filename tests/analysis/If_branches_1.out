@@ -1,0 +1,20 @@
+
+  BRANCH DISAGREEMENT  -------------------------------------------------------
+
+  Both branches of an if-expression must return the same type. The first branch
+  returned the type:
+
+    Str
+
+    : If_branches_1
+  5 |     "is a string"
+    |     ^^^^^^^^^^^^^
+
+  But the second branch returned the type:
+
+    Int
+
+    : If_branches_1
+  7 |     123
+    |     ^^^
+

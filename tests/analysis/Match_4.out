@@ -2,9 +2,9 @@
   INCORRECT OPERAND TYPE  ----------------------------------------------------
 
   The `+` operator expected the right-hand operand to have the type `Int`. But
-  the expression provided a right-hand operand of the type `Float`:
+  the expression provided a right-hand operand of the type `Str`:
 
-    : Bad_nums_1
-  3 |   2 + 1.2;
-    |       ^^^
+    : Match_4
+  5 |     x => 123 + x,
+    |                ^
 

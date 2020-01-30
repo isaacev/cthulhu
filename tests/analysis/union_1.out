@@ -1,9 +1,0 @@
-
-  UNSUPPORTED BINARY OPERATOR  -----------------------------------------------
-
-  The type `Str` doesn't support the binary operator `++` with the type `Int`:
-
-     : union_1
-  10 |     Maybe::Just(s) => "just: " ++ s,
-     |                       ^^^^^^^^^^^^^
-

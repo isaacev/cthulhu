@@ -1,0 +1,19 @@
+
+  UNCOVERED PATTERNS  --------------------------------------------------------
+
+  The match expression does not handle all possible patterns.
+
+     : Union_3
+  17 |   match attempt(true, true) {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  18 |     Result::Left(true) => Io::println("was true"),
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 |     Result::Right(msg) => Io::println(msg),
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 |   };
+     |   ^
+
+  The following pattern were not handled:
+
+    Left(_)
+

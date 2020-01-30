@@ -1,0 +1,12 @@
+
+  NON-BOOLEAN CONDITION  -----------------------------------------------------
+
+  If-conditions must return the `Bool` type. Instead the condition returned the
+  type:
+
+    Str
+
+    : If_condition_1
+  4 |   if "abc" {
+    |      ^^^^^
+

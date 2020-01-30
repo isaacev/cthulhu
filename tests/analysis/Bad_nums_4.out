@@ -1,8 +1,8 @@
 
-  WRONG ARGUMENT TYPE  -------------------------------------------------------
+  INCORRECT OPERAND TYPE  ----------------------------------------------------
 
-  Expected an argument of the type `Float` but found an argument of the type
-  `Int` instead:
+  The `<` operator expected the right-hand operand to have the type `Float`. But
+  the expression provided a right-hand operand of the type `Int`:
 
     : Bad_nums_4
   3 |   0.1 < 1;

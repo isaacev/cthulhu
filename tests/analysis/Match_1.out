@@ -3,7 +3,7 @@
 
   The match expression does not handle all possible patterns.
 
-    : match_1
+    : Match_1
   4 |   let m = match x {
     |           ^^^^^^^^^
   5 |     0 => "zero",

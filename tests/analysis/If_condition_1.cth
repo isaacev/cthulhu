@@ -1,0 +1,7 @@
+use ::Io;
+
+fn main () -> () {
+  if "abc" {
+    Io::println("should not compile");
+  };
+}

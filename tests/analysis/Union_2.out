@@ -1,0 +1,15 @@
+
+  INCOMPATIBLE PATTERN  ------------------------------------------------------
+
+  The match expression was given a value with the type:
+
+    ::Union_2::Result(Int, Str)
+
+  But the pattern only matches values with the type:
+
+    ::Union_2::Result(Bool, 'b)
+
+     : Union_2
+  18 |     Result::Left(true) => Io::println("was true"),
+     |     ^^^^^^^^^^^^^^^^^^
+

@@ -1,8 +1,8 @@
 
-  WRONG ARGUMENT TYPE  -------------------------------------------------------
+  INCORRECT OPERAND TYPE  ----------------------------------------------------
 
-  Expected an argument of the type `Int` but found an argument of the type
-  `Float` instead:
+  The `-` operator expected the left-hand operand to have the type `Int`. But
+  the expression provided a left-hand operand of the type `Float`:
 
     : Bad_nums_2
   3 |   0.1 - 1;

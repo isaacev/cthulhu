@@ -1,9 +1,0 @@
-
-  NON-BOOLEAN CONDITION  -----------------------------------------------------
-
-  Conditions need to have the type `Bool`, found type `Str` instead:
-
-    : if_condition_1
-  2 |   if "abc" {
-    |      ^^^^^
-

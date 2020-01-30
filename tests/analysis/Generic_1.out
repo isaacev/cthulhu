@@ -1,0 +1,15 @@
+
+  INCORRECT RETURN TYPE  -----------------------------------------------------
+
+  The function is defined as returning the type `'a`:
+
+    : Generic_1
+  1 | fn id(a: 'a) -> 'a {
+    |                 ^^
+
+  But the function body returns the type `Int` instead:
+
+    : Generic_1
+  2 |   123
+    |   ^^^
+
