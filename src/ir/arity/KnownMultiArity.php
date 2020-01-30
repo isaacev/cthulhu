@@ -11,6 +11,15 @@ class KnownMultiArity extends Arity {
     $this->returns = $returns;
   }
 
+  public function combine(Arity $other): Arity {
+    if ($other instanceof KnownMultiArity) {
+      if ($this->params === $other->params) {
+        return new KnownMultiArity($this->params, $this->returns->combine($other->returns));
+      }
+    }
+    return new UnknownArity();
+  }
+
   public function apply(int $total_args): Arity {
     $leftover = $this->params - $total_args;
     if ($leftover > 0) {

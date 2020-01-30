@@ -66,6 +66,15 @@ class Arity {
         $arity = $ret->expr->get('arity');
         $ret->set('arity', $arity);
       },
+      'exit(Match)' => function (nodes\Match $match) {
+        /* @var arity\Arity $combined_arity */
+        $combined_arity = $match->arms[0]->handler->get('arity');
+        for ($i = 1; $i < count($match->arms); $i++) {
+          $arm_arity      = $match->arms[$i]->handler->get('arity');
+          $combined_arity = $combined_arity->combine($arm_arity);
+        }
+        $match->set('arity', $combined_arity);
+      },
     ]);
   }
 
