@@ -59,6 +59,12 @@ class Errors {
       ->snippet($arg_span);
   }
 
+  public static function wrong_elem_type(Spanlike $elem_span, int $pos, Type $elem_type, Type $elements_type): Error {
+    return (new Error('mismatched list types'))
+      ->paragraph("The previous list elements had the type `$elements_type` but element $pos has the type `$elem_type`:")
+      ->snippet($elem_span);
+  }
+
   public static function no_main_func(): Error {
     return (new Error('no main function'))
       ->paragraph(

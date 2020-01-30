@@ -371,6 +371,21 @@ class TypeCheck {
         $expr->set(self::TYPE_KEY, $type);
       },
 
+      'exit(ListExpr)' => function (ast\ListExpr $expr) {
+        $elements_type = new types\FreeTypeVar('_', new TypeSymbol());
+        foreach ($expr->elements as $index => $elem_expr) {
+          $elem_type = $elem_expr->get(self::TYPE_KEY);
+          try {
+            self::unify($elements_type, $elem_type);
+          } catch (types\UnificationFailure $failure) {
+            $elem_span = $elem_expr->get('span');
+            throw Errors::wrong_elem_type($elem_span, $index + 1, $elem_type, $elements_type);
+          }
+        }
+        $list_type = new types\ListType($elements_type);
+        $expr->set(self::TYPE_KEY, $list_type);
+      },
+
       'PathExpr' => function (ast\PathExpr $expr) {
         $type = $expr->path->tail->get('symbol')->get(self::TYPE_KEY);
         $expr->set(self::TYPE_KEY, $type);
@@ -436,6 +451,14 @@ class TypeCheck {
     } else {
       assert($t1 instanceof types\ConcreteType);
       assert($t2 instanceof types\ConcreteType);
+
+      if ($t1 instanceof types\ListType) {
+        if ($t2 instanceof types\ListType) {
+          self::unify($t1->elements, $t2->elements);
+        } else {
+          throw new types\UnificationFailure();
+        }
+      }
 
       if ($t1 instanceof types\Enum) {
         if ($t2 instanceof types\Enum && $t1->name === $t2->name) {
@@ -510,6 +533,11 @@ class TypeCheck {
         $members[] = self::note_to_type($ctx, $member, $is_free);
       }
       return new types\Tuple($members);
+    }
+
+    if ($note instanceof ast\ListNote) {
+      $elements = self::note_to_type($ctx, $note->elements, $is_free);
+      return new types\ListType($elements);
     }
 
     if ($note instanceof ast\FuncNote) {
