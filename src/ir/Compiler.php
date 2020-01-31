@@ -281,12 +281,73 @@ class Compiler {
 
     $arms = [];
     foreach ($expr->arms as $arm) {
-      $pattern = $arm->pattern;
+      $pattern = self::pattern($disc_type, $arm->pattern);
       $handler = self::expr($ctx, $arm->handler);
       $arms[]  = new ir\Arm($pattern, $handler);
     }
 
     return new ir\Match($out_type, $disc, $arms);
+  }
+
+  private static function pattern(types\Type $type, ast\Pattern $pat): ir\Pattern {
+    switch (true) {
+      case $pat instanceof ast\ConstPattern:
+      {
+        switch (true) {
+          case $pat->literal instanceof ast\StrLiteral:
+            return new ir\StrConstPattern($pat->literal->str_value);
+          case $pat->literal instanceof ast\FloatLiteral:
+            return new ir\FloatConstPattern($pat->literal->float_value);
+          case $pat->literal instanceof ast\IntLiteral:
+            return new ir\IntConstPattern($pat->literal->int_value);
+          case $pat->literal instanceof ast\BoolLiteral:
+            return new ir\BoolConstPattern($pat->literal->bool_value);
+          default:
+            die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        }
+      }
+      case $pat instanceof ast\NamedFormPattern:
+      {
+        assert($type instanceof types\Enum);
+        $form_type = $type->forms[$pat->path->tail->value];
+        assert($form_type instanceof types\Record);
+        $ref_symbol = $pat->path->tail->get('symbol');
+        $mapping    = [];
+        foreach ($pat->pairs as $pair) {
+          $field_name           = $pair->name->value;
+          $field_type           = $form_type->fields[$field_name];
+          $field_pattern        = self::pattern($field_type, $pair->pattern);
+          $mapping[$field_name] = $field_pattern;
+        }
+        return new ir\NamedFormPattern($type, $ref_symbol, $mapping);
+      }
+      case $pat instanceof ast\OrderedFormPattern:
+      {
+        assert($type instanceof types\Enum);
+        $form_type = $type->forms[$pat->path->tail->value];
+        assert($form_type instanceof types\Tuple);
+        $ref_symbol = $pat->path->tail->get('symbol');
+        $order      = [];
+        foreach ($pat->order as $index => $member_pattern) {
+          $field_type    = $form_type->members[$index];
+          $order[$index] = self::pattern($field_type, $member_pattern);
+        }
+        return new ir\OrderedFormPattern($type, $ref_symbol, $order);
+      }
+      case $pat instanceof ast\NullaryFormPattern:
+      {
+        assert($type instanceof types\Enum);
+        $form_type = $type->forms[$pat->path->tail->value];
+        assert($form_type instanceof types\Atomic && $form_type->name === 'Unit');
+        $ref_symbol = $pat->path->tail->get('symbol');
+        return new ir\NullaryFormPattern($type, $ref_symbol);
+      }
+      case $pat instanceof ast\VariablePattern:
+        return new ir\VariablePattern(new ir\Name($type, $pat->name->value, $pat->name->get('symbol')));
+      default:
+        echo get_class($pat) . PHP_EOL;
+        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    }
   }
 
   private static function if_expr(self $ctx, ast\IfExpr $expr): ir\IfExpr {

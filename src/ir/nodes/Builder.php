@@ -51,13 +51,6 @@ class Builder extends fmt\Builder {
       ->clear_styles();
   }
 
-  public function pattern(string $pattern): self {
-    return $this
-      ->apply_styles(fmt\Foreground::MAGENTA)
-      ->push_str($pattern)
-      ->clear_styles();
-  }
-
   public function ident(string $ident): self {
     return $this
       ->apply_styles(fmt\Foreground::BRIGHT_YELLOW)

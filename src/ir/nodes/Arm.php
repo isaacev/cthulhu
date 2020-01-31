@@ -2,9 +2,6 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\ast\nodes\Pattern;
-use Cthulhu\lib\trees\EditableNodelike;
-
 class Arm extends Node {
   public Pattern $pattern;
   public Expr $handler;
@@ -16,11 +13,11 @@ class Arm extends Node {
   }
 
   public function children(): array {
-    return [ $this->handler ];
+    return [ $this->pattern, $this->handler ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return new self($this->pattern, $children[0]);
+  public function from_children(array $children): Arm {
+    return new self(...$children);
   }
 
   public function build(): Builder {
@@ -28,7 +25,7 @@ class Arm extends Node {
       ->paren_left()
       ->keyword('case')
       ->space()
-      ->pattern("$this->pattern")
+      ->then($this->pattern)
       ->space()
       ->then($this->handler)
       ->paren_right();

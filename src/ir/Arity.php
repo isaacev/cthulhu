@@ -53,6 +53,10 @@ class Arity {
         $def->set('arity', $arity);
         $def->name->symbol->set('arity', $arity);
       },
+      'VariablePattern' => function (nodes\VariablePattern $pat) {
+        $arity = self::type_to_arity($pat->type);
+        $pat->name->symbol->set('arity', $arity);
+      },
       'exit(Let)' => function (nodes\Let $let) {
         $expr_arity = $let->expr->get('arity');
         if ($let->name !== null) {
