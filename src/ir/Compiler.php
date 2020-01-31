@@ -139,7 +139,7 @@ class Compiler {
     assert($type instanceof types\Func);
 
     $name   = new ir\Name($type, $text, $symbol);
-    $params = self::params($ctx, $item->params);
+    $params = self::params($item->params);
     $body   = self::stmts($ctx, $item->body->stmts);
     $def    = new ir\Def($name, $params, $body, null);
 
@@ -166,12 +166,7 @@ class Compiler {
     return false;
   }
 
-  /**
-   * @param Compiler     $ctx
-   * @param ast\FnParams $params
-   * @return ir\Names
-   */
-  private static function params(self $ctx, ast\FnParams $params): ir\Names {
+  private static function params(ast\FnParams $params): ir\Names {
     $names = [];
 
     foreach ($params->params as $param) {
@@ -262,7 +257,7 @@ class Compiler {
       case $expr instanceof ast\VariantConstructorExpr:
         return self::ctor_expr($ctx, $expr);
       case $expr instanceof ast\PathExpr:
-        return self::path_expr($ctx, $expr);
+        return self::path_expr($expr);
       case $expr instanceof ast\StrLiteral:
         return self::str_literal($expr);
       case $expr instanceof ast\FloatLiteral:
@@ -358,7 +353,7 @@ class Compiler {
     }
   }
 
-  private static function path_expr(self $ctx, ast\PathExpr $expr): ir\NameExpr {
+  private static function path_expr(ast\PathExpr $expr): ir\NameExpr {
     $symbol = $expr->path->tail->get('symbol');
     $type   = $symbol->get(TypeCheck::TYPE_KEY);
     $text   = self::symbol_to_text($symbol);
