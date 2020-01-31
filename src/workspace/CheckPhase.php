@@ -5,6 +5,7 @@ namespace Cthulhu\workspace;
 use Cthulhu\ast\nodes\Program;
 use Cthulhu\err\Error;
 use Cthulhu\ir\Compiler;
+use Cthulhu\ir\ExhaustionCheck;
 use Cthulhu\ir\names\Binding;
 use Cthulhu\ir\TypeCheck;
 
@@ -27,6 +28,7 @@ class CheckPhase {
    */
   public function check(): OptimizePhase {
     TypeCheck::syntax_tree($this->types, $this->deep);
+    ExhaustionCheck::syntax_tree($this->deep);
     $ir = Compiler::program($this->deep);
     return new OptimizePhase($ir);
   }

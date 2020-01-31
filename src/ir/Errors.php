@@ -136,6 +136,25 @@ class Errors {
       ->snippet($cons_span);
   }
 
+  /**
+   * @param Spanlike           $spanlike
+   * @param patterns\Pattern[] $patterns
+   * @return Error
+   */
+  public static function uncovered_patterns(Spanlike $spanlike, array $patterns): Error {
+    $n   = count($patterns);
+    $err = (new Error('uncovered patterns'))
+      ->paragraph('The match expression does not handle all possible patterns.')
+      ->snippet($spanlike)
+      ->paragraph("The following " . ($n === 1 ? "pattern" : "$n patterns") . " were not handled:");
+
+    foreach ($patterns as $pattern) {
+      $err->example("$pattern");
+    }
+
+    return $err;
+  }
+
   public static function wrong_pattern_for_type(Spanlike $spanlike, Type $pattern_type, Type $discriminant_type): Error {
     return (new Error('incompatible pattern'))
       ->paragraph("The match expression was given a value with the type:")
