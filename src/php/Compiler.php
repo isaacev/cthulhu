@@ -202,8 +202,14 @@ class Compiler {
       'StrLit' => function (ir\StrLit $lit) use ($ctx) {
         $ctx->expressions->push(new php\StrLiteral($lit->str_value));
       },
+      'FloatLit' => function (ir\FloatLit $lit) use ($ctx) {
+        $ctx->expressions->push(new php\FloatLiteral($lit->float_value));
+      },
       'IntLit' => function (ir\IntLit $lit) use ($ctx) {
         $ctx->expressions->push(new php\IntLiteral($lit->int_value));
+      },
+      'BoolLit' => function (ir\BoolLit $lit) use ($ctx) {
+        $ctx->expressions->push(new php\BoolLiteral($lit->bool_value));
       },
       'UnitLit' => function () use ($ctx) {
         $ctx->expressions->push(new php\NullLiteral());
