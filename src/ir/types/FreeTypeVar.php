@@ -53,7 +53,8 @@ class FreeTypeVar extends Type {
       return $new_var;
     }
 
-    $new_var = new FreeTypeVar($this->name, $this->symbol, null);
+    $new_inst = $this->instance ? $this->instance->fresh($ctx) : null;
+    $new_var  = new FreeTypeVar($this->name, $this->symbol, $new_inst);
     $ctx->write($this->symbol, $new_var);
     return $new_var;
   }

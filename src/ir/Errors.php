@@ -67,6 +67,23 @@ class Errors {
       ->snippet($elem_span);
   }
 
+  public static function type_does_not_allow_params(Spanlike $note, Type $type): Error {
+    return (new Error('type is not parameterized'))
+      ->paragraph("Type parameters were provided on a type that doesn't have any parameters:")
+      ->example("$type")
+      ->snippet($note);
+  }
+
+  public static function wrong_number_of_type_params(Spanlike $note, Type $type, int $wanted, int $given): Error {
+    return (new Error('wrong number of type parameters'))
+      ->paragraph(
+        "The wrong number of type parameters were provided.",
+        "The type expected $wanted but was given $given:"
+      )
+      ->example("$type")
+      ->snippet($note);
+  }
+
   public static function wrong_ctor_args(Spanlike $ctor_span, Type $ctor_type, Type $args_type): Error {
     return (new Error('wrong constructor arguments'))
       ->paragraph("The constructor expected arguments of the form:")
@@ -117,6 +134,24 @@ class Errors {
       )
       ->example("$cons_type")
       ->snippet($cons_span);
+  }
+
+  public static function wrong_pattern_for_type(Spanlike $spanlike, Type $pattern_type, Type $discriminant_type): Error {
+    return (new Error('incompatible pattern'))
+      ->paragraph("The match expression was given a value with the type:")
+      ->example("$discriminant_type")
+      ->paragraph("But the pattern only matches values with the type:")
+      ->example("$pattern_type")
+      ->snippet($spanlike);
+  }
+
+  public static function wrong_arm_type(Spanlike $spanlike, Type $prior_type, Type $wrong_type): Error {
+    return (new Error('incompatible branch types'))
+      ->paragraph("Previous branches of the match expression returned the type:")
+      ->example("$prior_type")
+      ->paragraph("But this branch returned the type:")
+      ->example("$wrong_type")
+      ->snippet($spanlike);
   }
 
   public static function no_main_func(): Error {

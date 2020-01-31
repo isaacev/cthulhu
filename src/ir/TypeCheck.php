@@ -3,6 +3,7 @@
 namespace Cthulhu\ir;
 
 use Cthulhu\ast\nodes as ast;
+use Cthulhu\err\Error;
 use Cthulhu\ir\names\Binding;
 use Cthulhu\ir\names\TypeSymbol;
 use Cthulhu\ir\types\ParameterContext;
@@ -216,18 +217,29 @@ class TypeCheck {
         $pattern_type = self::pattern_to_type($param_ctx, $arm->pattern);
 
         try {
-          self::unify($disc_type, $pattern_type);
+          self::unify($pattern_type, $disc_type);
         } catch (types\UnificationFailure $failure) {
-          die("pattern expected an argument of the type $pattern_type, found $disc_type instead\n");
+          $pattern_span = $arm->pattern->get('span');
+          throw Errors::wrong_pattern_for_type($pattern_span, $pattern_type, $disc_type);
         }
       },
 
-      'exit(MatchExpr)' => function (ast\MatchExpr $expr) {
-        $type = $expr->arms[0]->handler->get(self::TYPE_KEY);
-        for ($i = 1; $i < count($expr->arms); $i++) {
-          self::unify($type, $expr->arms[$i]->handler->get(self::TYPE_KEY));
+      'exit(MatchArm)' => function (ast\MatchArm $arm, Path $path) {
+        $match_expr = $path->parent->node;
+        assert($match_expr instanceof ast\MatchExpr);
+
+        $match_type = $match_expr->get(self::TYPE_KEY);
+        $arm_type   = $arm->handler->get(self::TYPE_KEY);
+        if ($match_type === null) {
+          $match_expr->set(self::TYPE_KEY, $arm_type);
+        } else {
+          try {
+            self::unify($match_expr->get(self::TYPE_KEY), $arm_type);
+          } catch (types\UnificationFailure $failure) {
+            $handler_span = $arm->handler->get('span');
+            throw Errors::wrong_arm_type($handler_span, $match_type, $arm_type);
+          }
         }
-        $expr->set(self::TYPE_KEY, $type);
       },
 
       'exit(VariantConstructorExpr)' => function (ast\VariantConstructorExpr $ctor) {
@@ -520,6 +532,13 @@ class TypeCheck {
     }
   }
 
+  /**
+   * @param ParameterContext $ctx
+   * @param ast\Note         $note
+   * @param bool             $is_free
+   * @return types\Type
+   * @throws Error
+   */
   private static function note_to_type(ParameterContext $ctx, ast\Note $note, bool $is_free): types\Type {
     if ($note instanceof ast\UnitNote) {
       return types\Atomic::unit();
@@ -569,7 +588,32 @@ class TypeCheck {
       return new types\Func($input, $output);
     }
 
-    echo get_class($note) . PHP_EOL;
+    if ($note instanceof ast\ParameterizedNote) {
+      $inner = self::note_to_type($ctx, $note->inner, $is_free);
+      $inner = $inner->fresh($ctx);
+
+      if ($inner instanceof types\Enum) {
+        if (empty($inner->params)) {
+          $note_span = $note->get('span');
+          throw Errors::type_does_not_allow_params($note_span, $inner);
+        } else if (count($inner->params) !== count($note->params)) {
+          $note_span = $note->get('span');
+          $expected  = count($inner->params);
+          $found     = count($note->params);
+          throw Errors::wrong_number_of_type_params($note_span, $inner, $expected, $found);
+        }
+
+        foreach ($note->params as $index => $param) {
+          $inner->params[$index]->set_instance(self::note_to_type($ctx, $param, $is_free));
+        }
+
+        return $inner;
+      } else {
+        $note_span = $note->get('span');
+        throw Errors::type_does_not_allow_params($note_span, $inner);
+      }
+    }
+
     die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
   }
 
@@ -618,13 +662,15 @@ class TypeCheck {
         assert($form_type instanceof types\Record);
         foreach ($form_type->fields as $field_name => $field_type) {
           $field_pattern = $pat->pairs[$field_name];
-          self::unify($field_type, self::pattern_to_type($ctx, $field_pattern));
+          $member_type   = self::pattern_to_type($ctx, $field_pattern);
+          self::unify($member_type, $field_type);
         }
       } else if ($pat instanceof ast\OrderedFormPattern) {
         assert($form_type instanceof types\Tuple);
         foreach ($form_type->members as $index => $member_type) {
           $member_pattern = $pat->order[$index];
-          self::unify($member_type, self::pattern_to_type($ctx, $member_pattern));
+          $pattern_type   = self::pattern_to_type($ctx, $member_pattern);
+          self::unify($pattern_type, $member_type);
         }
       }
 
