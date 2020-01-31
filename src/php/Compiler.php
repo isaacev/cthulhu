@@ -179,6 +179,10 @@ class Compiler {
         $name = $intrinsic->ident;
         $ctx->expressions->push(Intrinsics::build_intrinsic_expr($name, $args));
       },
+      'exit(ListExpr)' => function (ir\ListExpr $expr) use ($ctx) {
+        $elements = $ctx->expressions->pop_multiple(count($expr->elements));
+        $ctx->expressions->push(new php\OrderedArrayExpr($elements));
+      },
       'NameExpr' => function (ir\NameExpr $expr, Path $path) use ($ctx) {
         $ir_symbol = $expr->name->symbol;
         if ($ir_symbol instanceof VarSymbol) {

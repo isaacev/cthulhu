@@ -256,6 +256,8 @@ class Compiler {
         return self::unary_expr($ctx, $expr);
       case $expr instanceof ast\VariantConstructorExpr:
         return self::ctor_expr($ctx, $expr);
+      case $expr instanceof ast\ListExpr:
+        return self::list_expr($ctx, $expr);
       case $expr instanceof ast\PathExpr:
         return self::path_expr($expr);
       case $expr instanceof ast\StrLiteral:
@@ -412,6 +414,15 @@ class Compiler {
       assert($fields === null);
       return new ir\UnitLit();
     }
+  }
+
+  private static function list_expr(self $ctx, ast\ListExpr $expr): ir\ListExpr {
+    $type     = $expr->get(TypeCheck::TYPE_KEY);
+    $elements = [];
+    foreach ($expr->elements as $element) {
+      $elements[] = self::expr($ctx, $element);
+    }
+    return new ir\ListExpr($type, $elements);
   }
 
   private static function path_expr(ast\PathExpr $expr): ir\NameExpr {
