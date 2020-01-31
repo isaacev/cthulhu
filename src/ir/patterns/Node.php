@@ -23,6 +23,10 @@ abstract class Node {
       return new EnumNode($type);
     }
 
+    if ($type instanceof types\FixedTypeVar) {
+      return new ParamNode();
+    }
+
     if ($type instanceof types\Atomic) {
       switch ($type->name) {
         case 'Str':
@@ -36,10 +40,6 @@ abstract class Node {
         default:
           die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
       }
-    }
-
-    if ($type instanceof types\FixedTypeVar) {
-      return new ParamNode();
     }
 
     if ($type instanceof types\FreeTypeVar) {
