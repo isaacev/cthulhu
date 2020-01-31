@@ -24,6 +24,8 @@ class Intrinsics {
         return self::negate(...$args);
       case 'any_pow':
         return self::any_pow(...$args);
+      case 'int_mul':
+        return self::int_mul(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
@@ -55,5 +57,9 @@ class Intrinsics {
 
   private static function any_pow(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BuiltinCallExpr('pow', [ $a, $b ]);
+  }
+
+  private static function int_mul(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('*', $a, $b);
   }
 }
