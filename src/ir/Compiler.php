@@ -391,25 +391,26 @@ class Compiler {
   }
 
   private static function ctor_expr(self $ctx, ast\VariantConstructorExpr $expr): ir\Ctor {
-    $type        = $expr->get(TypeCheck::TYPE_KEY);
+    $type = $expr->get(TypeCheck::TYPE_KEY);
+    assert($type instanceof types\Enum);
     $form_symbol = $expr->path->tail->get('symbol');
-    $args        = self::ctor_args($ctx, $expr->fields);
+    $args        = self::ctor_args($ctx, $type->forms[(string)$expr->path->tail], $expr->fields);
     return new ir\Ctor($type, $form_symbol, $args);
   }
 
-  private static function ctor_args(self $ctx, ?ast\VariantConstructorFields $fields): ir\Expr {
+  private static function ctor_args(self $ctx, types\Type $type, ?ast\VariantConstructorFields $fields): ir\Expr {
     if ($fields instanceof ast\NamedVariantConstructorFields) {
       $record_fields = [];
       foreach ($fields->pairs as $pair_name => $pair) {
         $record_fields[$pair_name] = self::expr($ctx, $pair->expr);
       }
-      return new ir\Record($fields->get(TypeCheck::TYPE_KEY), $record_fields);
+      return new ir\Record($type, $record_fields);
     } else if ($fields instanceof ast\OrderedVariantConstructorFields) {
       $tuple_fields = [];
       foreach ($fields->order as $tuple_expr) {
         $tuple_fields[] = self::expr($ctx, $tuple_expr);
       }
-      return new ir\Tuple($fields->get(TypeCheck::TYPE_KEY), $tuple_fields);
+      return new ir\Tuple($type, $tuple_fields);
     } else {
       assert($fields === null);
       return new ir\UnitLit();
