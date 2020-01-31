@@ -344,7 +344,7 @@ class TypeCheck {
         $left_type  = $expr->left->get(self::TYPE_KEY);
         $right_type = $expr->right->get(self::TYPE_KEY);
 
-        $call_type = $expr->operator->get(self::TYPE_KEY);
+        $call_type = self::fresh($expr->operator->get(self::TYPE_KEY));
         assert($call_type instanceof types\Func);
         assert($call_type->output instanceof types\Func);
 
@@ -376,7 +376,7 @@ class TypeCheck {
 
       'exit(UnaryExpr)' => function (ast\UnaryExpr $expr) {
         $right_type = $expr->right->get(self::TYPE_KEY);
-        $call_type  = $expr->operator->get(self::TYPE_KEY);
+        $call_type  = self::fresh($expr->operator->get(self::TYPE_KEY));
         assert($call_type instanceof types\Func);
 
         try {
