@@ -3,7 +3,7 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\names\RefSymbol;
-use Cthulhu\ir\types\hm\Type;
+use Cthulhu\ir\types\Type;
 use Cthulhu\lib\trees\EditableNodelike;
 
 class Ctor extends Expr {
