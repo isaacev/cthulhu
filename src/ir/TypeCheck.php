@@ -475,6 +475,7 @@ class TypeCheck {
       if ($t1 instanceof types\ListType) {
         if ($t2 instanceof types\ListType) {
           self::unify($t1->elements, $t2->elements);
+          return;
         } else {
           throw new types\UnificationFailure();
         }
@@ -490,6 +491,7 @@ class TypeCheck {
             $t2_field = $t2->fields[$field_name];
             self::unify($t1_field, $t2_field);
           }
+          return;
         } else {
           throw new types\UnificationFailure();
         }
