@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class Tuple extends Expr {
   public array $fields;
@@ -21,7 +20,7 @@ class Tuple extends Expr {
     return $this->fields;
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Tuple {
     return new self($this->type, $children);
   }
 
