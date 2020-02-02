@@ -1,3 +1,6 @@
+use ::Io;
+use ::Fmt;
+
 type Shape =
   | UnitCircle
   | Circle(Float)
@@ -18,14 +21,14 @@ fn area(sh: Shape) -> Float {
   match sh {
     Shape::UnitCircle => 3.14,
     Shape::Circle(1.0) => 3.14,
-    Shape::Circle(r) => 3.14 * r * r,
-    Shape::Square(s) => s * s,
-    Shape::Rect { width: w, height: h } => w * h,
+    Shape::Circle(r) => 3.14 *. r *. r,
+    Shape::Square(s) => s *. s,
+    Shape::Rect { width: w, height: h } => w *. h,
   }
 }
 
 fn desc(sh: Shape) -> () {
-  ::Io::println(name(sh) ++ " has an area of " ++ ::Fmt::float(area(sh)));
+  Io::println(name(sh) ++ " has an area of " ++ Fmt::float(area(sh)));
 }
 
 #[entry]
