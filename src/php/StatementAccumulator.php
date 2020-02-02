@@ -47,4 +47,21 @@ class StatementAccumulator {
     assert(!empty($this->pending_stmts));
     array_push($this->pending_stmts[count($this->pending_stmts) - 1], $stmt);
   }
+
+  public function pop_stmt(): nodes\Stmt {
+    assert(!empty($this->pending_stmts));
+    assert(!empty($this->pending_stmts[count($this->pending_stmts) - 1]));
+    return array_pop($this->pending_stmts[count($this->pending_stmts) - 1]);
+  }
+
+  public function pop_stmts(int $n): array {
+    assert($n >= 0);
+    assert(!empty($this->pending_stmts));
+    assert(count($this->pending_stmts[count($this->pending_stmts) - 1]) >= $n);
+    if ($n === 0) {
+      return [];
+    } else {
+      return array_splice($this->pending_stmts[count($this->pending_stmts) - 1], -$n);
+    }
+  }
 }

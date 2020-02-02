@@ -9,9 +9,9 @@ class NamedFormPattern extends FormPattern {
   public array $mapping;
 
   /**
-   * @param Type      $type
-   * @param RefSymbol $ref_symbol
-   * @param Pattern[] $mapping
+   * @param Type             $type
+   * @param RefSymbol        $ref_symbol
+   * @param NamedFormField[] $mapping
    */
   public function __construct(Type $type, RefSymbol $ref_symbol, array $mapping) {
     parent::__construct($type, $ref_symbol);
@@ -31,20 +31,12 @@ class NamedFormPattern extends FormPattern {
   }
 
   public function build(): Builder {
-    $pairs = [];
-    foreach ($this->mapping as $field_name => $field_pattern) {
-      $pairs[] = (new Builder)
-        ->keyword($field_name)
-        ->colon()
-        ->then($field_pattern);
-    }
-
     return (new Builder)
       ->keyword("$this->ref_symbol")
       ->space()
       ->keyword('{')
       ->space()
-      ->each($pairs, (new Builder)
+      ->each(array_values($this->mapping), (new Builder)
         ->keyword(',')
         ->space())
       ->keyword('}');

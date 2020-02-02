@@ -930,11 +930,13 @@ class DeepParser extends AbstractParser {
     $enter_group = $this->next_group_matches('{}');
 
     /* @var nodes\NamePatternPair[] $pairs */
-    $pairs      = [ $pair = $this->name_pattern_pair($namespace) ];
+    $pair       = $this->name_pattern_pair($namespace);
+    $pairs      = [ $pair->name->value => $pair ];
     $names_used = [ $pair->name->value ];
     while ($this->ahead_is_punct(',')) {
-      $comma   = $this->next_punct(',');
-      $pairs[] = $pair = $this->name_pattern_pair($namespace);
+      $comma                     = $this->next_punct(',');
+      $pair                      = $this->name_pattern_pair($namespace);
+      $pairs[$pair->name->value] = $pair;
       if (in_array($pair->name->value, $names_used)) {
         throw Errors::duplicate_field_binding($pair);
       } else {

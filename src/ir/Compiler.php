@@ -88,6 +88,9 @@ class Compiler {
 
   private static function item(self $ctx, ast\Item $item): void {
     switch (true) {
+      case $item instanceof ast\EnumItem:
+        self::enum_item($ctx, $item);
+        break;
       case $item instanceof ast\IntrinsicItem:
         self::intrinsic_item($ctx, $item);
         break;
@@ -95,6 +98,47 @@ class Compiler {
         self::fn_item($ctx, $item);
         break;
     }
+  }
+
+  private static function enum_item(self $ctx, ast\EnumItem $item): void {
+    $enum_symbol = $item->name->get('symbol');
+    $enum_type   = $enum_symbol->get(TypeCheck::TYPE_KEY);
+    assert($enum_type instanceof types\Enum);
+
+    $forms = [];
+    foreach ($item->forms as $form_decl) {
+      $form_name   = $form_decl->name->value;
+      $form_symbol = $form_decl->name->get('symbol');
+      $form_type   = $enum_type->forms[$form_name];
+      $form_name   = new ir\Name($form_type, $form_name, $form_symbol);
+
+      if ($form_decl instanceof ast\NamedFormDecl) {
+        assert($form_type instanceof types\Record);
+        $mapping      = [];
+        $symbol_table = [];
+        foreach ($form_decl->params as $pair) {
+          $symbol_table[$pair->name->value] = $pair->name->get('symbol');
+        }
+        foreach ($form_type->fields as $field_name => $field_type) {
+          $field_symbol         = $symbol_table[$field_name];
+          $mapping[$field_name] = new ir\Name($field_type, $field_name, $field_symbol);
+        }
+        $forms[] = new ir\NamedForm($form_name, $mapping);
+      } else if ($form_decl instanceof ast\OrderedFormDecl) {
+        assert($form_type instanceof types\Tuple);
+        $order   = $form_type->members;
+        $forms[] = new ir\OrderedForm($form_name, $order);
+      } else {
+        assert($form_decl instanceof ast\NullaryFormDecl);
+        $forms[] = new ir\NullaryForm($form_name);
+      }
+    }
+
+    $enum_name = $item->name->value;
+    $enum_name = new ir\Name($enum_type, $enum_name, $enum_symbol);
+    $enum_stmt = new ir\Enum($enum_name, $forms, null);
+
+    $ctx->push_stmt($enum_stmt);
   }
 
   private static function intrinsic_item(self $ctx, ast\IntrinsicItem $item): void {
@@ -316,10 +360,13 @@ class Compiler {
         $ref_symbol = $pat->path->tail->get('symbol');
         $mapping    = [];
         foreach ($pat->pairs as $pair) {
-          $field_name           = $pair->name->value;
-          $field_type           = $form_type->fields[$field_name];
+          $field_symbol         = $pair->name->get('symbol');
+          $field_text           = $pair->name->value;
+          $field_type           = $form_type->fields[$field_text];
+          $field_name           = new ir\Name($field_type, $field_text, $field_symbol);
           $field_pattern        = self::pattern($field_type, $pair->pattern);
-          $mapping[$field_name] = $field_pattern;
+          $field                = new ir\NamedFormField($field_name, $field_pattern);
+          $mapping[$field_text] = $field;
         }
         return new ir\NamedFormPattern($type, $ref_symbol, $mapping);
       }
@@ -332,7 +379,8 @@ class Compiler {
         $order      = [];
         foreach ($pat->order as $index => $member_pattern) {
           $field_type    = $form_type->members[$index];
-          $order[$index] = self::pattern($field_type, $member_pattern);
+          $field_pattern = self::pattern($field_type, $member_pattern);
+          $order[$index] = new ir\OrderedFormMember($index, $field_pattern);
         }
         return new ir\OrderedFormPattern($type, $ref_symbol, $order);
       }
@@ -346,6 +394,8 @@ class Compiler {
       }
       case $pat instanceof ast\VariablePattern:
         return new ir\VariablePattern(new ir\Name($type, $pat->name->value, $pat->name->get('symbol')));
+      case $pat instanceof ast\WildcardPattern:
+        return new ir\WildcardPattern($type);
       default:
         echo get_class($pat) . PHP_EOL;
         die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
@@ -394,15 +444,20 @@ class Compiler {
     $type = $expr->get(TypeCheck::TYPE_KEY);
     assert($type instanceof types\Enum);
     $form_symbol = $expr->path->tail->get('symbol');
+    $form_text   = $expr->path->tail->value;
+    $form_type   = $type->forms[$form_text];
+    $form_name   = new ir\Name($form_type, $form_text, $form_symbol);
     $args        = self::ctor_args($ctx, $type->forms[(string)$expr->path->tail], $expr->fields);
-    return new ir\Ctor($type, $form_symbol, $args);
+    return new ir\Ctor($form_name, $args);
   }
 
   private static function ctor_args(self $ctx, types\Type $type, ?ast\VariantConstructorFields $fields): ir\Expr {
     if ($fields instanceof ast\NamedVariantConstructorFields) {
       $record_fields = [];
       foreach ($fields->pairs as $pair_name => $pair) {
-        $record_fields[$pair_name] = self::expr($ctx, $pair->expr);
+        $field_expr                = self::expr($ctx, $pair->expr);
+        $field_name                = new ir\Name($field_expr->type, $pair_name, $pair->name->get('symbol'));
+        $record_fields[$pair_name] = new ir\Field($field_name, $field_expr);
       }
       return new ir\Record($type, $record_fields);
     } else if ($fields instanceof ast\OrderedVariantConstructorFields) {

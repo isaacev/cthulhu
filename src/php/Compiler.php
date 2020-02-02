@@ -7,21 +7,28 @@ use Cthulhu\ir\arity\KnownMultiArity;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
 use Cthulhu\ir\types\Atomic;
+use Cthulhu\ir\types\Record;
+use Cthulhu\ir\types\Tuple;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 use Cthulhu\php\nodes as php;
+use Cthulhu\val\BooleanValue;
+use Cthulhu\val\IntegerValue;
+use Cthulhu\val\StringValue;
 
 class Compiler {
   private Names $names;
   private ExpressionStack $expressions;
   private StatementAccumulator $statements;
   private NamespaceAccumulator $namespaces;
+  private PatternAccumulator $patterns;
 
   private function __construct() {
     $this->names       = new Names();
     $this->expressions = new ExpressionStack();
     $this->statements  = new StatementAccumulator($this->expressions);
     $this->namespaces  = new NamespaceAccumulator($this->names, $this->statements);
+    $this->patterns    = new PatternAccumulator();
   }
 
   public static function root(ir\Root $root): php\Program {
@@ -47,11 +54,62 @@ class Compiler {
           $ctx->namespaces->close_anonymous();
         }
       },
+
+      'Enum' => function (ir\Enum $enum) use ($ctx) {
+        $base_name = $ctx->names->name_to_ref_name($enum->name, $ctx->namespaces->current_ref());
+        $base_ref  = $ctx->names->name_to_ref($enum->name);
+        $base_stmt = new php\ClassStmt(true, $base_name, null, []);
+        $ctx->statements->push_stmt($base_stmt);
+
+        foreach ($enum->forms as $form) {
+          $ctx->names->enter_func_scope();
+          $ctx->statements->push_block();
+          $form_body   = [];
+          $ctor_params = [];
+
+          if ($form instanceof ir\NamedForm) {
+            $args_var = $ctor_params[] = $ctx->names->tmp_var();
+            foreach ($form->mapping as $field_name) {
+              $field_var   = $ctx->names->name_to_var($field_name);
+              $form_body[] = new php\PropertyNode(true, $field_var);
+              $bind_stmt   = new php\AssignStmt(
+                new php\PropertyAccessExpr(
+                  new php\ThisExpr(),
+                  $field_var),
+                new php\SubscriptExpr(
+                  new php\VariableExpr($args_var),
+                  new php\StrLiteral(
+                    StringValue::from_safe_scalar($field_var->value))));
+              $ctx->statements->push_stmt($bind_stmt);
+            }
+          } else if ($form instanceof ir\OrderedForm) {
+            for ($i = 0; $i < count($form->order); $i++) {
+              $order_var = $ctor_params[] = $ctx->names->tmp_var();
+              $bind_stmt = new php\AssignStmt(
+                new php\DynamicPropertyAccessExpr(
+                  new php\ThisExpr(),
+                  new php\IntLiteral(
+                    IntegerValue::from_scalar($i))),
+                new php\VariableExpr($order_var));
+              $ctx->statements->push_stmt($bind_stmt);
+            }
+          }
+
+          $ctor_body = $ctx->statements->pop_block();
+          $ctx->names->exit_func_scope();
+          $form_body[] = new php\MagicMethodNode('__construct', $ctor_params, $ctor_body);
+
+          $form_name = $ctx->names->name_to_ref_name($form->name, $ctx->namespaces->current_ref());
+          $form_stmt = new php\ClassStmt(false, $form_name, $base_ref, $form_body);
+          $ctx->statements->push_stmt($form_stmt);
+        }
+      },
+
       'enter(Def)' => function (ir\Def $def) use ($ctx) {
         $ctx->names->enter_func_scope();
 
         // Assign PHP variable names for the function and for its parameters
-        $ctx->names->name_to_name($def->name, $ctx->namespaces->current_ref());
+        $ctx->names->name_to_ref_name($def->name, $ctx->namespaces->current_ref());
         foreach ($def->params->names as $param) {
           $ctx->names->name_to_var($param);
         }
@@ -61,7 +119,7 @@ class Compiler {
         $ctx->statements->push_block();
       },
       'exit(Def)' => function (ir\Def $def) use ($ctx) {
-        $name = $ctx->names->name_to_name($def->name, $ctx->namespaces->current_ref());
+        $name = $ctx->names->name_to_ref_name($def->name, $ctx->namespaces->current_ref());
 
         $params = [];
         foreach ($def->params->names as $param) {
@@ -129,6 +187,134 @@ class Compiler {
         $block = $ctx->statements->pop_block();
         $ctx->statements->stash_block($block);
       },
+
+      'enter(Match)' => function () use ($ctx) {
+        $disc_var = $ctx->names->tmp_var();
+        $ctx->patterns->push_pattern_context($disc_var);
+        $ctx->patterns->peek_pattern_context()->push_accessor(new php\VariableExpr($disc_var));
+
+        $ret_var = $ctx->names->tmp_var();
+        $ctx->statements->push_return_var($ret_var);
+      },
+      'exit(Match)' => function (ir\Match $match) use ($ctx) {
+        /* @var php\IfStmt[] $if_stmts */
+        $if_stmts = $ctx->statements->pop_stmts(count($match->arms));
+
+        // Bind the discriminant expression to a temporary variable
+        $disc_var = $ctx->patterns->peek_pattern_context()->discriminant;
+        $ctx->patterns->pop_pattern_context();
+        $disc_assignment = new php\AssignStmt($disc_var, $ctx->expressions->pop());
+        $ctx->statements->push_stmt($disc_assignment);
+
+        // Combine multiple if statements into a single if-elseif-else statement
+        $rest = new php\BlockNode([
+          new php\DieStmt(
+            StringValue::from_safe_scalar("match expression did not cover all possibilities\\n")),
+        ]);
+
+        foreach (array_reverse($if_stmts) as $if_stmt) {
+          $rest = new php\IfStmt($if_stmt->test, $if_stmt->consequent, $rest);
+        }
+
+        $ctx->statements->push_stmt($rest);
+        $ctx->expressions->push(new php\VariableExpr($ctx->statements->pop_return_var()));
+      },
+
+      'enter(Arm)' => function () use ($ctx) {
+        $ctx->statements->push_block();
+      },
+
+      'enter(FormPattern)' => function (ir\FormPattern $pattern) use ($ctx) {
+        $cond = new php\BinaryExpr(
+          'instanceof',
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new php\ReferenceExpr($pattern->ref_symbol->get('php/ref'), false)
+        );
+        $ctx->patterns->peek_pattern_context()->push_condition($cond);
+      },
+
+      'VariablePattern' => function (ir\VariablePattern $pattern) use ($ctx) {
+        $stmt = new php\AssignStmt(
+          $ctx->names->name_to_var($pattern->name),
+          $ctx->patterns->peek_pattern_context()->peek_accessor()
+        );
+        $ctx->statements->push_stmt($stmt);
+      },
+
+      'enter(NamedFormField)' => function (ir\NamedFormField $field) use ($ctx) {
+        $acc = new php\PropertyAccessExpr(
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          $ctx->names->name_to_var($field->name)
+        );
+        $ctx->patterns->peek_pattern_context()->push_accessor($acc);
+      },
+      'exit(NamedFormField)' => function () use ($ctx) {
+        $ctx->patterns->peek_pattern_context()->pop_accessor();
+      },
+
+      'enter(OrderedFormMember)' => function (ir\OrderedFormMember $member) use ($ctx) {
+        $acc = new php\DynamicPropertyAccessExpr(
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new nodes\IntLiteral(IntegerValue::from_scalar($member->position))
+        );
+        $ctx->patterns->peek_pattern_context()->push_accessor($acc);
+      },
+      'exit(OrderedFormMember)' => function () use ($ctx) {
+        $ctx->patterns->peek_pattern_context()->pop_accessor();
+      },
+
+      'StrConstPattern' => function (ir\StrConstPattern $pattern) use ($ctx) {
+        $cond = new php\BinaryExpr(
+          '==',
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new php\StrLiteral($pattern->value));
+        $ctx->patterns->peek_pattern_context()->push_condition($cond);
+      },
+      'FloatConstPattern' => function (ir\FloatConstPattern $pattern) use ($ctx) {
+        $cond = new php\BinaryExpr(
+          '==',
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new php\FloatLiteral($pattern->value));
+        $ctx->patterns->peek_pattern_context()->push_condition($cond);
+      },
+      'IntConstPattern' => function (ir\IntConstPattern $pattern) use ($ctx) {
+        $cond = new php\BinaryExpr(
+          '==',
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new php\IntLiteral($pattern->value));
+        $ctx->patterns->peek_pattern_context()->push_condition($cond);
+      },
+      'BoolConstPattern' => function (ir\BoolConstPattern $pattern) use ($ctx) {
+        $cond = new php\BinaryExpr(
+          '==',
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new php\BoolLiteral($pattern->value));
+        $ctx->patterns->peek_pattern_context()->push_condition($cond);
+      },
+
+      'exit(Handler)' => function () use ($ctx) {
+        $conditions = $ctx->patterns->peek_pattern_context()->pop_conditions();
+        if (empty($conditions)) {
+          $condition = new php\BoolLiteral(BooleanValue::from_scalar(true));
+        } else if (count($conditions) === 1) {
+          $condition = $conditions[0];
+        } else {
+          $condition = $conditions[0];
+          foreach (array_slice($conditions, 1) as $next_cond) {
+            $condition = new nodes\BinaryExpr('&&', $condition, $next_cond);
+          }
+        }
+
+        $expr    = $ctx->expressions->pop();
+        $ret_var = $ctx->statements->peek_return_var();
+        $ret     = new nodes\AssignStmt($ret_var, $expr);
+        $ctx->statements->push_stmt($ret);
+        $consequent = $ctx->statements->pop_block();
+
+        $if_stmt = new php\IfStmt($condition, $consequent, null);
+        $ctx->statements->push_stmt($if_stmt);
+      },
+
       'enter(IfExpr)' => function () use ($ctx) {
         $tmp_var = $ctx->names->tmp_var();
         $ctx->statements->push_return_var($tmp_var);
@@ -143,6 +329,29 @@ class Compiler {
         $ctx->statements->push_stmt($if_stmt);
         $ctx->expressions->push(new php\VariableExpr($ret_var));
       },
+
+      'exit(Ctor)' => function (ir\Ctor $ctor) use ($ctx) {
+        if ($ctor->type instanceof Record) {
+          $arg = $ctx->expressions->pop();
+          assert($arg instanceof php\AssociativeArrayExpr);
+          $args = [ $arg ];
+        } else if ($ctor->type instanceof Tuple) {
+          $args = $ctx->expressions->pop();
+          assert($args instanceof php\OrderedArrayExpr);
+          $args = $args->elements;
+        } else {
+          $arg = $ctx->expressions->pop();
+          assert($arg instanceof php\NullLiteral);
+          $args = [];
+        }
+
+        $ref  = $ctx->names->name_to_ref($ctor->name);
+        $expr = new php\NewExpr(
+          new php\ReferenceExpr($ref, false),
+          $args);
+        $ctx->expressions->push($expr);
+      },
+
       'exit(Apply)' => function (ir\Apply $app) use ($ctx) {
         /**
          * A function call can be compiled in a few different ways:
@@ -183,6 +392,26 @@ class Compiler {
         $elements = $ctx->expressions->pop_multiple(count($expr->elements));
         $ctx->expressions->push(new php\OrderedArrayExpr($elements));
       },
+
+      'exit(Tuple)' => function (ir\Tuple $tuple) use ($ctx) {
+        $exprs = $ctx->expressions->pop_multiple(count($tuple->fields));
+        $expr  = new php\OrderedArrayExpr($exprs);
+        $ctx->expressions->push($expr);
+      },
+
+      'exit(Field)' => function (ir\Field $field) use ($ctx) {
+        $name  = $ctx->names->name_to_name($field->name);
+        $expr  = $ctx->expressions->pop();
+        $field = new php\FieldNode($name, $expr);
+        $ctx->expressions->push($field);
+      },
+
+      'exit(Record)' => function (ir\Record $record) use ($ctx) {
+        $fields = $ctx->expressions->pop_multiple(count($record->fields));
+        $expr   = new php\AssociativeArrayExpr($fields);
+        $ctx->expressions->push($expr);
+      },
+
       'NameExpr' => function (ir\NameExpr $expr, Path $path) use ($ctx) {
         $ir_symbol = $expr->name->symbol;
         if ($ir_symbol instanceof VarSymbol) {

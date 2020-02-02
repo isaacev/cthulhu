@@ -9,9 +9,9 @@ class OrderedFormPattern extends FormPattern {
   public array $order;
 
   /**
-   * @param Type      $type
-   * @param RefSymbol $ref_symbol
-   * @param Pattern[] $order
+   * @param Type                $type
+   * @param RefSymbol           $ref_symbol
+   * @param OrderedFormMember[] $order
    */
   public function __construct(Type $type, RefSymbol $ref_symbol, array $order) {
     parent::__construct($type, $ref_symbol);

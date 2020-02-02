@@ -160,11 +160,29 @@ class Names {
   }
 
   /**
+   * @param ir\Name $ir_name
+   * @return nodes\Name
+   */
+  public function name_to_name(ir\Name $ir_name): nodes\Name {
+    if ($php_name = $ir_name->get('php/name')) {
+      return $php_name;
+    }
+
+    $ir_symbol  = $ir_name->symbol;
+    $php_value  = $this->rename_ir_name($ir_symbol);
+    $php_symbol = new names\Symbol();
+    $php_name   = new nodes\Name($php_value, $php_symbol);
+
+    $ir_name->set('php/name', $php_name);
+    return $php_name;
+  }
+
+  /**
    * @param ir\Name         $ir_name
    * @param nodes\Reference $parent
    * @return nodes\Name
    */
-  public function name_to_name(ir\Name $ir_name, nodes\Reference $parent): nodes\Name {
+  public function name_to_ref_name(ir\Name $ir_name, nodes\Reference $parent): nodes\Name {
     if ($php_name = $ir_name->get('php/name')) {
       return $php_name;
     }
