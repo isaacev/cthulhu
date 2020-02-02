@@ -19,6 +19,5 @@ pub fn bool(b: Bool) -> Str {
   match b {
     true => "true",
     false => "false",
-    _ => "???",
   }
 }
