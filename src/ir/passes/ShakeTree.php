@@ -2,7 +2,9 @@
 
 namespace Cthulhu\ir\passes;
 
+use Cthulhu\ir\nodes\Ctor;
 use Cthulhu\ir\nodes\Def;
+use Cthulhu\ir\nodes\Enum;
 use Cthulhu\ir\nodes\Module;
 use Cthulhu\ir\nodes\NameExpr;
 use Cthulhu\ir\nodes\Root;
@@ -53,6 +55,32 @@ class ShakeTree implements Pass {
           $add_edge($from_id, $to_id);
         }
       },
+
+      'Enum' => function (Enum $enum) use (&$add_edge) {
+        $enum_id = $enum->name->symbol->get_id();
+        foreach ($enum->forms as $form) {
+          $form_id = $form->name->symbol->get_id();
+          $add_edge($enum_id, $form_id);
+          $add_edge($form_id, $enum_id);
+        }
+      },
+      'Ctor' => function (Ctor $ctor) use (&$stack, &$add_edge, &$reach) {
+        $to_id = $ctor->name->symbol->get_id();
+
+        if (empty($stack)) {
+          // If the constructor isn't inside of a function body, then the
+          // constructor will always be called so mark the constructor as
+          // reachable in the graph.
+          $reach[$to_id] = false;
+        } else {
+          // If the reference is inside of a function body, create an edge
+          // between the parent function and the referenced constructor to
+          // indicate that the constructor *may* be reachable if the parent
+          // function is reachable itself.
+          $from_id = end($stack);
+          $add_edge($from_id, $to_id);
+        }
+      },
     ]);
 
     $queue = array_keys($reach);
@@ -76,6 +104,12 @@ class ShakeTree implements Pass {
       },
       'exit(Module)' => function (Module $mod, EditablePath $path) {
         if ($mod->stmt === null) {
+          $path->remove();
+        }
+      },
+      'Enum' => function (Enum $enum, EditablePath $path) use (&$reach) {
+        $id = $enum->name->symbol->get_id();
+        if (array_key_exists($id, $reach) === false) {
           $path->remove();
         }
       },
