@@ -646,7 +646,7 @@ class DeepParser extends AbstractParser {
   private function stmts(): array {
     $stmts = [];
     while (true) {
-      if ($this->peek_token() === null && $this->peek_group() === null) {
+      if ($this->ahead_is_end_of_current_group() && $this->peek_group() === null) {
         break;
       } else if (($stmts[] = $this->stmt()) instanceof nodes\ExprStmt) {
         break;
@@ -1082,7 +1082,7 @@ class DeepParser extends AbstractParser {
    */
   private function paren_expr(): nodes\Expr {
     $group = $this->next_group_matches('()');
-    if ($this->peek_token() === null) {
+    if ($this->ahead_is_end_of_current_group()) {
       $this->exit_group_matches('()');
       return (new nodes\UnitLiteral())
         ->set('span', $group);
@@ -1173,7 +1173,7 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   protected function zero_or_more_exprs(): array {
-    if ($this->peek_token() === null) {
+    if ($this->ahead_is_end_of_current_group()) {
       return [];
     }
     return $this->one_or_more_exprs();

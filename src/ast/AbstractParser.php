@@ -84,6 +84,15 @@ abstract class AbstractParser {
   }
 
   /**
+   * @return bool
+   */
+  protected function ahead_is_end_of_current_group(): bool {
+    $curr_offset = end($this->offset_stack);
+    $curr_group  = end($this->group_stack);
+    return $curr_offset >= count($curr_group);
+  }
+
+  /**
    * Iff `n` tokens remain in the current token group, return that many tokens
    * but do not advance the parser. Return null if not enough tokens exist in
    * the current token group.
@@ -471,7 +480,8 @@ abstract class AbstractParser {
    * @throws Error
    */
   protected function zero_or_more_notes(): array {
-    if ($this->peek_token() === null) {
+    // FIXME: what if next note is the start of a list type?
+    if ($this->ahead_is_end_of_current_group()) {
       return [];
     }
     return $this->one_or_more_notes();
