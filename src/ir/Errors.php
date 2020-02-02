@@ -155,6 +155,13 @@ class Errors {
     return $err;
   }
 
+  public static function redundant_pattern(Spanlike $spanlike, patterns\Pattern $pattern): Error {
+    return (new Error('redundant pattern'))
+      ->paragraph("The match expression included a pattern that will never be matched.")
+      ->example("$pattern")
+      ->snippet($spanlike);
+  }
+
   public static function wrong_pattern_for_type(Spanlike $spanlike, Type $pattern_type, Type $discriminant_type): Error {
     return (new Error('incompatible pattern'))
       ->paragraph("The match expression was given a value with the type:")

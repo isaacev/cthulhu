@@ -27,7 +27,7 @@ class ExhaustionCheck {
         $tree       = end($match_trees);
 
         if ($tree->is_redundant($pattern)) {
-          throw new \Exception("redundant pattern: $pattern");
+          throw Errors::redundant_pattern($arm->pattern->get('span'), $pattern);
         } else {
           $tree->apply($pattern);
         }
