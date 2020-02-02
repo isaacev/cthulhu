@@ -2,21 +2,21 @@
 
 namespace Cthulhu\ir\types;
 
-use Cthulhu\ir\names\Symbol;
-
 class FreeTypeVar extends Type {
   private static int $next_id = 0;
 
   private int $id;
   private string $name;
-  private Symbol $symbol;
   private ?Type $instance;
 
-  public function __construct(string $name, Symbol $symbol, ?Type $instance = null) {
+  public function __construct(string $name, ?Type $instance) {
     $this->id       = FreeTypeVar::$next_id++;
     $this->name     = $name;
-    $this->symbol   = $symbol;
     $this->instance = $instance;
+  }
+
+  public function has_instance(): bool {
+    return $this->instance !== null;
   }
 
   public function set_instance(Type $new_instance): void {
@@ -49,13 +49,13 @@ class FreeTypeVar extends Type {
   }
 
   public function fresh(ParameterContext $ctx): Type {
-    if ($new_var = $ctx->read($this->symbol)) {
+    if ($new_var = $ctx->read($this->id)) {
       return $new_var;
     }
 
     $new_inst = $this->instance ? $this->instance->fresh($ctx) : null;
-    $new_var  = new FreeTypeVar($this->name, $this->symbol, $new_inst);
-    $ctx->write($this->symbol, $new_var);
+    $new_var  = new FreeTypeVar($this->name, $new_inst);
+    $ctx->write($this->id, $new_var);
     return $new_var;
   }
 

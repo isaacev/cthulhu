@@ -5,7 +5,6 @@ namespace Cthulhu\ir;
 use Cthulhu\ast\nodes as ast;
 use Cthulhu\err\Error;
 use Cthulhu\ir\names\Binding;
-use Cthulhu\ir\names\TypeSymbol;
 use Cthulhu\ir\types\ParameterContext;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
@@ -40,9 +39,6 @@ class TypeCheck {
    * @param ast\Program $tree
    */
   public static function syntax_tree(array $bindings, ast\Program $tree): void {
-    /* @var ParameterContext[] $context_stack */
-    $context_stack = [];
-
     /* @var types\Type[] $return_stack */
     $return_stack = [];
 
@@ -52,27 +48,24 @@ class TypeCheck {
 
     Visitor::walk($tree, [
       'enter(IntrinsicSignature)' => function (ast\IntrinsicSignature $sig) {
-        $free_ctx    = new ParameterContext(null);
         $free_inputs = [];
         if ($sig->params instanceof ast\TupleNote) {
           foreach ($sig->params->members as $note) {
-            $free_inputs[] = self::note_to_type($free_ctx, $note, true);
+            $free_inputs[] = self::note_to_type($note, true);
           }
         } else {
-          $free_inputs[] = self::note_to_type($free_ctx, $sig->params, true);
+          $free_inputs[] = self::note_to_type($sig->params, true);
         }
 
-        $free_output = self::note_to_type($free_ctx, $sig->returns, true);
+        $free_output = self::note_to_type($sig->returns, true);
         $free_type   = types\Func::from_input_array($free_inputs, $free_output);
         $sig->name->get('symbol')->set(self::TYPE_KEY, $free_type);
       },
 
       'EnumItem' => function (ast\EnumItem $enum) {
-        $free_ctx = new ParameterContext(null);
-
         $free_params = [];
         foreach ($enum->params as $note) {
-          $free_params[] = self::note_to_type($free_ctx, $note, true);
+          $free_params[] = self::note_to_type($note, true);
         }
 
         $free_forms = [];
@@ -81,14 +74,14 @@ class TypeCheck {
             $fields = [];
             foreach ($form->params as $pair) {
               $field_name          = $pair->name->value;
-              $field_type          = self::note_to_type($free_ctx, $pair->note, true);
+              $field_type          = self::note_to_type($pair->note, true);
               $fields[$field_name] = $field_type;
             }
             $free_forms[$form->name->value] = new types\Record($fields);
           } else if ($form instanceof ast\OrderedFormDecl) {
             $members = [];
             foreach ($form->params as $note) {
-              $member_type = self::note_to_type($free_ctx, $note, true);
+              $member_type = self::note_to_type($note, true);
               $members[]   = $member_type;
             }
             $free_forms[$form->name->value] = new types\Tuple($members);
@@ -103,26 +96,22 @@ class TypeCheck {
       },
 
       'enter(FnItem)' => function (ast\FnItem $item) use (&$context_stack, &$return_stack) {
-        $free_ctx  = new ParameterContext(null);
-        $fixed_ctx = new ParameterContext(null);
-        array_push($context_stack, $fixed_ctx);
 
         $free_inputs = [];
         foreach ($item->params->params as $param) {
-          $free_inputs[] = self::note_to_type($free_ctx, $param->note, true);
-          $fixed_type    = self::note_to_type($fixed_ctx, $param->note, false);
+          $free_inputs[] = self::note_to_type($param->note, true);
+          $fixed_type    = self::note_to_type($param->note, false);
           $param->name->get('symbol')->set(self::TYPE_KEY, $fixed_type);
         }
 
-        $free_output  = self::note_to_type($free_ctx, $item->returns, true);
-        $fixed_output = self::note_to_type($fixed_ctx, $item->returns, false);
+        $free_output  = self::note_to_type($item->returns, true);
+        $fixed_output = self::note_to_type($item->returns, false);
         array_push($return_stack, $fixed_output);
 
         $free_type = types\Func::from_input_array($free_inputs, $free_output);
         $item->name->get('symbol')->set(self::TYPE_KEY, $free_type);
       },
-      'exit(FnItem)' => function (ast\FnItem $item) use (&$context_stack, &$return_stack) {
-        array_pop($context_stack);
+      'exit(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
 
         $sig_type = array_pop($return_stack);
         $ret_type = $item->body->get(self::TYPE_KEY);
@@ -136,12 +125,11 @@ class TypeCheck {
         }
       },
 
-      'exit(LetStmt)' => function (ast\LetStmt $stmt) use (&$context_stack) {
+      'exit(LetStmt)' => function (ast\LetStmt $stmt) {
         $expr_type = $stmt->expr->get(self::TYPE_KEY);
 
         if ($stmt->note) {
-          $param_ctx = end($context_stack);
-          $note_type = self::note_to_type($param_ctx, $stmt->note, false);
+          $note_type = self::note_to_type($stmt->note, false);
 
           try {
             self::unify($note_type, $expr_type);
@@ -206,18 +194,17 @@ class TypeCheck {
         $expr->set(self::TYPE_KEY, $consequent_type);
       },
 
-      'enter(MatchArm)' => function (ast\MatchArm $arm, Path $path) use (&$context_stack) {
+      'enter(MatchArm)' => function (ast\MatchArm $arm, Path $path) {
         $match_expr = $path->parent->node;
         assert($match_expr instanceof ast\MatchExpr);
 
         $disc_type = $match_expr->discriminant->get(self::TYPE_KEY);
         assert($disc_type instanceof types\Type);
 
-        $param_ctx    = end($context_stack);
-        $pattern_type = self::pattern_to_type($param_ctx, $arm->pattern);
+        $pattern_type = self::pattern_to_type($arm->pattern);
 
         try {
-          self::unify($pattern_type, $disc_type);
+          self::unify($disc_type, $pattern_type);
         } catch (types\UnificationFailure $failure) {
           $pattern_span = $arm->pattern->get('span');
           throw Errors::wrong_pattern_for_type($pattern_span, $pattern_type, $disc_type);
@@ -392,7 +379,7 @@ class TypeCheck {
       },
 
       'exit(ListExpr)' => function (ast\ListExpr $expr) {
-        $elements_type = new types\FreeTypeVar('_', new TypeSymbol());
+        $elements_type = new types\FreeTypeVar('_', null);
         foreach ($expr->elements as $index => $elem_expr) {
           $elem_type = $elem_expr->get(self::TYPE_KEY);
           try {
@@ -463,8 +450,11 @@ class TypeCheck {
       if ($t1 !== $t2) {
         if ($t1->contains($t2)) {
           die("recursive unification between $t1 and $t2\n");
+        } else if ($t1->has_instance()) {
+          throw new types\UnificationFailure();
+        } else {
+          $t1->set_instance($t2);
         }
-        $t1->set_instance($t2);
       }
     } else if ($t2 instanceof types\FreeTypeVar) {
       self::unify($t2, $t1);
@@ -535,23 +525,24 @@ class TypeCheck {
   }
 
   /**
-   * @param ParameterContext $ctx
-   * @param ast\Note         $note
-   * @param bool             $is_free
+   * @param ast\Note $note
+   * @param bool     $is_free
    * @return types\Type
    * @throws Error
    */
-  private static function note_to_type(ParameterContext $ctx, ast\Note $note, bool $is_free): types\Type {
+  private static function note_to_type(ast\Note $note, bool $is_free): types\Type {
     if ($note instanceof ast\UnitNote) {
       return types\Atomic::unit();
     }
 
     if ($note instanceof ast\GroupedNote) {
-      return self::note_to_type($ctx, $note->inner, $is_free);
+      return self::note_to_type($note->inner, $is_free);
     }
 
     if ($note instanceof ast\NamedNote) {
       if ($type = $note->path->tail->get('symbol')->get(self::TYPE_KEY)) {
+        assert($type instanceof types\Type);
+        $type = self::fresh($type);
         return $type;
       } else {
         die("unknown type: " . $note->path->tail . PHP_EOL);
@@ -559,40 +550,40 @@ class TypeCheck {
     }
 
     if ($note instanceof ast\TypeParamNote) {
-      if ($type = $ctx->read($note->get('symbol'))) {
+      if ($type = $note->get('symbol')->get($is_free ? 'free' : 'fixed')) {
         return $type;
       }
 
       $type = $is_free
-        ? new types\FreeTypeVar($note->name, $note->get('symbol'))
+        ? new types\FreeTypeVar($note->name, null)
         : new types\FixedTypeVar($note->name);
 
-      $ctx->write($note->get('symbol'), $type);
+      $note->get('symbol')->set($is_free ? 'free' : 'fixed', $type);
       return $type;
     }
 
     if ($note instanceof ast\TupleNote) {
       $members = [];
       foreach ($note->members as $member) {
-        $members[] = self::note_to_type($ctx, $member, $is_free);
+        $members[] = self::note_to_type($member, $is_free);
       }
       return new types\Tuple($members);
     }
 
     if ($note instanceof ast\ListNote) {
-      $elements = self::note_to_type($ctx, $note->elements, $is_free);
+      $elements = self::note_to_type($note->elements, $is_free);
       return new types\ListType($elements);
     }
 
     if ($note instanceof ast\FuncNote) {
-      $input  = self::note_to_type($ctx, $note->input, $is_free);
-      $output = self::note_to_type($ctx, $note->output, $is_free);
+      $input  = self::note_to_type($note->input, $is_free);
+      $output = self::note_to_type($note->output, $is_free);
       return new types\Func($input, $output);
     }
 
     if ($note instanceof ast\ParameterizedNote) {
-      $inner = self::note_to_type($ctx, $note->inner, $is_free);
-      $inner = $inner->fresh($ctx);
+      $inner = self::note_to_type($note->inner, $is_free);
+      $inner = self::fresh($inner);
 
       if ($inner instanceof types\Enum) {
         if (empty($inner->params)) {
@@ -606,7 +597,9 @@ class TypeCheck {
         }
 
         foreach ($note->params as $index => $param) {
-          $inner->params[$index]->set_instance(self::note_to_type($ctx, $param, $is_free));
+          $inner_param_type = $inner->params[$index];
+          $new_instance     = self::note_to_type($param, $is_free);
+          $inner_param_type->set_instance($new_instance);
         }
 
         return $inner;
@@ -620,12 +613,11 @@ class TypeCheck {
   }
 
   /**
-   * @param ParameterContext $ctx
-   * @param ast\Pattern      $pat
+   * @param ast\Pattern $pat
    * @return types\Type
    * @throws types\UnificationFailure
    */
-  private static function pattern_to_type(ParameterContext $ctx, ast\Pattern $pat): types\Type {
+  private static function pattern_to_type(ast\Pattern $pat): types\Type {
     if ($pat instanceof ast\ConstPattern) {
       switch (true) {
         case $pat->literal->value instanceof val\StringValue:
@@ -644,17 +636,18 @@ class TypeCheck {
     }
 
     if ($pat instanceof ast\WildcardPattern) {
-      return new types\FreeTypeVar('_', new TypeSymbol());
+      return new types\FreeTypeVar('_', null);
     }
 
     if ($pat instanceof ast\VariablePattern) {
-      $type = new types\FreeTypeVar('_', new TypeSymbol());
+      $type = new types\FreeTypeVar('_', null);
       $pat->name->get('symbol')->set(self::TYPE_KEY, $type);
       return $type;
     }
 
     if ($pat instanceof ast\FormPattern) {
-      $enum_type = self::fresh(end($pat->path->head)->get('symbol')->get(self::TYPE_KEY));
+      $enum_type = end($pat->path->head)->get('symbol')->get(self::TYPE_KEY);
+      $enum_type = self::fresh($enum_type);
       assert($enum_type instanceof types\Enum);
 
       $form_name = $pat->path->tail->value;
@@ -663,16 +656,16 @@ class TypeCheck {
       if ($pat instanceof ast\NamedFormPattern) {
         assert($form_type instanceof types\Record);
         foreach ($form_type->fields as $field_name => $field_type) {
-          $field_pattern = $pat->pairs[$field_name];
-          $member_type   = self::pattern_to_type($ctx, $field_pattern);
-          self::unify($member_type, $field_type);
+          $field_pattern = $pat->pairs[$field_name]->pattern;
+          $member_type   = self::pattern_to_type($field_pattern);
+          self::unify($field_type, $member_type);
         }
       } else if ($pat instanceof ast\OrderedFormPattern) {
         assert($form_type instanceof types\Tuple);
         foreach ($form_type->members as $index => $member_type) {
           $member_pattern = $pat->order[$index];
-          $pattern_type   = self::pattern_to_type($ctx, $member_pattern);
-          self::unify($pattern_type, $member_type);
+          $pattern_type   = self::pattern_to_type($member_pattern);
+          self::unify($member_type, $pattern_type);
         }
       }
 

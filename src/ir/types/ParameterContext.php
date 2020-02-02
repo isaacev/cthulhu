@@ -2,8 +2,6 @@
 
 namespace Cthulhu\ir\types;
 
-use Cthulhu\ir\names\Symbol;
-
 class ParameterContext {
   private ?self $parent;
   private array $table = [];
@@ -12,15 +10,15 @@ class ParameterContext {
     $this->parent = $parent;
   }
 
-  public function write(Symbol $symbol, Type $type): void {
-    $this->table[$symbol->get_id()] = $type;
+  public function write(int $type_id, Type $type): void {
+    $this->table[$type_id] = $type;
   }
 
-  public function read(Symbol $symbol): ?Type {
-    if (array_key_exists($symbol->get_id(), $this->table)) {
-      return $this->table[$symbol->get_id()];
+  public function read(int $type_id): ?Type {
+    if (array_key_exists($type_id, $this->table)) {
+      return $this->table[$type_id];
     } else if ($this->parent) {
-      return $this->parent->read($symbol);
+      return $this->parent->read($type_id);
     } else {
       return null;
     }
