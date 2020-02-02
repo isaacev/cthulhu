@@ -5,7 +5,7 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 use Cthulhu\val\StringValue;
 
-class FieldNode extends Node {
+class FieldNode extends Expr {
   public Name $name;
   public Expr $expr;
 
