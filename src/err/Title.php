@@ -1,6 +1,6 @@
 <?php
 
-namespace Cthulhu\Debug;
+namespace Cthulhu\err;
 
 use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;

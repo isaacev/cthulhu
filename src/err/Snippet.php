@@ -1,12 +1,11 @@
 <?php
 
-namespace Cthulhu\Debug;
+namespace Cthulhu\err;
 
 use Cthulhu\ast\Lexer;
 use Cthulhu\ast\Scanner;
 use Cthulhu\ast\ShallowParser;
 use Cthulhu\ast\tokens;
-use Cthulhu\err\Error;
 use Cthulhu\lib\fmt\Background;
 use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;
