@@ -33,9 +33,9 @@ class Arity {
         $arity        = $callee_arity->apply($total_args);
         $expr->set('arity', $arity);
       },
-      'Lit|ListExpr|Ctor|Tuple|Record' => function (nodes\Expr $expr) {
+      'Lit|ListExpr|Ctor|Tuple|Record|Enum' => function (nodes\Node $node) {
         $arity = new arity\ZeroArity();
-        $expr->set('arity', $arity);
+        $node->set('arity', $arity);
       },
       'enter(Def)' => function (nodes\Def $def) {
         foreach ($def->params->names as $param) {
