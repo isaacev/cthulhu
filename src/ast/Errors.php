@@ -147,6 +147,15 @@ class Errors {
       ->snippet($spanlike);
   }
 
+  public static function unknown_constructor_field(Spanlike $spanlike, string $form_path, string $field_name): Error {
+    return (new Error('unknown constructor field'))
+      ->paragraph("Cannot construct an instance of:")
+      ->example("$form_path")
+      ->paragraph("Use of an unknown field:")
+      ->example("$field_name")
+      ->snippet($spanlike);
+  }
+
   public static function unknown_type_param(Spanlike $spanlike, nodes\TypeParamNote $note): Error {
     return (new Error('unknown type parameter'))
       ->paragraph("The type parameter `'$note->name` could not be derived from the inputs to the current function.")

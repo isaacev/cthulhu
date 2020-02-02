@@ -1159,6 +1159,17 @@ class DeepParser extends AbstractParser {
     $pairs = $this->one_or_more_named_exprs();
     $this->exit_group_matches('{}');
 
+    $form_symbol = $path->tail->get('symbol');
+    $form_space  = $this->get_namespace($form_symbol);
+    foreach ($pairs as $pair) {
+      if ($form_space && $form_space->has_name($pair->name->value)) {
+        $pair_name_symbol = $form_space->get_name($pair->name->value)->symbol;
+        $pair->name->set('symbol', $pair_name_symbol);
+      } else {
+        throw Errors::unknown_constructor_field($pair->name->get('span'), $form_symbol, $pair->name);
+      }
+    }
+
     $span   = $group->span();
     $fields = (new nodes\NamedVariantConstructorFields($pairs))
       ->set('span', $span);

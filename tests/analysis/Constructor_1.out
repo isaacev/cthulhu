@@ -1,15 +1,15 @@
 
-  WRONG CONSTRUCTOR ARGUMENTS  -----------------------------------------------
+  UNKNOWN CONSTRUCTOR FIELD  -------------------------------------------------
 
-  The constructor expected arguments of the form:
+  Cannot construct an instance of:
 
-    { x: Str }
+    ::Constructor_1::Foo::Bar
 
-  But arguments were provided in the form:
+  Use of an unknown field:
 
-    { y: Int }
+    y
 
     : Constructor_1
   6 |   Foo::Bar { y: 123 };
-    |   ^^^^^^^^^^^^^^^^^^^
+    |              ^
 
