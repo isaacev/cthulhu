@@ -3,6 +3,7 @@
 namespace Cthulhu\php\nodes;
 
 use Cthulhu\php\Builder;
+use Cthulhu\php\names\Reserved;
 
 class MagicMethodNode extends Node {
   public string $name;
@@ -15,6 +16,7 @@ class MagicMethodNode extends Node {
    * @param BlockNode  $body
    */
   public function __construct(string $name, array $params, BlockNode $body) {
+    assert(in_array($name, Reserved::MAGIC));
     parent::__construct();
     $this->name   = $name;
     $this->params = $params;

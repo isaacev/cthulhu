@@ -3,6 +3,24 @@
 namespace Cthulhu\php\names;
 
 class Reserved {
+  public const MAGIC = [
+    '__call',
+    '__callStatic',
+    '__clone',
+    '__construct',
+    '__debugInfo',
+    '__destruct',
+    '__get',
+    '__invoke',
+    '__isset',
+    '__set',
+    '__set_state',
+    '__sleep',
+    '__toString',
+    '__unset',
+    '__wakeup',
+  ];
+
   public const WORDS = [
     '__halt_compiler',
     'abstract',
