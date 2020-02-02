@@ -10,5 +10,5 @@ fn or_else(m: Maybe('a), f: 'a) -> 'a {
 #[entry]
 fn main() -> () {
   let l = [1, 2, 3];
-  let n = 4 + or_else(List::nth(l, 0), -1);
+  let n = 4 + or_else(List::nth(l, 0), ~1);
 }
