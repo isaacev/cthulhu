@@ -900,7 +900,7 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_punct('_'):
         return $this->wildcard_pattern();
       default:
-        throw Errors::expected_pattern($this->next_token());
+        throw Errors::expected_pattern($this->next_token() ?? $this->peek_group());
     }
   }
 
