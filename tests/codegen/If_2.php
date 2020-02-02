@@ -7,8 +7,7 @@ namespace If_2 {
     } else {
       $b = "world";
     }
-    $a = $b;
-    return $a;
+    return $b;
   }
 }
 

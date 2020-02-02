@@ -6,13 +6,11 @@ namespace Match_3 {
     if ($b == 0) {
       $c = 0;
     } else if (true) {
-      $n = $b;
-      $c = $n + 1;
+      $c = $b + 1;
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    $next = $c;
-    print((string)$next . "\n");
+    print((string)$c . "\n");
   }
 }
 

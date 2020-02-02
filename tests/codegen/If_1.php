@@ -7,7 +7,6 @@ namespace If_1 {
     } else {
       $b = null;
     }
-    $a = $b;
   }
 }
 

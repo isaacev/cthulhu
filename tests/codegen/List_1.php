@@ -26,11 +26,10 @@ namespace List_1 {
     } else {
       $d = new \Prelude\None();
     }
-    $b = $d;
-    if ($b instanceof \Prelude\Some) {
-      $p = $b->{0};
+    if ($d instanceof \Prelude\Some) {
+      $p = $d->{0};
       $c = $p;
-    } else if ($b instanceof \Prelude\None) {
+    } else if ($d instanceof \Prelude\None) {
       $c = -1;
     } else {
       die("match expression did not cover all possibilities\n");

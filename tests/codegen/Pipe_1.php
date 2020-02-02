@@ -16,17 +16,15 @@ namespace Prelude {
 
 namespace Pipe_1 {
   function or_else($fallback, $m) {
-    $b = $m;
-    if ($b instanceof \Prelude\Some) {
-      $_a = $b->{0};
+    if ($m instanceof \Prelude\Some) {
+      $_a = $m->{0};
       $c = $_a;
-    } else if ($b instanceof \Prelude\None) {
+    } else if ($m instanceof \Prelude\None) {
       $c = $fallback;
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    $a = $c;
-    return $a;
+    return $c;
   }
   function main() {
     print((fn ($b) => \Pipe_1\or_else("no message", $b))(new \Prelude\Some("hello world")) . "\n");

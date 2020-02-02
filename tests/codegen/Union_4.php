@@ -21,12 +21,10 @@ namespace Union_4 {
     } else {
       $b = new \Prelude\None();
     }
-    $x = $b;
-    $c = $x;
-    if ($c instanceof \Prelude\Some) {
-      $s = $c->{0};
+    if ($b instanceof \Prelude\Some) {
+      $s = $b->{0};
       $d = $s;
-    } else if ($c instanceof \Prelude\None) {
+    } else if ($b instanceof \Prelude\None) {
       $d = "none";
     } else {
       die("match expression did not cover all possibilities\n");

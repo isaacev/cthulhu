@@ -8,7 +8,6 @@ namespace If_5 {
     } else {
       $b = null;
     }
-    $a = $b;
   }
 }
 
