@@ -1,17 +1,17 @@
 <?php
 
-namespace if_2 {
-  // #[entry]
+namespace If_2 {
   function main() {
     if (true) {
-      $a = "hello";
+      $b = "hello";
     } else {
-      $a = "world";
+      $b = "world";
     }
+    $a = $b;
     return $a;
   }
 }
 
 namespace {
-  \if_2\main();
+  \If_2\main(null);
 }

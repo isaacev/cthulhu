@@ -1,16 +1,16 @@
 <?php
 
-namespace if_1 {
-  // #[entry]
+namespace If_1 {
   function main() {
     if (true) {
-      // empty
+      $b = null;
     } else {
-      // empty
+      $b = null;
     }
+    $a = $b;
   }
 }
 
 namespace {
-  \if_1\main();
+  \If_1\main(null);
 }

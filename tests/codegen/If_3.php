@@ -1,16 +1,16 @@
 <?php
 
-namespace if_3 {
-  // #[entry]
+namespace If_3 {
   function main() {
     if (true) {
-      "hello";
+      $b = "hello";
     } else {
-      "world";
+      $b = "world";
     }
+    $b;
   }
 }
 
 namespace {
-  \if_3\main();
+  \If_3\main(null);
 }

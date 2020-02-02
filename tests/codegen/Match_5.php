@@ -1,60 +1,105 @@
 <?php
 
-namespace match_5 {
+namespace Match_5 {
   abstract class Shape {}
-
-  class UnitCircle extends \match_5\Shape {}
-
-  class Circle extends \match_5\Shape {
+  class UnitCircle extends \Match_5\Shape {
+    function __construct() {
+      // empty
+    }
+  }
+  class Circle extends \Match_5\Shape {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  class Square extends \match_5\Shape {
+  class Square extends \Match_5\Shape {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  class Rect extends \match_5\Shape {
+  class Rect extends \Match_5\Shape {
     public $width;
     public $height;
-    function __construct($args) {
-      $this->width = $args["width"];
-      $this->height = $args["height"];
+    function __construct($a) {
+      $this->width = $a["width"];
+      $this->height = $a["height"];
     }
   }
-
-  function describe($sh) {
-    if ($sh instanceof \match_5\UnitCircle) {
-      $a = "unit circle";
-    } else if ($sh instanceof \match_5\Circle) {
-      $r = $sh->{0};
-      $a = "circle with radius " . (string)$r;
-    } else if ($sh instanceof \match_5\Square) {
-      $s = $sh->{0};
-      $a = "square with perimeter " . (string)4.0 * $s;
-    } else if ($sh instanceof \match_5\Rect) {
-      $w = $sh->width;
-      $h = $sh->height;
-      $a = "rectangle with area " . (string)$w * $h;
-    }
-    print($a . "\n");
-  }
-
-  // #[entry]
   function main() {
-    \match_5\describe(new \match_5\UnitCircle());
-    \match_5\describe(new \match_5\Circle(2.0));
-    \match_5\describe(new \match_5\Square(2.5));
-    \match_5\describe(new \match_5\Rect([
+    $b = new \Match_5\UnitCircle();
+    if ($b instanceof \Match_5\UnitCircle) {
+      $c = "unit circle";
+    } else if ($b instanceof \Match_5\Circle) {
+      $r = $b->{0};
+      $c = "circle with radius " . (string)$r;
+    } else if ($b instanceof \Match_5\Square) {
+      $s = $b->{0};
+      $c = "square with perimeter " . (string)4.0 * $s;
+    } else if ($b instanceof \Match_5\Rect) {
+      $w = $b->width;
+      $h = $b->height;
+      $c = "rectangle with area " . (string)$w * $h;
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    print($c . "\n");
+    $d = new \Match_5\Circle(2.0);
+    if ($d instanceof \Match_5\UnitCircle) {
+      $e = "unit circle";
+    } else if ($d instanceof \Match_5\Circle) {
+      $r = $d->{0};
+      $e = "circle with radius " . (string)$r;
+    } else if ($d instanceof \Match_5\Square) {
+      $s = $d->{0};
+      $e = "square with perimeter " . (string)4.0 * $s;
+    } else if ($d instanceof \Match_5\Rect) {
+      $w = $d->width;
+      $h = $d->height;
+      $e = "rectangle with area " . (string)$w * $h;
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    print($e . "\n");
+    $f = new \Match_5\Square(2.5);
+    if ($f instanceof \Match_5\UnitCircle) {
+      $g = "unit circle";
+    } else if ($f instanceof \Match_5\Circle) {
+      $r = $f->{0};
+      $g = "circle with radius " . (string)$r;
+    } else if ($f instanceof \Match_5\Square) {
+      $s = $f->{0};
+      $g = "square with perimeter " . (string)4.0 * $s;
+    } else if ($f instanceof \Match_5\Rect) {
+      $w = $f->width;
+      $h = $f->height;
+      $g = "rectangle with area " . (string)$w * $h;
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    print($g . "\n");
+    $i = new \Match_5\Rect([
       "width" => 5.5,
       "height" => 1.2
-    ]));
+    ]);
+    if ($i instanceof \Match_5\UnitCircle) {
+      $j = "unit circle";
+    } else if ($i instanceof \Match_5\Circle) {
+      $r = $i->{0};
+      $j = "circle with radius " . (string)$r;
+    } else if ($i instanceof \Match_5\Square) {
+      $s = $i->{0};
+      $j = "square with perimeter " . (string)4.0 * $s;
+    } else if ($i instanceof \Match_5\Rect) {
+      $w = $i->width;
+      $h = $i->height;
+      $j = "rectangle with area " . (string)$w * $h;
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    print($j . "\n");
   }
 }
 
 namespace {
-  \match_5\main();
+  \Match_5\main(null);
 }

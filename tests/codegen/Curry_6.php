@@ -1,22 +1,21 @@
 <?php
 
-namespace curry_6 {
+namespace Curry_6 {
   function inner($d, $e, $f) {
-    print("enter inner\n");
-    return $d * $e + $f;
+    print("enter inner" . "\n");
+    $a = $d * $e + $f;
+    return $a;
   }
-
   function foo($a, $b) {
-    print("enter foo\n");
-    return fn ($c) => \curry_6\inner($a, $b, $c);
+    print("enter foo" . "\n");
+    $c = fn ($d) => \Curry_6\inner($a, $b, $d);
+    return $c;
   }
-
-  // #[entry]
   function main() {
-    $x = \curry_6\foo(1, 2);
+    $x = \Curry_6\foo(1, 2);
   }
 }
 
 namespace {
-  \curry_6\main();
+  \Curry_6\main(null);
 }

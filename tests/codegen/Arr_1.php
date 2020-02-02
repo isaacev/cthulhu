@@ -1,12 +1,11 @@
 <?php
 
-namespace arr_1 {
-  // #[entry]
+namespace Arr_1 {
   function main() {
     [];
   }
 }
 
 namespace {
-  \arr_1\main();
+  \Arr_1\main(null);
 }

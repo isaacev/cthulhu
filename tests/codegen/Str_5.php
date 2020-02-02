@@ -1,13 +1,12 @@
 <?php
 
-namespace str_5 {
-  // #[entry]
+namespace Str_5 {
   function main() {
     $hello = "world";
-    print("\$\$hello\n");
+    print("\$\$hello" . "\n");
   }
 }
 
 namespace {
-  \str_5\main();
+  \Str_5\main(null);
 }

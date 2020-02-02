@@ -1,25 +1,24 @@
 <?php
 
-namespace curry_8 {
+namespace Curry_8 {
   function inner($d, $e, $f) {
-    print("enter inner\n");
-    return $d * $e + $f;
+    print("enter inner" . "\n");
+    $a = $d * $e + $f;
+    return $a;
   }
-
   function foo($a) {
-    print("enter foo\n");
-    return fn ($b, $c) => \curry_8\inner($a, $b, $c);
+    print("enter foo" . "\n");
+    $b = fn ($c, $d) => \Curry_8\inner($a, $c, $d);
+    return $b;
   }
-
-  // #[entry]
   function main() {
-    $a = \curry_8\foo(1);
-    $x = fn ($b) => $a(2, $b);
-    $y = \curry_8\foo(3)(4, 5);
+    $b = \Curry_8\foo(1);
+    $x = fn ($c) => $b(2, $c);
+    $y = \Curry_8\foo(3)(4, 5);
     print((string)$y . "\n");
   }
 }
 
 namespace {
-  \curry_8\main();
+  \Curry_8\main(null);
 }

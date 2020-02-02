@@ -1,18 +1,17 @@
 <?php
 
-namespace curry_3 {
+namespace Curry_3 {
   function foo($a, $b, $c) {
-    return ($a + $b) * $c;
+    $d = ($a + $b) * $c;
+    return $d;
   }
-
-  // #[entry]
   function main() {
-    $x = fn ($a) => \curry_3\foo(1, 2, $a);
+    $x = fn ($b) => \Curry_3\foo(1, 2, $b);
     $y = $x(3);
     print((string)$y . "\n");
   }
 }
 
 namespace {
-  \curry_3\main();
+  \Curry_3\main(null);
 }

@@ -1,66 +1,58 @@
 <?php
 
-namespace runtime {
-  function curry($fn, $argv) {
-    $arity = (new \ReflectionFunction($fn))->getNumberOfParameters();
-    $argc = \count($argv);
-    if ($argc < $arity) {
-      return fn (...$more_argv) => \runtime\curry($fn, \array_merge($argv, $more_argv));
-    } else if ($argc === $arity) {
-      $result = $fn(...$argv);
-      return \is_callable($result) ? \runtime\curry($result, []) : $result;
-    } else {
-      return \runtime\curry($fn(...\array_splice($argv, 0, $arity)), $argv);
-    }
-  }
-}
-
-namespace Kernel\Types {
+namespace Prelude {
   abstract class Maybe {}
-
-  class Just extends \Kernel\Types\Maybe {
+  class Some extends \Prelude\Maybe {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  class None extends \Kernel\Types\Maybe {}
+  class None extends \Prelude\Maybe {
+    function __construct() {
+      // empty
+    }
+  }
 }
 
 namespace Fmt {
-  // #[inline]
-  function int($i) {
-    return (string)$i;
+  function _int($i) {
+    $a = (string)$i;
+    return $a;
   }
 }
 
-namespace pipe_2 {
-  function map($f, $m) {
-    if ($m instanceof \Kernel\Types\Just) {
-      $n = $m->{0};
-      $a = new \Kernel\Types\Just(\runtime\curry($f, [ $n ]));
-    } else if ($m instanceof \Kernel\Types\None) {
-      $a = new \Kernel\Types\None();
+namespace Pipe_2 {
+  function map($f, $mm) {
+    $b = $mm;
+    if ($b instanceof \Prelude\Some) {
+      $n = $b->{0};
+      $c = new \Prelude\Some($f($n));
+    } else if ($b instanceof \Prelude\None) {
+      $c = new \Prelude\None();
+    } else {
+      die("match expression did not cover all possibilities\n");
     }
+    $a = $c;
     return $a;
   }
-
-  function or_else($fallback, $m) {
-    if ($m instanceof \Kernel\Types\Just) {
-      $_a = $m->{0};
-      $a = $_a;
-    } else if ($m instanceof \Kernel\Types\None) {
-      $a = $fallback;
+  function or_else($fallback, $x) {
+    $b = $x;
+    if ($b instanceof \Prelude\Some) {
+      $_a = $b->{0};
+      $c = $_a;
+    } else if ($b instanceof \Prelude\None) {
+      $c = $fallback;
+    } else {
+      die("match expression did not cover all possibilities\n");
     }
+    $a = $c;
     return $a;
   }
-
-  // #[entry]
   function main() {
-    print(\pipe_2\or_else("nothing", \pipe_2\map('\Fmt\int', new \Kernel\Types\Just(123))) . "\n");
+    print((fn ($b) => \Pipe_2\or_else("nothing", $b))((fn ($b) => \Pipe_2\map('\Fmt\_int', $b))(new \Prelude\Some(123))) . "\n");
   }
 }
 
 namespace {
-  \pipe_2\main();
+  \Pipe_2\main(null);
 }

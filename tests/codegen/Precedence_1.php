@@ -1,12 +1,11 @@
 <?php
 
-namespace precedence_1 {
-  // #[entry]
+namespace Precedence_1 {
   function main() {
-    $n = 3 * 2 ** 2;
+    $n = 3 * \pow(2, 2);
   }
 }
 
 namespace {
-  \precedence_1\main();
+  \Precedence_1\main(null);
 }

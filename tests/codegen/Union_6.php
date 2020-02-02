@@ -1,36 +1,34 @@
 <?php
 
-namespace union_6 {
+namespace Union_6 {
   abstract class Result {}
-
-  class Left extends \union_6\Result {
+  class Left extends \Union_6\Result {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  class Right extends \union_6\Result {
+  class Right extends \Union_6\Result {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  // #[entry]
   function main() {
     $b = \mt_rand(0, 5);
     if ($b == 0) {
-      $a = new \union_6\Left(true);
+      $c = new \Union_6\Left(true);
     } else if ($b == 1) {
-      $a = new \union_6\Left(true);
+      $c = new \Union_6\Left(true);
     } else if ($b == 2) {
-      $a = new \union_6\Left(false);
+      $c = new \Union_6\Left(false);
     } else if (true) {
-      $a = new \union_6\Right("unknown integer");
+      $c = new \Union_6\Right("unknown integer");
+    } else {
+      die("match expression did not cover all possibilities\n");
     }
-    $r = $a;
+    $r = $c;
   }
 }
 
 namespace {
-  \union_6\main();
+  \Union_6\main(null);
 }

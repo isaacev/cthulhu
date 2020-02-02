@@ -1,23 +1,20 @@
 <?php
 
-namespace union_3 {
+namespace Union_3 {
   abstract class Foo {}
-
-  class Bar extends \union_3\Foo {
+  class Bar extends \Union_3\Foo {
     public $integer;
-    function __construct($args) {
-      $this->integer = $args["integer"];
+    function __construct($a) {
+      $this->integer = $a["integer"];
     }
   }
-
-  // #[entry]
   function main() {
-    new \union_3\Bar([
+    new \Union_3\Bar([
       "integer" => 123
     ]);
   }
 }
 
 namespace {
-  \union_3\main();
+  \Union_3\main(null);
 }

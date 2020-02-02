@@ -1,20 +1,17 @@
 <?php
 
-namespace union_2 {
+namespace Union_2 {
   abstract class Foo {}
-
-  class Bar extends \union_2\Foo {
+  class Bar extends \Union_2\Foo {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  // #[entry]
   function main() {
-    new \union_2\Bar(123);
+    new \Union_2\Bar(123);
   }
 }
 
 namespace {
-  \union_2\main();
+  \Union_2\main(null);
 }

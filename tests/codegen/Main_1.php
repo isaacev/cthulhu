@@ -1,12 +1,11 @@
 <?php
 
-namespace main_1 {
-  // #[entry]
+namespace Main_1 {
   function main() {
     // empty
   }
 }
 
 namespace {
-  \main_1\main();
+  \Main_1\main(null);
 }

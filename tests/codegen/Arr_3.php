@@ -1,7 +1,6 @@
 <?php
 
-namespace arr_3 {
-  // #[entry]
+namespace Arr_3 {
   function main() {
     [
       "a",
@@ -12,5 +11,5 @@ namespace arr_3 {
 }
 
 namespace {
-  \arr_3\main();
+  \Arr_3\main(null);
 }

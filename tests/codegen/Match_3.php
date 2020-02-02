@@ -1,20 +1,21 @@
 <?php
 
-namespace match_3 {
-  // #[entry]
+namespace Match_3 {
   function main() {
     $b = 5;
     if ($b == 0) {
-      $a = 0;
+      $c = 0;
     } else if (true) {
       $n = $b;
-      $a = $n + 1;
+      $c = $n + 1;
+    } else {
+      die("match expression did not cover all possibilities\n");
     }
-    $next = $a;
+    $next = $c;
     print((string)$next . "\n");
   }
 }
 
 namespace {
-  \match_3\main();
+  \Match_3\main(null);
 }

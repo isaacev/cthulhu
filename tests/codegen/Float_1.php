@@ -1,12 +1,11 @@
 <?php
 
-namespace float_1 {
-  // #[entry]
+namespace Float_1 {
   function main() {
     3.00;
   }
 }
 
 namespace {
-  \float_1\main();
+  \Float_1\main(null);
 }

@@ -1,14 +1,17 @@
 <?php
 
-namespace if_5 {
-  // #[entry]
+namespace If_5 {
   function main() {
     if (true) {
       "hello";
+      $b = null;
+    } else {
+      $b = null;
     }
+    $a = $b;
   }
 }
 
 namespace {
-  \if_5\main();
+  \If_5\main(null);
 }

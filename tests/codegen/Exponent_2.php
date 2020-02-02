@@ -1,12 +1,11 @@
 <?php
 
-namespace exponent_2 {
-  // #[entry]
+namespace Exponent_2 {
   function main() {
-    $n = 2 ** 0.5;
+    $n = \pow(2.0, 0.5);
   }
 }
 
 namespace {
-  \exponent_2\main();
+  \Exponent_2\main(null);
 }

@@ -1,36 +1,40 @@
 <?php
 
-namespace Kernel\Types {
+namespace Prelude {
   abstract class Maybe {}
-
-  class Just extends \Kernel\Types\Maybe {
+  class Some extends \Prelude\Maybe {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-
-  class None extends \Kernel\Types\Maybe {}
+  class None extends \Prelude\Maybe {
+    function __construct() {
+      // empty
+    }
+  }
 }
 
-namespace union_4 {
-  // #[entry]
+namespace Union_4 {
   function main() {
     if (0 < 5) {
-      $a = new \Kernel\Types\Just("hello");
+      $b = new \Prelude\Some("hello");
     } else {
-      $a = new \Kernel\Types\None();
+      $b = new \Prelude\None();
     }
-    $x = $a;
-    if ($x instanceof \Kernel\Types\Just) {
-      $s = $x->{0};
-      $b = $s;
-    } else if ($x instanceof \Kernel\Types\None) {
-      $b = "none";
+    $x = $b;
+    $c = $x;
+    if ($c instanceof \Prelude\Some) {
+      $s = $c->{0};
+      $d = $s;
+    } else if ($c instanceof \Prelude\None) {
+      $d = "none";
+    } else {
+      die("match expression did not cover all possibilities\n");
     }
-    print($b . "\n");
+    print($d . "\n");
   }
 }
 
 namespace {
-  \union_4\main();
+  \Union_4\main(null);
 }
