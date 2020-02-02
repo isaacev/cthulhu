@@ -34,7 +34,7 @@ class ShakeTree implements Pass {
       'enter(Def)' => function (Def $def) use (&$stack, &$reach) {
         array_push($stack, $def->name->symbol->get_id());
       },
-      'exit(Def)' => function (Def $def) use (&$stack) {
+      'exit(Def)' => function () use (&$stack) {
         array_pop($stack);
       },
       'NameExpr' => function (NameExpr $expr) use (&$stack, &$add_edge, &$reach) {

@@ -196,7 +196,7 @@ class Compiler {
         $ret_var = $ctx->names->tmp_var();
         $ctx->statements->push_return_var($ret_var);
       },
-      'exit(Match)' => function (ir\Match $match) use ($ctx) {
+      'exit(Match)' => function () use ($ctx) {
         /* @var php\IfStmt[] $if_stmts */
         $if_stmts = $ctx->statements->pop_stmts(count($match->arms));
 
