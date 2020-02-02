@@ -331,6 +331,7 @@ class Compiler {
       $handler = new ir\Handler(self::expr($ctx, $arm->handler));
       $arms[]  = new ir\Arm($pattern, $handler);
     }
+    $arms = new ir\Arms($arms);
 
     return new ir\Match($out_type, $disc, $arms);
   }
