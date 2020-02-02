@@ -1,5 +1,7 @@
+use ::Io;
+
 #[entry]
 fn main () -> () {
   let hello = "world";
-  ::Io::println("$hello");
+  Io::println("$hello");
 }

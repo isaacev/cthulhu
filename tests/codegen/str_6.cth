@@ -1,4 +1,6 @@
+use ::Io;
+
 #[entry]
 fn main () -> () {
-  ::Io::println("\"hello\"\n\t\"world\"");
+  Io::println("\"hello\"\n\t\"world\"");
 }

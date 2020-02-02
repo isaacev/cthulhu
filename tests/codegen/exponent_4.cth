@@ -1,4 +1,4 @@
 #[entry]
 fn main() -> () {
-  let n: Float = 0.5 ^ 2;
+  let n: Float = 0.5 ^ 2.0;
 }

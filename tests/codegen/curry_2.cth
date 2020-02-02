@@ -1,3 +1,6 @@
+use ::Io;
+use ::Fmt;
+
 fn foo(a: Int, b: Int, c: Int) -> Int {
   (a + b) * c
 }
@@ -5,5 +8,5 @@ fn foo(a: Int, b: Int, c: Int) -> Int {
 #[entry]
 fn main() -> () {
   let x = foo(1, 2)(3);
-  ::Io::println(::Fmt::int(x));
+  Io::println(Fmt::int(x));
 }

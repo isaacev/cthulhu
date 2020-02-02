@@ -1,10 +1,13 @@
+use ::Io;
+use ::Fmt;
+
 fn inner(d: Int, e: Int, f: Int) -> Int {
-  ::Io::println("enter inner");
+  Io::println("enter inner");
   (d * e) + f
 }
 
 fn foo(a: Int, b: Int) -> Int -> Int {
-  ::Io::println("enter foo");
+  Io::println("enter foo");
   inner(a, b)
 }
 
@@ -12,5 +15,5 @@ fn foo(a: Int, b: Int) -> Int -> Int {
 fn main() -> () {
   let x = foo(1, 2);
   let y = x(3);
-  ::Io::println(::Fmt::int(y));
+  Io::println(Fmt::int(y));
 }

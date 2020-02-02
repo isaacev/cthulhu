@@ -1,3 +1,6 @@
+use ::Io;
+use ::Fmt;
+
 type Shape =
   | UnitCircle
   | Circle(Float)
@@ -5,11 +8,11 @@ type Shape =
   | Rect { width: Float, height: Float };
 
 fn describe(sh: Shape) -> () {
-  ::Io::println(match sh {
+  Io::println(match sh {
     Shape::UnitCircle => "unit circle",
-    Shape::Circle(r) => "circle with radius " ++ ::Fmt::float(r),
-    Shape::Square(s) => "square with perimeter " ++ ::Fmt::float(4.0 * s),
-    Shape::Rect { width: w, height: h } => "rectangle with area " ++ ::Fmt::float(w * h),
+    Shape::Circle(r) => "circle with radius " ++ Fmt::float(r),
+    Shape::Square(s) => "square with perimeter " ++ Fmt::float(4.0 *. s),
+    Shape::Rect { width: w, height: h } => "rectangle with area " ++ Fmt::float(w *. h),
   });
 }
 

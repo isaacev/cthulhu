@@ -1,8 +1,11 @@
+use ::Io;
+use ::Fmt;
+
 #[entry]
 fn main() -> () {
   let next = match 5 {
     0 => 0,
     n => n + 1,
   };
-  ::Io::println(::Fmt::int(next));
+  Io::println(Fmt::int(next));
 }

@@ -1,3 +1,5 @@
+use ::Io;
+
 type Shape =
   | UnitCircle
   | Circle(Float)
@@ -5,7 +7,7 @@ type Shape =
   | Rect { width: Float, height: Float };
 
 fn describe(sh: Shape) -> () {
-  ::Io::println(match sh {
+  Io::println(match sh {
     Shape::UnitCircle => "unit circle",
     Shape::Circle(_) => "circle",
     Shape::Square(_) => "square",

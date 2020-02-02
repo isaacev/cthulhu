@@ -1,13 +1,15 @@
+use ::Io;
+
 fn or_else(fallback: 'a, m: Maybe('a)) -> 'a {
   match m {
-    Maybe::Just(a) => a,
+    Maybe::Some(a) => a,
     Maybe::None    => fallback,
   }
 }
 
 #[entry]
 fn main() -> () {
-  Maybe::Just("hello world")
+  Maybe::Some("hello world")
     |> or_else("no message")
-    |> ::Io::println;
+    |> Io::println;
 }
