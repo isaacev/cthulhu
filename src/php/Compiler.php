@@ -185,7 +185,15 @@ class Compiler {
       'enter(Stmts)' => function () use ($ctx) {
         $ctx->statements->push_block();
       },
-      'exit(Stmts)' => function () use ($ctx) {
+      'exit(Stmts)' => function (ir\Stmts $stmts) use ($ctx) {
+        if ($stmts->first === null || $stmts->first->last_stmt() instanceof ir\Let) {
+          $stmt = new php\AssignStmt(
+            $ctx->statements->peek_return_var(),
+            new php\NullLiteral(),
+            null);
+          $ctx->statements->push_stmt($stmt);
+        }
+
         $block = $ctx->statements->pop_block();
         $ctx->statements->stash_block($block);
       },
