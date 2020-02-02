@@ -68,7 +68,8 @@ class Test {
       $tree = LoadPhase::from_memory($file)
         ->check()
         ->optimize()
-        ->codegen();
+        ->codegen()
+        ->optimize();
 
       $php = $tree->write();
       $out = $do_php_eval ? $tree->run() : $this->expected->out;

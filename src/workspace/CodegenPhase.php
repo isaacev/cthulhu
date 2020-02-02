@@ -13,9 +13,9 @@ class CodegenPhase {
     $this->tree = $tree;
   }
 
-  public function codegen(): WritePhase {
+  public function codegen(): LateOptimizationPhase {
     Arity::inspect($this->tree);
     $prog = Compiler::root($this->tree);
-    return new WritePhase($prog);
+    return new LateOptimizationPhase($prog);
   }
 }

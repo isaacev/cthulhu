@@ -5,7 +5,7 @@ namespace Cthulhu\workspace;
 use Cthulhu\ir\nodes\Root;
 use Cthulhu\ir\passes;
 
-class OptimizePhase {
+class EarlyOptimizationPhase {
   private Root $tree;
 
   public function __construct(Root $tree) {

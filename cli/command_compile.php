@@ -12,6 +12,7 @@ function command_compile(cli\Lookup $flags, cli\Lookup $args) {
       ->check()
       ->optimize()
       ->codegen()
+      ->optimize()
       ->write();
   } catch (Error $err) {
     $f = new StreamFormatter(STDERR);

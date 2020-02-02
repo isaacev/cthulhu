@@ -23,13 +23,13 @@ class CheckPhase {
   }
 
   /**
-   * @return OptimizePhase
+   * @return EarlyOptimizationPhase
    * @throws Error
    */
-  public function check(): OptimizePhase {
+  public function check(): EarlyOptimizationPhase {
     TypeCheck::syntax_tree($this->types, $this->deep);
     ExhaustionCheck::syntax_tree($this->deep);
     $ir = Compiler::program($this->deep);
-    return new OptimizePhase($ir);
+    return new EarlyOptimizationPhase($ir);
   }
 }
