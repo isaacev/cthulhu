@@ -58,7 +58,7 @@ class Compiler {
       'Enum' => function (ir\Enum $enum) use ($ctx) {
         $base_name = $ctx->names->name_to_ref_name($enum->name, $ctx->namespaces->current_ref());
         $base_ref  = $ctx->names->name_to_ref($enum->name);
-        $base_stmt = new php\ClassStmt(true, $base_name, null, []);
+        $base_stmt = new php\ClassStmt(true, $base_name, null, [], null);
         $ctx->statements->push_stmt($base_stmt);
 
         foreach ($enum->forms as $form) {
@@ -79,7 +79,8 @@ class Compiler {
                 new php\SubscriptExpr(
                   new php\VariableExpr($args_var),
                   new php\StrLiteral(
-                    StringValue::from_safe_scalar($field_var->value))));
+                    StringValue::from_safe_scalar($field_var->value))),
+                null);
               $ctx->statements->push_stmt($bind_stmt);
             }
           } else if ($form instanceof ir\OrderedForm) {
@@ -90,7 +91,8 @@ class Compiler {
                   new php\ThisExpr(),
                   new php\IntLiteral(
                     IntegerValue::from_scalar($i))),
-                new php\VariableExpr($order_var));
+                new php\VariableExpr($order_var),
+                null);
               $ctx->statements->push_stmt($bind_stmt);
             }
           }
@@ -100,7 +102,7 @@ class Compiler {
           $form_body[] = new php\MagicMethodNode('__construct', $ctor_params, $ctor_body);
 
           $form_name = $ctx->names->name_to_ref_name($form->name, $ctx->namespaces->current_ref());
-          $form_stmt = new php\ClassStmt(false, $form_name, $base_ref, $form_body);
+          $form_stmt = new php\ClassStmt(false, $form_name, $base_ref, $form_body, null);
           $ctx->statements->push_stmt($form_stmt);
         }
       },
@@ -137,10 +139,10 @@ class Compiler {
         $return_var  = $ctx->statements->pop_return_var();
         if (Atomic::is_unit($return_type->flatten()) === false) {
           $ret_val = new php\VariableExpr($return_var);
-          $ctx->statements->push_stmt(new php\ReturnStmt($ret_val));
+          $ctx->statements->push_stmt(new php\ReturnStmt($ret_val, null));
         }
 
-        $stmt = new php\FuncStmt($head, $ctx->statements->pop_block(), []);
+        $stmt = new php\FuncStmt($head, $ctx->statements->pop_block(), [], null);
         $ctx->names->exit_func_scope();
         $ctx->statements->push_stmt($stmt);
       },
@@ -148,9 +150,9 @@ class Compiler {
         $expr = $ctx->expressions->pop();
         if ($let->name) {
           $name = $ctx->names->name_to_var($let->name);
-          $stmt = new php\AssignStmt($name, $expr);
+          $stmt = new php\AssignStmt($name, $expr, null);
         } else {
-          $stmt = new php\SemiStmt($expr);
+          $stmt = new php\SemiStmt($expr, null);
         }
         $ctx->statements->push_stmt($stmt);
       },
@@ -158,7 +160,7 @@ class Compiler {
         assert($ret->next === null);
         $ret_var = $ctx->statements->peek_return_var();
         $expr    = $ctx->expressions->pop();
-        $ctx->statements->push_stmt(new php\AssignStmt($ret_var, $expr));
+        $ctx->statements->push_stmt(new php\AssignStmt($ret_var, $expr, null));
       },
       'enter(Expr)' => function () use ($ctx) {
         // Record the number of expressions in the expression stack. When the
@@ -198,26 +200,36 @@ class Compiler {
       },
       'exit(Match)' => function () use ($ctx) {
         /* @var php\IfStmt[] $if_stmts */
-        $if_stmts = $ctx->statements->pop_stmts(count($match->arms));
+        $if_stmts        = [];
+        $chained_if_stmt = $ctx->statements->pop_block()->stmt;
+        while ($chained_if_stmt !== null) {
+          $if_stmts[]      = $chained_if_stmt->from_successor(null);
+          $chained_if_stmt = $chained_if_stmt->next;
+        }
 
         // Bind the discriminant expression to a temporary variable
         $disc_var = $ctx->patterns->peek_pattern_context()->discriminant;
         $ctx->patterns->pop_pattern_context();
-        $disc_assignment = new php\AssignStmt($disc_var, $ctx->expressions->pop());
+        $disc_assignment = new php\AssignStmt($disc_var, $ctx->expressions->pop(), null);
         $ctx->statements->push_stmt($disc_assignment);
 
         // Combine multiple if statements into a single if-elseif-else statement
-        $rest = new php\BlockNode([
+        $rest = new php\BlockNode(
           new php\DieStmt(
-            StringValue::from_safe_scalar("match expression did not cover all possibilities\\n")),
-        ]);
+            StringValue::from_safe_scalar("match expression did not cover all possibilities\\n"),
+            null)
+        );
 
         foreach (array_reverse($if_stmts) as $if_stmt) {
-          $rest = new php\IfStmt($if_stmt->test, $if_stmt->consequent, $rest);
+          $rest = new php\IfStmt($if_stmt->test, $if_stmt->consequent, $rest, null);
         }
 
         $ctx->statements->push_stmt($rest);
         $ctx->expressions->push(new php\VariableExpr($ctx->statements->pop_return_var()));
+      },
+
+      'enter(Arms)' => function () use ($ctx) {
+        $ctx->statements->push_block();
       },
 
       'enter(Arm)' => function () use ($ctx) {
@@ -236,7 +248,8 @@ class Compiler {
       'VariablePattern' => function (ir\VariablePattern $pattern) use ($ctx) {
         $stmt = new php\AssignStmt(
           $ctx->names->name_to_var($pattern->name),
-          $ctx->patterns->peek_pattern_context()->peek_accessor()
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          null
         );
         $ctx->statements->push_stmt($stmt);
       },
@@ -307,11 +320,12 @@ class Compiler {
 
         $expr    = $ctx->expressions->pop();
         $ret_var = $ctx->statements->peek_return_var();
-        $ret     = new nodes\AssignStmt($ret_var, $expr);
+        $ret     = new nodes\AssignStmt($ret_var, $expr, null);
         $ctx->statements->push_stmt($ret);
         $consequent = $ctx->statements->pop_block();
+        $alternate  = null;
 
-        $if_stmt = new php\IfStmt($condition, $consequent, null);
+        $if_stmt = new php\IfStmt($condition, $consequent, $alternate, null);
         $ctx->statements->push_stmt($if_stmt);
       },
 
@@ -325,7 +339,7 @@ class Compiler {
         $condition  = $ctx->expressions->pop();
         $ret_var    = $ctx->statements->pop_return_var();
 
-        $if_stmt = new php\IfStmt($condition, $consequent, $alternate);
+        $if_stmt = new php\IfStmt($condition, $consequent, $alternate, null);
         $ctx->statements->push_stmt($if_stmt);
         $ctx->expressions->push(new php\VariableExpr($ret_var));
       },
@@ -485,7 +499,7 @@ class Compiler {
          * callee inside of the under-application closure.
          */
         $tmp_var  = $ctx->names->tmp_var();
-        $tmp_stmt = new php\AssignStmt($tmp_var, $callee);
+        $tmp_stmt = new php\AssignStmt($tmp_var, $callee, null);
         $ctx->statements->push_stmt($tmp_stmt);
         $callee = new php\VariableExpr($tmp_var);
       }

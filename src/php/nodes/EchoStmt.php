@@ -7,8 +7,8 @@ use Cthulhu\php\Builder;
 class EchoStmt extends Stmt {
   public Expr $expr;
 
-  public function __construct(Expr $expr) {
-    parent::__construct();
+  public function __construct(Expr $expr, ?Stmt $next) {
+    parent::__construct($next);
     $this->expr = $expr;
   }
 
@@ -16,9 +16,11 @@ class EchoStmt extends Stmt {
 
   public function build(): Builder {
     return (new Builder)
+      ->newline_then_indent()
       ->keyword('echo')
       ->space()
       ->expr($this->expr)
-      ->semicolon();
+      ->semicolon()
+      ->then($this->next ?? (new Builder));
   }
 }

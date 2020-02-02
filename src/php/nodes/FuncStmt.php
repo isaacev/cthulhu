@@ -2,6 +2,7 @@
 
 namespace Cthulhu\php\nodes;
 
+use Cthulhu\lib\trees\EditableSuccessor;
 use Cthulhu\php\Builder;
 
 class FuncStmt extends Stmt {
@@ -9,8 +10,8 @@ class FuncStmt extends Stmt {
   public BlockNode $body;
   public array $attrs;
 
-  public function __construct(FuncHead $head, BlockNode $body, array $attrs) {
-    parent::__construct();
+  public function __construct(FuncHead $head, BlockNode $body, array $attrs, ?Stmt $next) {
+    parent::__construct($next);
     $this->head  = $head;
     $this->body  = $body;
     $this->attrs = $attrs;
@@ -21,7 +22,12 @@ class FuncStmt extends Stmt {
   }
 
   public function from_children(array $nodes): Node {
-    return new self($nodes[0], $nodes[1], $this->attrs);
+    return new self($nodes[0], $nodes[1], $this->attrs, $this->next);
+  }
+
+  public function from_successor(?EditableSuccessor $successor): FuncStmt {
+    assert($successor === null || $successor instanceof Stmt);
+    return new FuncStmt($this->head, $this->body, $this->attrs, $successor);
   }
 
   public function build(): Builder {
@@ -33,9 +39,11 @@ class FuncStmt extends Stmt {
     }
 
     return (new Builder)
+      ->newline_then_indent()
       ->each($commented_attrs)
       ->then($this->head)
       ->space()
-      ->then($this->body);
+      ->then($this->body)
+      ->then($this->next ?? (new Builder));
   }
 }

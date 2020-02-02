@@ -4,6 +4,8 @@ namespace Cthulhu\php;
 
 class StatementAccumulator {
   private ExpressionStack $exprs;
+
+  /* @var nodes\Stmt[]|null[] $pending_stmts */
   private array $pending_stmts = [];
   private array $return_vars = [];
   private array $block_stash = [];
@@ -21,7 +23,7 @@ class StatementAccumulator {
   }
 
   public function push_block(): void {
-    array_push($this->pending_stmts, []);
+    array_push($this->pending_stmts, null);
   }
 
   public function peek_return_var(): nodes\Variable {
@@ -30,8 +32,8 @@ class StatementAccumulator {
   }
 
   public function pop_block(): nodes\BlockNode {
-    $stmts = array_pop($this->pending_stmts);
-    return new nodes\BlockNode($stmts);
+    $stmt = array_pop($this->pending_stmts);
+    return new nodes\BlockNode($stmt);
   }
 
   public function stash_block(nodes\BlockNode $block): void {
@@ -45,23 +47,14 @@ class StatementAccumulator {
 
   public function push_stmt(nodes\Stmt $stmt): void {
     assert(!empty($this->pending_stmts));
-    array_push($this->pending_stmts[count($this->pending_stmts) - 1], $stmt);
-  }
-
-  public function pop_stmt(): nodes\Stmt {
-    assert(!empty($this->pending_stmts));
-    assert(!empty($this->pending_stmts[count($this->pending_stmts) - 1]));
-    return array_pop($this->pending_stmts[count($this->pending_stmts) - 1]);
-  }
-
-  public function pop_stmts(int $n): array {
-    assert($n >= 0);
-    assert(!empty($this->pending_stmts));
-    assert(count($this->pending_stmts[count($this->pending_stmts) - 1]) >= $n);
-    if ($n === 0) {
-      return [];
+    $current_stmt = end($this->pending_stmts);
+    if ($current_stmt === null) {
+      array_pop($this->pending_stmts);
+      array_push($this->pending_stmts, $stmt);
+      assert(end($this->pending_stmts) === $stmt);
     } else {
-      return array_splice($this->pending_stmts[count($this->pending_stmts) - 1], -$n);
+      $current_stmt->mutable_append($stmt);
+      assert(end($this->pending_stmts)->last_stmt() === $stmt);
     }
   }
 }

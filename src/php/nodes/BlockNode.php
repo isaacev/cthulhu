@@ -5,34 +5,30 @@ namespace Cthulhu\php\nodes;
 use Cthulhu\php\Builder;
 
 class BlockNode extends Node {
-  public array $stmts;
+  public ?Stmt $stmt;
 
-  /**
-   * @param Stmt[] $stmts
-   */
-  public function __construct(array $stmts) {
+  public function __construct(?Stmt $stmt) {
     parent::__construct();
-    $this->stmts = $stmts;
-  }
-
-  public function is_empty(): bool {
-    return count($this->stmts) === 0;
+    $this->stmt = $stmt;
   }
 
   public function children(): array {
-    return $this->stmts;
+    return [ $this->stmt ];
   }
 
   public function from_children(array $nodes): Node {
-    return new self($nodes);
-  }
-
-  public function length(): int {
-    return count($this->stmts);
+    return new self($nodes[0]);
   }
 
   public function build(): Builder {
     return (new Builder)
-      ->block($this);
+      ->brace_left()
+      ->increase_indentation()
+      ->then($this->stmt ?? (new Builder)
+          ->newline_then_indent()
+          ->comment('empty'))
+      ->decrease_indentation()
+      ->newline_then_indent()
+      ->brace_right();
   }
 }
