@@ -284,7 +284,7 @@ class Compiler {
     $arms = [];
     foreach ($expr->arms as $arm) {
       $pattern = self::pattern($disc_type, $arm->pattern);
-      $handler = self::expr($ctx, $arm->handler);
+      $handler = new ir\Handler(self::expr($ctx, $arm->handler));
       $arms[]  = new ir\Arm($pattern, $handler);
     }
 

@@ -4,9 +4,9 @@ namespace Cthulhu\ir\nodes;
 
 class Arm extends Node {
   public Pattern $pattern;
-  public Expr $handler;
+  public Handler $handler;
 
-  public function __construct(Pattern $pattern, Expr $handler) {
+  public function __construct(Pattern $pattern, Handler $handler) {
     parent::__construct();
     $this->pattern = $pattern;
     $this->handler = $handler;
