@@ -2,12 +2,13 @@
 
 namespace Cthulhu\ir\nodes;
 
+use Countable;
 use Cthulhu\lib\trees\EditableSuccessor;
 use Cthulhu\lib\trees\Nodelike;
 use Cthulhu\lib\trees\RemovalHandler;
 use Cthulhu\lib\trees\ReplacementHandler;
 
-abstract class Stmt extends Node implements RemovalHandler, ReplacementHandler, EditableSuccessor, \Countable {
+abstract class Stmt extends Node implements RemovalHandler, ReplacementHandler, EditableSuccessor, Countable {
   public ?Stmt $next;
 
   public function __construct(?Stmt $next) {
