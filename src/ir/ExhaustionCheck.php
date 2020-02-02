@@ -22,15 +22,6 @@ class ExhaustionCheck {
         array_push($match_trees, $match_tree);
       },
       'MatchArm' => function (ast\MatchArm $arm) use (&$match_types, &$match_trees) {
-        // $type    = end($ctx->match_types);
-        // $pattern = patterns\Pattern::from($arm->pattern, $type);
-        // if ($ctx->peek_pattern_tree()->is_redundant($pattern)) {
-        //   $span = $arm->pattern->get('span');
-        //   throw Errors::redundant_pattern($span, $pattern);
-        // } else {
-        //   $ctx->peek_pattern_tree()->apply($pattern);
-        // }
-
         $match_type = end($match_types);
         $pattern    = patterns\Pattern::from($arm->pattern, $match_type);
         $tree       = end($match_trees);
