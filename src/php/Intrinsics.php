@@ -13,6 +13,10 @@ class Intrinsics {
    */
   public static function build_intrinsic_expr(string $name, array $args): nodes\Expr {
     switch ($name) {
+      case 'array_key_exists':
+        return self::array_key_exists(...$args);
+      case 'subscript':
+        return self::subscript(...$args);
       case 'mt_rand':
         return self::mt_rand(...$args);
       case 'php_print':
@@ -42,6 +46,20 @@ class Intrinsics {
       default:
         die("unknown intrinsic named '$name'\n");
     }
+  }
+
+  private static function array_key_exists(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new Reference(
+          'array_key_exists',
+          new Symbol()),
+        false),
+      [ $a, $b ]);
+  }
+
+  private static function subscript(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\SubscriptExpr($a, $b);
   }
 
   private static function mt_rand(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
