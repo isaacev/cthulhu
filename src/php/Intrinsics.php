@@ -2,6 +2,9 @@
 
 namespace Cthulhu\php;
 
+use Cthulhu\php\names\Symbol;
+use Cthulhu\php\nodes\Reference;
+
 class Intrinsics {
   /**
    * @param string       $name
@@ -42,7 +45,13 @@ class Intrinsics {
   }
 
   private static function mt_rand(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
-    return new nodes\BuiltinCallExpr('mt_rand', [ $a, $b ]);
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new Reference(
+          'mt_rand',
+          new Symbol()),
+        false),
+      [ $a, $b ]);
   }
 
   private static function php_print(nodes\Expr $a): nodes\Expr {
@@ -74,7 +83,13 @@ class Intrinsics {
   }
 
   private static function any_pow(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
-    return new nodes\BuiltinCallExpr('pow', [ $a, $b ]);
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new Reference(
+          'pow',
+          new Symbol()),
+        false),
+      [ $a, $b ]);
   }
 
   private static function int_add(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
