@@ -2,7 +2,7 @@ use ::List;
 
 fn or_else(m: Maybe('a), f: 'a) -> 'a {
   match m {
-    Maybe::Just(p) => p,
+    Maybe::Some(p) => p,
     Maybe::None => f,
   }
 }
