@@ -3,13 +3,11 @@
 namespace Curry_4 {
   function inner($d, $e, $f) {
     print("enter inner" . "\n");
-    $a = $d * $e + $f;
-    return $a;
+    return $d * $e + $f;
   }
   function foo($a, $b) {
     print("enter foo" . "\n");
-    $c = fn ($d) => \Curry_4\inner($a, $b, $d);
-    return $c;
+    return fn ($d) => \Curry_4\inner($a, $b, $d);
   }
   function main() {
     $x = \Curry_4\foo(1, 2)(3);

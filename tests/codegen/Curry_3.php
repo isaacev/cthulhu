@@ -2,8 +2,7 @@
 
 namespace Curry_3 {
   function foo($a, $b, $c) {
-    $d = ($a + $b) * $c;
-    return $d;
+    return ($a + $b) * $c;
   }
   function main() {
     $x = fn ($b) => \Curry_3\foo(1, 2, $b);

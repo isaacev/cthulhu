@@ -3,11 +3,10 @@
 namespace If_2 {
   function main() {
     if (true) {
-      $b = "hello";
+      return "hello";
     } else {
-      $b = "world";
+      return "world";
     }
-    return $b;
   }
 }
 
