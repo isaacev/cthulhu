@@ -10,12 +10,16 @@ class Intrinsics {
    */
   public static function build_intrinsic_expr(string $name, array $args): nodes\Expr {
     switch ($name) {
+      case 'mt_rand':
+        return self::mt_rand(...$args);
       case 'php_print':
         return self::php_print(...$args);
       case 'str_concat':
         return self::str_concat(...$args);
       case 'cast_int_to_string':
         return self::cast_int_to_string(...$args);
+      case 'cast_float_to_string':
+        return self::cast_float_to_string(...$args);
       case 'any_lt':
         return self::any_lt(...$args);
       case 'any_gt':
@@ -24,11 +28,21 @@ class Intrinsics {
         return self::negate(...$args);
       case 'any_pow':
         return self::any_pow(...$args);
+      case 'int_add':
+        return self::int_add(...$args);
       case 'int_mul':
         return self::int_mul(...$args);
+      case 'float_add':
+        return self::float_add(...$args);
+      case 'float_mul':
+        return self::float_mul(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
+  }
+
+  private static function mt_rand(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BuiltinCallExpr('mt_rand', [ $a, $b ]);
   }
 
   private static function php_print(nodes\Expr $a): nodes\Expr {
@@ -40,6 +54,10 @@ class Intrinsics {
   }
 
   private static function cast_int_to_string(nodes\Expr $a): nodes\Expr {
+    return new nodes\CastExpr('string', $a);
+  }
+
+  private static function cast_float_to_string(nodes\Expr $a): nodes\Expr {
     return new nodes\CastExpr('string', $a);
   }
 
@@ -59,7 +77,19 @@ class Intrinsics {
     return new nodes\BuiltinCallExpr('pow', [ $a, $b ]);
   }
 
+  private static function int_add(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('+', $a, $b);
+  }
+
   private static function int_mul(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('*', $a, $b);
+  }
+
+  private static function float_add(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('+', $a, $b);
+  }
+
+  private static function float_mul(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('*', $a, $b);
   }
 }
