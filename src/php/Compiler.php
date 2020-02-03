@@ -34,7 +34,7 @@ class Compiler {
   public static function root(ir\Root $root): php\Program {
     $ctx = new self();
 
-//    $stdout = new StreamFormatter(STDOUT);
+//    $stdout = new \Cthulhu\lib\fmt\StreamFormatter(STDOUT);
 //    $root->build()->write($stdout)
 //      ->newline()
 //      ->newline();

@@ -15,6 +15,10 @@ class Exprs extends Node implements \Countable {
     $this->exprs = $exprs;
   }
 
+  public function append(Exprs $rest): Exprs {
+    return new Exprs(array_merge($this->exprs, $rest->exprs));
+  }
+
   public function count() {
     return count($this->exprs);
   }

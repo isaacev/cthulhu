@@ -15,6 +15,7 @@ class EarlyOptimizationPhase {
   public function optimize(): CodegenPhase {
     $this->tree = passes\Inline::apply($this->tree);
     $this->tree = passes\ShakeTree::apply($this->tree);
+    $this->tree = passes\CombineCalls::apply($this->tree);
     return new CodegenPhase($this->tree);
   }
 }

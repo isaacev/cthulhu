@@ -42,7 +42,7 @@ namespace Pipe_2 {
     }
   }
   function main() {
-    print((fn ($b) => \Pipe_2\or_else("nothing", $b))((fn ($b) => \Pipe_2\map('\Fmt\_int', $b))(new \Prelude\Some(123))) . "\n");
+    print(\Pipe_2\or_else("nothing", \Pipe_2\map('\Fmt\_int', new \Prelude\Some(123))) . "\n");
   }
 }
 
