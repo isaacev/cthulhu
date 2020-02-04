@@ -4,9 +4,9 @@ namespace If_6 {
   function main() {
     if (true) {
       "hello";
-      $b = null;
+      null;
     } else {
-      $b = null;
+      null;
     }
   }
 }

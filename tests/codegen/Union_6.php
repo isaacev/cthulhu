@@ -15,13 +15,13 @@ namespace Union_6 {
   function main() {
     $b = \mt_rand(0, 5);
     if ($b == 0) {
-      $c = new \Union_6\Left(true);
+      new \Union_6\Left(true);
     } else if ($b == 1) {
-      $c = new \Union_6\Left(true);
+      new \Union_6\Left(true);
     } else if ($b == 2) {
-      $c = new \Union_6\Left(false);
+      new \Union_6\Left(false);
     } else if (true) {
-      $c = new \Union_6\Right("unknown integer");
+      new \Union_6\Right("unknown integer");
     } else {
       die("match expression did not cover all possibilities\n");
     }

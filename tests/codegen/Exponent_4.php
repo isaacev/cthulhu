@@ -2,7 +2,7 @@
 
 namespace Exponent_4 {
   function main() {
-    $n = \pow(0.5, 2.0);
+    \pow(0.5, 2.0);
   }
 }
 

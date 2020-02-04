@@ -34,7 +34,7 @@ namespace List_1 {
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    $n = 4 + $c;
+    4 + $c;
   }
 }
 

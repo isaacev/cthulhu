@@ -3,9 +3,9 @@
 namespace If_1 {
   function main() {
     if (true) {
-      $b = null;
+      null;
     } else {
-      $b = null;
+      null;
     }
   }
 }

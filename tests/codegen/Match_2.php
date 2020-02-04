@@ -12,7 +12,7 @@ namespace Match_2 {
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    $y = $c + 1;
+    $c + 1;
   }
 }
 

@@ -10,7 +10,7 @@ namespace Curry_6 {
     return fn ($d) => \Curry_6\inner($a, $b, $d);
   }
   function main() {
-    $x = \Curry_6\foo(1, 2);
+    \Curry_6\foo(1, 2);
   }
 }
 

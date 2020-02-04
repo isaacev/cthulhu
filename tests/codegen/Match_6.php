@@ -7,7 +7,7 @@ namespace Match_6 {
     } else if (\count($things) == 1) {
       $c = "one";
     } else if (\count($things) >= 0) {
-      $rest = \array_slice($things, 0);
+      \array_slice($things, 0);
       $c = "multiple";
     } else {
       die("match expression did not cover all possibilities\n");

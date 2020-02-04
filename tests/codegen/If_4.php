@@ -3,9 +3,9 @@
 namespace If_4 {
   function main() {
     if (true) {
-      $b = "hello";
+      "hello";
     } else {
-      $b = "world";
+      "world";
     }
   }
 }

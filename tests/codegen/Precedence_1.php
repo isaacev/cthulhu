@@ -2,7 +2,7 @@
 
 namespace Precedence_1 {
   function main() {
-    $n = 3 * \pow(2, 2);
+    3 * \pow(2, 2);
   }
 }
 
