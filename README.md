@@ -18,7 +18,7 @@ These capitalization rules are enforced by the language.
 - [x] PHP AST rewriter library
 - [x] Basic function inlining optimization
 - [x] Basic dead-code elimination optimization
-- [x] Constant folding optimization'
+- [x] Constant folding optimization
 - [x] Type name resolution
 - [x] Generic functions
 - [ ] Pretty multi-line error snippets
@@ -27,3 +27,7 @@ These capitalization rules are enforced by the language.
 - [x] The List type
 - [x] Floating point numbers
 - [x] Pattern matching
+- [ ] Recursion
+- [ ] Tail call optimization
+- [ ] Closures
+- [ ] Mutation semantics
