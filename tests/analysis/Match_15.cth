@@ -1,0 +1,9 @@
+#[entry]
+fn main() -> () {
+  match [true, false] {
+    []          => false,
+    [true]      => true,
+    [false]     => true,
+    [ _ ]       => false,
+  };
+}

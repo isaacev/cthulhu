@@ -11,6 +11,7 @@ use Cthulhu\ir\types\Record;
 use Cthulhu\ir\types\Tuple;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
+use Cthulhu\php\names\Symbol;
 use Cthulhu\php\nodes as php;
 use Cthulhu\val\BooleanValue;
 use Cthulhu\val\IntegerValue;
@@ -242,6 +243,51 @@ class Compiler {
 
       'enter(Arm)' => function () use ($ctx) {
         $ctx->statements->push_block();
+      },
+
+      'enter(ListPattern)' => function (ir\ListPattern $pattern) use ($ctx) {
+        $oper = $pattern->glob ? '>=' : '==';
+        $cond = new php\BinaryExpr(
+          $oper,
+          new nodes\CallExpr(
+            new nodes\ReferenceExpr(
+              new nodes\Reference(
+                'count',
+                new Symbol()),
+              false),
+            [ $ctx->patterns->peek_pattern_context()->peek_accessor() ]),
+          new php\IntLiteral(
+            IntegerValue::from_scalar($pattern->cardinality()))
+        );
+        $ctx->patterns->peek_pattern_context()->push_condition($cond);
+      },
+      'enter(ListPatternMember)' => function (ir\ListPatternMember $member) use ($ctx) {
+        $acc = new php\SubscriptExpr(
+          $ctx->patterns->peek_pattern_context()->peek_accessor(),
+          new nodes\IntLiteral(IntegerValue::from_scalar($member->index))
+        );
+        $ctx->patterns->peek_pattern_context()->push_accessor($acc);
+      },
+      'exit(ListPatternMember)' => function () use ($ctx) {
+        $ctx->patterns->peek_pattern_context()->pop_accessor();
+      },
+      'enter(Glob)' => function (ir\Glob $glob) use ($ctx) {
+        $acc = new php\CallExpr(
+          new nodes\ReferenceExpr(
+            new nodes\Reference(
+              'array_slice',
+              new Symbol()),
+            false),
+          [
+            $ctx->patterns->peek_pattern_context()->peek_accessor(),
+            new php\IntLiteral(
+              IntegerValue::from_scalar($glob->offset)),
+          ]
+        );
+        $ctx->patterns->peek_pattern_context()->push_accessor($acc);
+      },
+      'exit(Glob)' => function () use ($ctx) {
+        $ctx->patterns->peek_pattern_context()->pop_accessor();
       },
 
       'enter(FormPattern)' => function (ir\FormPattern $pattern) use ($ctx) {

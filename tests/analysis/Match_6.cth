@@ -1,0 +1,6 @@
+#[entry]
+fn main() -> () {
+  match [] {
+    [a, b] => a + b,
+  };
+}

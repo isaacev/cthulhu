@@ -639,6 +639,21 @@ class TypeCheck {
       return new types\FreeTypeVar('_', null);
     }
 
+    if ($pat instanceof ast\ListPattern) {
+      $unified_type = new types\FreeTypeVar('_', null);
+      foreach ($pat->elements as $elem_pat) {
+        $elem_type = self::pattern_to_type($elem_pat);
+        self::unify($unified_type, $elem_type);
+      }
+
+      if ($pat->glob) {
+        $glob_type = self::pattern_to_type($pat->glob->binding);
+        self::unify(new types\ListType($unified_type), $glob_type);
+      }
+
+      return new types\ListType($unified_type);
+    }
+
     if ($pat instanceof ast\VariablePattern) {
       $type = new types\FreeTypeVar('_', null);
       $pat->name->get('symbol')->set(self::TYPE_KEY, $type);

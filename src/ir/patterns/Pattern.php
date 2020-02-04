@@ -9,6 +9,16 @@ abstract class Pattern {
   abstract public function __toString(): string;
 
   public static function from(ast\Pattern $pattern, types\Type $type): self {
+    if ($pattern instanceof ast\ListPattern) {
+      assert($type instanceof types\ListType);
+      $elements = [];
+      $has_glob = $pattern->glob ? true : false;
+      foreach ($pattern->elements as $elem) {
+        $elements[] = self::from($elem, $type->elements);
+      }
+      return new ListPattern($elements, $has_glob);
+    }
+
     if ($pattern instanceof ast\FormPattern) {
       assert($type instanceof types\Enum);
       $form_name = $pattern->path->tail->value;

@@ -1,0 +1,21 @@
+use ::Io;
+use ::Fmt;
+use ::List;
+
+fn test(things: [Str]) -> () {
+  let x = match things {
+    []        => "none",
+    ["a"]     => "is the letter a",
+    [a]       => a,
+    [a, ...rest] => a ++ Fmt::int(List::length(rest)),
+  };
+  Io::println(x);
+}
+
+#[entry]
+fn main() -> () {
+  test([]);
+  test(["a"]);
+  test(["b", "c"]);
+  test(["d", "e", "f"]);
+}

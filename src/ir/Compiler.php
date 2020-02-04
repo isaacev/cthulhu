@@ -393,6 +393,25 @@ class Compiler {
         $ref_symbol = $pat->path->tail->get('symbol');
         return new ir\NullaryFormPattern($type, $ref_symbol);
       }
+      case $pat instanceof ast\ListPattern:
+      {
+        assert($type instanceof types\ListType);
+        $sub_patterns = [];
+        foreach ($pat->elements as $index => $sub_pattern) {
+          $sub_pattern    = self::pattern($type->elements, $sub_pattern);
+          $sub_patterns[] = new ir\ListPatternMember($index, $sub_pattern);
+        }
+
+        $glob = null;
+        if ($pat->glob) {
+          $glob_type    = new types\ListType($type->elements);
+          $glob_binding = self::pattern($glob_type, $pat->glob->binding);
+          assert($glob_binding instanceof ir\VariablePattern);
+          $glob = new ir\Glob(count($sub_patterns), $glob_binding);
+        }
+
+        return new ir\ListPattern($type, $sub_patterns, $glob);
+      }
       case $pat instanceof ast\VariablePattern:
         return new ir\VariablePattern(new ir\Name($type, $pat->name->value, $pat->name->get('symbol')));
       case $pat instanceof ast\WildcardPattern:

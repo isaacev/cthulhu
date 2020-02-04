@@ -1,0 +1,8 @@
+use ::List;
+
+#[entry]
+fn main() -> () {
+  match [] {
+    [a, ...c] => a + List::length(c),
+  };
+}

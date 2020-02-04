@@ -891,6 +891,8 @@ class DeepParser extends AbstractParser {
    */
   private function pattern(): nodes\Pattern {
     switch (true) {
+      case $this->ahead_is_group('[]'):
+        return $this->list_pattern();
       case $this->ahead_is_upper_ident():
         return $this->form_pattern();
       case $this->ahead_is_lower_ident():
@@ -902,6 +904,46 @@ class DeepParser extends AbstractParser {
       default:
         throw Errors::expected_pattern($this->next_token() ?? $this->peek_group());
     }
+  }
+
+  /**
+   * @return nodes\ListPattern
+   * @throws Error
+   */
+  private function list_pattern(): nodes\ListPattern {
+    $enter_group = $this->next_group_matches('[]');
+    $elements    = [];
+    $glob        = null;
+    while ($this->ahead_is_end_of_current_group() === false) {
+      if ($this->ahead_is_punct("...")) {
+        $glob = $this->glob();
+        break;
+      } else {
+        $elements[] = $this->pattern();
+      }
+
+      if ($this->ahead_is_punct(',')) {
+        $comma = $this->next_punct(',');
+      } else {
+        break;
+      }
+    }
+    $exit_group = $this->exit_group_matches('[]');
+    $span       = Span::join($enter_group, $exit_group);
+    return (new nodes\ListPattern($elements, $glob))
+      ->set('span', $span);
+  }
+
+  /**
+   * @return nodes\Glob
+   * @throws Error
+   */
+  private function glob(): nodes\Glob {
+    $ellipsis = $this->next_punct_span("...");
+    $binding  = $this->variable_pattern();
+    $span     = Span::join($ellipsis, $binding->get('span'));
+    return (new nodes\Glob($binding))
+      ->set('span', $span);
   }
 
   /**

@@ -1,0 +1,21 @@
+
+  UNCOVERED PATTERNS  --------------------------------------------------------
+
+  The match expression does not handle all possible patterns.
+
+    : Match_6
+  3 |   match [] {
+    |   ^^^^^^^^^^
+  4 |     [a, b] => a + b,
+    |     ^^^^^^^^^^^^^^^^
+  5 |   };
+    |   ^
+
+  The following 3 patterns were not handled:
+
+    []
+
+    [ _ ]
+
+    [ _ _ ... ]
+

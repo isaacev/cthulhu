@@ -1,0 +1,15 @@
+
+  INCOMPATIBLE PATTERN  ------------------------------------------------------
+
+  The match expression was given a value with the type:
+
+    List(Str)
+
+  But the pattern only matches values with the type:
+
+    List(Bool)
+
+    : Match_13
+  5 |     [true] => "a",
+    |     ^^^^^^
+

@@ -1,0 +1,19 @@
+
+  UNCOVERED PATTERNS  --------------------------------------------------------
+
+  The match expression does not handle all possible patterns.
+
+    : Match_9
+  3 |   match ["abc"] {
+    |   ^^^^^^^^^^^^^^^
+  4 |     []  => 0,
+    |     ^^^^^^^^^
+  5 |     [_] => 1,
+    |     ^^^^^^^^^
+  6 |   };
+    |   ^
+
+  The following pattern were not handled:
+
+    [ _ ... ]
+

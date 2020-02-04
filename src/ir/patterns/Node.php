@@ -27,6 +27,10 @@ abstract class Node {
       return new ParamNode();
     }
 
+    if ($type instanceof types\ListType) {
+      return new ListNode($type);
+    }
+
     if ($type instanceof types\Atomic) {
       switch ($type->name) {
         case 'Str':

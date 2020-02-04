@@ -1,0 +1,8 @@
+#[entry]
+fn main() -> () {
+  match ["a", "b"] {
+    []    => "",
+    [true] => "a",
+    [false] => "b",
+  };
+}

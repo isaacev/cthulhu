@@ -1,0 +1,10 @@
+
+  INCORRECT OPERAND TYPE  ----------------------------------------------------
+
+  The `+` operator expected the right-hand operand to have the type `Int`. But
+  the expression provided a right-hand operand of the type `List(Int)`:
+
+    : Match_10
+  7 |     [ a, b, ...c ] => a + b + c,
+    |                               ^
+

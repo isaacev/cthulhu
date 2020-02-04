@@ -1,0 +1,17 @@
+
+  UNCOVERED PATTERNS  --------------------------------------------------------
+
+  The match expression does not handle all possible patterns.
+
+    : Match_8
+  5 |   match [] {
+    |   ^^^^^^^^^^
+  6 |     [a, ...c] => a + List::length(c),
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 |   };
+    |   ^
+
+  The following pattern were not handled:
+
+    []
+

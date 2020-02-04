@@ -1,0 +1,11 @@
+
+  REDUNDANT PATTERN  ---------------------------------------------------------
+
+  The match expression included a pattern that will never be matched.
+
+    [ ... ]
+
+    : Match_11
+  6 |     [...rest]    => 1,
+    |     ^^^^^^^^^
+
