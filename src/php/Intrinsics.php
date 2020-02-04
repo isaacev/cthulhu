@@ -3,6 +3,8 @@
 namespace Cthulhu\php;
 
 use Cthulhu\php\names\Symbol;
+use Cthulhu\val\IntegerValue;
+use Cthulhu\val\StringValue;
 
 class Intrinsics {
   /**
@@ -12,6 +14,8 @@ class Intrinsics {
    */
   public static function build_intrinsic_expr(string $name, array $args): nodes\Expr {
     switch ($name) {
+      case 'read_argv':
+        return self::read_argv();
       case 'array_key_exists':
         return self::array_key_exists(...$args);
       case 'subscript':
@@ -45,6 +49,24 @@ class Intrinsics {
       default:
         die("unknown intrinsic named '$name'\n");
     }
+  }
+
+  private static function read_argv(): nodes\Expr {
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new nodes\Reference(
+          'array_slice',
+          new Symbol()),
+        false),
+      [
+        new nodes\SubscriptExpr(
+          new nodes\VariableExpr(
+            new nodes\Variable('_SERVER', new Symbol())),
+          new nodes\StrLiteral(
+            StringValue::from_safe_scalar('argv'))),
+        new nodes\IntLiteral(
+          IntegerValue::from_scalar(1)),
+      ]);
   }
 
   private static function array_key_exists(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
