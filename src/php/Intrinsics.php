@@ -3,7 +3,6 @@
 namespace Cthulhu\php;
 
 use Cthulhu\php\names\Symbol;
-use Cthulhu\php\nodes\Reference;
 
 class Intrinsics {
   /**
@@ -51,7 +50,7 @@ class Intrinsics {
   private static function array_key_exists(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\CallExpr(
       new nodes\ReferenceExpr(
-        new Reference(
+        new nodes\Reference(
           'array_key_exists',
           new Symbol()),
         false),
@@ -65,7 +64,7 @@ class Intrinsics {
   private static function mt_rand(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\CallExpr(
       new nodes\ReferenceExpr(
-        new Reference(
+        new nodes\Reference(
           'mt_rand',
           new Symbol()),
         false),
@@ -103,7 +102,7 @@ class Intrinsics {
   private static function any_pow(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\CallExpr(
       new nodes\ReferenceExpr(
-        new Reference(
+        new nodes\Reference(
           'pow',
           new Symbol()),
         false),
