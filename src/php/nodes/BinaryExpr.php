@@ -28,6 +28,8 @@ class BinaryExpr extends Expr {
     switch ($this->operator) {
       case '&&':
         return Precedence::BOOLEAN_SYMBOL_AND;
+      case '||':
+        return Precedence::BOOLEAN_SYMBOL_OR;
       case '==':
       case '!=':
       case '===':
