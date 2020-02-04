@@ -856,7 +856,7 @@ class DeepParser extends AbstractParser {
    */
   private function one_or_more_match_arms(): array {
     $arms = [ $this->match_arm() ];
-    while ($this->peek_token()) {
+    while ($this->ahead_is_end_of_current_group() === false) {
       $arms[] = $this->match_arm();
     }
     return $arms;
