@@ -16,6 +16,8 @@ class Intrinsics {
     switch ($name) {
       case 'read_argv':
         return self::read_argv();
+      case 'count':
+        return self::count(...$args);
       case 'array_key_exists':
         return self::array_key_exists(...$args);
       case 'subscript':
@@ -67,6 +69,16 @@ class Intrinsics {
         new nodes\IntLiteral(
           IntegerValue::from_scalar(1)),
       ]);
+  }
+
+  private static function count(nodes\Expr $a): nodes\Expr {
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new nodes\Reference(
+          'count',
+          new Symbol()),
+        false),
+      [ $a ]);
   }
 
   private static function array_key_exists(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
