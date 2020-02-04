@@ -2,8 +2,6 @@ intrinsic {
   fn array_key_exists(Int, ['a]) -> Bool;
   fn subscript(['a], Int) -> 'a;
   fn count(['a]) -> Int;
-  fn for_each('a -> (), ['a]) -> ();
-  fn for_each_with_index(Int -> 'a -> (), ['a]) -> ();
 }
 
 #[inline]
@@ -18,14 +16,4 @@ pub fn nth(ls: ['a], n: Int) -> Maybe('a) {
 #[inline]
 pub fn length(ls: ['a]) -> Int {
   count(ls)
-}
-
-#[inline]
-pub fn iter(f: 'a -> (), l: ['a]) -> () {
-  for_each(f, l);
-}
-
-#[inline]
-pub fn iter_index(f: Int -> 'a -> (), l: ['a]) -> () {
-  for_each_with_index(f, l);
 }
