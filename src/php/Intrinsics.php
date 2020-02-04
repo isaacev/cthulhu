@@ -32,20 +32,34 @@ class Intrinsics {
         return self::cast_int_to_string(...$args);
       case 'cast_float_to_string':
         return self::cast_float_to_string(...$args);
+      case 'any_eq':
+        return self::any_eq(...$args);
       case 'any_lt':
         return self::any_lt(...$args);
+      case 'any_lte':
+        return self::any_lte(...$args);
       case 'any_gt':
         return self::any_gt(...$args);
+      case 'any_gte':
+        return self::any_gte(...$args);
       case 'negate':
         return self::negate(...$args);
       case 'any_pow':
         return self::any_pow(...$args);
+      case 'bool_and':
+        return self::bool_and(...$args);
+      case 'bool_or':
+        return self::bool_or(...$args);
       case 'int_add':
         return self::int_add(...$args);
+      case 'int_sub':
+        return self::int_sub(...$args);
       case 'int_mul':
         return self::int_mul(...$args);
       case 'float_add':
         return self::float_add(...$args);
+      case 'float_sub':
+        return self::float_sub(...$args);
       case 'float_mul':
         return self::float_mul(...$args);
       default:
@@ -121,12 +135,24 @@ class Intrinsics {
     return new nodes\CastExpr('string', $a);
   }
 
+  private static function any_eq(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('==', $a, $b);
+  }
+
   private static function any_lt(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('<', $a, $b);
   }
 
+  private static function any_lte(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('<=', $a, $b);
+  }
+
   private static function any_gt(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('>', $a, $b);
+  }
+
+  private static function any_gte(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('>=', $a, $b);
   }
 
   private static function negate(nodes\Expr $a): nodes\Expr {
@@ -143,8 +169,20 @@ class Intrinsics {
       [ $a, $b ]);
   }
 
+  private static function bool_and(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('&&', $a, $b);
+  }
+
+  private static function bool_or(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('||', $a, $b);
+  }
+
   private static function int_add(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('+', $a, $b);
+  }
+
+  private static function int_sub(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('-', $a, $b);
   }
 
   private static function int_mul(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
@@ -153,6 +191,10 @@ class Intrinsics {
 
   private static function float_add(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('+', $a, $b);
+  }
+
+  private static function float_sub(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('-', $a, $b);
   }
 
   private static function float_mul(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
