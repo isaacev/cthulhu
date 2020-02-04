@@ -23,7 +23,7 @@ abstract class Node {
       return new EnumNode($type);
     }
 
-    if ($type instanceof types\FixedTypeVar) {
+    if ($type instanceof types\FixedTypeVar || $type instanceof types\FreeTypeVar) {
       return new ParamNode();
     }
 
@@ -40,10 +40,6 @@ abstract class Node {
         default:
           die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
       }
-    }
-
-    if ($type instanceof types\FreeTypeVar) {
-      die('FreeTypeVar bound to expression at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
 
     die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
