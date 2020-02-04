@@ -164,6 +164,11 @@ class Compiler {
       $params = new ir\Names($names);
       $args   = new ir\Exprs($exprs);
 
+      if (types\Atomic::is_unit($type->input) && count($params) === 1) {
+        $params = new ir\Names([]);
+        $args   = new ir\Exprs([]);
+      }
+
       $int = new ir\Intrinsic($type, $ident, $args);
       $def = new ir\Def($name, $params, new ir\Ret($int, null), null);
       $ctx->push_stmt($def);
