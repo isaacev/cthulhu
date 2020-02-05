@@ -60,13 +60,6 @@ class Names {
     }
   }
 
-  private function is_name_unavailable(string $name, names\Scope $scope): bool {
-    return (
-      in_array(strtolower($name), names\Reserved::WORDS) ||
-      $scope->has_name($name)
-    );
-  }
-
   private function operator_to_safe_text(string $operator): string {
     assert(strlen($operator) > 0);
     $chars = str_split($operator);
@@ -90,7 +83,7 @@ class Names {
 
     $counter       = 0;
     $current_scope = $this->current_scope();
-    while ($this->is_name_unavailable($candidate, $current_scope)) {
+    while ($current_scope->is_name_unavailable($candidate)) {
       if ($counter === 0) {
         $candidate = "_$ir_text";
       } else {
@@ -108,13 +101,8 @@ class Names {
    */
   public function tmp_var(): nodes\Variable {
     $current_scope = $this->current_scope();
-
-    do {
-      $candidate = $current_scope->next_tmp_name();
-    } while ($this->is_name_unavailable($candidate, $current_scope));
-
-    $current_scope->use_name($candidate);
-    $php_symbol = new names\Symbol();
+    $candidate     = $current_scope->next_unused_tmp_name();
+    $php_symbol    = new names\Symbol();
     return new nodes\Variable($candidate, $php_symbol);
   }
 

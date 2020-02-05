@@ -54,7 +54,7 @@ class TailCall implements Pass {
 
           $recursive_vars = [];
           foreach ($stmt->head->params as $param_var) {
-            $alt_text         = $scope->use_name($scope->next_tmp_name());
+            $alt_text         = $scope->next_unused_tmp_name();
             $alt_var          = new nodes\Variable($alt_text, new Symbol());
             $recursive_vars[] = [ $param_var, $alt_var ];
           }

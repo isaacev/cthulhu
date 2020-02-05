@@ -12,9 +12,8 @@ class Scope {
     $this->tmp_generator = self::generate_tmp_var_name();
   }
 
-  public function use_name(string $name): string {
+  public function use_name(string $name): void {
     $this->names[] = $name;
-    return $name;
   }
 
   public function has_name(string $name): bool {
@@ -25,6 +24,21 @@ class Scope {
     $current = $this->tmp_generator->current();
     $this->tmp_generator->next();
     return $current;
+  }
+
+  public function is_name_unavailable(string $name): bool {
+    return (
+      in_array(strtolower($name), Reserved::WORDS) ||
+      $this->has_name($name)
+    );
+  }
+
+  public function next_unused_tmp_name(): string {
+    do {
+      $candidate = $this->next_tmp_name();
+    } while ($this->is_name_unavailable($candidate));
+    $this->use_name($candidate);
+    return $candidate;
   }
 
   private const alphabet = [
