@@ -103,6 +103,12 @@ class TailCall implements Pass {
         }
       },
 
+      'exit(BlockNode)' => function (nodes\BlockNode $block, EditablePath $path) use (&$is_tail_stmt) {
+        if (end($is_tail_stmt) && $block->stmt === null) {
+          $path->replace_with(new nodes\BlockNode(new nodes\ReturnStmt(null, null)));
+        }
+      },
+
       'exit(SemiStmt)' => function (nodes\SemiStmt $stmt, EditablePath $path) use (&$is_tail_stmt, &$recursive_vars) {
         if (end($is_tail_stmt) && $stmt->next === null) {
           if ($stmt->expr instanceof nodes\CallExpr && $stmt->expr->get('tail-call')) {
