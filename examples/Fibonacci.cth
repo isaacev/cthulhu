@@ -1,0 +1,20 @@
+use ::Io;
+use ::Fmt;
+
+fn fib(n: Int, a: Int, b: Int) -> Int {
+  match n {
+    0 => a,
+    1 => b,
+    n => fib(n - 1, b, a + b),
+  }
+}
+
+pub fn nth(n: Int) -> Int {
+  fib(n, 0, 1)
+}
+
+#[entry]
+fn main() -> () {
+  let f = nth(20);
+  Io::println("the 20th fibonacci number is: " ++ Fmt::int(f));
+}
