@@ -27,10 +27,9 @@ namespace List_1 {
       $d = new \Prelude\None();
     }
     if ($d instanceof \Prelude\Some) {
-      $p = $d->{0};
-      $c = $p;
+      $d->{0};
     } else if ($d instanceof \Prelude\None) {
-      $c = -1;
+      -1;
     } else {
       die("match expression did not cover all possibilities\n");
     }

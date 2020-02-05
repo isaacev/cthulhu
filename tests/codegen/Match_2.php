@@ -4,11 +4,11 @@ namespace Match_2 {
   function main() {
     $b = "abc";
     if ($b == "") {
-      $c = 0;
+      // empty
     } else if ($b == "abc") {
-      $c = 3;
+      // empty
     } else if (true) {
-      $c = -1;
+      -1;
     } else {
       die("match expression did not cover all possibilities\n");
     }

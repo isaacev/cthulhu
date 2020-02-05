@@ -3,9 +3,9 @@
 namespace If_3 {
   function main() {
     if (true) {
-      $b = "hello";
+      // empty
     } else {
-      $b = "world";
+      // empty
     }
   }
 }
