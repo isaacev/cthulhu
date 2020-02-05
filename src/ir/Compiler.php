@@ -317,6 +317,8 @@ class Compiler {
         return self::int_literal($expr);
       case $expr instanceof ast\BoolLiteral:
         return self::bool_literal($expr);
+      case $expr instanceof ast\UnitLiteral:
+        return self::unit_literal();
       default:
         echo get_class($expr) . PHP_EOL;
         die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
@@ -527,6 +529,10 @@ class Compiler {
 
   private static function bool_literal(ast\BoolLiteral $expr): ir\BoolLit {
     return new ir\BoolLit($expr->bool_value);
+  }
+
+  private static function unit_literal(): ir\UnitLit {
+    return new ir\UnitLit();
   }
 
   private static function symbol_to_text(Symbol $symbol): string {

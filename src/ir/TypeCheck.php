@@ -418,6 +418,11 @@ class TypeCheck {
         $lit->set(self::TYPE_KEY, $type);
       },
 
+      'UnitLiteral' => function (ast\UnitLiteral $lit) {
+        $type = types\Atomic::unit();
+        $lit->set(self::TYPE_KEY, $type);
+      },
+
       'exit(Expr)' => function (ast\Expr $expr, Path $path) {
         if (!$expr->get(self::TYPE_KEY)) {
           die("$path->kind missing a type\n");
