@@ -25,7 +25,7 @@ class Visitor {
     if ($path->node instanceof HasSuccessor) {
       $next = $path->node->successor();
       if ($next !== null) {
-        self::_walk($path->extend($next), $callbacks);
+        self::_walk(new Path($path->parent, $next), $callbacks);
       }
     }
   }
