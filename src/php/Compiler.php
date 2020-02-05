@@ -143,8 +143,9 @@ class Compiler {
           $ctx->statements->push_stmt(new php\ReturnStmt($ret_val, null));
         }
 
-        $stmt = new php\FuncStmt($head, $ctx->statements->pop_block(), [], null);
-        $ctx->names->exit_func_scope();
+        $stmt  = new php\FuncStmt($head, $ctx->statements->pop_block(), [], null);
+        $scope = $ctx->names->exit_func_scope();
+        $stmt->set('scope', $scope);
         $ctx->statements->push_stmt($stmt);
       },
       'exit(Let)' => function (ir\Let $let) use ($ctx) {
