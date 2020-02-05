@@ -15,16 +15,34 @@ class Inline implements Pass {
   public static function apply(Root $root): Root {
     /* @var Def[] $inline_candidates */
     $inline_candidates = [];
+    $current_def       = null;
 
     Visitor::walk($root, [
-      'Def' => function (Def $def) use (&$inline_candidates) {
+      'enter(Def)' => function (Def $def) use (&$inline_candidates, &$current_def) {
         if (self::is_inline_candidate($def)) {
           $inline_candidates[$def->name->symbol->get_id()] = $def;
+        }
+
+        $current_def = $def->name->symbol->get_id();
+      },
+      'exit(Def)' => function () use (&$current_def) {
+        $current_def = null;
+      },
+
+      'Apply' => function (Apply $apply) use (&$inline_candidates, &$current_def) {
+        if ($apply->callee instanceof NameExpr) {
+          $callee_id = $apply->callee->name->symbol->get_id();
+
+          // If the callee symbol ID is equal to the ID of the current function
+          // name ID, this call represents a recursive call site and so cannot
+          // be inlined without causing infinite code expansion.
+          if ($callee_id === $current_def) {
+            unset($inline_candidates[$callee_id]);
+          }
         }
       },
     ]);
 
-    // FIXME: prevent recursive expansion
     // FIXME: prevent inlining of calls with compound expression arguments
 
     $new_root = Visitor::edit($root, [

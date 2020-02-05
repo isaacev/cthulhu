@@ -42,6 +42,21 @@ class Arity {
           $arity = self::type_to_arity($param->type);
           $param->symbol->set('arity', $arity);
         }
+
+        // When first entering a function definition, produce a minimal arity
+        // for the definition, using only the number of parameters and basic
+        // information about the return type. By creating a minimal arity now,
+        // any recursive calls inside the function can be assigned an arity.
+        //
+        // If there were no recursive calls in the function body, a more
+        // refined arity will be assigned when exiting the function definition
+        // using information from the arity of the return expression.
+        $return_arity = self::type_to_arity($def->type->output);
+        $total_params = max(1, count($def->params));
+        $arity        = new arity\KnownMultiArity($total_params, $return_arity);
+
+        $def->set('arity', $arity);
+        $def->name->symbol->set('arity', $arity);
       },
       'exit(Def)' => function (nodes\Def $def) {
         $return_arity = ($def->body !== null)

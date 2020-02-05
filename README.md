@@ -27,7 +27,7 @@ These capitalization rules are enforced by the language.
 - [x] The List type
 - [x] Floating point numbers
 - [x] Pattern matching
-- [ ] Recursion
+- [x] Recursion
 - [ ] Tail call optimization
 - [ ] Closures
 - [ ] Mutation semantics
