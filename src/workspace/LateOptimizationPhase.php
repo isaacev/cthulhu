@@ -16,6 +16,7 @@ class LateOptimizationPhase {
     $this->prog = passes\VarReduction::apply($this->prog);
     $this->prog = passes\ReturnBackProp::apply($this->prog);
     $this->prog = passes\UnusedExprs::apply($this->prog);
+    $this->prog = passes\TailCall::apply($this->prog);
     return new WritePhase($this->prog);
   }
 }

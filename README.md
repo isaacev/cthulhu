@@ -28,6 +28,6 @@ These capitalization rules are enforced by the language.
 - [x] Floating point numbers
 - [x] Pattern matching
 - [x] Recursion
-- [ ] Tail call optimization
+- [x] Tail call optimization
 - [ ] Closures
 - [ ] Mutation semantics

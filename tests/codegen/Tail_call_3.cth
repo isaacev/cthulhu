@@ -1,0 +1,14 @@
+use ::Io;
+use ::Fmt;
+
+fn sum(acc: Int, rest: [Int]) -> Int {
+  match rest {
+    []         => acc,
+    [x, ...xs] => sum(acc + x, xs),
+  }
+}
+
+#[entry]
+fn main() -> () {
+  Io::println(Fmt::int(sum(0, [1, 2, 3, 4, 5, 6])));
+}

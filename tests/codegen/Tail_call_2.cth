@@ -1,0 +1,16 @@
+use ::Io;
+use ::Fmt;
+
+fn to_zero(n: Int) -> () {
+  if n <= 0 {
+    Io::println("all done");
+  } else {
+    Io::println(Fmt::int(n));
+    to_zero(n - 1);
+  }
+}
+
+#[entry]
+fn main() -> () {
+  to_zero(~10);
+}
