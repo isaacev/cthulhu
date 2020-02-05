@@ -12,8 +12,9 @@ class Scope {
     $this->tmp_generator = self::generate_tmp_var_name();
   }
 
-  public function use_name(string $name): void {
+  public function use_name(string $name): string {
     $this->names[] = $name;
+    return $name;
   }
 
   public function has_name(string $name): bool {
