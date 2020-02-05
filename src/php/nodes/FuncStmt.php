@@ -21,13 +21,15 @@ class FuncStmt extends Stmt {
     return [ $this->head, $this->body ];
   }
 
-  public function from_children(array $nodes): Node {
-    return new self($nodes[0], $nodes[1], $this->attrs, $this->next);
+  public function from_children(array $nodes): FuncStmt {
+    return (new FuncStmt($nodes[0], $nodes[1], $this->attrs, $this->next))
+      ->copy($this);
   }
 
   public function from_successor(?EditableSuccessor $successor): FuncStmt {
     assert($successor === null || $successor instanceof Stmt);
-    return new FuncStmt($this->head, $this->body, $this->attrs, $successor);
+    return (new FuncStmt($this->head, $this->body, $this->attrs, $successor))
+      ->copy($this);
   }
 
   public function build(): Builder {
