@@ -28,7 +28,6 @@ namespace Union_5 {
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    $c;
     if (true) {
       $g = new \Union_5\Left(false);
     } else {
@@ -44,7 +43,6 @@ namespace Union_5 {
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    $f;
   }
 }
 

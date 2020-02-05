@@ -3,10 +3,9 @@
 namespace If_6 {
   function main() {
     if (true) {
-      "hello";
-      null;
+      // empty
     } else {
-      null;
+      // empty
     }
   }
 }

@@ -3,8 +3,7 @@
 namespace Cthulhu\workspace;
 
 use Cthulhu\php\nodes\Program;
-use Cthulhu\php\passes\ReturnBackProp;
-use Cthulhu\php\passes\VarReduction;
+use Cthulhu\php\passes;
 
 class LateOptimizationPhase {
   public Program $prog;
@@ -14,8 +13,9 @@ class LateOptimizationPhase {
   }
 
   public function optimize(): WritePhase {
-    $this->prog = VarReduction::apply($this->prog);
-    $this->prog = ReturnBackProp::apply($this->prog);
+    $this->prog = passes\VarReduction::apply($this->prog);
+    $this->prog = passes\ReturnBackProp::apply($this->prog);
+    $this->prog = passes\UnusedExprs::apply($this->prog);
     return new WritePhase($this->prog);
   }
 }

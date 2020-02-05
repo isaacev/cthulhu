@@ -7,7 +7,6 @@ namespace If_3 {
     } else {
       $b = "world";
     }
-    $b;
   }
 }
 

@@ -2,7 +2,6 @@
 
 namespace Str_5 {
   function main() {
-    "world";
     print("\$\$hello" . "\n");
   }
 }
