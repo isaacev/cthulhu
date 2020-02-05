@@ -33,7 +33,7 @@ class Arity {
         $arity        = $callee_arity->apply($total_args);
         $expr->set('arity', $arity);
       },
-      'Lit|ListExpr|Ctor|Tuple|Record|Enum' => function (nodes\Node $node) {
+      'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block' => function (nodes\Node $node) {
         $arity = new arity\ZeroArity();
         $node->set('arity', $arity);
       },

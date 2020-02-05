@@ -399,6 +399,15 @@ class Compiler {
         $ctx->expressions->push(new php\VariableExpr($ret_var));
       },
 
+      'enter(Block)' => function () use ($ctx) {
+        $tmp_var = $ctx->names->tmp_var();
+        $ctx->statements->push_return_var($tmp_var);
+      },
+      'exit(Block)' => function () use ($ctx) {
+        $tmp_var = $ctx->statements->pop_return_var();
+        $ctx->expressions->push(new php\VariableExpr($tmp_var));
+      },
+
       'exit(Ctor)' => function (ir\Ctor $ctor) use ($ctx) {
         if ($ctor->type instanceof Record) {
           $arg = $ctx->expressions->pop();

@@ -293,6 +293,8 @@ class Compiler {
 
   private static function expr(self $ctx, ast\Expr $expr): ir\Expr {
     switch (true) {
+      case $expr instanceof ast\BlockNode:
+        return self::block_expr($ctx, $expr);
       case $expr instanceof ast\MatchExpr:
         return self::match_expr($ctx, $expr);
       case $expr instanceof ast\IfExpr:
@@ -323,6 +325,18 @@ class Compiler {
         echo get_class($expr) . PHP_EOL;
         die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
+  }
+
+  private static function block_expr(self $ctx, ast\BlockNode $expr): ir\Block {
+    if (empty($expr->stmts)) {
+      $type = types\Atomic::unit();
+      $stmt = null;
+      return new ir\Block($type, $stmt);
+    }
+
+    $type = end($expr->stmts)->get(TypeCheck::TYPE_KEY);
+    $stmt = self::stmts($ctx, $expr->stmts);
+    return new ir\Block($type, $stmt);
   }
 
   private static function match_expr(self $ctx, ast\MatchExpr $expr): ir\Match {
