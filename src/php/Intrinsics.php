@@ -16,6 +16,8 @@ class Intrinsics {
     switch ($name) {
       case 'read_argv':
         return self::read_argv();
+      case 'prepend':
+        return self::prepend(...$args);
       case 'count':
         return self::count(...$args);
       case 'array_key_exists':
@@ -83,6 +85,10 @@ class Intrinsics {
         new nodes\IntLiteral(
           IntegerValue::from_scalar(1)),
       ]);
+  }
+
+  private static function prepend(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\OrderedArrayExpr([ $a, new nodes\Splat($b) ]);
   }
 
   private static function count(nodes\Expr $a): nodes\Expr {

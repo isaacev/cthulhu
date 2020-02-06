@@ -2,6 +2,7 @@ intrinsic {
   fn array_key_exists(Int, ['a]) -> Bool;
   fn subscript(['a], Int) -> 'a;
   fn count(['a]) -> Int;
+  fn prepend('a, ['a]) -> ['a];
 }
 
 #[inline]
@@ -26,4 +27,15 @@ pub fn iter(f: 'a -> (), ls: ['a]) -> () {
       iter(f, as);
     },
   }
+}
+
+fn map_aux(f: 'a -> 'b, la: ['a], lb: ['b]) -> ['b] {
+  match la {
+    []               => lb,
+    [first, ...rest] => map_aux(f, rest, prepend(f(first), lb)),
+  }
+}
+
+pub fn map(f: 'a -> 'b, ls: ['a]) -> ['b] {
+  map_aux(f, ls, [])
 }
