@@ -40,5 +40,5 @@ fn main() -> () {
   let s = Shape::Square(3.0);
   let r = Shape::Rect { width: 4.0, height: 3.0 };
 
-  [ u, v, c, s, r] |> List::for_each(desc);
+  [ u, v, c, s, r] |> List::iter(desc);
 }
