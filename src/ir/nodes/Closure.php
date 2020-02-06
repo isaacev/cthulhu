@@ -6,22 +6,26 @@ use Cthulhu\ir\types\Func;
 use Cthulhu\lib\trees\EditableNodelike;
 
 class Closure extends Expr {
+  public Func $func_type;
   public Names $names;
+  public Names $closed;
   public ?Stmt $stmt;
 
-  public function __construct(Func $type, Names $names, ?Stmt $stmt) {
+  public function __construct(Func $type, Names $names, Names $closed, ?Stmt $stmt) {
     parent::__construct($type);
-    $this->names = $names;
-    $this->stmt  = $stmt;
+    $this->func_type = $type;
+    $this->names     = $names;
+    $this->closed    = $closed;
+    $this->stmt      = $stmt;
   }
 
   public function children(): array {
-    return [ $this->names, $this->stmt ];
+    return [ $this->names, $this->closed, $this->stmt ];
   }
 
   public function from_children(array $children): EditableNodelike {
     assert($this->type instanceof Func);
-    return (new self($this->type, $children[0], $children[1]))
+    return (new self($this->type, $children[0], $children[1], $children[2]))
       ->copy($this);
   }
 
@@ -44,6 +48,8 @@ class Closure extends Expr {
       ->keyword('λ')
       ->space()
       ->then($this->names)
+      ->space()
+      ->then($this->closed)
       ->space()
       ->then($stmt)
       ->paren_right();

@@ -13,6 +13,9 @@ class Arity {
     Visitor::walk($root, [
       'exit(Stmt|Expr)' => function (nodes\Node $node, Path $path) {
         if (($node->get('arity') instanceof arity\Arity) === false) {
+          if ($node instanceof nodes\NameExpr) {
+            echo $node->name->text . PHP_EOL;
+          }
           die("missing arity for $path->kind node\n");
         }
       },
@@ -67,6 +70,24 @@ class Arity {
 
         $def->set('arity', $arity);
         $def->name->symbol->set('arity', $arity);
+      },
+      'enter(Closure)' => function (nodes\Closure $closure) {
+        foreach ($closure->names->names as $param) {
+          $arity = self::type_to_arity($param->type);
+          $param->symbol->set('arity', $arity);
+        }
+        $return_arity = self::type_to_arity($closure->func_type->output);
+        $total_params = max(1, count($closure->names));
+        $arity        = new arity\KnownMultiArity($total_params, $return_arity);
+        $closure->set('arity', $arity);
+      },
+      'exit(Closure)' => function (nodes\Closure $closure) {
+        $return_arity = ($closure->stmt !== null)
+          ? $closure->stmt->last_stmt()->get('arity')
+          : new arity\ZeroArity();
+        $total_params = max(1, count($closure->names));
+        $arity        = new arity\KnownMultiArity($total_params, $return_arity);
+        $closure->set('arity', $arity);
       },
       'VariablePattern' => function (nodes\VariablePattern $pat) {
         $arity = self::type_to_arity($pat->type);

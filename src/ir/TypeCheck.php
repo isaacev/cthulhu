@@ -125,6 +125,30 @@ class TypeCheck {
         }
       },
 
+      'enter(ClosureExpr)' => function (ast\ClosureExpr $expr) {
+        foreach ($expr->params->params as $index => $name) {
+          $type_name = chr(ord('a') + $index);
+          $free_type = new types\FreeTypeVar($type_name, null);
+          $name->get('symbol')->set(self::TYPE_KEY, $free_type);
+        }
+      },
+      'exit(ClosureExpr)' => function (ast\ClosureExpr $expr) {
+        $input_types = [];
+        foreach ($expr->params->params as $name) {
+          $input_types[] = $input_type = $name->get('symbol')->get(self::TYPE_KEY);
+          assert($input_type instanceof types\Type);
+        }
+
+        if (empty($expr->body->stmts)) {
+          $return_type = types\Atomic::unit();
+        } else {
+          $return_type = end($expr->body->stmts)->get(self::TYPE_KEY);
+        }
+
+        $type = types\Func::from_input_array($input_types, $return_type);
+        $expr->set(self::TYPE_KEY, $type);
+      },
+
       'exit(LetStmt)' => function (ast\LetStmt $stmt) {
         $expr_type = $stmt->expr->get(self::TYPE_KEY);
 

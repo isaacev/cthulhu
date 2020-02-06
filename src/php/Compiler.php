@@ -200,6 +200,49 @@ class Compiler {
         $ctx->statements->stash_block($block);
       },
 
+      'enter(Closure)' => function (ir\Closure $closure) use ($ctx) {
+        $ctx->names->enter_closure_scope();
+
+        // Assign PHP variable names for the closure parameters
+        foreach ($closure->names->names as $param) {
+          $ctx->names->name_to_var($param);
+        }
+
+        // Create a block to collect statements inside of the function body
+        $ctx->statements->push_return_var($ctx->names->tmp_var());
+        $ctx->statements->push_block();
+      },
+      'exit(Closure)' => function (ir\Closure $closure) use ($ctx) {
+        /* @var php\Variable[] $params */
+        $params = [];
+        foreach ($closure->names->names as $param) {
+          $param_var = $param->symbol->get('php/var');
+          assert($param_var instanceof php\Variable);
+          $params[] = $param_var;
+        }
+
+        /* @var php\Variable[] $used */
+        $used = [];
+        foreach ($closure->closed->names as $closed) {
+          $closed_var = $closed->symbol->get('php/var');
+          assert($closed_var instanceof php\Variable);
+          $used[] = $closed_var;
+        }
+
+        $ret_var = $ctx->statements->pop_return_var();
+        if (Atomic::is_unit($closure->func_type->output->flatten()) === false) {
+          $ret_expr = new php\VariableExpr($ret_var);
+          $ret_stmt = new php\ReturnStmt($ret_expr, null);
+          $ctx->statements->push_stmt($ret_stmt);
+        }
+
+        $body  = $ctx->statements->pop_block();
+        $expr  = new php\FuncExpr($params, $used, $body);
+        $scope = $ctx->names->exit_closure_scope();
+        $expr->set('scope', $scope);
+        $ctx->expressions->push($expr);
+      },
+
       'enter(Match)' => function () use ($ctx) {
         $disc_var = $ctx->names->tmp_var();
         $ctx->patterns->push_pattern_context($disc_var);

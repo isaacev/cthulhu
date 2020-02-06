@@ -13,6 +13,8 @@ use Cthulhu\ast\tokens\PunctToken;
 use Cthulhu\ast\tokens\StringToken;
 use Cthulhu\err\Error;
 use Cthulhu\ir\names\Binding;
+use Cthulhu\ir\names\ClosedScope;
+use Cthulhu\ir\names\NestedScope;
 use Cthulhu\ir\names\OperatorBinding;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Scope;
@@ -45,7 +47,7 @@ class DeepParser extends AbstractParser {
   /* @var Scope[] $param_scopes */
   public array $param_scopes = [];
 
-  /* @var Scope[] $block_scopes */
+  /* @var NestedScope[] $block_scopes */
   public array $block_scopes = [];
 
   /* @var Trie[] $infix_precedence */
@@ -131,11 +133,11 @@ class DeepParser extends AbstractParser {
     return !empty($this->block_scopes);
   }
 
-  private function current_block_scope(): Scope {
+  private function current_block_scope(): NestedScope {
     return end($this->block_scopes);
   }
 
-  private function push_block_scope(Scope $scope): void {
+  private function push_block_scope(NestedScope $scope): void {
     array_push($this->block_scopes, $scope);
   }
 
@@ -512,11 +514,12 @@ class DeepParser extends AbstractParser {
         // scope in case the name was a function parameter.
 
         /* @var Scope[] $scopes */
-        $scopes = array_merge(
-          array_reverse($this->block_scopes),
-          [ $this->current_func_scope() ]
-        );
-        foreach ($scopes as $scope) {
+        $scopes = [
+          $this->current_block_scope(),
+          $this->current_func_scope(),
+        ];
+
+        foreach ($scopes as $index => $scope) {
           if ($tail_binding = $scope->get_name($tail_name)) {
             $this->set_symbol($path->tail, $tail_binding->symbol);
             return;
@@ -630,7 +633,7 @@ class DeepParser extends AbstractParser {
   private function fn_body(nodes\ShallowBlock $block): nodes\BlockNode {
     $this->begin_parsing($block->group);
     $this->push_precedence_tries();
-    $this->push_block_scope(new Scope());
+    $this->push_block_scope(new NestedScope($this->current_func_scope()));
     $stmts = $this->stmts();
     $this->pop_block_scope();
     $this->pop_precedence_tries();
@@ -802,8 +805,7 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_keyword('if'):
         return $this->if_expr();
       case $this->ahead_is_group('{}'):
-        // closure definition
-        die('unimplemented at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        return $this->closure_expr();
       case $this->ahead_is_group('[]'):
         return $this->list_expr();
       case $this->ahead_is_group('()'):
@@ -867,7 +869,7 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   private function match_arm(): nodes\MatchArm {
-    $this->push_block_scope(new Scope());
+    $this->push_block_scope(new NestedScope($this->current_block_scope()));
 
     $pattern = $this->pattern();
     $arrow   = $this->next_punct('=>');
@@ -1104,6 +1106,65 @@ class DeepParser extends AbstractParser {
 
     $span = Span::join($if, ($alternate ?? $consequent)->get('span'));
     return (new nodes\IfExpr($condition, $consequent, $alternate))
+      ->set('span', $span);
+  }
+
+  /**
+   * @return nodes\ClosureExpr
+   * @throws Error
+   */
+  private function closure_expr(): nodes\ClosureExpr {
+    $closure_scope = new ClosedScope($this->current_block_scope());
+    $this->push_block_scope($closure_scope);
+
+    $enter_brace = $this->next_group_matches('{}');
+    $params      = $this->closure_params($enter_brace->span());
+    foreach ($params->params as $name) {
+      $symbol  = $this->make_var_symbol($name);
+      $binding = new Binding($name->value, $symbol, false);
+      $closure_scope->add_binding($binding);
+    }
+
+    $this->push_block_scope(new NestedScope($closure_scope));
+    $body_stmts = $this->stmts();
+    $this->pop_block_scope();
+
+    assert($this->pop_block_scope() instanceof ClosedScope);
+
+    $exit_brace = $this->exit_group_matches('{}');
+    $body_span  = Span::join($params->get('span')->to(), $exit_brace);
+    $body       = (new nodes\BlockNode($body_stmts))->set('span', $body_span);
+    $span       = Span::join($enter_brace, $exit_brace);
+    return (new nodes\ClosureExpr($params, $body))
+      ->set('span', $span)
+      ->set('scope', $closure_scope);
+  }
+
+  /**
+   * @param Span $from
+   * @return nodes\ClosureParams
+   * @throws Error
+   */
+  private function closure_params(Span $from): nodes\ClosureParams {
+    $params = [];
+    while (true) {
+      if ($this->ahead_is_punct('|')) {
+        break;
+      }
+
+      $params[] = $this->next_lower_name();
+
+      if ($this->ahead_is_punct(',')) {
+        $comma = $this->next_punct(',');
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    $pipe = $this->next_punct_span('|');
+    $span = Span::join($from, $pipe);
+    return (new nodes\ClosureParams($params))
       ->set('span', $span);
   }
 

@@ -293,6 +293,8 @@ class Compiler {
 
   private static function expr(self $ctx, ast\Expr $expr): ir\Expr {
     switch (true) {
+      case $expr instanceof ast\ClosureExpr:
+        return self::closure_expr($ctx, $expr);
       case $expr instanceof ast\BlockNode:
         return self::block_expr($ctx, $expr);
       case $expr instanceof ast\MatchExpr:
@@ -325,6 +327,33 @@ class Compiler {
         echo get_class($expr) . PHP_EOL;
         die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
     }
+  }
+
+  private static function closure_expr(self $ctx, ast\ClosureExpr $expr): ir\Closure {
+    $func_type = $expr->get(TypeCheck::TYPE_KEY);
+    assert($func_type instanceof types\Func);
+    $names = [];
+    foreach ($expr->params->params as $name) {
+      $symbol  = $name->get('symbol');
+      $type    = $symbol->get(TypeCheck::TYPE_KEY);
+      $text    = $name->value;
+      $names[] = new ir\Name($type, $text, $symbol);
+    }
+    $names = new ir\Names($names);
+
+    /* @var names\ClosedScope $scope */
+    $scope  = $expr->get('scope');
+    $closed = [];
+    foreach ($scope->closed_bindings as $binding) {
+      $symbol   = $binding->symbol;
+      $type     = $symbol->get(TypeCheck::TYPE_KEY);
+      $text     = $binding->name;
+      $closed[] = new ir\Name($type, $text, $symbol);
+    }
+    $closed = new ir\Names($closed);
+
+    $stmt = self::stmts($ctx, $expr->body->stmts);
+    return new ir\Closure($func_type, $names, $closed, $stmt);
   }
 
   private static function block_expr(self $ctx, ast\BlockNode $expr): ir\Block {
