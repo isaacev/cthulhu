@@ -1,8 +1,13 @@
 
   INCORRECT OPERAND TYPE  ----------------------------------------------------
 
-  The `<` operator expected the right-hand operand to have the type `Float`. But
-  the expression provided a right-hand operand of the type `Int`:
+  The `<` operator expected the right-hand operand to have the type:
+
+    Float
+
+  But the expression provided a right-hand operand with the type:
+
+    Int
 
     : Bad_nums_4
   3 |   0.1 < 1;

@@ -1,8 +1,13 @@
 
   INCORRECT OPERAND TYPE  ----------------------------------------------------
 
-  The `+` operator expected the right-hand operand to have the type `Int`. But
-  the expression provided a right-hand operand of the type `Float`:
+  The `+` operator expected the right-hand operand to have the type:
+
+    Int
+
+  But the expression provided a right-hand operand with the type:
+
+    Float
 
     : Bad_nums_1
   3 |   2 + 1.2;

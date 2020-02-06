@@ -1,8 +1,13 @@
 
   INCORRECT OPERAND TYPE  ----------------------------------------------------
 
-  The `+` operator expected the right-hand operand to have the type `Int`. But
-  the expression provided a right-hand operand of the type `Str`:
+  The `+` operator expected the right-hand operand to have the type:
+
+    Int
+
+  But the expression provided a right-hand operand with the type:
+
+    Str
 
     : Match_4
   5 |     x => 123 + x,

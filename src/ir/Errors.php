@@ -36,28 +36,28 @@ class Errors {
 
   public static function wrong_lhs_type(Operator $oper, Spanlike $arg_span, Type $arg_type, Type $sig_type): Error {
     return (new Error('incorrect operand type'))
-      ->paragraph(
-        "The `$oper` operator expected the left-hand operand to have the type `$sig_type`.",
-        "But the expression provided a left-hand operand of the type `$arg_type`:"
-      )
+      ->paragraph("The `$oper` operator expected the left-hand operand to have the type:")
+      ->example("$sig_type")
+      ->paragraph("But the expression provided a left-hand operand with the type:")
+      ->example("$arg_type")
       ->snippet($arg_span);
   }
 
   public static function wrong_rhs_type(Operator $oper, Spanlike $arg_span, Type $arg_type, Type $sig_type): Error {
     return (new Error('incorrect operand type'))
-      ->paragraph(
-        "The `$oper` operator expected the right-hand operand to have the type `$sig_type`.",
-        "But the expression provided a right-hand operand of the type `$arg_type`:"
-      )
+      ->paragraph("The `$oper` operator expected the right-hand operand to have the type:")
+      ->example("$sig_type")
+      ->paragraph("But the expression provided a right-hand operand with the type:")
+      ->example("$arg_type")
       ->snippet($arg_span);
   }
 
   public static function wrong_unary_type(Operator $oper, Spanlike $arg_span, Type $arg_type, Type $sig_type): Error {
     return (new Error('incorrect operand type'))
-      ->paragraph(
-        "The `$oper` operator expected the operand to have the type `$sig_type`.",
-        "But the expression provided an operand of the type `$arg_type`:"
-      )
+      ->paragraph("The `$oper` operator expected the operand to have the type:")
+      ->example("$sig_type")
+      ->paragraph("But the expression provided an operand with the type:")
+      ->example("$arg_type")
       ->snippet($arg_span);
   }
 
