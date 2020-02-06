@@ -95,8 +95,7 @@ class TypeCheck {
         $enum->name->get('symbol')->set(self::TYPE_KEY, $enum_type);
       },
 
-      'enter(FnItem)' => function (ast\FnItem $item) use (&$context_stack, &$return_stack) {
-
+      'enter(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
         $free_inputs = [];
         foreach ($item->params->params as $param) {
           $free_inputs[] = self::note_to_type($param->note, true);
