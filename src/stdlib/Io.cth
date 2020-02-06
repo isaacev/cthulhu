@@ -3,12 +3,10 @@ intrinsic {
   fn read_argv() -> [Str];
 }
 
-#[inline]
 pub fn print(str: Str) -> () {
   php_print(str)
 }
 
-#[inline]
 pub fn println(str: Str) -> () {
   php_print(str ++ "\n")
 }
