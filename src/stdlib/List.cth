@@ -19,23 +19,25 @@ pub fn length(ls: ['a]) -> Int {
   count(ls)
 }
 
-pub fn iter(f: 'a -> (), ls: ['a]) -> () {
-  match ls {
-    []           => (),
-    [ a, ...as ] => {
-      f(a);
-      iter(f, as);
+pub fn iter(callback: 'a -> (), inputs: ['a]) -> () {
+  match inputs {
+    []               => (),
+    [first, ...rest] => {
+      callback(first);
+      iter(callback, rest);
     },
   }
 }
 
-fn map_aux(f: 'a -> 'b, la: ['a], lb: ['b]) -> ['b] {
-  match la {
-    []               => lb,
-    [first, ...rest] => map_aux(f, rest, prepend(f(first), lb)),
+fn map_aux(callback: 'a -> 'b, inputs: ['a], outputs: ['b]) -> ['b] {
+  match inputs {
+    []               => outputs,
+    [first, ...rest] => {
+      map_aux(callback, rest, prepend(callback(first), outputs))
+    },
   }
 }
 
-pub fn map(f: 'a -> 'b, ls: ['a]) -> ['b] {
-  map_aux(f, ls, [])
+pub fn map(callback: 'a -> 'b, inputs: ['a]) -> ['b] {
+  map_aux(callback, inputs, [])
 }
