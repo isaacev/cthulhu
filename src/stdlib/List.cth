@@ -17,3 +17,13 @@ pub fn nth(ls: ['a], n: Int) -> Maybe('a) {
 pub fn length(ls: ['a]) -> Int {
   count(ls)
 }
+
+pub fn for_each(f: 'a -> 'b, ls: ['a]) -> () {
+  match ls {
+    []           => (),
+    [ a, ...as ] => {
+      f(a);
+      for_each(f, as);
+    },
+  }
+}
