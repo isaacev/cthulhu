@@ -29,6 +29,7 @@ $root->subcommand('test', 'Run all of the available tests')
 require_once __DIR__ . '/command_run.php';
 $root->subcommand('run', 'Compile and evaluate a script')
   ->single_argument('file', 'Path to the source file')
+  ->variadic_argument('args', 'Arguments for the script')
   ->callback('command_run');
 
 $root->parse($argv);

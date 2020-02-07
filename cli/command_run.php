@@ -13,7 +13,7 @@ function command_run(cli\Lookup $flags, cli\Lookup $args) {
       ->optimize()
       ->codegen()
       ->optimize()
-      ->run();
+      ->run($args->get('args'));
   } catch (Error $err) {
     $f = new StreamFormatter(STDERR);
     $err->format($f);

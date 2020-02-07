@@ -15,17 +15,19 @@ class WritePhase {
   }
 
   /**
+   * @param array $args
    * @return string
    * @throws Exception
    */
-  public function run(): string {
+  public function run(array $args = []): string {
     $descriptors = [
       0 => [ 'pipe', 'r' ], // STDIN
       1 => [ 'pipe', 'w' ], // STDOUT
       2 => [ 'pipe', 'w' ], // STDERR
     ];
 
-    $proc = proc_open(PHP_BINARY, $descriptors, $pipes, '', []);
+    $cmd  = PHP_BINARY . " -- " . implode(" ", $args);
+    $proc = proc_open($cmd, $descriptors, $pipes, '', []);
 
     if (is_resource($proc)) {
       fwrite($pipes[0], $this->write());
