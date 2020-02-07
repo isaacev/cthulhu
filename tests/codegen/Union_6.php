@@ -13,12 +13,12 @@ namespace Union_6 {
     }
   }
   function main() {
-    $b = \mt_rand(0, 5);
-    if ($b == 0) {
+    $a = \mt_rand(0, 5);
+    if ($a == 0) {
       new \Union_6\Left(true);
-    } else if ($b == 1) {
+    } else if ($a == 1) {
       new \Union_6\Left(true);
-    } else if ($b == 2) {
+    } else if ($a == 2) {
       new \Union_6\Left(false);
     } else if (true) {
       new \Union_6\Right("unknown integer");

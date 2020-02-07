@@ -1,17 +1,17 @@
 <?php
 
 namespace Tail_call_3 {
-  function sum($d, $e) {
+  function sum($b, $c) {
     while (true) {
-      $acc = $d;
-      $rest = $e;
+      $acc = $b;
+      $rest = $c;
       if (\count($rest) == 0) {
         return $acc;
       } else if (\count($rest) >= 1) {
         $x = $rest[0];
         $xs = \array_slice($rest, 1);
-        $d = $acc + $x;
-        $e = $xs;
+        $b = $acc + $x;
+        $c = $xs;
         continue;
       } else {
         die("match expression did not cover all possibilities\n");

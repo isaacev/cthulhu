@@ -22,13 +22,13 @@ namespace List_1 {
       3
     ];
     if (\array_key_exists(0, $l)) {
-      $d = new \Prelude\Some($l[0]);
+      $c = new \Prelude\Some($l[0]);
     } else {
-      $d = new \Prelude\None();
+      $c = new \Prelude\None();
     }
-    if ($d instanceof \Prelude\Some) {
-      $d->{0};
-    } else if ($d instanceof \Prelude\None) {
+    if ($c instanceof \Prelude\Some) {
+      $c->{0};
+    } else if ($c instanceof \Prelude\None) {
       -1;
     } else {
       die("match expression did not cover all possibilities\n");

@@ -1,15 +1,15 @@
 <?php
 
 namespace Tail_call_2 {
-  function to_zero($c) {
+  function to_zero($a) {
     while (true) {
-      $n = $c;
+      $n = $a;
       if ($n <= 0) {
         print("all done" . "\n");
         return;
       } else {
         print((string)$n . "\n");
-        $c = $n - 1;
+        $a = $n - 1;
         continue;
       }
     }

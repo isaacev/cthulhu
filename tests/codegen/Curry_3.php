@@ -5,7 +5,7 @@ namespace Curry_3 {
     return ($a + $b) * $c;
   }
   function main() {
-    $x = fn ($b) => \Curry_3\foo(1, 2, $b);
+    $x = fn ($a) => \Curry_3\foo(1, 2, $a);
     $y = $x(3);
     print((string)$y . "\n");
   }

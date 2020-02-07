@@ -17,19 +17,19 @@ namespace Prelude {
 namespace Union_4 {
   function main() {
     if (0 < 5) {
-      $b = new \Prelude\Some("hello");
+      $x = new \Prelude\Some("hello");
     } else {
-      $b = new \Prelude\None();
+      $x = new \Prelude\None();
     }
-    if ($b instanceof \Prelude\Some) {
-      $s = $b->{0};
-      $d = $s;
-    } else if ($b instanceof \Prelude\None) {
-      $d = "none";
+    if ($x instanceof \Prelude\Some) {
+      $s = $x->{0};
+      $a = $s;
+    } else if ($x instanceof \Prelude\None) {
+      $a = "none";
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    print($d . "\n");
+    print($a . "\n");
   }
 }
 

@@ -46,7 +46,7 @@ class Compiler {
     } else {
       $entry_stmt = null;
       foreach (array_reverse($ctx->entry_calls) as $entry_call) {
-        $entry_stmt = new ir\Let(null, $entry_call, $entry_stmt);
+        $entry_stmt = new ir\Pop($entry_call, $entry_stmt);
       }
 
       $entry_mod = new ir\Module(null, $entry_stmt, null);
@@ -271,7 +271,7 @@ class Compiler {
 
   private static function semi_stmt(self $ctx, ast\SemiStmt $stmt): void {
     $expr = self::expr($ctx, $stmt->expr);
-    $let  = new ir\Let(null, $expr, null);
+    $let  = new ir\Pop($expr, null);
     $ctx->push_stmt($let);
   }
 
@@ -378,7 +378,7 @@ class Compiler {
     $arms = [];
     foreach ($expr->arms as $arm) {
       $pattern = self::pattern($disc_type, $arm->pattern);
-      $handler = new ir\Handler(self::expr($ctx, $arm->handler));
+      $handler = new ir\Handler(new ir\Ret(self::expr($ctx, $arm->handler), null));
       $arms[]  = new ir\Arm($pattern, $handler);
     }
     $arms = new ir\Arms($arms);

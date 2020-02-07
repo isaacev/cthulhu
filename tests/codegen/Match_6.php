@@ -3,16 +3,16 @@
 namespace Match_6 {
   function test($things) {
     if (\count($things) == 0) {
-      $c = "none";
+      $x = "none";
     } else if (\count($things) == 1) {
-      $c = "one";
+      $x = "one";
     } else if (\count($things) >= 0) {
       \array_slice($things, 0);
-      $c = "multiple";
+      $x = "multiple";
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    print($c . "\n");
+    print($x . "\n");
   }
   function main() {
     \Match_6\test([]);

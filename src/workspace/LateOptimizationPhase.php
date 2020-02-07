@@ -19,11 +19,6 @@ class LateOptimizationPhase {
     $next_prog = $prev_prog;
     for ($i = 0; $i < self::CUTOFF; $i++) {
       $next_prog = passes\VarReduction::apply($next_prog);
-
-      if ($i === 0) {
-        $next_prog = passes\ReturnBackProp::apply($next_prog);
-      }
-
       $next_prog = passes\UnusedExprs::apply($next_prog);
 
       if ($next_prog === $prev_prog) {

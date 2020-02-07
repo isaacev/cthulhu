@@ -5,10 +5,10 @@ namespace Cthulhu\ir\nodes;
 use Cthulhu\lib\trees\EditableSuccessor;
 
 class Let extends Stmt {
-  public ?Name $name;
+  public Name $name;
   public Expr $expr;
 
-  public function __construct(?Name $name, Expr $expr, ?Stmt $next) {
+  public function __construct(Name $name, Expr $expr, ?Stmt $next) {
     parent::__construct($next);
     $this->name = $name;
     $this->expr = $expr;
@@ -36,7 +36,7 @@ class Let extends Stmt {
       ->paren_left()
       ->keyword('let')
       ->space()
-      ->then($this->name ? $this->name : (new Builder)->keyword('_'))
+      ->then($this->name)
       ->increase_indentation()
       ->newline()
       ->indent()

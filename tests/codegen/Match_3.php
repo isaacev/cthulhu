@@ -2,15 +2,15 @@
 
 namespace Match_3 {
   function main() {
-    $b = 5;
-    if ($b == 0) {
-      $c = 0;
+    $a = 5;
+    if ($a == 0) {
+      $next = 0;
     } else if (true) {
-      $c = $b + 1;
+      $next = $a + 1;
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    print((string)$c . "\n");
+    print((string)$next . "\n");
   }
 }
 

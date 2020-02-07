@@ -3,15 +3,15 @@
 namespace Cthulhu\ir\nodes;
 
 class Handler extends Node {
-  public Expr $expr;
+  public Stmt $stmt;
 
-  public function __construct(Expr $expr) {
+  public function __construct(Stmt $stmt) {
     parent::__construct();
-    $this->expr = $expr;
+    $this->stmt = $stmt;
   }
 
   public function children(): array {
-    return [ $this->expr ];
+    return [ $this->stmt ];
   }
 
   public function from_children(array $children): Handler {
@@ -19,6 +19,6 @@ class Handler extends Node {
   }
 
   public function build(): Builder {
-    return $this->expr->build();
+    return $this->stmt->build();
   }
 }

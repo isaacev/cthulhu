@@ -7,7 +7,7 @@ namespace Curry_4 {
   }
   function foo($a, $b) {
     print("enter foo" . "\n");
-    return fn ($d) => \Curry_4\inner($a, $b, $d);
+    return fn ($c) => \Curry_4\inner($a, $b, $c);
   }
   function main() {
     $x = \Curry_4\foo(1, 2)(3);

@@ -36,7 +36,7 @@ class Arity {
         $arity        = $callee_arity->apply($total_args);
         $expr->set('arity', $arity);
       },
-      'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block' => function (nodes\Node $node) {
+      'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block|Pop' => function (nodes\Node $node) {
         $arity = new arity\ZeroArity();
         $node->set('arity', $arity);
       },
@@ -95,10 +95,7 @@ class Arity {
       },
       'exit(Let)' => function (nodes\Let $let) {
         $expr_arity = $let->expr->get('arity');
-        if ($let->name !== null) {
-          $let->name->symbol->set('arity', $expr_arity);
-        }
-
+        $let->name->symbol->set('arity', $expr_arity);
         $stmt_arity = new arity\ZeroArity();
         $let->set('arity', $stmt_arity);
       },
@@ -109,9 +106,9 @@ class Arity {
       'exit(Match)' => function (nodes\Match $match) {
         $arms = $match->arms->arms;
         /* @var arity\Arity $combined_arity */
-        $combined_arity = $arms[0]->handler->expr->get('arity');
+        $combined_arity = $arms[0]->handler->stmt->get('arity');
         for ($i = 1; $i < count($arms); $i++) {
-          $arm_arity      = $arms[$i]->handler->expr->get('arity');
+          $arm_arity      = $arms[$i]->handler->stmt->get('arity');
           $combined_arity = $combined_arity->combine($arm_arity);
         }
         $match->set('arity', $combined_arity);

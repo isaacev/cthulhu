@@ -14,7 +14,22 @@ namespace Union_5 {
   }
   function main() {
     if (true) {
-      $d = new \Union_5\Left(true);
+      $b = new \Union_5\Left(true);
+    } else {
+      $b = new \Union_5\Right("unable to generate a true value");
+    }
+    if ($b instanceof \Union_5\Left && $b->{0} == true) {
+      print("was true" . "\n");
+    } else if ($b instanceof \Union_5\Left && $b->{0} == false) {
+      print("was false" . "\n");
+    } else if ($b instanceof \Union_5\Right) {
+      $msg = $b->{0};
+      print($msg . "\n");
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    if (true) {
+      $d = new \Union_5\Left(false);
     } else {
       $d = new \Union_5\Right("unable to generate a true value");
     }
@@ -23,22 +38,7 @@ namespace Union_5 {
     } else if ($d instanceof \Union_5\Left && $d->{0} == false) {
       print("was false" . "\n");
     } else if ($d instanceof \Union_5\Right) {
-      $msg = $d->{0};
-      print($msg . "\n");
-    } else {
-      die("match expression did not cover all possibilities\n");
-    }
-    if (true) {
-      $g = new \Union_5\Left(false);
-    } else {
-      $g = new \Union_5\Right("unable to generate a true value");
-    }
-    if ($g instanceof \Union_5\Left && $g->{0} == true) {
-      print("was true" . "\n");
-    } else if ($g instanceof \Union_5\Left && $g->{0} == false) {
-      print("was false" . "\n");
-    } else if ($g instanceof \Union_5\Right) {
-      $_msg = $g->{0};
+      $_msg = $d->{0};
       print($_msg . "\n");
     } else {
       die("match expression did not cover all possibilities\n");

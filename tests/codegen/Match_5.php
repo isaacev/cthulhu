@@ -28,75 +28,75 @@ namespace Match_5 {
   function main() {
     $b = new \Match_5\UnitCircle();
     if ($b instanceof \Match_5\UnitCircle) {
-      $c = "unit circle";
+      $a = "unit circle";
     } else if ($b instanceof \Match_5\Circle) {
       $r = $b->{0};
-      $c = "circle with radius " . (string)$r;
+      $a = "circle with radius " . (string)$r;
     } else if ($b instanceof \Match_5\Square) {
       $s = $b->{0};
-      $c = "square with perimeter " . (string)4.0 * $s;
+      $a = "square with perimeter " . (string)4.0 * $s;
     } else if ($b instanceof \Match_5\Rect) {
       $w = $b->width;
       $h = $b->height;
+      $a = "rectangle with area " . (string)$w * $h;
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    print($a . "\n");
+    $d = new \Match_5\Circle(2.0);
+    if ($d instanceof \Match_5\UnitCircle) {
+      $c = "unit circle";
+    } else if ($d instanceof \Match_5\Circle) {
+      $r = $d->{0};
+      $c = "circle with radius " . (string)$r;
+    } else if ($d instanceof \Match_5\Square) {
+      $s = $d->{0};
+      $c = "square with perimeter " . (string)4.0 * $s;
+    } else if ($d instanceof \Match_5\Rect) {
+      $w = $d->width;
+      $h = $d->height;
       $c = "rectangle with area " . (string)$w * $h;
     } else {
       die("match expression did not cover all possibilities\n");
     }
     print($c . "\n");
-    $d = new \Match_5\Circle(2.0);
-    if ($d instanceof \Match_5\UnitCircle) {
+    $f = new \Match_5\Square(2.5);
+    if ($f instanceof \Match_5\UnitCircle) {
       $e = "unit circle";
-    } else if ($d instanceof \Match_5\Circle) {
-      $r = $d->{0};
+    } else if ($f instanceof \Match_5\Circle) {
+      $r = $f->{0};
       $e = "circle with radius " . (string)$r;
-    } else if ($d instanceof \Match_5\Square) {
-      $s = $d->{0};
+    } else if ($f instanceof \Match_5\Square) {
+      $s = $f->{0};
       $e = "square with perimeter " . (string)4.0 * $s;
-    } else if ($d instanceof \Match_5\Rect) {
-      $w = $d->width;
-      $h = $d->height;
+    } else if ($f instanceof \Match_5\Rect) {
+      $w = $f->width;
+      $h = $f->height;
       $e = "rectangle with area " . (string)$w * $h;
     } else {
       die("match expression did not cover all possibilities\n");
     }
     print($e . "\n");
-    $f = new \Match_5\Square(2.5);
-    if ($f instanceof \Match_5\UnitCircle) {
-      $g = "unit circle";
-    } else if ($f instanceof \Match_5\Circle) {
-      $r = $f->{0};
-      $g = "circle with radius " . (string)$r;
-    } else if ($f instanceof \Match_5\Square) {
-      $s = $f->{0};
-      $g = "square with perimeter " . (string)4.0 * $s;
-    } else if ($f instanceof \Match_5\Rect) {
-      $w = $f->width;
-      $h = $f->height;
-      $g = "rectangle with area " . (string)$w * $h;
-    } else {
-      die("match expression did not cover all possibilities\n");
-    }
-    print($g . "\n");
     $i = new \Match_5\Rect([
       "width" => 5.5,
       "height" => 1.2
     ]);
     if ($i instanceof \Match_5\UnitCircle) {
-      $j = "unit circle";
+      $g = "unit circle";
     } else if ($i instanceof \Match_5\Circle) {
       $r = $i->{0};
-      $j = "circle with radius " . (string)$r;
+      $g = "circle with radius " . (string)$r;
     } else if ($i instanceof \Match_5\Square) {
       $s = $i->{0};
-      $j = "square with perimeter " . (string)4.0 * $s;
+      $g = "square with perimeter " . (string)4.0 * $s;
     } else if ($i instanceof \Match_5\Rect) {
       $w = $i->width;
       $h = $i->height;
-      $j = "rectangle with area " . (string)$w * $h;
+      $g = "rectangle with area " . (string)$w * $h;
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    print($j . "\n");
+    print($g . "\n");
   }
 }
 

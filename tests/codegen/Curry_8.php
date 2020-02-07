@@ -7,11 +7,11 @@ namespace Curry_8 {
   }
   function foo($a) {
     print("enter foo" . "\n");
-    return fn ($c, $d) => \Curry_8\inner($a, $c, $d);
+    return fn ($b, $c) => \Curry_8\inner($a, $b, $c);
   }
   function main() {
-    $b = \Curry_8\foo(1);
-    fn ($c) => $b(2, $c);
+    $a = \Curry_8\foo(1);
+    fn ($b) => $a(2, $b);
     $y = \Curry_8\foo(3)(4, 5);
     print((string)$y . "\n");
   }

@@ -6,7 +6,6 @@ use Cthulhu\ir\arity\Arity;
 use Cthulhu\ir\arity\KnownMultiArity;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
-use Cthulhu\ir\types\Atomic;
 use Cthulhu\ir\types\Record;
 use Cthulhu\ir\types\Tuple;
 use Cthulhu\lib\trees\Path;
@@ -118,10 +117,11 @@ class Compiler {
         }
 
         // Create a block to collect statements inside of the function body
-        $ctx->statements->push_return_var($ctx->names->tmp_var());
         $ctx->statements->push_block();
+        $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_RETURN);
       },
       'exit(Def)' => function (ir\Def $def) use ($ctx) {
+        $ctx->statements->pop_yield_strategy();
         $name = $ctx->names->name_to_ref_name($def->name, $ctx->namespaces->current_ref());
 
         $params = [];
@@ -133,36 +133,58 @@ class Compiler {
 
         $head = new php\FuncHead($name, $params);
 
-        // If the function returns a value, append a return statement to the
-        // end of the function body. The return expression will be a variable
-        // that references the result of the last expression in the function.
-        $return_type = $def->type->advance(max(1, count($def->params)));
-        $return_var  = $ctx->statements->pop_return_var();
-        if (Atomic::is_unit($return_type->flatten()) === false) {
-          $ret_val = new php\VariableExpr($return_var);
-          $ctx->statements->push_stmt(new php\ReturnStmt($ret_val, null));
-        }
-
         $stmt  = new php\FuncStmt($head, $ctx->statements->pop_block(), [], null);
         $scope = $ctx->names->exit_func_scope();
         $stmt->set('scope', $scope);
         $ctx->statements->push_stmt($stmt);
       },
       'exit(Let)' => function (ir\Let $let) use ($ctx) {
-        $expr = $ctx->expressions->pop();
-        if ($let->name) {
-          $name = $ctx->names->name_to_var($let->name);
-          $stmt = new php\AssignStmt($name, $expr, null);
-        } else {
-          $stmt = new php\SemiStmt($expr, null);
+        if ($let->expr instanceof ir\BranchExpr) {
+          // If the let statement is bound to a branch expression, then the
+          // branches have already bound values to the variable so pop the null
+          // literal from the stack and create no additional statements.
+          assert($ctx->expressions->pop() instanceof php\NullLiteral);
+          return;
         }
+
+        $expr = $ctx->expressions->pop();
+        $name = $ctx->names->name_to_var($let->name);
+        $stmt = new php\AssignStmt($name, $expr, null);
+        $ctx->statements->push_stmt($stmt);
+      },
+      'exit(Pop)' => function (ir\Pop $pop) use ($ctx) {
+        if ($pop->expr instanceof ir\BranchExpr) {
+          // If the pop statement wraps a branch expression, no additional
+          // statements are required. Just pop the null literal from the stack.
+          assert($ctx->expressions->pop() instanceof php\NullLiteral);
+          return;
+        }
+
+        $expr = $ctx->expressions->pop();
+        $stmt = new php\SemiStmt($expr, null);
         $ctx->statements->push_stmt($stmt);
       },
       'exit(Ret)' => function (ir\Ret $ret) use ($ctx) {
-        assert($ret->next === null);
-        $ret_var = $ctx->statements->peek_return_var();
-        $expr    = $ctx->expressions->pop();
-        $ctx->statements->push_stmt(new php\AssignStmt($ret_var, $expr, null));
+        if ($ret->expr instanceof ir\BranchExpr) {
+          // If the ret statement is bound to a branch expression, no additional
+          // statements are required. Just pop the null literal from the stack.
+          assert($ctx->expressions->pop() instanceof php\NullLiteral);
+          return;
+        }
+
+        $expr = $ctx->expressions->pop();
+        switch ($ctx->statements->peek_yield_strategy()) {
+          case YieldStrategy::SHOULD_RETURN:
+            $stmt = new php\ReturnStmt($expr, null);
+            break;
+          case YieldStrategy::SHOULD_ASSIGN:
+            $var  = $ctx->statements->peek_return_var();
+            $stmt = new php\AssignStmt($var, $expr, null);
+            break;
+          default:
+            $stmt = new php\SemiStmt($expr, null);
+        }
+        $ctx->statements->push_stmt($stmt);
       },
       'enter(Expr)' => function () use ($ctx) {
         // Record the number of expressions in the expression stack. When the
@@ -185,6 +207,39 @@ class Compiler {
         }
       },
 
+      'enter(BranchExpr)' => function (ir\BranchExpr $expr, Path $path) use ($ctx) {
+        $parent = $path->parent->node;
+        if ($parent instanceof ir\Ret) {
+          $ctx->statements->copy_yield_strategy();
+        } else if ($parent instanceof ir\Pop) {
+          $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_IGNORE);
+        } else if ($parent instanceof ir\Let) {
+          $var = $ctx->names->name_to_var($parent->name);
+          $ctx->statements->push_return_var($var);
+          $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_ASSIGN);
+        } else {
+          $var = $ctx->names->tmp_var();
+          $ctx->statements->push_return_var($var);
+          $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_ASSIGN);
+        }
+      },
+      'exit(BranchExpr)' => function (ir\BranchExpr $expr, Path $path) use ($ctx) {
+        $parent = $path->parent->node;
+        if ($parent instanceof ir\Ret) {
+          $ctx->statements->pop_yield_strategy();
+        } else if ($parent instanceof ir\Pop) {
+          $ctx->statements->pop_yield_strategy();
+        } else if ($parent instanceof ir\Let) {
+          $ctx->statements->pop_return_var();
+          $ctx->statements->pop_yield_strategy();
+        } else {
+          assert($ctx->expressions->pop() instanceof php\NullLiteral);
+          $var = $ctx->statements->pop_return_var();
+          $ctx->statements->pop_yield_strategy();
+          $ctx->expressions->push(new php\VariableExpr($var));
+        }
+      },
+
       'enter(Closure)' => function (ir\Closure $closure) use ($ctx) {
         $ctx->names->enter_closure_scope();
 
@@ -194,8 +249,8 @@ class Compiler {
         }
 
         // Create a block to collect statements inside of the function body
-        $ctx->statements->push_return_var($ctx->names->tmp_var());
         $ctx->statements->push_block();
+        $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_RETURN);
       },
       'exit(Closure)' => function (ir\Closure $closure) use ($ctx) {
         /* @var php\Variable[] $params */
@@ -214,13 +269,6 @@ class Compiler {
           $used[] = $closed_var;
         }
 
-        $ret_var = $ctx->statements->pop_return_var();
-        if (Atomic::is_unit($closure->func_type->output->flatten()) === false) {
-          $ret_expr = new php\VariableExpr($ret_var);
-          $ret_stmt = new php\ReturnStmt($ret_expr, null);
-          $ctx->statements->push_stmt($ret_stmt);
-        }
-
         $body  = $ctx->statements->pop_block();
         $expr  = new php\FuncExpr($params, $used, $body);
         $scope = $ctx->names->exit_closure_scope();
@@ -232,9 +280,6 @@ class Compiler {
         $disc_var = $ctx->names->tmp_var();
         $ctx->patterns->push_pattern_context($disc_var);
         $ctx->patterns->peek_pattern_context()->push_accessor(new php\VariableExpr($disc_var));
-
-        $ret_var = $ctx->names->tmp_var();
-        $ctx->statements->push_return_var($ret_var);
       },
       'exit(Match)' => function () use ($ctx) {
         /* @var php\IfStmt[] $if_stmts */
@@ -263,7 +308,7 @@ class Compiler {
         }
 
         $ctx->statements->push_stmt($rest);
-        $ctx->expressions->push(new php\VariableExpr($ctx->statements->pop_return_var()));
+        $ctx->expressions->push(new php\NullLiteral());
       },
 
       'enter(Arms)' => function () use ($ctx) {
@@ -401,10 +446,6 @@ class Compiler {
           }
         }
 
-        $expr    = $ctx->expressions->pop();
-        $ret_var = $ctx->statements->peek_return_var();
-        $ret     = new nodes\AssignStmt($ret_var, $expr, null);
-        $ctx->statements->push_stmt($ret);
         $consequent = $ctx->statements->pop_block();
         $alternate  = null;
 
@@ -412,22 +453,10 @@ class Compiler {
         $ctx->statements->push_stmt($if_stmt);
       },
 
-      'enter(IfExpr)' => function () use ($ctx) {
-        $tmp_var = $ctx->names->tmp_var();
-        $ctx->statements->push_return_var($tmp_var);
-      },
       'enter(Consequent|Alternate)' => function () use ($ctx) {
         $ctx->statements->push_block();
       },
       'exit(Consequent|Alternate)' => function (ir\Stmts $stmts) use ($ctx) {
-        if ($stmts->first === null || $stmts->first->last_stmt() instanceof ir\Let) {
-          $stmt = new php\AssignStmt(
-            $ctx->statements->peek_return_var(),
-            new php\NullLiteral(),
-            null);
-          $ctx->statements->push_stmt($stmt);
-        }
-
         $block = $ctx->statements->pop_block();
         $ctx->statements->stash_block($block);
       },
@@ -435,21 +464,20 @@ class Compiler {
         $alternate  = $ctx->statements->unstash_block();
         $consequent = $ctx->statements->unstash_block();
         $condition  = $ctx->expressions->pop();
-        $ret_var    = $ctx->statements->pop_return_var();
 
         $if_stmt = new php\IfStmt($condition, $consequent, $alternate, null);
         $ctx->statements->push_stmt($if_stmt);
-        $ctx->expressions->push(new php\VariableExpr($ret_var));
+        $ctx->expressions->push(new php\NullLiteral());
       },
 
-      'enter(Block)' => function () use ($ctx) {
-        $tmp_var = $ctx->names->tmp_var();
-        $ctx->statements->push_return_var($tmp_var);
-      },
-      'exit(Block)' => function () use ($ctx) {
-        $tmp_var = $ctx->statements->pop_return_var();
-        $ctx->expressions->push(new php\VariableExpr($tmp_var));
-      },
+      //      'enter(Block)' => function () use ($ctx) {
+      //        $tmp_var = $ctx->names->tmp_var();
+      //        $ctx->statements->push_return_var($tmp_var);
+      //      },
+      //      'exit(Block)' => function () use ($ctx) {
+      //        $tmp_var = $ctx->statements->pop_return_var();
+      //        $ctx->expressions->push(new php\VariableExpr($tmp_var));
+      //      },
 
       'exit(Ctor)' => function (ir\Ctor $ctor) use ($ctx) {
         if ($ctor->type instanceof Record) {

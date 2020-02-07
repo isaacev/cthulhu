@@ -4,7 +4,7 @@ namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
 
-class IfExpr extends Expr {
+class IfExpr extends BranchExpr {
   public Expr $condition;
   public Consequent $consequent;
   public Alternate $alternate;

@@ -2,12 +2,12 @@
 
 namespace Match_1 {
   function main() {
-    $b = 2 + 2;
-    if ($b == 0) {
+    $a = 2 + 2;
+    if ($a == 0) {
       print("zero" . "\n");
-    } else if ($b == 1) {
+    } else if ($a == 1) {
       print("one" . "\n");
-    } else if ($b == 2) {
+    } else if ($a == 2) {
       print("two" . "\n");
     } else if (true) {
       print("several" . "\n");

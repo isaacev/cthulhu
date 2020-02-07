@@ -9,6 +9,7 @@ class StatementAccumulator {
   private array $pending_stmts = [];
   private array $return_vars = [];
   private array $block_stash = [];
+  private array $yield_strategy = [];
 
   public function __construct(ExpressionStack $exprs) {
     $this->exprs = $exprs;
@@ -56,5 +57,24 @@ class StatementAccumulator {
       $current_stmt->mutable_append($stmt);
       assert(end($this->pending_stmts)->last_stmt() === $stmt);
     }
+  }
+
+  public function peek_yield_strategy(): string {
+    assert(!empty($this->yield_strategy));
+    return end($this->yield_strategy);
+  }
+
+  public function push_yield_strategy(string $strategy): void {
+    array_push($this->yield_strategy, $strategy);
+  }
+
+  public function copy_yield_strategy(): void {
+    $current = $this->peek_yield_strategy();
+    $this->push_yield_strategy($current);
+  }
+
+  public function pop_yield_strategy(): string {
+    assert(!empty($this->yield_strategy));
+    return array_pop($this->yield_strategy);
   }
 }

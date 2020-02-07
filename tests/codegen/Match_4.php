@@ -28,59 +28,59 @@ namespace Match_4 {
   function main() {
     $b = new \Match_4\UnitCircle();
     if ($b instanceof \Match_4\UnitCircle) {
-      $c = "unit circle";
+      $a = "unit circle";
     } else if ($b instanceof \Match_4\Circle) {
-      $c = "circle";
+      $a = "circle";
     } else if ($b instanceof \Match_4\Square) {
-      $c = "square";
+      $a = "square";
     } else if ($b instanceof \Match_4\Rect) {
+      $a = "rectangle";
+    } else {
+      die("match expression did not cover all possibilities\n");
+    }
+    print($a . "\n");
+    $d = new \Match_4\Circle(2.0);
+    if ($d instanceof \Match_4\UnitCircle) {
+      $c = "unit circle";
+    } else if ($d instanceof \Match_4\Circle) {
+      $c = "circle";
+    } else if ($d instanceof \Match_4\Square) {
+      $c = "square";
+    } else if ($d instanceof \Match_4\Rect) {
       $c = "rectangle";
     } else {
       die("match expression did not cover all possibilities\n");
     }
     print($c . "\n");
-    $d = new \Match_4\Circle(2.0);
-    if ($d instanceof \Match_4\UnitCircle) {
+    $f = new \Match_4\Square(2.5);
+    if ($f instanceof \Match_4\UnitCircle) {
       $e = "unit circle";
-    } else if ($d instanceof \Match_4\Circle) {
+    } else if ($f instanceof \Match_4\Circle) {
       $e = "circle";
-    } else if ($d instanceof \Match_4\Square) {
+    } else if ($f instanceof \Match_4\Square) {
       $e = "square";
-    } else if ($d instanceof \Match_4\Rect) {
+    } else if ($f instanceof \Match_4\Rect) {
       $e = "rectangle";
     } else {
       die("match expression did not cover all possibilities\n");
     }
     print($e . "\n");
-    $f = new \Match_4\Square(2.5);
-    if ($f instanceof \Match_4\UnitCircle) {
-      $g = "unit circle";
-    } else if ($f instanceof \Match_4\Circle) {
-      $g = "circle";
-    } else if ($f instanceof \Match_4\Square) {
-      $g = "square";
-    } else if ($f instanceof \Match_4\Rect) {
-      $g = "rectangle";
-    } else {
-      die("match expression did not cover all possibilities\n");
-    }
-    print($g . "\n");
     $h = new \Match_4\Rect([
       "width" => 5.5,
       "height" => 1.2
     ]);
     if ($h instanceof \Match_4\UnitCircle) {
-      $i = "unit circle";
+      $g = "unit circle";
     } else if ($h instanceof \Match_4\Circle) {
-      $i = "circle";
+      $g = "circle";
     } else if ($h instanceof \Match_4\Square) {
-      $i = "square";
+      $g = "square";
     } else if ($h instanceof \Match_4\Rect) {
-      $i = "rectangle";
+      $g = "rectangle";
     } else {
       die("match expression did not cover all possibilities\n");
     }
-    print($i . "\n");
+    print($g . "\n");
   }
 }
 

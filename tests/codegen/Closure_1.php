@@ -2,8 +2,8 @@
 
 namespace Closure_1 {
   function main() {
-    $c = function($_a, $b) {
-      return $_a . $b;
+    $c = function($a, $b) {
+      return $a . $b;
     };
     $d = $c("hello", "world");
     print($d . "\n");

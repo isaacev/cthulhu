@@ -2,11 +2,11 @@
 
 namespace Closure_2 {
   function main() {
-    $_a = ">> ";
-    $c = function($a_1, $b) {
-      return $a_1 . $b;
+    $a = ">> ";
+    $c = function($_a, $b) {
+      return $_a . $b;
     };
-    $d = $_a . $c("hello", "world");
+    $d = $a . $c("hello", "world");
     print($d . "\n");
   }
 }

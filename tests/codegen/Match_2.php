@@ -2,10 +2,10 @@
 
 namespace Match_2 {
   function main() {
-    $b = "abc";
-    if ($b == "") {
+    $a = "abc";
+    if ($a == "") {
       // empty
-    } else if ($b == "abc") {
+    } else if ($a == "abc") {
       // empty
     } else if (true) {
       -1;

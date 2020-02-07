@@ -4,7 +4,7 @@ namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
 
-class Match extends Expr {
+class Match extends BranchExpr {
   public Disc $disc;
   public Arms $arms;
 
