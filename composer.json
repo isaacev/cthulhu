@@ -5,5 +5,8 @@
         "psr-4": {
             "Cthulhu\\": "src"
         }
+    },
+    "require": {
+        "php": "7.4.2"
     }
 }
