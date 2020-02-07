@@ -11,6 +11,7 @@ namespace Match_3 {
       die("match expression did not cover all possibilities\n");
     }
     print((string)$next . "\n");
+    return null;
   }
 }
 

@@ -7,6 +7,7 @@ namespace Curry_2 {
   function main() {
     $x = \Curry_2\foo(1, 2, 3);
     print((string)$x . "\n");
+    return null;
   }
 }
 

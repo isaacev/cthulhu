@@ -2,7 +2,7 @@
 
 namespace Float_4 {
   function main() {
-    // empty
+    return null;
   }
 }
 

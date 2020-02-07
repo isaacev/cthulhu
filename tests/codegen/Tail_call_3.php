@@ -27,6 +27,7 @@ namespace Tail_call_3 {
       5,
       6
     ]) . "\n");
+    return null;
   }
 }
 

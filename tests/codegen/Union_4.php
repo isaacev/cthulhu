@@ -30,6 +30,7 @@ namespace Union_4 {
       die("match expression did not cover all possibilities\n");
     }
     print($a . "\n");
+    return null;
   }
 }
 

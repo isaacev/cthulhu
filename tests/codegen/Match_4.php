@@ -81,6 +81,7 @@ namespace Match_4 {
       die("match expression did not cover all possibilities\n");
     }
     print($g . "\n");
+    return null;
   }
 }
 

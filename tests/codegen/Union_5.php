@@ -43,6 +43,7 @@ namespace Union_5 {
     } else {
       die("match expression did not cover all possibilities\n");
     }
+    return null;
   }
 }
 

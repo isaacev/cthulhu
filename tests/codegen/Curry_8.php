@@ -14,6 +14,7 @@ namespace Curry_8 {
     fn ($b) => $a(2, $b);
     $y = \Curry_8\foo(3)(4, 5);
     print((string)$y . "\n");
+    return null;
   }
 }
 

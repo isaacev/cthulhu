@@ -17,6 +17,7 @@ namespace Match_8 {
       die("match expression did not cover all possibilities\n");
     }
     print($x . "\n");
+    return null;
   }
   function main() {
     \Match_8\test([]);
@@ -30,6 +31,7 @@ namespace Match_8 {
       "e",
       "f"
     ]);
+    return null;
   }
 }
 

@@ -2,7 +2,7 @@
 
 namespace Main_1 {
   function main() {
-    // empty
+    return null;
   }
 }
 

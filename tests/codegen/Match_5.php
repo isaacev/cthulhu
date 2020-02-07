@@ -97,6 +97,7 @@ namespace Match_5 {
       die("match expression did not cover all possibilities\n");
     }
     print($g . "\n");
+    return null;
   }
 }
 

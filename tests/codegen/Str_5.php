@@ -3,6 +3,7 @@
 namespace Str_5 {
   function main() {
     print("\$\$hello" . "\n");
+    return null;
   }
 }
 

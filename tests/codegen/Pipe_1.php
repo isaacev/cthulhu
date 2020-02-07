@@ -27,6 +27,7 @@ namespace Pipe_1 {
   }
   function main() {
     print(\Pipe_1\or_else("no message", new \Prelude\Some("hello world")) . "\n");
+    return null;
   }
 }
 

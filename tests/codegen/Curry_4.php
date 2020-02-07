@@ -12,6 +12,7 @@ namespace Curry_4 {
   function main() {
     $x = \Curry_4\foo(1, 2)(3);
     print((string)$x . "\n");
+    return null;
   }
 }
 

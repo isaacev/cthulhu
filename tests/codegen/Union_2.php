@@ -9,6 +9,7 @@ namespace Union_2 {
   }
   function main() {
     new \Union_2\Bar(123);
+    return null;
   }
 }
 

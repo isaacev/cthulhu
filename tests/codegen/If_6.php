@@ -7,6 +7,7 @@ namespace If_6 {
     } else {
       // empty
     }
+    return null;
   }
 }
 

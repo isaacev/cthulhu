@@ -11,6 +11,7 @@ namespace Curry_6 {
   }
   function main() {
     \Curry_6\foo(1, 2);
+    return null;
   }
 }
 

@@ -13,6 +13,7 @@ namespace Curry_7 {
     \Curry_7\foo(1, 2);
     $y = \Curry_7\foo(3, 4)(5);
     print((string)$y . "\n");
+    return null;
   }
 }
 

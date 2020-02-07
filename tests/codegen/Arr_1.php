@@ -3,6 +3,7 @@
 namespace Arr_1 {
   function main() {
     [];
+    return null;
   }
 }
 

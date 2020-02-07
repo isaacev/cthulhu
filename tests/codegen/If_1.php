@@ -7,6 +7,7 @@ namespace If_1 {
     } else {
       // empty
     }
+    return null;
   }
 }
 

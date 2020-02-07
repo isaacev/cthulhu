@@ -12,6 +12,7 @@ namespace Union_3 {
     new \Union_3\Bar([
       "integer" => 123
     ]);
+    return null;
   }
 }
 

@@ -7,6 +7,7 @@ namespace Closure_1 {
     };
     $d = $c("hello", "world");
     print($d . "\n");
+    return null;
   }
 }
 

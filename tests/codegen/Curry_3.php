@@ -8,6 +8,7 @@ namespace Curry_3 {
     $x = fn ($a) => \Curry_3\foo(1, 2, $a);
     $y = $x(3);
     print((string)$y . "\n");
+    return null;
   }
 }
 

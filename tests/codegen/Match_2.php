@@ -12,6 +12,7 @@ namespace Match_2 {
     } else {
       die("match expression did not cover all possibilities\n");
     }
+    return null;
   }
 }
 

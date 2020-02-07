@@ -3,6 +3,7 @@
 namespace Exponent_1 {
   function main() {
     \pow(2, 2);
+    return null;
   }
 }
 
