@@ -2,6 +2,35 @@
 
 > A strongly-typed language that compiles into PHP
 
+## Example
+
+A simple program looks like this:
+
+```
+use ::Io;
+
+#[entry]
+fn main() -> () {
+  Io::println("hello world");
+}
+```
+
+And compiles to the following PHP:
+
+```php
+<?php
+
+namespace Hello {
+  function main() {
+    print("hello world\n");
+  }
+}
+
+namespace {
+  \Hello\main();
+}
+```
+
 ## Name capitalization
 
 - Modules and types use PascalCase
