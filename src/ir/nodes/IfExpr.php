@@ -7,10 +7,10 @@ use Cthulhu\lib\trees\EditableNodelike;
 
 class IfExpr extends Expr {
   public Expr $condition;
-  public Stmts $consequent;
-  public Stmts $alternate;
+  public Consequent $consequent;
+  public Alternate $alternate;
 
-  public function __construct(Type $type, Expr $condition, Stmts $consequent, Stmts $alternate) {
+  public function __construct(Type $type, Expr $condition, Consequent $consequent, Alternate $alternate) {
     parent::__construct($type);
     $this->condition  = $condition;
     $this->consequent = $consequent;

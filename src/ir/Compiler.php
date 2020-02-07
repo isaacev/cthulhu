@@ -475,8 +475,8 @@ class Compiler {
   private static function if_expr(self $ctx, ast\IfExpr $expr): ir\IfExpr {
     $type       = $expr->get(TypeCheck::TYPE_KEY);
     $condition  = self::expr($ctx, $expr->condition);
-    $consequent = new ir\Stmts(self::stmts($ctx, $expr->consequent->stmts));
-    $alternate  = new ir\Stmts(self::stmts($ctx, $expr->alternate ? $expr->alternate->stmts : []));
+    $consequent = new ir\Consequent(self::stmts($ctx, $expr->consequent->stmts));
+    $alternate  = new ir\Alternate(self::stmts($ctx, $expr->alternate ? $expr->alternate->stmts : []));
     return new ir\IfExpr($type, $condition, $consequent, $alternate);
   }
 

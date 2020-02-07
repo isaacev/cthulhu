@@ -2,9 +2,7 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
-
-class Stmts extends Node {
+abstract class Stmts extends Node {
   public ?Stmt $first;
 
   public function __construct(?Stmt $first) {
@@ -14,10 +12,6 @@ class Stmts extends Node {
 
   public function children(): array {
     return [ $this->first ];
-  }
-
-  public function from_children(array $children): EditableNodelike {
-    return new Stmts($children[0]);
   }
 
   public function build(): Builder {

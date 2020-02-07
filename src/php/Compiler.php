@@ -184,21 +184,6 @@ class Compiler {
           die("$expr_name removed $abs_pushed_exprs expressions from the stack\n");
         }
       },
-      'enter(Stmts)' => function () use ($ctx) {
-        $ctx->statements->push_block();
-      },
-      'exit(Stmts)' => function (ir\Stmts $stmts) use ($ctx) {
-        if ($stmts->first === null || $stmts->first->last_stmt() instanceof ir\Let) {
-          $stmt = new php\AssignStmt(
-            $ctx->statements->peek_return_var(),
-            new php\NullLiteral(),
-            null);
-          $ctx->statements->push_stmt($stmt);
-        }
-
-        $block = $ctx->statements->pop_block();
-        $ctx->statements->stash_block($block);
-      },
 
       'enter(Closure)' => function (ir\Closure $closure) use ($ctx) {
         $ctx->names->enter_closure_scope();
@@ -430,6 +415,21 @@ class Compiler {
       'enter(IfExpr)' => function () use ($ctx) {
         $tmp_var = $ctx->names->tmp_var();
         $ctx->statements->push_return_var($tmp_var);
+      },
+      'enter(Consequent|Alternate)' => function () use ($ctx) {
+        $ctx->statements->push_block();
+      },
+      'exit(Consequent|Alternate)' => function (ir\Stmts $stmts) use ($ctx) {
+        if ($stmts->first === null || $stmts->first->last_stmt() instanceof ir\Let) {
+          $stmt = new php\AssignStmt(
+            $ctx->statements->peek_return_var(),
+            new php\NullLiteral(),
+            null);
+          $ctx->statements->push_stmt($stmt);
+        }
+
+        $block = $ctx->statements->pop_block();
+        $ctx->statements->stash_block($block);
       },
       'exit(IfExpr)' => function () use ($ctx) {
         $alternate  = $ctx->statements->unstash_block();
