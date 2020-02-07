@@ -369,7 +369,7 @@ class Compiler {
   }
 
   private static function match_expr(self $ctx, ast\MatchExpr $expr): ir\Match {
-    $disc      = self::expr($ctx, $expr->discriminant);
+    $disc      = new ir\Disc(self::expr($ctx, $expr->discriminant));
     $disc_type = $expr->discriminant->get(TypeCheck::TYPE_KEY);
     $out_type  = $expr->get(TypeCheck::TYPE_KEY);
     assert($disc_type instanceof types\Type);

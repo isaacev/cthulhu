@@ -6,17 +6,17 @@ use Cthulhu\ir\types\Type;
 use Cthulhu\lib\trees\EditableNodelike;
 
 class Match extends Expr {
-  public Expr $discriminant;
+  public Disc $disc;
   public Arms $arms;
 
-  public function __construct(Type $type, Expr $discriminant, Arms $arms) {
+  public function __construct(Type $type, Disc $disc, Arms $arms) {
     parent::__construct($type);
-    $this->discriminant = $discriminant;
-    $this->arms         = $arms;
+    $this->disc = $disc;
+    $this->arms = $arms;
   }
 
   public function children(): array {
-    return [ $this->discriminant, $this->arms ];
+    return [ $this->disc, $this->arms ];
   }
 
   public function from_children(array $children): EditableNodelike {
@@ -28,7 +28,7 @@ class Match extends Expr {
       ->paren_left()
       ->keyword('match')
       ->space()
-      ->then($this->discriminant)
+      ->then($this->disc)
       ->newline()
       ->increase_indentation()
       ->then($this->arms)
