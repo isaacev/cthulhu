@@ -7,7 +7,7 @@ abstract class ConstPattern extends Pattern {
     return [];
   }
 
-  public function from_children(array $children): self {
+  public function from_children(array $children): ConstPattern {
     return $this;
   }
 }

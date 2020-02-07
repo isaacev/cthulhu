@@ -2,9 +2,9 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
+use Countable;
 
-class Exprs extends Node implements \Countable {
+class Exprs extends Node implements Countable {
   public array $exprs;
 
   /**
@@ -31,8 +31,8 @@ class Exprs extends Node implements \Countable {
     return $this->exprs;
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self($children))
+  public function from_children(array $children): Exprs {
+    return (new Exprs($children))
       ->copy($this);
   }
 

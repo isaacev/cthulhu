@@ -25,13 +25,13 @@ class Def extends Stmt {
   }
 
   public function from_children(array $children): Def {
-    return (new self($children[0], $children[1], $children[2], $this->next))
+    return (new Def($children[0], $children[1], $children[2], $this->next))
       ->copy($this);
   }
 
   public function from_successor(?EditableSuccessor $successor): Def {
     assert($successor === null || $successor instanceof Stmt);
-    return (new self($this->name, $this->params, $this->body, $successor))
+    return (new Def($this->name, $this->params, $this->body, $successor))
       ->copy($this);
   }
 

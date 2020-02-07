@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class Match extends Expr {
   public Disc $disc;
@@ -19,7 +18,7 @@ class Match extends Expr {
     return [ $this->disc, $this->arms ];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Match {
     return new Match($this->type, ...$children);
   }
 

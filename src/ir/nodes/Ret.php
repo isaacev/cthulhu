@@ -17,13 +17,13 @@ class Ret extends Stmt {
   }
 
   public function from_children(array $children): Ret {
-    return (new self($children[0], $this->next))
+    return (new Ret($children[0], $this->next))
       ->copy($this);
   }
 
   public function from_successor(?EditableSuccessor $successor): Ret {
     assert($successor === null || $successor instanceof Stmt);
-    return (new self($this->expr, $successor))
+    return (new Ret($this->expr, $successor))
       ->copy($this);
   }
 

@@ -24,7 +24,7 @@ class Enum extends Stmt {
   }
 
   public function from_children(array $children): Enum {
-    return (new self($children[0], array_slice($children, 1), $this->next))
+    return (new Enum($children[0], array_slice($children, 1), $this->next))
       ->copy($this);
   }
 

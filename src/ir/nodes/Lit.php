@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 use Cthulhu\val\Value;
 
 abstract class Lit extends Expr {
@@ -18,7 +17,7 @@ abstract class Lit extends Expr {
     return [];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Lit {
     return ($this)
       ->copy($this);
   }

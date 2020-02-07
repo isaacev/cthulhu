@@ -17,7 +17,7 @@ class Ctor extends Expr {
   }
 
   public function from_children(array $children): Ctor {
-    return new self(...$children);
+    return new Ctor(...$children);
   }
 
   public function build(): Builder {

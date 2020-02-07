@@ -2,8 +2,6 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
-
 class Glob extends Node {
   public int $offset;
   public VariablePattern $binding;
@@ -18,7 +16,7 @@ class Glob extends Node {
     return [ $this->binding ];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Glob {
     return new Glob($this->offset, ...$children);
   }
 

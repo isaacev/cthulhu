@@ -2,14 +2,12 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
-
 class WildcardPattern extends Pattern {
   public function children(): array {
     return [];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): WildcardPattern {
     return $this;
   }
 

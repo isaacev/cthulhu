@@ -4,7 +4,6 @@ namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class Name extends Node {
   public Type $type;
@@ -22,7 +21,7 @@ class Name extends Node {
     return [];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Name {
     return $this;
   }
 

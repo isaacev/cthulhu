@@ -2,8 +2,6 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
-
 class Root extends Node {
   public ?Module $module;
 
@@ -16,8 +14,8 @@ class Root extends Node {
     return [ $this->module ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self(...$children))
+  public function from_children(array $children): Root {
+    return (new Root(...$children))
       ->copy($this);
   }
 

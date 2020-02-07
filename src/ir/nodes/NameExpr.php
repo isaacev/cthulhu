@@ -2,8 +2,6 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
-
 class NameExpr extends Expr {
   public Name $name;
 
@@ -16,8 +14,8 @@ class NameExpr extends Expr {
     return [ $this->name ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self($children[0]))
+  public function from_children(array $children): NameExpr {
+    return (new NameExpr($children[0]))
       ->copy($this);
   }
 

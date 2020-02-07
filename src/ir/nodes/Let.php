@@ -19,13 +19,13 @@ class Let extends Stmt {
   }
 
   public function from_children(array $children): Let {
-    return (new self($children[0], $children[1], $this->next))
+    return (new Let($children[0], $children[1], $this->next))
       ->copy($this);
   }
 
   public function from_successor(?EditableSuccessor $successor): Let {
     assert($successor === null || $successor instanceof Stmt);
-    return (new self($this->name, $this->expr, $successor))
+    return (new Let($this->name, $this->expr, $successor))
       ->copy($this);
   }
 

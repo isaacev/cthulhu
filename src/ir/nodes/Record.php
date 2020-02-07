@@ -21,7 +21,7 @@ class Record extends Expr {
   }
 
   public function from_children(array $children): Record {
-    return new self($this->type, $children);
+    return new Record($this->type, $children);
   }
 
   public function build(): Builder {

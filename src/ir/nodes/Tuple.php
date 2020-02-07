@@ -21,7 +21,7 @@ class Tuple extends Expr {
   }
 
   public function from_children(array $children): Tuple {
-    return new self($this->type, $children);
+    return new Tuple($this->type, $children);
   }
 
   public function build(): Builder {

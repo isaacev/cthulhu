@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class Intrinsic extends Expr {
   public string $ident;
@@ -19,8 +18,8 @@ class Intrinsic extends Expr {
     return [ $this->args ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self($this->type, $this->ident, $children[0]))
+  public function from_children(array $children): Intrinsic {
+    return (new Intrinsic($this->type, $this->ident, $children[0]))
       ->copy($this);
   }
 

@@ -18,7 +18,7 @@ class Arms extends Node {
   }
 
   public function from_children(array $children): Arms {
-    return new self($children);
+    return new Arms($children);
   }
 
   public function build(): Builder {

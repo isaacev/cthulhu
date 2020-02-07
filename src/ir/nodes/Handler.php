@@ -2,8 +2,6 @@
 
 namespace Cthulhu\ir\nodes;
 
-use Cthulhu\lib\trees\EditableNodelike;
-
 class Handler extends Node {
   public Expr $expr;
 
@@ -16,7 +14,7 @@ class Handler extends Node {
     return [ $this->expr ];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Handler {
     return new Handler(...$children);
   }
 

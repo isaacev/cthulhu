@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class IfExpr extends Expr {
   public Expr $condition;
@@ -21,7 +20,7 @@ class IfExpr extends Expr {
     return [ $this->condition, $this->consequent, $this->alternate ];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): IfExpr {
     return new IfExpr($this->type, ...$children);
   }
 

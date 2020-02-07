@@ -12,5 +12,7 @@ abstract class Node implements EditableNodelike, HasMetadata, Buildable {
   use DefaultUniqueId;
   use DefaultMetadata;
 
+  abstract public function from_children(array $children): Node;
+
   abstract public function build(): Builder;
 }

@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Func;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class Closure extends Expr {
   public Func $func_type;
@@ -23,9 +22,9 @@ class Closure extends Expr {
     return [ $this->names, $this->closed, $this->stmt ];
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): Closure {
     assert($this->type instanceof Func);
-    return (new self($this->type, $children[0], $children[1], $children[2]))
+    return (new Closure($this->type, $children[0], $children[1], $children[2]))
       ->copy($this);
   }
 

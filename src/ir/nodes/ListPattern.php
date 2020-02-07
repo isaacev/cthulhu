@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class ListPattern extends Pattern {
   public array $members;
@@ -28,7 +27,7 @@ class ListPattern extends Pattern {
     return array_merge($this->members, [ $this->glob ]);
   }
 
-  public function from_children(array $children): EditableNodelike {
+  public function from_children(array $children): ListPattern {
     $members = array_slice($children, -1);
     $glob    = end($children);
     return new ListPattern($this->type, $members, $glob);

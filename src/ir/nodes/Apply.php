@@ -3,7 +3,6 @@
 namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
-use Cthulhu\lib\trees\EditableNodelike;
 
 class Apply extends Expr {
   public Expr $callee;
@@ -19,8 +18,8 @@ class Apply extends Expr {
     return [ $this->callee, $this->args ];
   }
 
-  public function from_children(array $children): EditableNodelike {
-    return (new self($this->type, $children[0], $children[1]))
+  public function from_children(array $children): Apply {
+    return (new Apply($this->type, $children[0], $children[1]))
       ->copy($this);
   }
 
