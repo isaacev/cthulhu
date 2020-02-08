@@ -43,7 +43,7 @@ class TailCall implements Pass {
     $recursive_vars = [];
 
     $new_prog = Visitor::edit($prog, [
-      'enter(FuncStmt)' => function (nodes\FuncStmt $stmt) use (&$tail_recursive_defs, &$is_tail_stmt, &$recursive_vars) {
+      'enter(FuncStmt)' => function (nodes\FuncStmt $stmt, EditablePath $path) use (&$tail_recursive_defs, &$is_tail_stmt, &$recursive_vars) {
         $func_id = $stmt->head->name->symbol->get_id();
         if (array_key_exists($func_id, $tail_recursive_defs)) {
           $is_tail_stmt[] = true;
@@ -51,6 +51,10 @@ class TailCall implements Pass {
 
           /* @var Scope $scope */
           $scope = $stmt->get('scope');
+          if ($scope === null) {
+            $path->abort_recursion();
+            return;
+          }
 
           $recursive_vars = [];
           foreach ($stmt->head->params as $param_var) {
