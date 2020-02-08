@@ -14,6 +14,8 @@ class Intrinsics {
    */
   public static function build_intrinsic_expr(string $name, array $args): nodes\Expr {
     switch ($name) {
+      case 'sqrt':
+        return self::sqrt(...$args);
       case 'read_argv':
         return self::read_argv();
       case 'prepend':
@@ -69,6 +71,18 @@ class Intrinsics {
       default:
         die("unknown intrinsic named '$name'\n");
     }
+  }
+
+  private static function sqrt(nodes\Expr $a): nodes\Expr {
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new nodes\Reference(
+          'sqrt',
+          new Symbol()),
+        false),
+      [
+        $a,
+      ]);
   }
 
   private static function read_argv(): nodes\Expr {
