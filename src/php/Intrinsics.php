@@ -16,6 +16,8 @@ class Intrinsics {
     switch ($name) {
       case 'sqrt':
         return self::sqrt(...$args);
+      case 'float_floor':
+        return self::float_floor(...$args);
       case 'read_argv':
         return self::read_argv();
       case 'prepend':
@@ -83,6 +85,18 @@ class Intrinsics {
       [
         $a,
       ]);
+  }
+
+  private static function float_floor(nodes\Expr $a): nodes\Expr {
+    return new nodes\CastExpr('int', new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new nodes\Reference(
+          'floor',
+          new Symbol()),
+        false),
+      [
+        $a,
+      ]));
   }
 
   private static function read_argv(): nodes\Expr {

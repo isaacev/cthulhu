@@ -1,7 +1,12 @@
 intrinsic {
   fn sqrt(Float) -> Float;
+  fn float_floor(Float) -> Int;
 }
 
 pub fn square_root(a: Float) -> Float {
   sqrt(a)
+}
+
+pub fn floor(a: Float) -> Int {
+  float_floor(a)
 }
