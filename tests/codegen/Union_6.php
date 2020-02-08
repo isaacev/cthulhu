@@ -20,10 +20,8 @@ namespace Union_6 {
       new \Union_6\Left(true);
     } else if ($a == 2) {
       new \Union_6\Left(false);
-    } else if (true) {
-      new \Union_6\Right("unknown integer");
     } else {
-      die("match expression did not cover all possibilities\n");
+      new \Union_6\Right("unknown integer");
     }
     return null;
   }

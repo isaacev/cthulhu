@@ -9,10 +9,8 @@ namespace Match_1 {
       print("one\n");
     } else if ($a == 2) {
       print("two\n");
-    } else if (true) {
-      print("several\n");
     } else {
-      die("match expression did not cover all possibilities\n");
+      print("several\n");
     }
     return null;
   }

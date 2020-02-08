@@ -77,10 +77,8 @@ namespace Mandelbrot {
           $ch = "-";
         } else if ($th == 1000) {
           $ch = " ";
-        } else if (true) {
-          $ch = ".";
         } else {
-          die("match expression did not cover all possibilities\n");
+          $ch = ".";
         }
         print($ch);
       });

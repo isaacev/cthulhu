@@ -314,8 +314,12 @@ class Compiler {
             null)
         );
 
-        foreach (array_reverse($if_stmts) as $if_stmt) {
-          $rest = new php\IfStmt($if_stmt->test, $if_stmt->consequent, $rest, null);
+        foreach (array_reverse($if_stmts) as $index => $if_stmt) {
+          if ($index === 0 && $if_stmt->test instanceof php\BoolLiteral) {
+            $rest = $if_stmt->consequent;
+          } else {
+            $rest = new php\IfStmt($if_stmt->test, $if_stmt->consequent, $rest, null);
+          }
         }
 
         $ctx->statements->push_stmt($rest);

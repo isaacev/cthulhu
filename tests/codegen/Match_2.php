@@ -7,10 +7,8 @@ namespace Match_2 {
       // empty
     } else if ($a == "abc") {
       // empty
-    } else if (true) {
-      -1;
     } else {
-      die("match expression did not cover all possibilities\n");
+      -1;
     }
     return null;
   }
