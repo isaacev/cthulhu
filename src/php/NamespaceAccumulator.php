@@ -31,7 +31,7 @@ class NamespaceAccumulator {
 
   public function open_anonymous(): void {
     $this->names->enter_namespace_scope();
-    $this->stmts->push_block(null);
+    $this->stmts->push_block();
   }
 
   public function close_anonymous(): void {
@@ -45,7 +45,7 @@ class NamespaceAccumulator {
     $ref = $this->names->name_to_ref($name);
     array_push($this->pending_names, $ref);
     $this->names->enter_namespace_scope();
-    $this->stmts->push_block(null);
+    $this->stmts->push_block();
   }
 
   public function close(): void {
