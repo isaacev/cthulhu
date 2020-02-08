@@ -48,6 +48,7 @@ intrinsic {
   fn float_add(Float, Float) -> Float;
   fn float_sub(Float, Float) -> Float;
   fn float_mul(Float, Float) -> Float;
+  fn float_div(Float, Float) -> Float;
 }
 
 #[infix(sum)]
@@ -63,6 +64,11 @@ pub fn (-.) (a: Float, b: Float) -> Float {
 #[infix(prod)]
 pub fn (*.) (a: Float, b: Float) -> Float {
   float_mul(a, b)
+}
+
+#[infix(prod)]
+pub fn (/) (a: Float, b: Float) -> Float {
+  float_div(a, b)
 }
 
 pub use ::Kernel::Str;

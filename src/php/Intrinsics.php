@@ -64,6 +64,8 @@ class Intrinsics {
         return self::float_sub(...$args);
       case 'float_mul':
         return self::float_mul(...$args);
+      case 'float_div':
+        return self::float_div(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
@@ -205,5 +207,9 @@ class Intrinsics {
 
   private static function float_mul(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('*', $a, $b);
+  }
+
+  private static function float_div(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr('/', $a, $b);
   }
 }
