@@ -71,7 +71,7 @@ class NamespaceAccumulator {
     if ($this->helpers === null) {
       $this->helpers = new nodes\NamespaceNode(
         new nodes\Reference('runtime', new names\Symbol()),
-        new nodes\BlockNode([]),
+        new nodes\BlockNode(null),
       );
     }
 
@@ -83,7 +83,7 @@ class NamespaceAccumulator {
       $segments = $this->helpers->name->segments . '\\' . $stmt->head->name->value;
       $ref      = new nodes\Reference($segments, $symbol);
 
-      $this->helpers->block->stmts[] = $stmt;
+      $this->helpers->block->stmt = $stmt;
       return $this->helper_refs[$name] = $ref;
     }
   }

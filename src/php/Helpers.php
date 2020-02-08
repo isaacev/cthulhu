@@ -40,8 +40,8 @@ class Helpers {
 
     $self = new nodes\Reference($runtime_namespace->segments . '\\curry', $head->name->symbol);
 
-    $body = new nodes\BlockNode([
-      // $arity = (new \ReflectionFunction($fn))->getNumberOfParameters();
+    $body = new nodes\BlockNode(
+    // $arity = (new \ReflectionFunction($fn))->getNumberOfParameters();
       new nodes\AssignStmt(
         $arity,
         new nodes\CallExpr(
@@ -50,94 +50,96 @@ class Helpers {
               new nodes\ReferenceExpr($reflect_func, false),
               [ $fn ]),
             $get_num_params),
-          [])),
+          []),
+        // $argc = count($argv);
+        new nodes\AssignStmt(
+          $argc,
+          new nodes\CallExpr(
+            new nodes\ReferenceExpr($count, false),
+            [ $argv ]),
 
-      // $argc = count($argv);
-      new nodes\AssignStmt(
-        $argc,
-        new nodes\CallExpr(
-          new nodes\ReferenceExpr($count, false),
-          [ $argv ])
-      ),
-
-      // $argc < $arity
-      new nodes\IfStmt(
-        new nodes\BinaryExpr(
-          '<',
-          new nodes\VariableExpr($argc),
-          new nodes\VariableExpr($arity)),
-        new nodes\BlockNode([
-          // return \runtime\curry($fn, array_merge($argv, $more_argv));
-          new nodes\ReturnStmt(new nodes\ArrowExpr([
-            new nodes\FuncParam(true, $more_argv),
-          ], new nodes\CallExpr(new nodes\ReferenceExpr($self, false), [
-            new nodes\VariableExpr($fn),
-            new nodes\CallExpr(new nodes\ReferenceExpr($array_merge, false), [
-              new nodes\VariableExpr($argv),
-              new nodes\VariableExpr($more_argv),
-            ]),
-          ]))),
-        ]),
-
-        // $argc === $arity
-        new nodes\IfStmt(
-          new nodes\BinaryExpr(
-            '===',
-            new nodes\VariableExpr($argc),
-            new nodes\VariableExpr($arity)),
-          new nodes\BlockNode([
-
-            // $result = $fn(...$argv);
-            new nodes\AssignStmt(
-              $result,
-              new nodes\CallExpr(
+          // $argc < $arity
+          new nodes\IfStmt(
+            new nodes\BinaryExpr(
+              '<',
+              new nodes\VariableExpr($argc),
+              new nodes\VariableExpr($arity)),
+            new nodes\BlockNode(
+            // return \runtime\curry($fn, array_merge($argv, $more_argv));
+              new nodes\ReturnStmt(new nodes\ArrowExpr([
+                new nodes\FuncParam(true, $more_argv),
+              ], new nodes\CallExpr(new nodes\ReferenceExpr($self, false), [
                 new nodes\VariableExpr($fn),
-                [ new nodes\UnaryExpr('...', new nodes\VariableExpr($argv)) ])),
-
-            // return \is_callable($result) ? curry($result, []) : $result;
-            new nodes\ReturnStmt(
-              new nodes\TernaryExpr(
-                new nodes\CallExpr(
-                  new nodes\ReferenceExpr($is_callable, false),
-                  [
-                    new nodes\VariableExpr($result),
-                  ]),
-                new nodes\CallExpr(
-                  new nodes\ReferenceExpr($self, false),
-                  [
-                    new nodes\VariableExpr($result),
-                    new nodes\OrderedArrayExpr([]),
-                  ]),
-                new nodes\VariableExpr($result)
-              )
-            ),
-          ]),
-          new nodes\BlockNode([
-
-            // return \runtime\curry($fn(...\array_splice($argv, 0, $arity)), $argv);
-            new nodes\ReturnStmt(
-              new nodes\CallExpr(new nodes\ReferenceExpr($self, false), [
-                new nodes\CallExpr(new nodes\VariableExpr($fn), [
-                  new nodes\UnaryExpr(
-                    '...',
-                    new nodes\CallExpr(
-                      new nodes\ReferenceExpr($array_splice, false),
-                      [
-                        new nodes\VariableExpr($argv),
-                        new nodes\IntLiteral(IntegerValue::from_scalar(0)),
-                        new nodes\VariableExpr($arity),
-                      ]
-                    )
-                  ),
+                new nodes\CallExpr(new nodes\ReferenceExpr($array_merge, false), [
+                  new nodes\VariableExpr($argv),
+                  new nodes\VariableExpr($more_argv),
                 ]),
-                new nodes\VariableExpr($argv),
-              ])
+              ])),
+                null),
             ),
-          ]),
-        )
-      ),
-    ]);
 
-    return new nodes\FuncStmt($head, $body, []);
+            // $argc === $arity
+            new nodes\IfStmt(
+              new nodes\BinaryExpr(
+                '===',
+                new nodes\VariableExpr($argc),
+                new nodes\VariableExpr($arity)),
+              new nodes\BlockNode(
+
+              // $result = $fn(...$argv);
+                new nodes\AssignStmt(
+                  $result,
+                  new nodes\CallExpr(
+                    new nodes\VariableExpr($fn),
+                    [ new nodes\UnaryExpr('...', new nodes\VariableExpr($argv)) ]),
+
+                  // return \is_callable($result) ? curry($result, []) : $result;
+                  new nodes\ReturnStmt(
+                    new nodes\TernaryExpr(
+                      new nodes\CallExpr(
+                        new nodes\ReferenceExpr($is_callable, false),
+                        [
+                          new nodes\VariableExpr($result),
+                        ]),
+                      new nodes\CallExpr(
+                        new nodes\ReferenceExpr($self, false),
+                        [
+                          new nodes\VariableExpr($result),
+                          new nodes\OrderedArrayExpr([]),
+                        ]),
+                      new nodes\VariableExpr($result)
+                    ),
+                    null)),
+              ),
+              new nodes\BlockNode(
+
+              // return \runtime\curry($fn(...\array_splice($argv, 0, $arity)), $argv);
+                new nodes\ReturnStmt(
+                  new nodes\CallExpr(new nodes\ReferenceExpr($self, false), [
+                    new nodes\CallExpr(new nodes\VariableExpr($fn), [
+                      new nodes\UnaryExpr(
+                        '...',
+                        new nodes\CallExpr(
+                          new nodes\ReferenceExpr($array_splice, false),
+                          [
+                            new nodes\VariableExpr($argv),
+                            new nodes\IntLiteral(IntegerValue::from_scalar(0)),
+                            new nodes\VariableExpr($arity),
+                          ]
+                        )
+                      ),
+                    ]),
+                    new nodes\VariableExpr($argv),
+                  ]), null
+                ),
+              ),
+              null
+            ),
+            null)
+        ))
+
+    );
+
+    return new nodes\FuncStmt($head, $body, [], null);
   }
 }
