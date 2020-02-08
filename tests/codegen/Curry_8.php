@@ -2,11 +2,11 @@
 
 namespace Curry_8 {
   function inner($d, $e, $f) {
-    print("enter inner" . "\n");
+    print("enter inner\n");
     return $d * $e + $f;
   }
   function foo($a) {
-    print("enter foo" . "\n");
+    print("enter foo\n");
     return fn ($b, $c) => \Curry_8\inner($a, $b, $c);
   }
   function main() {

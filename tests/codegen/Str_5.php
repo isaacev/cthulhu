@@ -2,7 +2,7 @@
 
 namespace Str_5 {
   function main() {
-    print("\$\$hello" . "\n");
+    print("\$\$hello\n");
     return null;
   }
 }

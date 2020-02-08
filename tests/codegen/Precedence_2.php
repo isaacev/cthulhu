@@ -2,7 +2,7 @@
 
 namespace Precedence_2 {
   function main() {
-    \pow(3 * 2, 2);
+    \pow(6, 2);
     return null;
   }
 }

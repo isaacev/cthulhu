@@ -11,6 +11,24 @@ class IntegerValue extends Value {
     $this->value = $value;
   }
 
+  public function add(IntegerValue $other): IntegerValue {
+    $value = $this->value + $other->value;
+    $raw   = "$value";
+    return new IntegerValue($raw, $value);
+  }
+
+  public function subtract(IntegerValue $other): IntegerValue {
+    $value = $this->value - $other->value;
+    $raw   = "$value";
+    return new IntegerValue($raw, $value);
+  }
+
+  public function multiply(IntegerValue $other): IntegerValue {
+    $value = $this->value * $other->value;
+    $raw   = "$value";
+    return new IntegerValue($raw, $value);
+  }
+
   public function encode_as_php(): string {
     return strval($this->value);
   }

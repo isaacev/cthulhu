@@ -1,12 +1,12 @@
 <?php
 
-namespace Str_4 {
+namespace Const_6 {
   function main() {
-    print("\$hello\n");
+    print("6foo\n");
     return null;
   }
 }
 
 namespace {
-  \Str_4\main(null);
+  \Const_6\main(null);
 }

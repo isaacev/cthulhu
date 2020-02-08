@@ -1,0 +1,7 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  Io::println(Fmt::float(0.1 +. 0.2) ++ "foo");
+}

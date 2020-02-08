@@ -1,0 +1,7 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  Io::println(Fmt::int(1 + 2 + 3) ++ "foo");
+}

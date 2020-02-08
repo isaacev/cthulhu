@@ -2,15 +2,15 @@
 
 namespace Match_1 {
   function main() {
-    $a = 2 + 2;
+    $a = 4;
     if ($a == 0) {
-      print("zero" . "\n");
+      print("zero\n");
     } else if ($a == 1) {
-      print("one" . "\n");
+      print("one\n");
     } else if ($a == 2) {
-      print("two" . "\n");
+      print("two\n");
     } else if (true) {
-      print("several" . "\n");
+      print("several\n");
     } else {
       die("match expression did not cover all possibilities\n");
     }

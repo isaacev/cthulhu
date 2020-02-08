@@ -2,7 +2,7 @@
 
 namespace Str_6 {
   function main() {
-    print("\"hello\"\n\t\"world\"" . "\n");
+    print("\"hello\"\n\t\"world\"\n");
     return null;
   }
 }
