@@ -34,11 +34,11 @@ namespace Match_5 {
       $a = "circle with radius " . (string)$r;
     } else if ($b instanceof \Match_5\Square) {
       $s = $b->{0};
-      $a = "square with perimeter " . (string)4.0 * $s;
+      $a = "square with perimeter " . (string)(4.0 * $s);
     } else if ($b instanceof \Match_5\Rect) {
       $w = $b->width;
       $h = $b->height;
-      $a = "rectangle with area " . (string)$w * $h;
+      $a = "rectangle with area " . (string)($w * $h);
     } else {
       die("match expression did not cover all possibilities\n");
     }
@@ -51,11 +51,11 @@ namespace Match_5 {
       $c = "circle with radius " . (string)$r;
     } else if ($d instanceof \Match_5\Square) {
       $s = $d->{0};
-      $c = "square with perimeter " . (string)4.0 * $s;
+      $c = "square with perimeter " . (string)(4.0 * $s);
     } else if ($d instanceof \Match_5\Rect) {
       $w = $d->width;
       $h = $d->height;
-      $c = "rectangle with area " . (string)$w * $h;
+      $c = "rectangle with area " . (string)($w * $h);
     } else {
       die("match expression did not cover all possibilities\n");
     }
@@ -68,11 +68,11 @@ namespace Match_5 {
       $e = "circle with radius " . (string)$r;
     } else if ($f instanceof \Match_5\Square) {
       $s = $f->{0};
-      $e = "square with perimeter " . (string)4.0 * $s;
+      $e = "square with perimeter " . (string)(4.0 * $s);
     } else if ($f instanceof \Match_5\Rect) {
       $w = $f->width;
       $h = $f->height;
-      $e = "rectangle with area " . (string)$w * $h;
+      $e = "rectangle with area " . (string)($w * $h);
     } else {
       die("match expression did not cover all possibilities\n");
     }
@@ -88,11 +88,11 @@ namespace Match_5 {
       $g = "circle with radius " . (string)$r;
     } else if ($i instanceof \Match_5\Square) {
       $s = $i->{0};
-      $g = "square with perimeter " . (string)4.0 * $s;
+      $g = "square with perimeter " . (string)(4.0 * $s);
     } else if ($i instanceof \Match_5\Rect) {
       $w = $i->width;
       $h = $i->height;
-      $g = "rectangle with area " . (string)$w * $h;
+      $g = "rectangle with area " . (string)($w * $h);
     } else {
       die("match expression did not cover all possibilities\n");
     }

@@ -31,6 +31,6 @@ class CastExpr extends Expr {
       ->paren_left()
       ->keyword($this->to_type)
       ->paren_right()
-      ->then($this->expr);
+      ->expr($this->expr, $this->precedence());
   }
 }
