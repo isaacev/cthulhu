@@ -16,6 +16,6 @@ class FloatValue extends Value {
   }
 
   public function encode_as_php(): string {
-    return number_format($this->value, $this->precision);
+    return number_format($this->value, $this->precision, ".", "");
   }
 }
