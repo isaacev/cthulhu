@@ -24,6 +24,7 @@ class Names {
     '^' => 'caret',
     '|' => 'pipe',
     '~' => 'tilde',
+    '/' => 'slash',
   ];
 
   private names\Scope $root_scope;
