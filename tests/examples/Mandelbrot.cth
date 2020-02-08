@@ -1,0 +1,66 @@
+use ::Io;
+use ::Fmt;
+use ::Math;
+
+fn range(n: Float, max: Float, f: Float -> ()) -> () {
+  if n < max {
+    f(n);
+    range(n +. 1.0, max, f);
+  }
+}
+
+fn real(i: Float, w: Float, h: Float) -> Float {
+  let scalar = 3.0;
+  (scalar *. i) / (w -. 1.0) -. (scalar / 2.0)
+}
+
+fn imaginary(j: Float, w: Float, h: Float) -> Float {
+  let scalar = 3.0;
+  (scalar *. j) / (h -. 1.0) -. (scalar / 2.0)
+}
+
+fn in_set(n: Int, cr: Float, ci: Float, zr: Float, zi: Float) -> Int {
+  if n <= 0 {
+    0
+  } else {
+    let zr2 = (zr ^ 2.0 -. zi ^ 2.0) +. cr;
+    let zi2 = 2.0 *. zi *. zr +. ci;
+    if Math::square_root(zr2 ^ 2.0 +. zi2 ^ 2.0) > 2.0 {
+      n
+    } else {
+      in_set(n - 1, cr, ci, zr2, zi2)
+    }
+  }
+}
+
+fn threshold_to_char(th: Int) -> Str {
+  match th {
+    0    => " ",
+    993  => "8",
+    994  => "%",
+    995  => "8",
+    996  => "o",
+    997  => "+",
+    998  => "=",
+    999  => "-",
+    1000 => " ",
+    _    => ".",
+  }
+}
+
+#[entry]
+fn main() -> () {
+  let h = 59.0;
+  let w = 120.0;
+  let t = 1000;
+  range(0.0, h, { i |
+    range(0.0, w, { j |
+      let re = real(j -. 20.0, w, h);
+      let im = imaginary(i, w, h);
+      let th = in_set(t, re, im, re, im);
+      let ch = threshold_to_char(th);
+      Io::print(ch);
+    });
+    Io::print("\n");
+  });
+}
