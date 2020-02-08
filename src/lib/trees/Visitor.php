@@ -93,6 +93,10 @@ class Visitor {
         // stabilizes (doesn't change after applying the callbacks).
         $original_node = $curr_path->get_node();
         $callbacks->preorder($curr_path->get_node(), $curr_path);
+
+        if ($curr_path->is_recursion_aborted()) {
+          return $curr_path->get_node();
+        }
       } while ($original_node !== $curr_path->get_node());
 
       // Recurse into any child nodes, keeping track of whether any of the child

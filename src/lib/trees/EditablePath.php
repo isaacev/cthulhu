@@ -5,6 +5,7 @@ namespace Cthulhu\lib\trees;
 class EditablePath {
   private ?self $parent;
   private ?EditableNodelike $node;
+  private bool $is_recursion_aborted = false;
 
   public function __construct(?self $parent, EditableNodelike $original) {
     $this->parent = $parent;
@@ -25,6 +26,14 @@ class EditablePath {
 
   public function get_node(): ?EditableNodelike {
     return $this->node;
+  }
+
+  public function abort_recursion(): void {
+    $this->is_recursion_aborted = true;
+  }
+
+  public function is_recursion_aborted(): bool {
+    return $this->is_recursion_aborted;
   }
 
   public function remove(): void {
