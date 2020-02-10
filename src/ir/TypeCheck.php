@@ -5,6 +5,7 @@ namespace Cthulhu\ir;
 use Cthulhu\ast\nodes as ast;
 use Cthulhu\err\Error;
 use Cthulhu\ir\names\Binding;
+use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\types\ParameterContext;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
@@ -43,7 +44,7 @@ class TypeCheck {
     $return_stack = [];
 
     foreach ($bindings as $binding) {
-      $binding->symbol->set(self::TYPE_KEY, new types\Atomic($binding->name));
+      self::set_type($binding->symbol, new types\Atomic($binding->name));
     }
 
     Visitor::walk($tree, [
@@ -59,7 +60,7 @@ class TypeCheck {
 
         $free_output = self::note_to_type($sig->returns, true);
         $free_type   = types\Func::from_input_array($free_inputs, $free_output);
-        $sig->name->get('symbol')->set(self::TYPE_KEY, $free_type);
+        self::set_type($sig->name->get('symbol'), $free_type);
       },
 
       'EnumItem' => function (ast\EnumItem $enum) {
@@ -92,7 +93,7 @@ class TypeCheck {
 
         $enum_name = $enum->name->get('symbol')->__toString();
         $enum_type = new types\Enum($enum_name, $free_params, $free_forms);
-        $enum->name->get('symbol')->set(self::TYPE_KEY, $enum_type);
+        self::set_type($enum->name->get('symbol'), $enum_type);
       },
 
       'enter(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
@@ -100,7 +101,7 @@ class TypeCheck {
         foreach ($item->params->params as $param) {
           $free_inputs[] = self::note_to_type($param->note, true);
           $fixed_type    = self::note_to_type($param->note, false);
-          $param->name->get('symbol')->set(self::TYPE_KEY, $fixed_type);
+          self::set_type($param->name->get('symbol'), $fixed_type);
         }
 
         $free_output  = self::note_to_type($item->returns, true);
@@ -108,12 +109,12 @@ class TypeCheck {
         array_push($return_stack, $fixed_output);
 
         $free_type = types\Func::from_input_array($free_inputs, $free_output);
-        $item->name->get('symbol')->set(self::TYPE_KEY, $free_type);
+        self::set_type($item->name->get('symbol'), $free_type);
       },
       'exit(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
 
         $sig_type = array_pop($return_stack);
-        $ret_type = $item->body->get(self::TYPE_KEY);
+        $ret_type = self::get_type($item->body);
 
         try {
           self::unify($sig_type, $ret_type);
@@ -128,28 +129,27 @@ class TypeCheck {
         foreach ($expr->params->params as $index => $name) {
           $type_name = chr(ord('a') + $index);
           $free_type = new types\FreeTypeVar($type_name, null);
-          $name->get('symbol')->set(self::TYPE_KEY, $free_type);
+          self::set_type($name->get('symbol'), $free_type);
         }
       },
       'exit(ClosureExpr)' => function (ast\ClosureExpr $expr) {
         $input_types = [];
         foreach ($expr->params->params as $name) {
-          $input_types[] = $input_type = $name->get('symbol')->get(self::TYPE_KEY);
-          assert($input_type instanceof types\Type);
+          $input_types[] = $input_type = self::get_type($name->get('symbol'));
         }
 
         if (empty($expr->body->stmts)) {
           $return_type = types\Atomic::unit();
         } else {
-          $return_type = end($expr->body->stmts)->get(self::TYPE_KEY);
+          $return_type = self::get_type(end($expr->body->stmts));
         }
 
         $type = types\Func::from_input_array($input_types, $return_type);
-        $expr->set(self::TYPE_KEY, $type);
+        self::set_type($expr, $type);
       },
 
       'exit(LetStmt)' => function (ast\LetStmt $stmt) {
-        $expr_type = $stmt->expr->get(self::TYPE_KEY);
+        $expr_type = self::get_type($stmt->expr);
 
         if ($stmt->note) {
           $note_type = self::note_to_type($stmt->note, false);
@@ -163,41 +163,41 @@ class TypeCheck {
           }
         }
 
-        $stmt->name->get('symbol')->set(self::TYPE_KEY, $expr_type);
+        self::set_type($stmt->name->get('symbol'), $expr_type);
         $type = types\Atomic::unit();
-        $stmt->set(self::TYPE_KEY, $type);
+        self::set_type($stmt, $type);
       },
 
       'exit(SemiStmt)' => function (ast\SemiStmt $stmt) {
         $type = types\Atomic::unit();
-        $stmt->set(self::TYPE_KEY, $type);
+        self::set_type($stmt, $type);
       },
 
       'exit(ExprStmt)' => function (ast\ExprStmt $stmt) {
-        $type = $stmt->expr->get(self::TYPE_KEY);
-        $stmt->set(self::TYPE_KEY, $type);
+        $type = self::get_type($stmt->expr);
+        self::set_type($stmt, $type);
       },
 
       'exit(BlockNode)' => function (ast\BlockNode $block) {
         if (empty($block->stmts)) {
           $type = types\Atomic::unit();
         } else {
-          $type = end($block->stmts)->get(self::TYPE_KEY);
+          $type = self::get_type(end($block->stmts));
         }
 
-        $block->set(self::TYPE_KEY, $type);
+        self::set_type($block, $type);
       },
 
       'exit(IfExpr)' => function (ast\IfExpr $expr) {
-        $cond_type = $expr->condition->get(self::TYPE_KEY);
+        $cond_type = self::get_type($expr->condition);
         if (!($cond_type instanceof types\Atomic) || $cond_type->name !== 'Bool') {
           $cond_span = $expr->condition->get('span');
           throw Errors::wrong_cond_type($cond_span, $cond_type);
         }
 
-        $consequent_type = $expr->consequent->get(self::TYPE_KEY);
+        $consequent_type = self::get_type($expr->consequent);
         if ($expr->alternate) {
-          $alternate_type = $expr->alternate->get(self::TYPE_KEY);
+          $alternate_type = self::get_type($expr->alternate);
           try {
             self::unify($consequent_type, $alternate_type);
           } catch (types\UnificationFailure $failure) {
@@ -214,16 +214,14 @@ class TypeCheck {
           }
         }
 
-        $expr->set(self::TYPE_KEY, $consequent_type);
+        self::set_type($expr, $consequent_type);
       },
 
       'enter(MatchArm)' => function (ast\MatchArm $arm, Path $path) {
         $match_expr = $path->parent->node;
         assert($match_expr instanceof ast\MatchExpr);
 
-        $disc_type = $match_expr->discriminant->get(self::TYPE_KEY);
-        assert($disc_type instanceof types\Type);
-
+        $disc_type    = self::get_type($match_expr->discriminant);
         $pattern_type = self::pattern_to_type($arm->pattern);
 
         try {
@@ -238,13 +236,13 @@ class TypeCheck {
         $match_expr = $path->parent->node;
         assert($match_expr instanceof ast\MatchExpr);
 
-        $match_type = $match_expr->get(self::TYPE_KEY);
-        $arm_type   = $arm->handler->get(self::TYPE_KEY);
+        $match_type = self::get_maybe_type($match_expr);
+        $arm_type   = self::get_type($arm->handler);
         if ($match_type === null) {
-          $match_expr->set(self::TYPE_KEY, $arm_type);
+          self::set_type($match_expr, $arm_type);
         } else {
           try {
-            self::unify($match_expr->get(self::TYPE_KEY), $arm_type);
+            self::unify(self::get_type($match_expr), $arm_type);
           } catch (types\UnificationFailure $failure) {
             $handler_span = $arm->handler->get('span');
             throw Errors::wrong_arm_type($handler_span, $match_type, $arm_type);
@@ -254,7 +252,7 @@ class TypeCheck {
 
       'exit(VariantConstructorExpr)' => function (ast\VariantConstructorExpr $ctor) {
         $enum_symbol = end($ctor->path->head)->get('symbol');
-        $enum_type   = $enum_symbol->get(self::TYPE_KEY);
+        $enum_type   = self::get_type($enum_symbol);
         $enum_type   = self::fresh($enum_type);
         assert($enum_type instanceof types\Enum);
 
@@ -265,14 +263,14 @@ class TypeCheck {
           $fields = [];
           foreach ($ctor->fields->pairs as $pair) {
             $field_name          = $pair->name->value;
-            $field_type          = $pair->expr->get(self::TYPE_KEY);
+            $field_type          = self::get_type($pair->expr);
             $fields[$field_name] = $field_type;
           }
           $arg_type = new types\Record($fields);
         } else if ($ctor->fields instanceof ast\OrderedVariantConstructorFields) {
           $members = [];
           foreach ($ctor->fields->order as $member) {
-            $member_type = $member->get(self::TYPE_KEY);
+            $member_type = self::get_type($member);
             $members[]   = $member_type;
           }
           $arg_type = new types\Tuple($members);
@@ -287,12 +285,11 @@ class TypeCheck {
           throw Errors::wrong_ctor_args($ctor_span, $form_type, $arg_type);
         }
 
-        $ctor->set(self::TYPE_KEY, $enum_type);
+        self::set_type($ctor, $enum_type);
       },
 
       'exit(CallExpr)' => function (ast\CallExpr $expr) {
-        $call_type = $expr->callee->get(self::TYPE_KEY);
-        assert($call_type instanceof types\Type);
+        $call_type = self::get_type($expr->callee);
         $call_type = self::fresh($call_type->flatten());
 
         if ($call_type instanceof types\Func) {
@@ -315,7 +312,7 @@ class TypeCheck {
             $call_span = $expr->get('span');
             foreach ($expr->args->exprs as $index => $arg) {
               $call_type = $call_type->prune();
-              $arg_type  = $arg->get(self::TYPE_KEY);
+              $arg_type  = self::get_type($arg);
               $arg_span  = $arg->get('span');
 
               if (($call_type->flatten() instanceof types\Func) === false) {
@@ -341,7 +338,7 @@ class TypeCheck {
             $ret_type = $call_type;
           }
 
-          $expr->set(self::TYPE_KEY, $ret_type);
+          self::set_type($expr, $ret_type);
         } else {
           $call_span = $expr->get('span');
           $arg_span  = $expr->args->get('span');
@@ -351,10 +348,10 @@ class TypeCheck {
       },
 
       'exit(BinaryExpr)' => function (ast\BinaryExpr $expr) {
-        $left_type  = $expr->left->get(self::TYPE_KEY);
-        $right_type = $expr->right->get(self::TYPE_KEY);
+        $left_type  = self::get_type($expr->left);
+        $right_type = self::get_type($expr->right);
 
-        $call_type = self::fresh($expr->operator->get(self::TYPE_KEY));
+        $call_type = self::fresh(self::get_type($expr->operator));
         assert($call_type instanceof types\Func);
         assert($call_type->output instanceof types\Func);
 
@@ -376,17 +373,17 @@ class TypeCheck {
         }
 
         $type = $call_type->output;
-        $expr->set(self::TYPE_KEY, $type);
+        self::set_type($expr, $type);
       },
 
       'OperatorRef' => function (ast\OperatorRef $expr) {
-        $type = $expr->oper->get('symbol')->get(self::TYPE_KEY);
-        $expr->set(self::TYPE_KEY, $type);
+        $type = self::get_type($expr->oper->get('symbol'));
+        self::set_type($expr, $type);
       },
 
       'exit(UnaryExpr)' => function (ast\UnaryExpr $expr) {
-        $right_type = $expr->right->get(self::TYPE_KEY);
-        $call_type  = self::fresh($expr->operator->get(self::TYPE_KEY));
+        $right_type = self::get_type($expr->right);
+        $call_type  = self::fresh(self::get_type($expr->operator));
         assert($call_type instanceof types\Func);
 
         try {
@@ -398,13 +395,13 @@ class TypeCheck {
         }
 
         $type = $call_type->output;
-        $expr->set(self::TYPE_KEY, $type);
+        self::set_type($expr, $type);
       },
 
       'exit(ListExpr)' => function (ast\ListExpr $expr) {
         $elements_type = new types\FreeTypeVar('_', null);
         foreach ($expr->elements as $index => $elem_expr) {
-          $elem_type = $elem_expr->get(self::TYPE_KEY);
+          $elem_type = self::get_type($elem_expr);
           try {
             self::unify($elements_type, $elem_type);
           } catch (types\UnificationFailure $failure) {
@@ -413,51 +410,75 @@ class TypeCheck {
           }
         }
         $list_type = new types\ListType($elements_type);
-        $expr->set(self::TYPE_KEY, $list_type);
+        self::set_type($expr, $list_type);
       },
 
       'PathExpr' => function (ast\PathExpr $expr) {
-        $type = $expr->path->tail->get('symbol')->get(self::TYPE_KEY);
-        $expr->set(self::TYPE_KEY, $type);
+        $type = self::get_type($expr->path->tail->get('symbol'));
+        self::set_type($expr, $type);
       },
 
       'StrLiteral' => function (ast\StrLiteral $lit) {
         $type = types\Atomic::str();
-        $lit->set(self::TYPE_KEY, $type);
+        self::set_type($lit, $type);
       },
 
       'FloatLiteral' => function (ast\FloatLiteral $lit) {
         $type = types\Atomic::float();
-        $lit->set(self::TYPE_KEY, $type);
+        self::set_type($lit, $type);
       },
 
       'IntLiteral' => function (ast\IntLiteral $lit) {
         $type = types\Atomic::int();
-        $lit->set(self::TYPE_KEY, $type);
+        self::set_type($lit, $type);
       },
 
       'BoolLiteral' => function (ast\BoolLiteral $lit) {
         $type = types\Atomic::bool();
-        $lit->set(self::TYPE_KEY, $type);
+        self::set_type($lit, $type);
       },
 
       'UnitLiteral' => function (ast\UnitLiteral $lit) {
         $type = types\Atomic::unit();
-        $lit->set(self::TYPE_KEY, $type);
+        self::set_type($lit, $type);
       },
 
       'exit(Expr)' => function (ast\Expr $expr, Path $path) {
-        if (!$expr->get(self::TYPE_KEY)) {
+        if (!self::get_maybe_type($expr)) {
           die("$path->kind missing a type\n");
         }
       },
 
       'exit(Stmt)' => function (ast\Stmt $stmt, Path $path) {
-        if (!$stmt->get(self::TYPE_KEY)) {
+        if (!self::get_maybe_type($stmt)) {
           die("$path->kind missing a type\n");
         }
       },
     ]);
+  }
+
+  /**
+   * @param Symbol|ast\Expr|ast\Stmt $has_metadata
+   * @param types\Type               $type
+   */
+  private static function set_type($has_metadata, types\Type $type): void {
+    $has_metadata->set(self::TYPE_KEY, $type);
+  }
+
+  /**
+   * @param Symbol|ast\Expr|ast\Stmt $has_metadata
+   * @return types\Type
+   */
+  private static function get_type($has_metadata): types\Type {
+    return $has_metadata->get(self::TYPE_KEY);
+  }
+
+  /**
+   * @param Symbol|ast\Expr|ast\Stmt $has_metadata
+   * @return types\Type|null
+   */
+  private static function get_maybe_type($has_metadata): ?types\Type {
+    return $has_metadata->get(self::TYPE_KEY);
   }
 
   private static function fresh(types\Type $t): types\Type {
@@ -568,7 +589,7 @@ class TypeCheck {
     }
 
     if ($note instanceof ast\NamedNote) {
-      if ($type = $note->path->tail->get('symbol')->get(self::TYPE_KEY)) {
+      if ($type = self::get_maybe_type($note->path->tail->get('symbol'))) {
         assert($type instanceof types\Type);
         $type = self::fresh($type);
         return $type;
@@ -684,12 +705,12 @@ class TypeCheck {
 
     if ($pat instanceof ast\VariablePattern) {
       $type = new types\FreeTypeVar('_', null);
-      $pat->name->get('symbol')->set(self::TYPE_KEY, $type);
+      self::set_type($pat->name->get('symbol'), $type);
       return $type;
     }
 
     if ($pat instanceof ast\FormPattern) {
-      $enum_type = end($pat->path->head)->get('symbol')->get(self::TYPE_KEY);
+      $enum_type = self::get_type(end($pat->path->head)->get('symbol'));
       $enum_type = self::fresh($enum_type);
       assert($enum_type instanceof types\Enum);
 
