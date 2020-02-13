@@ -22,7 +22,7 @@ pub fn iter(callback: 'a -> (), inputs: ['a]) -> () {
     []               => (),
     [first, ...rest] => {
       callback(first);
-      iter(callback, rest);
+      iter(callback, rest)
     },
   }
 }
