@@ -377,8 +377,22 @@ class Compiler {
 
     $arms = [];
     foreach ($expr->arms as $arm) {
-      $pattern = self::pattern($disc_type, $arm->pattern);
-      $handler = new ir\Handler(new ir\Ret(self::expr($ctx, $arm->handler), null));
+      $pattern      = self::pattern($disc_type, $arm->pattern);
+      $handler_expr = self::expr($ctx, $arm->handler);
+      if ($handler_expr instanceof ir\Block) {
+        if ($handler_expr->stmt === null) {
+          $handler_stmt = new ir\Ret(new ir\UnitLit(), null);
+        } else {
+          $last_handler_stmt = $handler_expr->stmt->last_stmt();
+          if (($last_handler_stmt instanceof ir\Ret) === false) {
+            $handler_expr->stmt->mutable_append(new ir\Ret(new ir\UnitLit(), null));
+          }
+          $handler_stmt = $handler_expr->stmt;
+        }
+      } else {
+        $handler_stmt = new ir\Ret($handler_expr, null);
+      }
+      $handler = new ir\Handler($handler_stmt);
       $arms[]  = new ir\Arm($pattern, $handler);
     }
     $arms = new ir\Arms($arms);
