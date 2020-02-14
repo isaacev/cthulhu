@@ -1,0 +1,9 @@
+
+  UNKNOWN FIELD  -------------------------------------------------------------
+
+  Reference to an unknown field in a namespace.
+
+     : Use_3
+  13 | use Foo::Bar;
+     |          ^^^
+

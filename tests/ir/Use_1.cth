@@ -1,0 +1,16 @@
+use ::Io;
+
+mod Foo {
+  mod Bar {
+    use ::Io;
+
+    fn hello() -> () {
+      Io::println("hello");
+    }
+  }
+}
+
+#[entry]
+fn main() -> () {
+  Foo::Bar::hello();
+}
