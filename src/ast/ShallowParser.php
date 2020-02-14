@@ -422,7 +422,7 @@ class ShallowParser extends AbstractParser {
 
     while ($this->ahead_is_upper_ident()) {
       $body[] = $this->next_upper_name();
-      $span   = $span ?? end($body)->span;
+      $span   = $span ?? end($body)->get('span');
       if ($this->ahead_is_punct('::')) {
         $colons = $this->next_punct('::');
       } else {
@@ -432,7 +432,7 @@ class ShallowParser extends AbstractParser {
 
     if (empty($body)) {
       $body[] = $this->next_upper_name();
-      $span   = end($body)->span;
+      $span   = end($body)->get('span');
     }
 
     if ($this->ahead_is_punct(';')) {
