@@ -207,8 +207,12 @@ class ShallowResolver {
       : $ctx->current_module_scope();
 
     foreach ($item->path->body as $segment) {
-      $body_name = $segment->value;
-      if ($body_binding = $namespace->get_name($body_name)) {
+      $body_name    = $segment->value;
+      $body_binding = ($namespace === $ctx->current_module_scope())
+        ? $namespace->get_name($body_name)
+        : $namespace->get_public_name($body_name);
+
+      if ($body_binding) {
         $ctx->set_symbol($segment, $body_binding->symbol);
         if ($next_namespace = $ctx->get_namespace($body_binding->symbol)) {
           $namespace = $next_namespace;
@@ -219,6 +223,12 @@ class ShallowResolver {
       throw Errors::unknown_namespace_field($segment->get('span'));
     }
 
+    if ($namespace === $ctx->current_module_scope()) {
+      // Do nothing because the item is just importing bindings that are
+      // already in the current module scope.
+      return;
+    }
+
     $is_pub = $item->get('pub') ?? false;
     if ($item->path->tail instanceof nodes\StarSegment) {
       foreach ($namespace->get_public_bindings() as $binding) {
@@ -227,7 +237,7 @@ class ShallowResolver {
       }
     } else {
       $tail_name = $item->path->tail->value;
-      if ($tail_binding = $namespace->get_name($tail_name)) {
+      if ($tail_binding = $namespace->get_public_name($tail_name)) {
         $tail_binding = $is_pub ? $tail_binding : $tail_binding->as_private();
         $ctx->set_symbol($item->path->tail, $tail_binding->symbol);
         $ctx->current_module_scope()->add_binding($tail_binding);
