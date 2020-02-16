@@ -6,7 +6,6 @@ use Cthulhu\ir\arity\Arity;
 use Cthulhu\ir\arity\KnownMultiArity;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
-use Cthulhu\ir\types\Atomic;
 use Cthulhu\ir\types\Record;
 use Cthulhu\ir\types\Tuple;
 use Cthulhu\lib\trees\Path;
@@ -119,15 +118,15 @@ class Compiler {
 
         // Create a block to collect statements inside of the function body
         $ctx->statements->push_block();
-
-        // Determine whether to return the last expression or a null literal
-        if (Atomic::is_unit($def->type->output->flatten())) {
-          $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_IGNORE);
-        } else {
-          $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_RETURN);
-        }
+        $ctx->statements->push_yield_strategy(YieldStrategy::SHOULD_RETURN);
       },
       'exit(Def)' => function (ir\Def $def) use ($ctx) {
+        $should_ret  = $ctx->statements->peek_yield_strategy() === YieldStrategy::SHOULD_RETURN;
+        $is_ret_stmt = ($def->body && ($def->body->last_stmt() instanceof ir\Ret));
+        if ($should_ret && $is_ret_stmt === false) {
+          $ctx->statements->push_stmt(new php\ReturnStmt(new php\NullLiteral(), null));
+        }
+
         $ctx->statements->pop_yield_strategy();
         $name = $ctx->names->name_to_ref_name($def->name, $ctx->namespaces->current_ref());
 
@@ -139,10 +138,6 @@ class Compiler {
         }
 
         $head = new php\FuncHead($name, $params);
-
-        if (Atomic::is_unit($def->type->output->flatten())) {
-          $ctx->statements->push_stmt(new php\ReturnStmt(new php\NullLiteral(), null));
-        }
 
         $stmt  = new php\FuncStmt($head, $ctx->statements->pop_block(), [], null);
         $scope = $ctx->names->exit_func_scope();
@@ -448,7 +443,7 @@ class Compiler {
         $ctx->patterns->peek_pattern_context()->push_condition($cond);
       },
 
-      'exit(Handler)' => function () use ($ctx) {
+      'exit(Handler)' => function (ir\Handler $handler) use ($ctx) {
         $conditions = $ctx->patterns->peek_pattern_context()->pop_conditions();
         if (empty($conditions)) {
           $condition = new php\BoolLiteral(BooleanValue::from_scalar(true));
@@ -459,6 +454,12 @@ class Compiler {
           foreach (array_slice($conditions, 1) as $next_cond) {
             $condition = new nodes\BinaryExpr('&&', $condition, $next_cond);
           }
+        }
+
+        $should_ret  = $ctx->statements->peek_yield_strategy() === YieldStrategy::SHOULD_RETURN;
+        $is_ret_stmt = ($handler->stmt && ($handler->stmt->last_stmt() instanceof ir\Ret));
+        if ($should_ret && $is_ret_stmt === false) {
+          $ctx->statements->push_stmt(new php\ReturnStmt(new php\NullLiteral(), null));
         }
 
         $consequent = $ctx->statements->pop_block();
@@ -472,6 +473,12 @@ class Compiler {
         $ctx->statements->push_block();
       },
       'exit(Consequent|Alternate)' => function (ir\Stmts $stmts) use ($ctx) {
+        $should_ret  = $ctx->statements->peek_yield_strategy() === YieldStrategy::SHOULD_RETURN;
+        $is_ret_stmt = ($stmts->first && ($stmts->first->last_stmt() instanceof ir\Ret));
+        if ($should_ret && $is_ret_stmt === false) {
+          $ctx->statements->push_stmt(new php\ReturnStmt(new php\NullLiteral(), null));
+        }
+
         $block = $ctx->statements->pop_block();
         $ctx->statements->stash_block($block);
       },

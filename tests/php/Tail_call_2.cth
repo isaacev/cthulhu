@@ -6,7 +6,7 @@ fn to_zero(n: Int) -> () {
     Io::println("all done");
   } else {
     Io::println(Fmt::int(n));
-    to_zero(n - 1);
+    to_zero(n - 1)
   }
 }
 

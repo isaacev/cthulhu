@@ -109,7 +109,7 @@ class TailCall implements Pass {
 
       'exit(BlockNode)' => function (nodes\BlockNode $block, EditablePath $path) use (&$is_tail_stmt) {
         if (end($is_tail_stmt) && $block->stmt === null) {
-          $path->replace_with(new nodes\BlockNode(new nodes\ReturnStmt(null, null)));
+          $path->replace_with(new nodes\BlockNode(new nodes\ReturnStmt(new nodes\NullLiteral(), null)));
         }
       },
 
@@ -126,7 +126,7 @@ class TailCall implements Pass {
             }
             $path->replace_with($successor);
           } else {
-            $successor = new nodes\ReturnStmt(null, null);
+            $successor = new nodes\ReturnStmt(new nodes\NullLiteral(), null);
             $path->replace_with($stmt->from_successor($successor));
           }
         }
