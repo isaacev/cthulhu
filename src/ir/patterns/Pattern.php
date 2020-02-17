@@ -9,6 +9,8 @@ abstract class Pattern {
   abstract public function __toString(): string;
 
   public static function from(ast\Pattern $pattern, types\Type $type): self {
+    $type = $type->flatten();
+
     if ($pattern instanceof ast\ListPattern) {
       assert($type instanceof types\ListType);
       $elements = [];

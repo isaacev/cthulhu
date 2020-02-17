@@ -419,6 +419,8 @@ class Compiler {
   }
 
   private static function pattern(types\Type $type, ast\Pattern $pat): ir\Pattern {
+    $type = $type->flatten();
+
     switch (true) {
       case $pat instanceof ast\ConstPattern:
       {
