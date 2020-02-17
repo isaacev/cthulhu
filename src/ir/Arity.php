@@ -24,16 +24,19 @@ class Arity {
       },
       'NameExpr' => function (nodes\NameExpr $expr) {
         $arity = $expr->name->symbol->get('arity');
+        assert($arity instanceof arity\Arity);
         $expr->set('arity', $arity);
       },
       'exit(IfExpr)' => function (nodes\IfExpr $expr) {
         $arity = self::type_to_arity($expr->type);
+        assert($arity instanceof arity\Arity);
         $expr->set('arity', $arity);
       },
       'exit(Apply)' => function (nodes\Apply $expr) {
         $callee_arity = $expr->callee->get('arity');
         $total_args   = count($expr->args);
         $arity        = $callee_arity->apply($total_args);
+        assert($arity instanceof arity\Arity);
         $expr->set('arity', $arity);
       },
       'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block|Pop' => function (nodes\Node $node) {
@@ -43,6 +46,7 @@ class Arity {
       'enter(Def)' => function (nodes\Def $def) {
         foreach ($def->params->names as $param) {
           $arity = self::type_to_arity($param->type);
+          assert($arity instanceof arity\Arity);
           $param->symbol->set('arity', $arity);
         }
 
@@ -91,6 +95,7 @@ class Arity {
       },
       'VariablePattern' => function (nodes\VariablePattern $pat) {
         $arity = self::type_to_arity($pat->type);
+        assert($arity instanceof arity\Arity);
         $pat->name->symbol->set('arity', $arity);
       },
       'exit(Let)' => function (nodes\Let $let) {
@@ -101,6 +106,7 @@ class Arity {
       },
       'exit(Ret)' => function (nodes\Ret $ret) {
         $arity = $ret->expr->get('arity');
+        assert($arity instanceof arity\Arity);
         $ret->set('arity', $arity);
       },
       'exit(Match)' => function (nodes\Match $match) {
@@ -111,6 +117,7 @@ class Arity {
           $arm_arity      = $arms[$i]->handler->stmt->get('arity');
           $combined_arity = $combined_arity->combine($arm_arity);
         }
+        assert($combined_arity instanceof arity\Arity);
         $match->set('arity', $combined_arity);
       },
     ]);
