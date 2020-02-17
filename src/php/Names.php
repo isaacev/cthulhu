@@ -77,7 +77,7 @@ class Names {
     return $out;
   }
 
-  private function rename_ir_name(Symbol $ir_symbol) {
+  private function rename_ir_name(Symbol $ir_symbol): string {
     $candidate = $ir_text = ($ir_symbol->has('operator'))
       ? $this->operator_to_safe_text($ir_symbol->get('operator'))
       : $ir_symbol->get('text');
@@ -138,7 +138,8 @@ class Names {
     $curr_symbol = $tail->symbol;
     while ($curr_symbol = $curr_symbol->parent) {
       assert($curr_symbol instanceof RefSymbol);
-      array_unshift($php_values, $curr_symbol->get('php/string'));
+      $php_value = $curr_symbol->get('php/string') ?? $this->rename_ir_name($curr_symbol);
+      array_unshift($php_values, $php_value);
     }
 
     $php_symbol = new names\Symbol();

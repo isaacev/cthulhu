@@ -88,6 +88,9 @@ class Compiler {
 
   private static function item(self $ctx, ast\Item $item): void {
     switch (true) {
+      case $item instanceof ast\ModItem:
+        self::mod_item($ctx, $item);
+        break;
       case $item instanceof ast\EnumItem:
         self::enum_item($ctx, $item);
         break;
@@ -97,6 +100,21 @@ class Compiler {
       case $item instanceof ast\FnItem:
         self::fn_item($ctx, $item);
         break;
+    }
+  }
+
+  private static function mod_item(self $ctx, ast\ModItem $item): void {
+    $symbol = $item->name->get('symbol');
+    $text   = self::symbol_to_text($symbol);
+    $type   = types\Atomic::unit();
+    $name   = new ir\Name($type, $text, $symbol);
+    $stmts  = self::items($ctx, $item->items);
+    $mod    = new ir\Module($name, $stmts, null);
+
+    if ($ctx->module === null) {
+      $ctx->module = $mod;
+    } else {
+      $ctx->module->mutable_append($mod);
     }
   }
 
