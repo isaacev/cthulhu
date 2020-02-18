@@ -13,7 +13,7 @@ namespace Mandelbrot {
         $c = $f;
         continue;
       } else {
-        return;
+        return null;
       }
     }
   }

@@ -3,11 +3,10 @@
 namespace If_5 {
   function main() {
     if (true) {
-      // empty
+      return null;
     } else {
-      // empty
+      return null;
     }
-    return null;
   }
 }
 

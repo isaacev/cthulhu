@@ -5,7 +5,7 @@ use ::Math;
 fn range(n: Float, max: Float, f: Float -> ()) -> () {
   if n < max {
     f(n);
-    range(n +. 1.0, max, f);
+    range(n +. 1.0, max, f)
   }
 }
 
