@@ -14,3 +14,26 @@ pub fn println(str: Str) -> () {
 pub fn argv() -> [Str] {
   read_argv()
 }
+
+pub mod Fs {
+  pub type Error =
+    | FileDoesNotExist;
+
+  intrinsic {
+    fn file_does_exist(Str) -> Bool;
+    fn file_get_contents(Str) -> Str;
+    fn file_to_abspath(Str) -> Str;
+  }
+
+  pub fn abspath_if_exists(relpath: Str) -> Str {
+    file_to_abspath(relpath)
+  }
+
+  pub fn read_file(path: Str) -> Result(Str, Error) {
+    if file_does_exist(path) {
+      Result::Ok(file_get_contents(path))
+    } else {
+      Result::Err(Error::FileDoesNotExist)
+    }
+  }
+}

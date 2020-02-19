@@ -28,6 +28,8 @@ class UnaryExpr extends Expr {
         return Precedence::SUM;
       case '...':
         return Precedence::ARGUMENT_UNPACK;
+      case '!':
+        return Precedence::UNARY_NOT;
       default:
         die("unknown precedence for `$this->operator` operator");
     }

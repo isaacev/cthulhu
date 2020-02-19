@@ -26,6 +26,8 @@ class BinaryExpr extends Expr {
 
   public function precedence(): int {
     switch ($this->operator) {
+      case '?:':
+        return Precedence::TERNARY;
       case '&&':
         return Precedence::BOOLEAN_SYMBOL_AND;
       case '||':

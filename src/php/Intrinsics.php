@@ -70,6 +70,12 @@ class Intrinsics {
         return self::float_mul(...$args);
       case 'float_div':
         return self::float_div(...$args);
+      case 'file_does_exist':
+        return self::file_does_exist(...$args);
+      case 'file_get_contents':
+        return self::file_get_contents(...$args);
+      case 'file_to_abspath':
+        return self::file_to_abspath(...$args);
       default:
         die("unknown intrinsic named '$name'\n");
     }
@@ -239,5 +245,40 @@ class Intrinsics {
 
   private static function float_div(nodes\Expr $a, nodes\Expr $b): nodes\Expr {
     return new nodes\BinaryExpr('/', $a, $b);
+  }
+
+  private static function file_does_exist(nodes\Expr $a): nodes\Expr {
+    return self::binary(
+      '&&',
+      self::stdlib('file_exists', $a),
+      self::unary(
+        '!',
+        self::stdlib('is_dir', $a)));
+  }
+
+  private static function file_get_contents(nodes\Expr $a): nodes\Expr {
+    return self::stdlib('file_get_contents', $a);
+  }
+
+  private static function file_to_abspath(nodes\Expr $a): nodes\Expr {
+    return self::binary('?:', self::stdlib('realpath', $a), $a);
+  }
+
+  private static function unary(string $op, nodes\Expr $a): nodes\Expr {
+    return new nodes\UnaryExpr($op, $a);
+  }
+
+  private static function binary(string $op, nodes\Expr $a, nodes\Expr $b): nodes\Expr {
+    return new nodes\BinaryExpr($op, $a, $b);
+  }
+
+  private static function stdlib(string $name, ...$args): nodes\Expr {
+    return new nodes\CallExpr(
+      new nodes\ReferenceExpr(
+        new nodes\Reference(
+          $name,
+          new Symbol()),
+        false),
+      $args);
   }
 }
