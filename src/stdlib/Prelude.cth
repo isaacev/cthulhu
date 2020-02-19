@@ -157,3 +157,7 @@ pub type Maybe('a) =
 pub type Either('a, 'b) =
   | Left('a)
   | Right('b);
+
+pub type Result('a, 'b) =
+  | Ok('a)
+  | Err('b);
