@@ -39,3 +39,14 @@ fn map_aux(callback: 'a -> 'b, inputs: ['a], outputs: ['b]) -> ['b] {
 pub fn map(callback: 'a -> 'b, inputs: ['a]) -> ['b] {
   map_aux(callback, inputs, [])
 }
+
+fn mapi_aux(cb: Int -> 'a -> 'b, i: Int, in: ['a], out: ['b]) -> ['b] {
+  match in {
+    []               => out,
+    [first, ...rest] => mapi_aux(cb, i + 1, rest, prepend(cb(i, first), out)),
+  }
+}
+
+pub fn mapi(callback: Int -> 'a -> 'b, inputs: ['a]) -> ['b] {
+  mapi_aux(callback, 0, inputs, [])
+}
