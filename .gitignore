@@ -1,5 +1,10 @@
-/vendor
-/.idea
-.phpunit.result.cache
-cov.xml
+# MacOS
 .DS_Store
+
+# Composer
+/vendor
+
+# Intellij
+/.idea/tasks.xml
+/.idea/uiDesigner.xml
+/.idea/workspace.xml
