@@ -2,7 +2,7 @@ use ::Io;
 
 #[entry]
 fn main() -> () {
-  let c = { a, b | a ++ b };
+  let c = { | a, b | a ++ b };
   let d = c("hello", "world");
   Io::println(d);
 }

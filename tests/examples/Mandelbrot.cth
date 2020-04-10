@@ -53,8 +53,8 @@ fn main() -> () {
   let h = 59.0;
   let w = 120.0;
   let t = 1000;
-  range(0.0, h, { i |
-    range(0.0, w, { j |
+  range(0.0, h, { | i |
+    range(0.0, w, { | j |
       let re = real(j -. 20.0, w, h);
       let im = imaginary(i, w, h);
       let th = in_set(t, re, im, re, im);

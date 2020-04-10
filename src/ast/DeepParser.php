@@ -805,7 +805,7 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_keyword('if'):
         return $this->if_expr();
       case $this->ahead_is_group('{}'):
-        return $this->closure_expr();
+        return $this->brace_expr();
       case $this->ahead_is_group('[]'):
         return $this->list_expr();
       case $this->ahead_is_group('()'):
@@ -1110,15 +1110,28 @@ class DeepParser extends AbstractParser {
   }
 
   /**
+   * @return nodes\Expr
+   * @throws Error
+   */
+  private function brace_expr(): nodes\Expr {
+    $enter_brace = $this->next_group_matches('{}');
+    switch (true) {
+      default:
+        return $this->closure_expr($enter_brace);
+    }
+  }
+
+  /**
+   * @param TokenGroup $enter_brace
    * @return nodes\ClosureExpr
    * @throws Error
    */
-  private function closure_expr(): nodes\ClosureExpr {
+  private function closure_expr(TokenGroup $enter_brace): nodes\ClosureExpr {
     $closure_scope = new ClosedScope($this->current_block_scope());
     $this->push_block_scope($closure_scope);
 
-    $enter_brace = $this->next_group_matches('{}');
-    $params      = $this->closure_params($enter_brace->span());
+    $left_pipe = $this->next_punct('|');
+    $params    = $this->closure_params($enter_brace->span());
     foreach ($params->params as $name) {
       $symbol  = $this->make_var_symbol($name);
       $binding = new Binding($name->value, $symbol, false);
