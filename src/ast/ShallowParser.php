@@ -414,6 +414,7 @@ class ShallowParser extends AbstractParser {
     $is_extern = false;
     $body      = [];
     $span      = null;
+    $is_done   = false;
 
     if ($this->ahead_is_punct('::')) {
       $is_extern = true;
@@ -426,6 +427,7 @@ class ShallowParser extends AbstractParser {
       if ($this->ahead_is_punct('::')) {
         $colons = $this->next_punct('::');
       } else {
+        $is_done = true;
         break;
       }
     }
@@ -435,7 +437,7 @@ class ShallowParser extends AbstractParser {
       $span   = end($body)->get('span');
     }
 
-    if ($this->ahead_is_punct(';')) {
+    if ($is_done || $this->ahead_is_punct(';')) {
       $tail = array_pop($body);
       return (new nodes\CompoundPathNode($is_extern, $body, $tail))
         ->set('span', $span);

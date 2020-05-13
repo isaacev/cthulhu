@@ -196,7 +196,8 @@ abstract class AbstractParser {
     $chars  = str_split($pattern);
     $tokens = $this->peek_tokens(strlen($pattern));
     if ($tokens === null) {
-      throw Errors::expected_token($this->end_of_current_group(), $pattern);
+      $spanlike = $this->peek_group() ?? $this->end_of_current_group();
+      throw Errors::expected_token($spanlike, $pattern);
     }
 
     assert(count($tokens) === count($chars));

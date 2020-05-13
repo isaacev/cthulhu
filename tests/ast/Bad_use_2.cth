@@ -1,0 +1,5 @@
+use ::Foo::Bar*;
+
+fn foo() -> () {
+  -- do stuff
+}
