@@ -13,6 +13,6 @@ class OperatorBinding extends Binding {
   }
 
   public function as_private(): self {
-    return new self($this->symbol, $this->is_public, $this->operator);
+    return new self($this->symbol, false, $this->operator);
   }
 }
