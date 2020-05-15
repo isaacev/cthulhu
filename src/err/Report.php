@@ -19,9 +19,10 @@ class Report {
     $f->increment_tab_stop(2);
 
     foreach ($this->sections as $section) {
-      $section->print($f);
-      $f->newline_if_not_already()
-        ->newline();
+      if ($section->print($f)) {
+        $f->newline_if_not_already()
+          ->newline();
+      }
     }
 
     $f->pop_tab_stop();

@@ -7,3 +7,9 @@
   2 |   foo();
     |   ^^^
 
+  Here are some variables that are similar:
+
+    Bool
+    Str
+    ~
+

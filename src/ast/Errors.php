@@ -135,16 +135,38 @@ class Errors {
       ->cycle($index, $libs);
   }
 
-  public static function unknown_name(Spanlike $spanlike): Error {
+  /**
+   * @param Spanlike $spanlike
+   * @param string   $name
+   * @param string[] $fixes
+   * @return Error
+   */
+  public static function unknown_name(Spanlike $spanlike, string $name, array $fixes): Error {
     return (new Error('unknown name'))
       ->paragraph("There was a reference to a name that is not in the current scope.")
-      ->snippet($spanlike);
+      ->snippet($spanlike)
+      ->similar("Here are some variables that are similar:", $name, $fixes);
   }
 
-  public static function unknown_namespace_field(Spanlike $spanlike): Error {
+  /**
+   * @param Spanlike $spanlike
+   * @param string   $field_name
+   * @param string   $namespace_name
+   * @param string[] $fixes
+   * @return Error
+   */
+  public static function unknown_namespace_field(Spanlike $spanlike, string $field_name, string $namespace_name, array $fixes): Error {
     return (new Error('unknown field'))
-      ->paragraph("Reference to an unknown field in a namespace.")
-      ->snippet($spanlike);
+      ->paragraph("The `$namespace_name` module does not have a field called `$field_name`:")
+      ->snippet($spanlike)
+      ->similar("Here are some fields that are similar:", $field_name, $fixes);
+  }
+
+  public static function unknown_namespace_field_in_current_scope(Spanlike $spanlike, string $field_name, array $fixes): Error {
+    return (new Error('unknown field'))
+      ->paragraph("The current module does not have a field called `$field_name`:")
+      ->snippet($spanlike)
+      ->similar("Here are some fields that are similar:", $field_name, $fixes);
   }
 
   public static function unknown_constructor_field(Spanlike $spanlike, string $form_path, string $field_name): Error {

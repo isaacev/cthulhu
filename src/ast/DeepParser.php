@@ -507,6 +507,10 @@ class DeepParser extends AbstractParser {
 
     if ($is_nearby) {
       $tail_name = $path->tail->value;
+
+      // Accumulate a string version of the followed path for error reporting
+      $followed_path = $tail_name;
+
       if ($this->has_block_scope()) {
         // If the reference exists inside of 1 or more block scopes, explore all
         // available block scopes to see if one of them contains the name. If
@@ -544,14 +548,17 @@ class DeepParser extends AbstractParser {
         return;
       }
 
-      throw Errors::unknown_name($path->tail->get('span'));
+      $spanlike = $path->tail->get('span');
+      $fixes    = $this->current_module_scope()->get_any_names();
+      throw Errors::unknown_name($spanlike, $tail_name, $fixes);
     } else {
+      $followed_path        = $path->is_extern ? '::' : '';
       $current_module_scope = $this->current_module_scope();
       $scope                = $path->is_extern
         ? $this->root_scope
         : $this->current_module_scope();
 
-      foreach ($path->head as $head_segment) {
+      foreach ($path->head as $index => $head_segment) {
         $binding = ($scope === $current_module_scope)
           ? $scope->get_name($head_segment->value)
           : $scope->get_public_name($head_segment->value);
@@ -559,12 +566,24 @@ class DeepParser extends AbstractParser {
         if ($binding) {
           $this->set_symbol($head_segment, $binding->symbol);
           if ($next_scope = $this->get_namespace($binding->symbol)) {
+            if ($index == 0) {
+              $followed_path .= $head_segment->value;
+            } else {
+              $followed_path .= '::' . $head_segment->value;
+            }
             $scope = $next_scope;
             continue;
           }
         }
 
-        throw Errors::unknown_namespace_field($head_segment->get('span'));
+        $spanlike = $head_segment->get('span');
+        $fixes    = ($scope === $current_module_scope)
+          ? $scope->get_any_names()
+          : $scope->get_public_names();
+
+        throw ($index === 0)
+          ? Errors::unknown_namespace_field_in_current_scope($spanlike, $head_segment, $fixes)
+          : Errors::unknown_namespace_field($spanlike, $head_segment, $followed_path, $fixes);
       }
 
       $binding = ($scope === $current_module_scope)
@@ -574,7 +593,11 @@ class DeepParser extends AbstractParser {
       if ($binding) {
         $this->set_symbol($path->tail, $binding->symbol);
       } else {
-        throw Errors::unknown_namespace_field($path->tail->get('span'));
+        $spanlike = $path->tail->get('span');
+        $fixes    = ($scope === $current_module_scope)
+          ? $scope->get_any_names()
+          : $scope->get_public_names();
+        throw Errors::unknown_namespace_field($spanlike, $path->tail->value, $followed_path, $fixes);
       }
     }
   }

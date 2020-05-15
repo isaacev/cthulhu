@@ -1,9 +1,15 @@
 
   UNKNOWN FIELD  -------------------------------------------------------------
 
-  Reference to an unknown field in a namespace.
+  The `Io` module does not have a field called `Fmt`:
 
     : Bad_ref_3
   4 |   Io::Fmt::println();
     |       ^^^
+
+  Here are some fields that are similar:
+
+    Fs
+    print
+    argv
 

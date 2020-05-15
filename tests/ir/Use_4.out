@@ -1,9 +1,15 @@
 
   UNKNOWN FIELD  -------------------------------------------------------------
 
-  Reference to an unknown field in a namespace.
+  The current module does not have a field called `Bar`:
 
      : Use_4
   17 |   Bar::hello();
      |   ^^^
+
+  Here are some fields that are similar:
+
+    Str
+    Bool
+    Foo
 

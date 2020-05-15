@@ -1,9 +1,15 @@
 
   UNKNOWN FIELD  -------------------------------------------------------------
 
-  Reference to an unknown field in a namespace.
+  The `Io` module does not have a field called `doesNotExist`:
 
     : Bad_ref_2
   4 |   Io::doesNotExist();
     |       ^^^^^^^^^^^^
+
+  Here are some fields that are similar:
+
+    print
+    println
+    Fs
 

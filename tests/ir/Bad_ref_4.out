@@ -1,9 +1,15 @@
 
   UNKNOWN FIELD  -------------------------------------------------------------
 
-  Reference to an unknown field in a namespace.
+  The `Fmt` module does not have a field called `Bool`:
 
     : Bad_ref_4
   5 |   Fmt::Bool(true);
     |        ^^^^
+
+  Here are some fields that are similar:
+
+    bool
+    str
+    int
 

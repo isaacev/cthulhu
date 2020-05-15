@@ -206,7 +206,11 @@ class ShallowResolver {
       ? $ctx->root_scope()
       : $ctx->current_module_scope();
 
-    foreach ($item->path->body as $segment) {
+    // Accumulate a string representation of the longest
+    // valid path for use in any error reports.
+    $longest_valid_path = '';
+
+    foreach ($item->path->body as $index => $segment) {
       $body_name    = $segment->value;
       $body_binding = ($namespace === $ctx->current_module_scope())
         ? $namespace->get_name($body_name)
@@ -215,15 +219,40 @@ class ShallowResolver {
       if ($body_binding) {
         $ctx->set_symbol($segment, $body_binding->symbol);
         if ($next_namespace = $ctx->get_namespace($body_binding->symbol)) {
-          $namespace = $next_namespace;
+          $longest_valid_path .= $index == 0
+            ? $body_binding->name
+            : "::$body_binding->name";
+          $namespace          = $next_namespace;
           continue;
+        } else {
+          // The parent namespace _has_ a matching binding but that binding does
+          // not correspond to a namespace (meaning it's a reference to a
+          // function or a type)
+          throw new Error("unknown name"); // TODO
         }
       }
 
-      throw Errors::unknown_namespace_field($segment->get('span'));
+      $spanlike       = $segment->get('span');
+      $field_name     = $segment->value;
+      $namespace_name = $longest_valid_path;
+      $fixes          = ($namespace === $ctx->current_module_scope())
+        ? $namespace->get_any_names()
+        : $namespace->get_public_names();
+      throw Errors::unknown_namespace_field($spanlike, $field_name, $namespace_name, $fixes);
     }
 
     if ($namespace === $ctx->current_module_scope()) {
+      $tail_name = $item->path->tail instanceof nodes\Name ? $item->path->tail->value : null;
+      if ($tail_name && $namespace->get_name($item->path->tail->value) === null) {
+        // Report an error if the item tries to use a namespace that isn't in
+        // the current scope.
+        $spanlike = $item->path->tail->get('span');
+
+        // TODO: a better way to populate the `$fixes` array with candidates from the current namespace
+        $fixes = array_keys($namespace->get_public_bindings());
+        throw Errors::unknown_namespace_field_in_current_scope($spanlike, $tail_name, $fixes);
+      }
+
       // Do nothing because the item is just importing bindings that are
       // already in the current module scope.
       return;
@@ -242,7 +271,23 @@ class ShallowResolver {
         $ctx->set_symbol($item->path->tail, $tail_binding->symbol);
         $ctx->current_module_scope()->add_binding($tail_binding);
       } else {
-        throw Errors::unknown_namespace_field($item->path->tail->get('span'));
+        // The tail segment of the use item references an unknown field. When
+        // reporting this error, try to suggest any similarly named fields in
+        // the last head scope.
+        $available_bindings = ($namespace === $ctx->current_module_scope())
+          ? $namespace->get_any_bindings()
+          : $namespace->get_public_bindings();
+
+        $fixes = [];
+        foreach ($available_bindings as $name => $binding) {
+          // Because the unknown segment was in the `tail` of the path, any of
+          // the available bindings in the namespace _could_ be what the code
+          // was trying to reference.
+          $fixes[] = $name;
+        }
+
+        $spanlike = $item->path->tail->get('span');
+        throw Errors::unknown_namespace_field($spanlike, $tail_name, $longest_valid_path, $fixes);
       }
     }
   }

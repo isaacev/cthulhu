@@ -49,4 +49,18 @@ class Scope {
     }
     return $bindings;
   }
+
+  /**
+   * @return string[]
+   */
+  public function get_any_names(): array {
+    return array_keys($this->table);
+  }
+
+  /**
+   * @return string[]
+   */
+  public function get_public_names(): array {
+    return array_keys($this->get_public_bindings());
+  }
 }

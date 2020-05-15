@@ -39,6 +39,11 @@ class Error extends Exception {
     return $this;
   }
 
+  public function similar(string $sentence, string $incorrect, array $fixes): self {
+    $this->report->append(new Similar($sentence, $incorrect, $fixes));
+    return $this;
+  }
+
   public function format(Formatter $f): void {
     $this->report->format($f);
   }

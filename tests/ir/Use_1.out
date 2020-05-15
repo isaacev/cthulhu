@@ -1,7 +1,7 @@
 
   UNKNOWN FIELD  -------------------------------------------------------------
 
-  Reference to an unknown field in a namespace.
+  The `Foo` module does not have a field called `Bar`:
 
      : Use_1
   15 |   Foo::Bar::hello();
