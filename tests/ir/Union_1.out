@@ -10,6 +10,6 @@
     Int
 
      : Union_1
-  12 |     Maybe::Some(s) => "just: " ++ s,
-     |                                   ^
+  12 |     Some(s) => "just: " ++ s,
+     |                            ^
 

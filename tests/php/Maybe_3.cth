@@ -1,0 +1,6 @@
+use ::Io::println;
+
+#[entry]
+fn main() -> () {
+  Some("abc") |> Maybe::with_default("who knows?") |> println;
+}

@@ -6,10 +6,10 @@
      : Union_3
   17 |   match attempt(true, true) {
      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  18 |     Result::Left(true) => Io::println("was true"),
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  19 |     Result::Right(msg) => Io::println(msg),
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  18 |     Left(true) => Io::println("was true"),
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 |     Right(msg) => Io::println(msg),
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   20 |   };
      |   ^
 

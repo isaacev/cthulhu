@@ -2,8 +2,8 @@ use ::List;
 
 fn or_else(m: Maybe('a), f: 'a) -> 'a {
   match m {
-    Maybe::Some(p) => p,
-    Maybe::None => f,
+    Some(p) => p,
+    None => f,
   }
 }
 

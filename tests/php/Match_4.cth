@@ -8,17 +8,17 @@ type Shape =
 
 fn describe(sh: Shape) -> () {
   Io::println(match sh {
-    Shape::UnitCircle => "unit circle",
-    Shape::Circle(_) => "circle",
-    Shape::Square(_) => "square",
-    Shape::Rect { width: _, height: _ } => "rectangle",
+    UnitCircle => "unit circle",
+    Circle(_) => "circle",
+    Square(_) => "square",
+    Rect { width: _, height: _ } => "rectangle",
   });
 }
 
 #[entry]
 fn main() -> () {
-  describe(Shape::UnitCircle);
-  describe(Shape::Circle(2.0));
-  describe(Shape::Square(2.5));
-  describe(Shape::Rect { width: 5.5, height: 1.2 });
+  describe(UnitCircle);
+  describe(Circle(2.0));
+  describe(Square(2.5));
+  describe(Rect { width: 5.5, height: 1.2 });
 }

@@ -4,7 +4,7 @@ namespace Cthulhu\ir\names;
 
 use Cthulhu\ast\nodes\Operator;
 
-class OperatorBinding extends Binding {
+class OperatorBinding extends TermBinding {
   public Operator $operator;
 
   public function __construct(Symbol $symbol, bool $is_public, Operator $operator) {

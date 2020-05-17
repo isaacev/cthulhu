@@ -3,5 +3,5 @@ type Foo =
 
 #[entry]
 fn main() -> () {
-  Foo::Bar(123);
+  Bar(123);
 }

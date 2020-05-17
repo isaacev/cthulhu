@@ -3,64 +3,92 @@
 namespace Cthulhu\ir\names;
 
 class Scope {
-  /* @var Binding[] $table */
-  protected array $table = [];
+  protected Space $modules;
+  protected Space $terms;
 
-  public function has_name(string $name): bool {
-    return array_key_exists($name, $this->table);
+  public function __construct() {
+    $this->modules = new Space();
+    $this->terms   = new Space();
   }
 
-  public function add_binding(Binding $binding): void {
-    $this->table[$binding->name] = $binding;
+  /** @noinspection PhpIncompatibleReturnTypeInspection */
+  public function get_module_binding(string $name): ?ModuleBinding {
+    return $this->modules->get_name($name);
   }
 
-  public function get_name(string $name): ?Binding {
-    if ($this->has_name($name)) {
-      return $this->table[$name];
-    } else {
-      return null;
-    }
+  /** @noinspection PhpIncompatibleReturnTypeInspection */
+  public function get_public_module_binding(string $name): ?ModuleBinding {
+    return $this->modules->get_public_name($name);
   }
 
-  public function get_public_name(string $name): ?Binding {
-    if (($binding = $this->get_name($name)) && $binding->is_public) {
-      return $binding;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * @return Binding[]
-   */
-  public function get_any_bindings(): array {
-    return $this->table;
-  }
-
-  /**
-   * @return Binding[]
-   */
-  public function get_public_bindings(): array {
-    $bindings = [];
-    foreach ($this->table as $name => $binding) {
-      if ($binding->is_public) {
-        $bindings[$name] = $binding;
-      }
-    }
-    return $bindings;
+  public function add_module_binding(ModuleBinding $binding): void {
+    $this->modules->add_binding($binding);
   }
 
   /**
    * @return string[]
    */
-  public function get_any_names(): array {
-    return array_keys($this->table);
+  public function all_public_module_names(): array {
+    return $this->modules->get_public_names();
+  }
+
+  /**
+   * @return ModuleBinding[]
+   */
+  public function all_public_module_bindings(): array {
+    return $this->modules->get_public_bindings();
   }
 
   /**
    * @return string[]
    */
-  public function get_public_names(): array {
-    return array_keys($this->get_public_bindings());
+  public function all_public_and_private_module_names(): array {
+    return $this->modules->get_any_names();
+  }
+
+  public function has_term_with_name(string $name): bool {
+    return $this->terms->has_name($name);
+  }
+
+  /** @noinspection PhpIncompatibleReturnTypeInspection */
+  public function get_public_or_private_term_binding(string $name): ?TermBinding {
+    return $this->terms->get_name($name);
+  }
+
+  /** @noinspection PhpIncompatibleReturnTypeInspection */
+  public function get_public_term_binding(string $name): ?TermBinding {
+    return $this->terms->get_public_name($name);
+  }
+
+  public function add_term_binding(TermBinding $binding): void {
+    $this->terms->add_binding($binding);
+  }
+
+  /**
+   * @return TermBinding[]
+   */
+  public function all_public_term_bindings(): array {
+    return $this->terms->get_public_bindings();
+  }
+
+  /**
+   * @return TermBinding[]
+   */
+  public function all_public_and_private_term_bindings(): array {
+    return $this->terms->get_any_bindings();
+  }
+
+  /**
+   * @return string[]
+   */
+  public function all_public_term_names(): array {
+    return $this->terms->get_public_names();
+  }
+
+  /**
+   * @return string[]
+   */
+  public function all_public_or_private_term_names(): array {
+    return $this->terms->get_any_names();
   }
 }

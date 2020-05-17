@@ -251,7 +251,7 @@ class TypeCheck {
       },
 
       'exit(VariantConstructorExpr)' => function (ast\VariantConstructorExpr $ctor) {
-        $enum_symbol = end($ctor->path->head)->get('symbol');
+        $enum_symbol = $ctor->path->tail->get('symbol')->get('enum');
         $enum_type   = self::get_type($enum_symbol);
         $enum_type   = self::fresh($enum_type);
         assert($enum_type instanceof types\Enum);
@@ -710,7 +710,7 @@ class TypeCheck {
     }
 
     if ($pat instanceof ast\FormPattern) {
-      $enum_type = self::get_type(end($pat->path->head)->get('symbol'));
+      $enum_type = self::get_type($pat->path->tail->get('symbol')->get('enum'));
       $enum_type = self::fresh($enum_type);
       assert($enum_type instanceof types\Enum);
 

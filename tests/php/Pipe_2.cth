@@ -3,21 +3,21 @@ use ::Fmt;
 
 fn map(f: 'a -> 'b, mm: Maybe('a)) -> Maybe('b) {
   match mm {
-    Maybe::Some(n) => Maybe::Some(f(n)),
-    Maybe::None    => Maybe::None,
+    Some(n) => Some(f(n)),
+    None    => None,
   }
 }
 
 fn or_else(fallback: 'a, x: Maybe('a)) -> 'a {
   match x {
-    Maybe::Some(a) => a,
-    Maybe::None    => fallback,
+    Some(a) => a,
+    None    => fallback,
   }
 }
 
 #[entry]
 fn main() -> () {
-  Maybe::Some(123)
+  Some(123)
     |> map(Fmt::int)
     |> or_else("nothing")
     |> Io::println;

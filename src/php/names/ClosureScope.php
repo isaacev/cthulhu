@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Cthulhu\php\names;
-
 
 class ClosureScope extends Scope {
   protected Scope $parent;

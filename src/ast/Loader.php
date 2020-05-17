@@ -53,16 +53,12 @@ class Loader {
      * discovered dependencies are added to the end of the queue. Each turn of
      * the loop removes a library from the front of the queue and analyzes what
      * libraries it uses.
-     *
-     * @var nodes\ShallowFile[] $queue
      */
     $queue = [ $first ];
 
     /**
      * To avoid repeated work, remember the AST for each library. The cache maps
      * `nodes\ShallowLibrary::name` to `nodes\ShallowLibrary` objects.
-     *
-     * @var nodes\ShallowFile[] $cache
      */
     $cache = [ $first->name->value => $first ];
 
@@ -75,7 +71,6 @@ class Loader {
         // Otherwise parse the named library and add the AST to both the queue
         // and the cache.
 
-        /* @var nodes\ShallowFile $dep */
         $dep = array_key_exists($dep_name, $cache)
           ? $cache[$dep_name]
           : ($cache[$dep_name] = $queue[] = self::parse(new nodes\UpperName($dep_name)));
@@ -113,9 +108,9 @@ class Loader {
     Visitor::walk($root, [
       'ShallowUseItem' => function (nodes\ShallowUseItem $item) use (&$this_lib, &$links_to) {
         if ($item->path->is_extern) {
-          $other_lib = empty($item->path->body)
+          $other_lib = empty($item->path->head)
             ? $item->path->tail
-            : $item->path->body[0];
+            : $item->path->head[0];
           assert($other_lib instanceof nodes\UpperName);
           $other_lib = $other_lib->value;
           if ($this_lib !== $other_lib) {

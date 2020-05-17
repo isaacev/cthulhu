@@ -31,9 +31,9 @@ pub mod Fs {
 
   pub fn read_file(path: Str) -> Result(Str, Error) {
     if file_does_exist(path) {
-      Result::Ok(file_get_contents(path))
+      Ok(file_get_contents(path))
     } else {
-      Result::Err(Error::FileDoesNotExist)
+      Err(FileDoesNotExist)
     }
   }
 }

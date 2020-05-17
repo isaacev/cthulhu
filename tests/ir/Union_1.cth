@@ -3,13 +3,13 @@ use ::Io;
 #[entry]
 fn main() -> () {
   let x = if 0 < 5 {
-    Maybe::Some(123)
+    Some(123)
   } else {
-    Maybe::None
+    None
   };
 
   Io::println(match x {
-    Maybe::Some(s) => "just: " ++ s,
-    Maybe::None => "none",
+    Some(s) => "just: " ++ s,
+    None => "none",
   });
 }

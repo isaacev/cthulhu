@@ -10,6 +10,6 @@
     y
 
     : Constructor_1
-  6 |   Foo::Bar { y: 123 };
-    |              ^
+  6 |   Bar { y: 123 };
+    |         ^
 

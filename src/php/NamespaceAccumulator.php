@@ -2,8 +2,6 @@
 
 namespace Cthulhu\php;
 
-use Cthulhu\ir\nodes as ir;
-
 class NamespaceAccumulator {
   private Names $names;
   private StatementAccumulator $stmts;
@@ -41,8 +39,7 @@ class NamespaceAccumulator {
     array_push($this->completed, $space);
   }
 
-  public function open(ir\Name $name): void {
-    $ref = $this->names->name_to_ref($name);
+  public function open(nodes\Reference $ref): void {
     array_push($this->pending_names, $ref);
     $this->names->enter_namespace_scope();
     $this->stmts->push_block();

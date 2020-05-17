@@ -7,9 +7,9 @@ intrinsic {
 
 pub fn nth(ls: ['a], n: Int) -> Maybe('a) {
   if array_key_exists(n, ls) {
-    Maybe::Some(subscript(ls, n))
+    Some(subscript(ls, n))
   } else {
-    Maybe::None
+    None
   }
 }
 

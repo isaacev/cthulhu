@@ -405,25 +405,36 @@ class ShallowParser extends AbstractParser {
   }
 
   /**
-   * ( "::" )? ( UPPER_NAME "::" )* UPPER_NAME ( "::" ( LOWER_NAME | "*" ) )?
+   * ( "::" | ( (SUPER_NAME "::" )+ ) )? ( UPPER_NAME "::" )* UPPER_NAME ( "::" ( LOWER_NAME | "*" ) )?
    *
    * @return nodes\CompoundPathNode
    * @throws Error
    */
   private function use_path(): nodes\CompoundPathNode {
     $is_extern = false;
-    $body      = [];
+    $super     = [];
+    $head      = [];
     $span      = null;
     $is_done   = false;
 
     if ($this->ahead_is_punct('::')) {
       $is_extern = true;
       $span      = $this->next_punct_span('::');
+    } else if ($this->ahead_is_keyword('super')) {
+      do {
+        $super[] = $this->next_super_name();
+        $span    = $span ?? end($super)->get('span');
+        if ($this->ahead_is_punct('::')) {
+          $colons = $this->next_punct('::');
+        } else {
+          break;
+        }
+      } while ($this->ahead_is_keyword('super'));
     }
 
     while ($this->ahead_is_upper_ident()) {
-      $body[] = $this->next_upper_name();
-      $span   = $span ?? end($body)->get('span');
+      $head[] = $this->next_upper_name();
+      $span   = $span ?? end($head)->get('span');
       if ($this->ahead_is_punct('::')) {
         $colons = $this->next_punct('::');
       } else {
@@ -432,24 +443,24 @@ class ShallowParser extends AbstractParser {
       }
     }
 
-    if (empty($body)) {
-      $body[] = $this->next_upper_name();
-      $span   = end($body)->get('span');
+    if (empty($head)) {
+      $head[] = $this->next_upper_name();
+      $span   = end($head)->get('span');
     }
 
     if ($is_done || $this->ahead_is_punct(';')) {
-      $tail = array_pop($body);
-      return (new nodes\CompoundPathNode($is_extern, $body, $tail))
+      $tail = array_pop($head);
+      return (new nodes\CompoundPathNode($is_extern, $super, $head, $tail))
         ->set('span', $span);
     } else {
       if ($this->ahead_is_lower_ident()) {
         $tail = $this->next_lower_name();
-        return (new nodes\CompoundPathNode($is_extern, $body, $tail))
+        return (new nodes\CompoundPathNode($is_extern, $super, $head, $tail))
           ->set('span', Span::join($span, $tail->get('span')));
       } else {
         $tail = (new nodes\StarSegment())
           ->set('span', $this->next_punct_span('*'));
-        return (new nodes\CompoundPathNode($is_extern, $body, $tail))
+        return (new nodes\CompoundPathNode($is_extern, $super, $head, $tail))
           ->set('span', Span::join($span, $tail->get('span')));
       }
     }

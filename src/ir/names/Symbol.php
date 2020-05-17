@@ -10,6 +10,10 @@ abstract class Symbol implements ir\HasId {
 
   protected array $metadata = [];
 
+  public function list(): array {
+    return array_keys($this->metadata);
+  }
+
   public function has(string $key): bool {
     return array_key_exists($key, $this->metadata);
   }

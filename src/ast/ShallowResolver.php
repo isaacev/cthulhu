@@ -4,13 +4,17 @@ namespace Cthulhu\ast;
 
 use Cthulhu\err\Error;
 use Cthulhu\ir\names\Binding;
+use Cthulhu\ir\names\ModuleBinding;
 use Cthulhu\ir\names\OperatorBinding;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Scope;
 use Cthulhu\ir\names\Symbol;
+use Cthulhu\ir\names\TermBinding;
 use Cthulhu\lib\trees\Visitor;
 
 class ShallowResolver {
+  private bool $is_in_prelude = false;
+
   private Scope $root_scope;
 
   /* @var Scope[] $namespaces */
@@ -46,6 +50,16 @@ class ShallowResolver {
     $node->set('symbol', $symbol);
   }
 
+  private function super_module_scope(int $levels): ?Scope {
+    assert($levels >= 0);
+    $index = count($this->module_scopes) - 1 - $levels;
+    if ($index < 0) {
+      return null;
+    } else {
+      return $this->module_scopes[$index];
+    }
+  }
+
   private function current_module_scope(): Scope {
     return end($this->module_scopes);
   }
@@ -60,6 +74,16 @@ class ShallowResolver {
 
   private function current_ref_symbol(): RefSymbol {
     return end($this->ref_symbols);
+  }
+
+  private function super_ref_symbol(int $levels): ?RefSymbol {
+    assert($levels >= 0);
+    $index = count($this->ref_symbols) - 1 - $levels;
+    if ($index < 0) {
+      return null;
+    } else {
+      return $this->ref_symbols[$index];
+    }
   }
 
   private function push_ref_symbol(RefSymbol $symbol): void {
@@ -88,9 +112,14 @@ class ShallowResolver {
 
   private function link_prelude(): void {
     $extern_namespace  = $this->root_scope();
-    $prelude_namespace = $this->get_namespace($extern_namespace->get_name('Prelude')->symbol);
-    foreach ($prelude_namespace->get_public_bindings() as $name => $binding) {
-      $this->current_module_scope()->add_binding($binding->as_private());
+    $prelude_namespace = $this->get_namespace($extern_namespace->get_module_binding('Prelude')->symbol);
+
+    foreach ($prelude_namespace->all_public_module_bindings() as $name => $binding) {
+      $this->current_module_scope()->add_module_binding($binding->as_private());
+    }
+
+    foreach ($prelude_namespace->all_public_term_bindings() as $name => $binding) {
+      $this->current_module_scope()->add_term_binding($binding->as_private());
     }
   }
 
@@ -137,8 +166,8 @@ class ShallowResolver {
   private static function instantiate_kernel_type(self $ctx, string $type_name): void {
     $type_symbol    = new RefSymbol($ctx->current_ref_symbol());
     $type_is_public = true;
-    $type_binding   = new Binding($type_name, $type_symbol, $type_is_public);
-    $ctx->current_module_scope()->add_binding($type_binding);
+    $type_binding   = new TermBinding($type_name, $type_symbol, $type_is_public);
+    $ctx->current_module_scope()->add_term_binding($type_binding);
     $ctx->synthetic_types[] = $type_binding;
   }
 
@@ -149,8 +178,8 @@ class ShallowResolver {
   private static function enter_file(self $ctx, nodes\ShallowFile $file): void {
     $lib_name    = $file->name->value;
     $lib_symbol  = $ctx->make_ref_symbol_for_name($file->name, null);
-    $lib_binding = new Binding($lib_name, $lib_symbol, true);
-    $ctx->root_scope()->add_binding($lib_binding);
+    $lib_binding = new ModuleBinding($lib_name, $lib_symbol, true);
+    $ctx->root_scope()->add_module_binding($lib_binding);
     $ctx->push_ref_symbol($lib_symbol);
 
     $lib_scope = new Scope();
@@ -166,7 +195,7 @@ class ShallowResolver {
         self::instantiate_kernel_type($ctx, 'Str');
         break;
       case 'Prelude':
-        // do nothing
+        $ctx->is_in_prelude = true;
         break;
       default:
         $ctx->link_prelude();
@@ -174,6 +203,7 @@ class ShallowResolver {
   }
 
   private static function exit_file(self $ctx): void {
+    $ctx->is_in_prelude = false;
     $ctx->pop_ref_symbol();
     $ctx->pop_module_scope();
   }
@@ -182,8 +212,18 @@ class ShallowResolver {
     $enum_is_public = $item->get('pub') ?? false;
     $enum_name      = $item->name->value;
     $enum_symbol    = $ctx->make_ref_symbol_for_name($item->name, $ctx->current_ref_symbol());
-    $enum_binding   = new Binding($enum_name, $enum_symbol, $enum_is_public);
-    $ctx->current_module_scope()->add_binding($enum_binding);
+    $enum_binding   = new TermBinding($enum_name, $enum_symbol, $enum_is_public);
+    $ctx->current_module_scope()->add_term_binding($enum_binding);
+
+    foreach ($item->forms as $form) {
+      $form_symbol  = $ctx->make_ref_symbol_for_name($form->name, $enum_symbol);
+      $form_binding = new TermBinding($form->name->value, $form_symbol, $enum_is_public);
+      $ctx->current_module_scope()->add_term_binding($form_binding);
+
+      // Give the form symbol a reference to the enum symbol. This will
+      // make it easier to lookup the enum type during typechecking.
+      $form_symbol->set('enum', $enum_symbol);
+    }
   }
 
   private static function intrinsic_item(self $ctx, nodes\ShallowIntrinsicItem $item): void {
@@ -191,8 +231,8 @@ class ShallowResolver {
     foreach ($item->signatures as $signature) {
       $sig_name    = $signature->name;
       $sig_symbol  = $ctx->make_ref_symbol_for_name($sig_name, $ctx->current_ref_symbol());
-      $sig_binding = new Binding($sig_name, $sig_symbol, $is_public);
-      $ctx->current_module_scope()->add_binding($sig_binding);
+      $sig_binding = new TermBinding($sig_name, $sig_symbol, $is_public);
+      $ctx->current_module_scope()->add_term_binding($sig_binding);
     }
   }
 
@@ -202,26 +242,48 @@ class ShallowResolver {
    * @throws Error
    */
   private static function use_item(self $ctx, nodes\ShallowUseItem $item): void {
-    $namespace = $item->path->is_extern
-      ? $ctx->root_scope()
-      : $ctx->current_module_scope();
+    $is_pub = $item->get('pub') ?? false;
 
     // Accumulate a string representation of the longest
     // valid path for use in any error reports.
     $longest_valid_path = '';
 
-    foreach ($item->path->body as $index => $segment) {
-      $body_name    = $segment->value;
-      $body_binding = ($namespace === $ctx->current_module_scope())
-        ? $namespace->get_name($body_name)
-        : $namespace->get_public_name($body_name);
+    /* Bind each head segment in the path to a module.
+     */
 
-      if ($body_binding) {
-        $ctx->set_symbol($segment, $body_binding->symbol);
-        if ($next_namespace = $ctx->get_namespace($body_binding->symbol)) {
+    if ($item->path->is_extern) {
+      $namespace = $ctx->root_scope();
+    } else if (empty($item->path->super)) {
+      $namespace = $ctx->current_module_scope();
+    } else {
+      $namespace = $ctx->super_module_scope(count($item->path->super));
+      if ($namespace === null) {
+        throw new Error('too many super references'); // TODO
+      }
+
+      foreach ($item->path->super as $index => $super_segment) {
+        $mod_symbol = $ctx->super_ref_symbol(count($item->path->super) - $index);
+
+        if ($mod_symbol) {
+          $ctx->set_symbol($super_segment, $mod_symbol);
+          $longest_valid_path .= ($index === 0) ? 'super' : '::super';
+        } else {
+          throw new Error("too many super references");
+        }
+      }
+    }
+
+    foreach ($item->path->head as $index => $body_segment) {
+      $mod_binding = ($namespace === $ctx->current_module_scope())
+        ? $namespace->get_module_binding($body_segment->value)
+        : $namespace->get_public_module_binding($body_segment->value);
+
+      if ($mod_binding) {
+        $ctx->set_symbol($body_segment, $mod_binding->symbol);
+        if ($next_namespace = $ctx->get_namespace($mod_binding->symbol)) {
           $longest_valid_path .= $index == 0
-            ? $body_binding->name
-            : "::$body_binding->name";
+            ? $mod_binding->name
+            : "::$mod_binding->name";
           $namespace          = $next_namespace;
           continue;
         } else {
@@ -232,24 +294,23 @@ class ShallowResolver {
         }
       }
 
-      $spanlike       = $segment->get('span');
-      $field_name     = $segment->value;
+      $spanlike       = $body_segment->get('span');
+      $field_name     = $body_segment->value;
       $namespace_name = $longest_valid_path;
       $fixes          = ($namespace === $ctx->current_module_scope())
-        ? $namespace->get_any_names()
-        : $namespace->get_public_names();
+        ? $namespace->all_public_and_private_module_names()
+        : $namespace->all_public_module_names();
       throw Errors::unknown_namespace_field($spanlike, $field_name, $namespace_name, $fixes);
     }
 
-    if ($namespace === $ctx->current_module_scope()) {
-      $tail_name = $item->path->tail instanceof nodes\Name ? $item->path->tail->value : null;
-      if ($tail_name && $namespace->get_name($item->path->tail->value) === null) {
-        // Report an error if the item tries to use a namespace that isn't in
-        // the current scope.
-        $spanlike = $item->path->tail->get('span');
+    if ($namespace === $ctx->current_module_scope() && $item->path->tail instanceof nodes\Name) {
+      $tail_name    = $item->path->tail->value;
+      $term_binding = $namespace->get_public_or_private_term_binding($tail_name);
+      $mod_binding  = $namespace->get_module_binding($tail_name);
 
-        // TODO: a better way to populate the `$fixes` array with candidates from the current namespace
-        $fixes = array_keys($namespace->get_public_bindings());
+      if (!$term_binding && !$mod_binding) {
+        $spanlike = $item->path->tail->get('span');
+        $fixes    = []; // TODO
         throw Errors::unknown_namespace_field_in_current_scope($spanlike, $tail_name, $fixes);
       }
 
@@ -258,45 +319,89 @@ class ShallowResolver {
       return;
     }
 
-    $is_pub = $item->get('pub') ?? false;
+    /* If the path ends in a star segment, bind all of the modules and terms
+     * from the path to the current module scope.
+     */
     if ($item->path->tail instanceof nodes\StarSegment) {
-      foreach ($namespace->get_public_bindings() as $binding) {
-        $binding = $is_pub ? $binding : $binding->as_private();
-        $ctx->current_module_scope()->add_binding($binding);
+      foreach ($namespace->all_public_module_bindings() as $mod_binding) {
+        $mod_binding = $is_pub ? $mod_binding : $mod_binding->as_private();
+        $ctx->current_module_scope()->add_module_binding($mod_binding);
       }
+
+      foreach ($namespace->all_public_term_bindings() as $term_binding) {
+        $term_binding = $is_pub ? $term_binding : $term_binding->as_private();
+        $ctx->current_module_scope()->add_term_binding($term_binding);
+      }
+
+      return;
+    }
+
+    assert($item->path->tail instanceof nodes\Name);
+
+    /* Bind the tail segment to either a term OR a module. The following
+     * cases are possible and all must be supported:
+     *
+     * - Tail segment matches ONLY a term:
+     *     Attach the term symbol to the segment and add
+     *     the term binding to the current module scope.
+     *
+     * - Tail segment matches ONLY a module
+     *     Attach the module symbol to the segment and add
+     *     a binding for the referenced module to the
+     *     current module scope.
+     *
+     * - Tail segment matches BOTH a term and a module
+     *     Attach the type symbol to the segment and add
+     *     a binding for BOTH the referenced module and
+     *     the referenced type to the current module scope.
+     */
+    $tail_name    = $item->path->tail->value;
+    $mod_binding  = $namespace->get_public_module_binding($tail_name);
+    $term_binding = $namespace->get_public_term_binding($tail_name);
+
+    if ($mod_binding && $term_binding) {
+      // Unless the `use` item is marked as public, mark the local bindings as private
+      $mod_binding  = $is_pub ? $mod_binding : $mod_binding->as_private();
+      $term_binding = $is_pub ? $term_binding : $term_binding->as_private();
+
+      // Attach the term symbol to the tail segment
+      $ctx->set_symbol($item->path->tail, $term_binding->symbol);
+
+      // Add both bindings to the current module scope
+      $ctx->current_module_scope()->add_module_binding($mod_binding);
+      $ctx->current_module_scope()->add_term_binding($term_binding);
+    } else if ($mod_binding) {
+      // Unless the `use` item is marked as public, mark the local binding as private
+      $mod_binding = $is_pub ? $mod_binding : $mod_binding->as_private();
+
+      // Attach the module symbol to the tail segment
+      $ctx->set_symbol($item->path->tail, $mod_binding->symbol);
+
+      // Add the module binding to the current module scope
+      $ctx->current_module_scope()->add_module_binding($mod_binding);
+    } else if ($term_binding) {
+      // Unless the `use` item is marked as public, mark the local binding as private
+      $term_binding = $is_pub ? $term_binding : $term_binding->as_private();
+
+      // Attach the term symbol to the tail segment
+      $ctx->set_symbol($item->path->tail, $term_binding->symbol);
+
+      // Add the term binding to the current module scope
+      $ctx->current_module_scope()->add_term_binding($term_binding);
     } else {
-      $tail_name = $item->path->tail->value;
-      if ($tail_binding = $namespace->get_public_name($tail_name)) {
-        $tail_binding = $is_pub ? $tail_binding : $tail_binding->as_private();
-        $ctx->set_symbol($item->path->tail, $tail_binding->symbol);
-        $ctx->current_module_scope()->add_binding($tail_binding);
-      } else {
-        // The tail segment of the use item references an unknown field. When
-        // reporting this error, try to suggest any similarly named fields in
-        // the last head scope.
-        $available_bindings = ($namespace === $ctx->current_module_scope())
-          ? $namespace->get_any_bindings()
-          : $namespace->get_public_bindings();
-
-        $fixes = [];
-        foreach ($available_bindings as $name => $binding) {
-          // Because the unknown segment was in the `tail` of the path, any of
-          // the available bindings in the namespace _could_ be what the code
-          // was trying to reference.
-          $fixes[] = $name;
-        }
-
-        $spanlike = $item->path->tail->get('span');
-        throw Errors::unknown_namespace_field($spanlike, $tail_name, $longest_valid_path, $fixes);
-      }
+      // The tail segment references an unknown module or term. When reporting
+      // this error, try to suggest any similarly named modules or terms.
+      $spanlike = $item->path->tail->get('span');
+      $fixes    = [];
+      throw Errors::unknown_namespace_field($spanlike, $tail_name, $longest_valid_path, $fixes);
     }
   }
 
   private static function enter_mod_item(self $ctx, nodes\ShallowModItem $item): void {
     $mod_name    = $item->name->value;
     $mod_symbol  = $ctx->make_ref_symbol_for_name($item->name, $ctx->current_ref_symbol());
-    $mod_binding = new Binding($mod_name, $mod_symbol, $item->get('pub') ?? false);
-    $ctx->current_module_scope()->add_binding($mod_binding);
+    $mod_binding = new ModuleBinding($mod_name, $mod_symbol, $item->get('pub') ?? false);
+    $ctx->current_module_scope()->add_module_binding($mod_binding);
     $ctx->push_ref_symbol($mod_symbol);
 
     $mod_scope = new Scope();
@@ -304,7 +409,9 @@ class ShallowResolver {
     $ctx->add_namespace($mod_symbol, $mod_scope);
     $ctx->push_module_scope($mod_scope);
 
-    $ctx->link_prelude();
+    if ($ctx->is_in_prelude === false) {
+      $ctx->link_prelude();
+    }
   }
 
   private static function exit_mod_item(self $ctx): void {
@@ -322,9 +429,9 @@ class ShallowResolver {
       assert($item->name instanceof nodes\LowerName);
       $fn_name    = $item->name->value;
       $fn_symbol  = $ctx->make_ref_symbol_for_name($item->name, $ctx->current_ref_symbol());
-      $fn_binding = new Binding($fn_name, $fn_symbol, $fn_is_public);
+      $fn_binding = new TermBinding($fn_name, $fn_symbol, $fn_is_public);
     }
 
-    $ctx->current_module_scope()->add_binding($fn_binding);
+    $ctx->current_module_scope()->add_term_binding($fn_binding);
   }
 }

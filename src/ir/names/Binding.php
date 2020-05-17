@@ -2,7 +2,7 @@
 
 namespace Cthulhu\ir\names;
 
-class Binding {
+abstract class Binding {
   public string $name;
   public Symbol $symbol;
   public bool $is_public;
@@ -13,7 +13,5 @@ class Binding {
     $this->is_public = $is_public;
   }
 
-  public function as_private(): self {
-    return new self($this->name, $this->symbol, false);
-  }
+  abstract public function as_private(): self;
 }

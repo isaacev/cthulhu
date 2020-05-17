@@ -12,13 +12,13 @@ use Cthulhu\ast\tokens\IntegerToken;
 use Cthulhu\ast\tokens\PunctToken;
 use Cthulhu\ast\tokens\StringToken;
 use Cthulhu\err\Error;
-use Cthulhu\ir\names\Binding;
 use Cthulhu\ir\names\ClosedScope;
 use Cthulhu\ir\names\NestedScope;
 use Cthulhu\ir\names\OperatorBinding;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Scope;
 use Cthulhu\ir\names\Symbol;
+use Cthulhu\ir\names\TermBinding;
 use Cthulhu\ir\names\TypeSymbol;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\lib\trees\Visitor;
@@ -91,6 +91,16 @@ class DeepParser extends AbstractParser {
 
   private function current_module_scope(): Scope {
     return end($this->module_scopes);
+  }
+
+  private function super_module_scope(int $levels): ?Scope {
+    assert($levels >= 0);
+    $index = count($this->module_scopes) - 1 - $levels;
+    if ($index < 0) {
+      return null;
+    } else {
+      return $this->module_scopes[$index];
+    }
   }
 
   private function push_module_scope(Scope $scope): void {
@@ -234,32 +244,37 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   private function enum_item(nodes\ShallowEnumItem $item): nodes\EnumItem {
+    $is_pub      = $item->get('pub') ?? false;
     $enum_symbol = $item->name->get('symbol');
     assert($enum_symbol instanceof Symbol);
     $this->add_namespace($enum_symbol, $form_scope = new Scope());
     $this->push_param_scope($param_scope = new Scope());
 
     foreach ($item->params as $note) {
-      if ($param_scope->has_name($note->name)) {
+      if ($param_scope->has_term_with_name($note->name)) {
         throw Errors::duplicate_enum_param($note->get('span'), $note->name);
       } else {
         $type_symbol  = $this->make_type_symbol($note);
-        $type_binding = new Binding($note->name, $type_symbol, false);
-        $param_scope->add_binding($type_binding);
+        $type_binding = new TermBinding($note->name, $type_symbol, false);
+        $param_scope->add_term_binding($type_binding);
       }
     }
 
     foreach ($item->forms as $form) {
-      $form_symbol  = $this->make_ref_symbol_for_name($form->name, $enum_symbol);
-      $form_binding = new Binding($form->name->value, $form_symbol, true);
-      $form_scope->add_binding($form_binding);
+      $form_binding = $this->current_module_scope()->get_public_or_private_term_binding($form->name->value);
+      $form_symbol  = $form_binding->symbol;
+
+      assert($form_symbol instanceof RefSymbol);
+
+      $form_scope->add_term_binding($form_binding);
+      $this->current_module_scope()->add_term_binding($form_binding);
 
       if ($form instanceof nodes\NamedFormDecl) {
         $this->add_namespace($form_symbol, $field_scope = new Scope());
         foreach ($form->params as $pair) {
           $pair_symbol  = $this->make_ref_symbol_for_name($pair->name, $form_symbol);
-          $pair_binding = new Binding($pair->name->value, $pair_symbol, true);
-          $field_scope->add_binding($pair_binding);
+          $pair_binding = new TermBinding($pair->name->value, $pair_symbol, true);
+          $field_scope->add_term_binding($pair_binding);
           $this->resolve_note($pair->note);
         }
       } else if ($form instanceof nodes\OrderedFormDecl) {
@@ -369,8 +384,8 @@ class DeepParser extends AbstractParser {
    */
   private function resolve_fn_param(nodes\ParamNode $param): void {
     $name_symbol  = $this->make_var_symbol($param->name);
-    $name_binding = new Binding($param->name->value, $name_symbol, false);
-    $this->current_func_scope()->add_binding($name_binding);
+    $name_binding = new TermBinding($param->name->value, $name_symbol, false);
+    $this->current_func_scope()->add_term_binding($name_binding);
     $this->bind_type_params($param->note);
     $this->resolve_note($param->note);
   }
@@ -381,10 +396,10 @@ class DeepParser extends AbstractParser {
 
     Visitor::walk($note, [
       'TypeParamNote' => function (nodes\TypeParamNote $note) use ($param_scope, &$self): void {
-        if ($param_scope->has_name($note->name) === false) {
+        if ($param_scope->has_term_with_name($note->name) === false) {
           $type_symbol  = $self->make_type_symbol($note);
-          $type_binding = new Binding($note->name, $type_symbol, false);
-          $param_scope->add_binding($type_binding);
+          $type_binding = new TermBinding($note->name, $type_symbol, false);
+          $param_scope->add_term_binding($type_binding);
         }
       },
     ]);
@@ -458,7 +473,7 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   private function resolve_named_note(nodes\NamedNote $note): void {
-    $this->resolve_path($note->path);
+    $this->resolve_term_path($note->path);
   }
 
   /**
@@ -486,7 +501,7 @@ class DeepParser extends AbstractParser {
    */
   private function resolve_param_note(nodes\TypeParamNote $note): void {
     $param_scope = $this->current_param_scope();
-    if ($binding = $param_scope->get_name($note->name)) {
+    if ($binding = $param_scope->get_public_or_private_term_binding($note->name)) {
       $note->set('symbol', $binding->symbol);
     } else {
       throw Errors::unknown_type_param($note->get('span'), $note);
@@ -498,12 +513,15 @@ class DeepParser extends AbstractParser {
   }
 
   /**
+   * Resolves a path where the tail segment must be a binding to a valid term
+   * where a term can be either a variable, function, or type.
+   *
    * @param nodes\PathNode $path
    * @throws Error
    */
-  private function resolve_path(nodes\PathNode $path): void {
+  private function resolve_term_path(nodes\PathNode $path): void {
     // True iff the reference only has one segment and is not external
-    $is_nearby = $path->is_extern === false && empty($path->head);
+    $is_nearby = $path->is_extern === false && empty($path->head) && empty($path->super);
 
     if ($is_nearby) {
       $tail_name = $path->tail->value;
@@ -524,7 +542,7 @@ class DeepParser extends AbstractParser {
         ];
 
         foreach ($scopes as $index => $scope) {
-          if ($tail_binding = $scope->get_name($tail_name)) {
+          if ($tail_binding = $scope->get_public_or_private_term_binding($tail_name)) {
             $this->set_symbol($path->tail, $tail_binding->symbol);
             return;
           }
@@ -532,7 +550,7 @@ class DeepParser extends AbstractParser {
       }
 
       if ($this->has_func_scope()) {
-        if ($tail_binding = $this->current_func_scope()->get_name($tail_name)) {
+        if ($tail_binding = $this->current_func_scope()->get_public_or_private_term_binding($tail_name)) {
           // If the reference exists inside of a function signature or if the
           // function body does not contain the name.
           $this->set_symbol($path->tail, $tail_binding->symbol);
@@ -540,7 +558,7 @@ class DeepParser extends AbstractParser {
         }
       }
 
-      if ($tail_binding = $this->current_module_scope()->get_name($tail_name)) {
+      if ($tail_binding = $this->current_module_scope()->get_public_or_private_term_binding($tail_name)) {
         // If the reference exists outside of a block scope or if none of the
         // current blocks scopes contain the name, try looking in the closest
         // module scope.
@@ -549,56 +567,84 @@ class DeepParser extends AbstractParser {
       }
 
       $spanlike = $path->tail->get('span');
-      $fixes    = $this->current_module_scope()->get_any_names();
+      $fixes    = $this->current_module_scope()->all_public_or_private_term_names();
       throw Errors::unknown_name($spanlike, $tail_name, $fixes);
+    }
+
+    /* Resolve a path with 1 or more head or super segments. These paths look like this...
+     *
+     *   ::List::length
+     *   ::Io::Fs::open_file
+     *   MyModule::CustomType
+     *   super::ParentType
+     *   super::super::GrandparentType
+     *
+     * ...and DO NOT look like this because these paths have 0 head or super segments:
+     *
+     *   my_function
+     *   AnEnum
+     *
+     * All head segments MUST resolve to a module,
+     * the tail segment MUST resolve to a term.
+     */
+
+    $followed_path        = $path->is_extern ? '::' : '';
+    $current_module_scope = $this->current_module_scope();
+    $scope                = $path->is_extern
+      ? $this->root_scope
+      : $this->current_module_scope();
+
+    if ($path->is_extern) {
+      $scope = $this->root_scope;
+    } else if (empty($path->super)) {
+      $scope = $this->current_module_scope();
     } else {
-      $followed_path        = $path->is_extern ? '::' : '';
-      $current_module_scope = $this->current_module_scope();
-      $scope                = $path->is_extern
-        ? $this->root_scope
-        : $this->current_module_scope();
+      $scope = $this->super_module_scope(count($path->super));
+      if ($scope === null) {
+        throw new Error("invalid super reference");
+      }
+    }
 
-      foreach ($path->head as $index => $head_segment) {
-        $binding = ($scope === $current_module_scope)
-          ? $scope->get_name($head_segment->value)
-          : $scope->get_public_name($head_segment->value);
+    foreach ($path->head as $index => $head_segment) {
+      $mod_binding = ($scope === $current_module_scope)
+        ? $scope->get_module_binding($head_segment->value)
+        : $scope->get_public_module_binding($head_segment->value);
 
-        if ($binding) {
-          $this->set_symbol($head_segment, $binding->symbol);
-          if ($next_scope = $this->get_namespace($binding->symbol)) {
-            if ($index == 0) {
-              $followed_path .= $head_segment->value;
-            } else {
-              $followed_path .= '::' . $head_segment->value;
-            }
-            $scope = $next_scope;
-            continue;
+      if ($mod_binding) {
+        $this->set_symbol($head_segment, $mod_binding->symbol);
+        if ($next_scope = $this->get_namespace($mod_binding->symbol)) {
+          if ($index == 0) {
+            $followed_path .= $head_segment->value;
+          } else {
+            $followed_path .= '::' . $head_segment->value;
           }
+          $scope = $next_scope;
+          continue;
         }
-
-        $spanlike = $head_segment->get('span');
-        $fixes    = ($scope === $current_module_scope)
-          ? $scope->get_any_names()
-          : $scope->get_public_names();
-
-        throw ($index === 0)
-          ? Errors::unknown_namespace_field_in_current_scope($spanlike, $head_segment, $fixes)
-          : Errors::unknown_namespace_field($spanlike, $head_segment, $followed_path, $fixes);
       }
 
-      $binding = ($scope === $current_module_scope)
-        ? $scope->get_name($path->tail->value)
-        : $scope->get_public_name($path->tail->value);
+      $spanlike = $head_segment->get('span');
+      $fixes    = ($scope === $current_module_scope)
+        ? $scope->all_public_and_private_module_names()
+        : $scope->all_public_module_names();
 
-      if ($binding) {
-        $this->set_symbol($path->tail, $binding->symbol);
-      } else {
-        $spanlike = $path->tail->get('span');
-        $fixes    = ($scope === $current_module_scope)
-          ? $scope->get_any_names()
-          : $scope->get_public_names();
-        throw Errors::unknown_namespace_field($spanlike, $path->tail->value, $followed_path, $fixes);
-      }
+      throw ($index === 0)
+        ? Errors::unknown_namespace_field_in_current_scope($spanlike, $head_segment, $fixes)
+        : Errors::unknown_namespace_field($spanlike, $head_segment, $followed_path, $fixes);
+    }
+
+    $term_binding = ($scope === $current_module_scope)
+      ? $scope->get_public_or_private_term_binding($path->tail->value)
+      : $scope->get_public_term_binding($path->tail->value);
+
+    if ($term_binding) {
+      $this->set_symbol($path->tail, $term_binding->symbol);
+    } else {
+      $spanlike = $path->tail->get('span');
+      $fixes    = ($scope === $current_module_scope)
+        ? $scope->all_public_or_private_term_names()
+        : $scope->all_public_term_names();
+      throw Errors::unknown_namespace_field($spanlike, $path->tail->value, $followed_path, $fixes);
     }
   }
 
@@ -606,7 +652,7 @@ class DeepParser extends AbstractParser {
     $mod_scope   = $this->current_module_scope();
     $infix_trie  = new Trie();
     $prefix_trie = new Trie();
-    foreach ($mod_scope->get_any_bindings() as $binding) {
+    foreach ($mod_scope->all_public_and_private_term_bindings() as $binding) {
       if ($binding instanceof OperatorBinding) {
         switch ($binding->operator->min_arity) {
           case 2:
@@ -704,8 +750,8 @@ class DeepParser extends AbstractParser {
 
     $block_scope = $this->current_block_scope();
     $let_symbol  = $this->make_var_symbol($name);
-    $let_binding = new Binding($name->value, $let_symbol, false);
-    $block_scope->add_binding($let_binding);
+    $let_binding = new TermBinding($name->value, $let_symbol, false);
+    $block_scope->add_term_binding($let_binding);
 
     $note = null;
     if ($this->ahead_is_punct(':')) {
@@ -977,7 +1023,7 @@ class DeepParser extends AbstractParser {
    */
   private function form_pattern(): nodes\FormPattern {
     $path = $this->upper_path();
-    $this->resolve_path($path);
+    $this->resolve_term_path($path);
     if ($this->ahead_is_group('{}')) {
       return $this->named_form_pattern($path);
     } else if ($this->ahead_is_group('()')) {
@@ -1014,7 +1060,7 @@ class DeepParser extends AbstractParser {
     $exit_group = $this->exit_group_matches('{}');
     $span       = Span::join($path->get('span'), $exit_group);
 
-    foreach ($namespace->get_any_bindings() as $name => $binding) {
+    foreach ($namespace->all_public_and_private_term_bindings() as $name => $binding) {
       if (in_array($name, $names_used) === false) {
         throw Errors::missing_field_binding($span, $name);
       }
@@ -1032,7 +1078,7 @@ class DeepParser extends AbstractParser {
   private function name_pattern_pair(Scope $namespace): nodes\NamePatternPair {
     $name = $this->next_lower_name();
 
-    if ($binding = $namespace->get_name($name->value)) {
+    if ($binding = $namespace->get_public_or_private_term_binding($name->value)) {
       $name->set('symbol', $binding->symbol);
     } else {
       throw Errors::unknown_form_field($name->get('span'), $name->value);
@@ -1085,8 +1131,8 @@ class DeepParser extends AbstractParser {
   private function variable_pattern(): nodes\VariablePattern {
     $name    = $this->next_lower_name();
     $symbol  = $this->make_var_symbol($name);
-    $binding = new Binding($name->value, $symbol, false);
-    $this->current_block_scope()->add_binding($binding);
+    $binding = new TermBinding($name->value, $symbol, false);
+    $this->current_block_scope()->add_term_binding($binding);
     return (new nodes\VariablePattern($name))
       ->set('span', $name->get('span'));
   }
@@ -1157,8 +1203,8 @@ class DeepParser extends AbstractParser {
     $params    = $this->closure_params($enter_brace->span());
     foreach ($params->params as $name) {
       $symbol  = $this->make_var_symbol($name);
-      $binding = new Binding($name->value, $symbol, false);
-      $closure_scope->add_binding($binding);
+      $binding = new TermBinding($name->value, $symbol, false);
+      $closure_scope->add_term_binding($binding);
     }
 
     $this->push_block_scope(new NestedScope($closure_scope));
@@ -1240,7 +1286,7 @@ class DeepParser extends AbstractParser {
    */
   private function path_expr(): nodes\Expr {
     $path = $this->path();
-    $this->resolve_path($path);
+    $this->resolve_term_path($path);
     if ($path->tail instanceof nodes\UpperName) {
       return $this->constructor_expr($path);
     } else {
@@ -1303,8 +1349,8 @@ class DeepParser extends AbstractParser {
     $form_symbol = $path->tail->get('symbol');
     $form_space  = $this->get_namespace($form_symbol);
     foreach ($pairs as $pair) {
-      if ($form_space && $form_space->has_name($pair->name->value)) {
-        $pair_name_symbol = $form_space->get_name($pair->name->value)->symbol;
+      if ($form_space && $form_space->has_term_with_name($pair->name->value)) {
+        $pair_name_symbol = $form_space->get_public_or_private_term_binding($pair->name->value)->symbol;
         $pair->name->set('symbol', $pair_name_symbol);
       } else {
         throw Errors::unknown_constructor_field($pair->name->get('span'), $form_symbol, $pair->name);
@@ -1465,7 +1511,14 @@ class DeepParser extends AbstractParser {
   private function path(): nodes\PathNode {
     $is_extern = false;
     $span      = null;
+    $super     = [];
     $body      = [];
+
+    while ($this->ahead_is_keyword('super')) {
+      $super[] = $this->next_super_name();
+      $colons  = $this->next_punct('::');
+      $span    = isset($span) ? $span : end($super)->get('span');
+    }
 
     while ($this->ahead_is_upper_ident()) {
       $body[] = $this->next_upper_name();
@@ -1487,7 +1540,7 @@ class DeepParser extends AbstractParser {
     }
 
     $span = Span::join($span ?? $tail->get('span'), $tail->get('span'));
-    return (new nodes\PathNode($is_extern, $body, $tail))
+    return (new nodes\PathNode($is_extern, $super, $body, $tail))
       ->set('span', $span);
   }
 }

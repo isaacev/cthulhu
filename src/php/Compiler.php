@@ -42,7 +42,8 @@ class Compiler {
     Visitor::walk($root, [
       'enter(Module)' => function (ir\Module $mod) use ($ctx) {
         if ($mod->name) {
-          $ctx->namespaces->open($mod->name);
+          $mod_ref = $mod->name->symbol->get('php/ref');
+          $ctx->namespaces->open($mod_ref);
         } else {
           $ctx->namespaces->open_anonymous();
         }
@@ -56,8 +57,8 @@ class Compiler {
       },
 
       'Enum' => function (ir\Enum $enum) use ($ctx) {
-        $base_name = $ctx->names->name_to_ref_name($enum->name, $ctx->namespaces->current_ref());
-        $base_ref  = $ctx->names->name_to_ref($enum->name);
+        $base_name = $enum->name->get('php/name');
+        $base_ref  = $enum->name->symbol->get('php/ref');
         $base_stmt = new php\ClassStmt(true, $base_name, null, [], null);
         $ctx->statements->push_stmt($base_stmt);
 
@@ -101,7 +102,7 @@ class Compiler {
           $ctx->names->exit_func_scope();
           $form_body[] = new php\MagicMethodNode('__construct', $ctor_params, $ctor_body);
 
-          $form_name = $ctx->names->name_to_ref_name($form->name, $ctx->namespaces->current_ref());
+          $form_name = $form->name->get('php/name');
           $form_stmt = new php\ClassStmt(false, $form_name, $base_ref, $form_body, null);
           $ctx->statements->push_stmt($form_stmt);
         }

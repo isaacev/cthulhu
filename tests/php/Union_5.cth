@@ -6,23 +6,23 @@ type Result('a, 'b) =
 
 fn attempt(success: Bool, val: 'a) -> Result('a, Str) {
   if success {
-    Result::Left(val)
+    Left(val)
   } else {
-    Result::Right("unable to generate a true value")
+    Right("unable to generate a true value")
   }
 }
 
 #[entry]
 fn main() -> () {
   match attempt(true, true) {
-    Result::Left(true) => Io::println("was true"),
-    Result::Left(false) => Io::println("was false"),
-    Result::Right(msg) => Io::println(msg),
+    Left(true) => Io::println("was true"),
+    Left(false) => Io::println("was false"),
+    Right(msg) => Io::println(msg),
   };
 
   match attempt(true, false) {
-    Result::Left(true) => Io::println("was true"),
-    Result::Left(false) => Io::println("was false"),
-    Result::Right(msg) => Io::println(msg),
+    Left(true) => Io::println("was true"),
+    Left(false) => Io::println("was false"),
+    Right(msg) => Io::println(msg),
   };
 }

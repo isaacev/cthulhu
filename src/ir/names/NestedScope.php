@@ -6,14 +6,12 @@ class NestedScope extends Scope {
   public Scope $parent;
 
   public function __construct(Scope $parent) {
+    parent::__construct();
     $this->parent = $parent;
   }
 
-  public function get_name(string $name): ?Binding {
-    if ($this->has_name($name)) {
-      return $this->table[$name];
-    } else {
-      return $this->parent->get_name($name);
-    }
+  public function get_public_or_private_term_binding(string $name): ?TermBinding {
+    return parent::get_public_or_private_term_binding($name)
+      ?? $this->parent->get_public_or_private_term_binding($name);
   }
 }

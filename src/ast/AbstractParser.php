@@ -26,6 +26,7 @@ abstract class AbstractParser {
     'mod',
     'native',
     'pub',
+    'super',
     'true',
     'type',
     'use',
@@ -447,6 +448,20 @@ abstract class AbstractParser {
   }
 
   /**
+   * @return nodes\SuperName
+   * @throws Error
+   */
+  protected function next_super_name(): nodes\SuperName {
+    if ($this->ahead_is_keyword('super')) {
+      $token = $this->next_token();
+      return (new nodes\SuperName())
+        ->set('span', $token->span);
+    }
+    $span = ($peek = $this->peek_token()) ? $peek->span : $this->end_of_current_group();
+    throw Errors::expected_token($span, 'super keyword');
+  }
+
+  /**
    * @param string $keyword
    * @return IdentToken
    * @throws Error
@@ -520,7 +535,7 @@ abstract class AbstractParser {
   protected function note(): nodes\Note {
     if ($this->ahead_is_punct("'")) {
       $prefix = $this->param_note();
-    } else if ($this->ahead_is_ident()) {
+    } else if ($this->ahead_is_ident() || $this->ahead_is_keyword('super')) {
       $prefix = $this->named_note();
     } else if ($this->ahead_is_group('()')) {
       $prefix = $this->grouped_note();
@@ -634,15 +649,21 @@ abstract class AbstractParser {
    * @throws Error
    */
   protected function upper_path(): nodes\PathNode {
-    $body = [ $this->next_upper_name() ];
-    while ($this->ahead_is_punct('::')) {
-      $colons = $this->next_punct('::');
-      $body[] = $this->next_upper_name();
+    $super = [];
+    while ($this->ahead_is_keyword('super')) {
+      $super[] = $this->next_super_name();
+      $colons  = $this->next_punct('::');
     }
 
-    $span = Span::join(...array_map(fn(nodes\UpperName $name) => $name->get('span'), $body));
-    $tail = array_pop($body);
-    return (new PathNode(false, $body, $tail))
+    $head = [ $this->next_upper_name() ];
+    while ($this->ahead_is_punct('::')) {
+      $colons = $this->next_punct('::');
+      $head[] = $this->next_upper_name();
+    }
+
+    $span = Span::join(...array_map(fn(nodes\UpperName $name) => $name->get('span'), $head));
+    $tail = array_pop($head);
+    return (new PathNode(false, $super, $head, $tail))
       ->set('span', $span);
   }
 }

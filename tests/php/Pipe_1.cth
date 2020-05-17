@@ -2,14 +2,14 @@ use ::Io;
 
 fn or_else(fallback: 'a, m: Maybe('a)) -> 'a {
   match m {
-    Maybe::Some(a) => a,
-    Maybe::None    => fallback,
+    Some(a) => a,
+    None    => fallback,
   }
 }
 
 #[entry]
 fn main() -> () {
-  Maybe::Some("hello world")
+  Some("hello world")
     |> or_else("no message")
     |> Io::println;
 }
