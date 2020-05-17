@@ -24,6 +24,7 @@ class Ctor extends Expr {
     return (new Builder)
       ->paren_left()
       ->keyword('ctor')
+      ->space()
       ->then($this->name)
       ->space()
       ->then($this->args)
