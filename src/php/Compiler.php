@@ -276,6 +276,7 @@ class Compiler {
           $used[] = $closed_var;
         }
 
+        $ctx->statements->pop_yield_strategy();
         $body  = $ctx->statements->pop_block();
         $expr  = new php\FuncExpr($params, $used, $body);
         $scope = $ctx->names->exit_closure_scope();
