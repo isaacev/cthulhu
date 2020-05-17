@@ -880,6 +880,7 @@ class DeepParser extends AbstractParser {
       case $this->ahead_is_group('()'):
         return $this->paren_expr();
       case $this->ahead_is_ident():
+      case $this->ahead_is_keyword('super'):
         return $this->path_expr();
       case $this->ahead_is_literal():
         return $this->literal_expr();
