@@ -154,6 +154,25 @@ pub type Maybe('a) =
   | Some('a)
   | None;
 
+pub mod Maybe {
+  use super::Some;
+  use super::None;
+
+  pub fn map(f: 'a -> 'b, m: super::Maybe('a)) -> super::Maybe('b) {
+    match m {
+      Some(a) => Some(f(a)),
+      None    => None,
+    }
+  }
+
+  pub fn with_default(d: 'a, m: super::Maybe('a)) -> 'a {
+    match m {
+      Some(a) => a,
+      None    => d,
+    }
+  }
+}
+
 pub type Either('a, 'b) =
   | Left('a)
   | Right('b);
