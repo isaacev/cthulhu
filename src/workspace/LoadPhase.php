@@ -14,8 +14,8 @@ class LoadPhase {
   private array $options;
 
   /**
-   * @param string   $relative_filepath
-   * @param string[] $options
+   * @param string  $relative_filepath
+   * @param mixed[] $options
    */
   public function __construct(string $relative_filepath, array $options) {
     $this->relative_filepath = $relative_filepath;
