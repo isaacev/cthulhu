@@ -2,10 +2,10 @@
 
 namespace Prelude\Maybe {
   function with_default($d, $m) {
-    if ($m instanceof \_Prelude\Some) {
+    if ($m instanceof \Prelude\Some) {
       $_a = $m->{0};
       return $_a;
-    } else if ($m instanceof \_Prelude\None) {
+    } else if ($m instanceof \Prelude\None) {
       return $d;
     } else {
       die("match expression did not cover all possibilities\n");
@@ -13,14 +13,14 @@ namespace Prelude\Maybe {
   }
 }
 
-namespace _Prelude {
+namespace Prelude {
   abstract class Maybe {}
-  class Some extends \_Prelude\Maybe {
+  class Some extends \Prelude\Maybe {
     function __construct($a) {
       $this->{0} = $a;
     }
   }
-  class None extends \_Prelude\Maybe {
+  class None extends \Prelude\Maybe {
     function __construct() {
       // empty
     }
@@ -29,7 +29,7 @@ namespace _Prelude {
 
 namespace Maybe_3 {
   function main() {
-    print(\Prelude\Maybe\with_default("who knows?", new \_Prelude\Some("abc")) . "\n");
+    print(\Prelude\Maybe\with_default("who knows?", new \Prelude\Some("abc")) . "\n");
     return null;
   }
 }

@@ -134,7 +134,7 @@ class Names {
       return $php_ref;
     }
 
-    $php_values  = [ $this->rename_ir_name($tail->symbol) ];
+    $php_values  = [ $tail->symbol->get('php/string') ?? $this->rename_ir_name($tail->symbol) ];
     $curr_symbol = $tail->symbol;
     while ($curr_symbol = $curr_symbol->parent) {
       assert($curr_symbol instanceof RefSymbol);
