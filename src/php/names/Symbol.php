@@ -2,10 +2,9 @@
 
 namespace Cthulhu\php\names;
 
-use Cthulhu\ir;
 use Cthulhu\lib\trees\DefaultUniqueId;
 
-class Symbol implements ir\HasId {
+class Symbol {
   use DefaultUniqueId;
 
   public function equals(Symbol $other): bool {
