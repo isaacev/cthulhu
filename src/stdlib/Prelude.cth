@@ -154,6 +154,18 @@ pub type Maybe('a) =
   | Some('a)
   | None;
 
+pub type Either('a, 'b) =
+  | Left('a)
+  | Right('b);
+
+pub type Result('a, 'b) =
+  | Ok('a)
+  | Err('b);
+
+--
+-- Utility functions for common composite types
+--
+
 pub mod Maybe {
   use super::Some;
   use super::None;
@@ -171,12 +183,56 @@ pub mod Maybe {
       None    => d,
     }
   }
+
+  pub fn or_ok(err: 'b, m: super::Maybe('a)) -> super::Result('a, 'b) {
+    match m {
+      Some(a) => super::Ok(a),
+      None    => super::Err(err),
+    }
+  }
 }
 
-pub type Either('a, 'b) =
-  | Left('a)
-  | Right('b);
+pub mod Either {
+  use super::Left;
+  use super::Right;
 
-pub type Result('a, 'b) =
-  | Ok('a)
-  | Err('b);
+  pub fn map_left(f: 'a -> 'c, e: super::Either('a, 'b)) -> super::Either('c, 'b) {
+    match e {
+      Left(a)  => Left(f(a)),
+      Right(b) => Right(b),
+    }
+  }
+
+  pub fn map_right(f: 'b -> 'c, e: super::Either('a, 'b)) -> super::Either('a, 'c) {
+    match e {
+      Left(a)  => Left(a),
+      Right(b) => Right(f(b)),
+    }
+  }
+
+  pub fn left(e: super::Either('a, 'b)) -> super::Maybe('a) {
+    match e {
+      Left(a)  => super::Some(a),
+      Right(_) => super::None,
+    }
+  }
+
+  pub fn right(e: super::Either('a, 'b)) -> super::Maybe('b) {
+    match e {
+      Left(_)  => super::None,
+      Right(b) => super::Some(b),
+    }
+  }
+}
+
+pub mod Result {
+  use super::Ok;
+  use super::Err;
+
+  pub fn flatten(r: super::Result('a, 'a)) -> 'a {
+    match r {
+      Ok(a)  => a,
+      Err(a) => a,
+    }
+  }
+}

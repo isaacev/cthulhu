@@ -1,0 +1,11 @@
+use ::Io;
+
+#[entry]
+fn main() -> () {
+  let x = Result::flatten;
+  let b = Some("hello world")
+    |> Maybe::map({ | a | ("(" ++ a ++ ")") })
+    |> Maybe::or_ok("<ERROR>")
+    |> Result::flatten;
+  Io::println(b)
+}
