@@ -18,6 +18,14 @@ class Error extends Exception {
     );
   }
 
+  public function maybe_snippet(?Spanlike $spanlike, ?string $message = null, array $options = []): self {
+    if ($spanlike) {
+      return $this->snippet($spanlike, $message, $options);
+    } else {
+      return $this;
+    }
+  }
+
   public function snippet(Spanlike $spanlike, ?string $message = null, array $options = []): self {
     $file = $spanlike->from()->file;
     $this->report->append(new Snippet($file, $spanlike, $message, $options));
@@ -26,6 +34,11 @@ class Error extends Exception {
 
   public function paragraph(string ...$sentences): self {
     $this->report->append(new Paragraph($sentences));
+    return $this;
+  }
+
+  public function order(array $things): self {
+    $this->report->append(new Order($things));
     return $this;
   }
 

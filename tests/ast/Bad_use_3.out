@@ -1,0 +1,18 @@
+
+  UNKNOWN LIBRARY  -----------------------------------------------------------
+
+    : Bad_use_3
+  1 | use ::Foobar;
+    |       ^^^^^^
+
+  The program referenced a library that could not be found in the following
+  places:
+
+    /Users/isaac/code/php/cthulhu/src/stdlib
+
+  These were the libraries that look the most similar:
+
+    Fmt
+    Io
+    Kernel
+

@@ -15,10 +15,18 @@ class Errors {
       ->paragraph($filepath);
   }
 
-  public static function unknown_library(string $name): Error {
+  /**
+   * @param nodes\UpperName $name
+   * @param string[]        $path
+   * @param string[]        $fixes
+   * @return Error
+   */
+  public static function unknown_library(nodes\UpperName $name, array $path, array $fixes): Error {
     return (new Error('unknown library'))
-      ->paragraph("Library not found in the standard library or in a nearby directory:")
-      ->example("use ::$name;");
+      ->maybe_snippet($name->get('span'))
+      ->paragraph("The program referenced a library that could not be found in the following places:")
+      ->order($path)
+      ->similar("These were the libraries that look the most similar:", $name, $fixes);
   }
 
   public static function unclosed_string(Spanlike $spanlike): Error {

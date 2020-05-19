@@ -1,0 +1,6 @@
+use ::Foobar;
+
+#[entry]
+fn main() -> () {
+  -- do nothing
+}
