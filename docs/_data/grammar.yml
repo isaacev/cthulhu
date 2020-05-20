@@ -31,9 +31,12 @@ rules:
           - nonterminal: alphanumeric
 
   path_head:
-    - - option:
-          - literal: "::"
+    - - literal: "::"
+      - plus:
           - nonterminal: upper_ident
+          - literal: "::"
+    - - star:
+          - literal: "super"
           - literal: "::"
       - star:
           - nonterminal: upper_ident
