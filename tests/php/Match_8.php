@@ -19,6 +19,7 @@ namespace Match_8 {
     print($x . "\n");
     return null;
   }
+
   function main() {
     \Match_8\test([]);
     \Match_8\test([ "a" ]);

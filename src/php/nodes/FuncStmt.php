@@ -46,6 +46,7 @@ class FuncStmt extends Stmt {
       ->then($this->head)
       ->space()
       ->then($this->body)
+      ->maybe($this->next instanceof self, (new Builder)->newline())
       ->then($this->next ?? (new Builder));
   }
 }

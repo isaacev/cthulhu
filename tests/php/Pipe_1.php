@@ -25,6 +25,7 @@ namespace Pipe_1 {
       die("match expression did not cover all possibilities\n");
     }
   }
+
   function main() {
     print(\Pipe_1\or_else("no message", new \Prelude\Some("hello world")) . "\n");
     return null;

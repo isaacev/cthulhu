@@ -11,6 +11,7 @@ namespace Prelude\Maybe {
       die("match expression did not cover all possibilities\n");
     }
   }
+
   function or_ok($err, $m) {
     if ($m instanceof \Prelude\Some) {
       $_a = $m->{0};

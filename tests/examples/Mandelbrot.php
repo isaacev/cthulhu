@@ -17,14 +17,17 @@ namespace Mandelbrot {
       }
     }
   }
+
   function real($i, $w, $h) {
     $scalar = 3.0;
     return $scalar * $i / ($w - 1.0) - $scalar / 2.0;
   }
+
   function imaginary($j, $w, $h) {
     $scalar = 3.0;
     return $scalar * $j / ($h - 1.0) - $scalar / 2.0;
   }
+
   function in_set($a, $b, $c, $d, $e) {
     while (true) {
       $n = $a;
@@ -50,6 +53,7 @@ namespace Mandelbrot {
       }
     }
   }
+
   function main() {
     $h = 59.0;
     $w = 120.0;

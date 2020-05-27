@@ -31,6 +31,7 @@ namespace Pipe_2 {
       die("match expression did not cover all possibilities\n");
     }
   }
+
   function or_else($fallback, $x) {
     if ($x instanceof \Prelude\Some) {
       $_a = $x->{0};
@@ -41,6 +42,7 @@ namespace Pipe_2 {
       die("match expression did not cover all possibilities\n");
     }
   }
+
   function main() {
     print(\Pipe_2\or_else("nothing", \Pipe_2\map('\Fmt\_int', new \Prelude\Some(123))) . "\n");
     return null;

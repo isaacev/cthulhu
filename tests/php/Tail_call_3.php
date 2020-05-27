@@ -18,6 +18,7 @@ namespace Tail_call_3 {
       }
     }
   }
+
   function main() {
     print((string)\Tail_call_3\sum(0, [
       1,

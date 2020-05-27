@@ -15,6 +15,7 @@ namespace Match_6 {
     print($x . "\n");
     return null;
   }
+
   function main() {
     \Match_6\test([]);
     \Match_6\test([ 1 ]);

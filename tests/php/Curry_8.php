@@ -5,10 +5,12 @@ namespace Curry_8 {
     print("enter inner\n");
     return $d * $e + $f;
   }
+
   function foo($a) {
     print("enter foo\n");
     return fn ($b, $c) => \Curry_8\inner($a, $b, $c);
   }
+
   function main() {
     $a = \Curry_8\foo(1);
     fn ($b) => $a(2, $b);

@@ -14,6 +14,7 @@ namespace Tail_call_1 {
       }
     }
   }
+
   function main() {
     \Tail_call_1\to_zero(100);
     return null;
