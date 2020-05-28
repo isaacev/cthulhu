@@ -58,5 +58,5 @@ These capitalization rules are enforced by the language.
 - [x] Pattern matching
 - [x] Recursion
 - [x] Tail call optimization
-- [ ] Closures
+- [x] Closures
 - [ ] Mutation semantics
