@@ -43,8 +43,18 @@ abstract class AbstractParser {
     $this->offset_stack = [ 0 ];
   }
 
-  protected function end_of_current_group(): Span {
+  private function end_of_current_group(): Span {
     return end($this->group_stack)->right;
+  }
+
+  protected function peek_span(): Span {
+    if ($token = $this->peek_token()) {
+      return $token->span;
+    } else if ($group = $this->peek_group()) {
+      return $group->from()->span();
+    } else {
+      return $this->end_of_current_group();
+    }
   }
 
   /**
@@ -197,8 +207,7 @@ abstract class AbstractParser {
     $chars  = str_split($pattern);
     $tokens = $this->peek_tokens(strlen($pattern));
     if ($tokens === null) {
-      $spanlike = $this->peek_group() ?? $this->end_of_current_group();
-      throw Errors::expected_token($spanlike, $pattern);
+      throw Errors::expected_token($this->peek_span(), $pattern);
     }
 
     assert(count($tokens) === count($chars));
@@ -284,8 +293,7 @@ abstract class AbstractParser {
     assert(in_array($delim, [ '{}', '[]', '()' ]));
     $maybe_group = $this->next_group();
     if ($maybe_group === null) {
-      $spanlike = $this->peek_token() ?? $this->end_of_current_group();
-      throw Errors::expected_token($spanlike, "expected $delim[0]");
+      throw Errors::expected_token($this->peek_span(), "expected $delim[0]");
     } else if ($maybe_group->delim !== $delim) {
       throw Errors::expected_token($maybe_group->left, "expected $delim[0]");
     } else {
@@ -410,7 +418,7 @@ abstract class AbstractParser {
         throw Errors::expected_token($token, 'literal');
       }
     } else {
-      throw Errors::expected_token($this->end_of_current_group(), 'literal');
+      throw Errors::expected_token($this->peek_span(), 'literal');
     }
   }
 
@@ -429,8 +437,7 @@ abstract class AbstractParser {
       throw Errors::used_reserved_ident($this->peek_token());
     }
 
-    $span = ($peek = $this->peek_token()) ? $peek->span : $this->end_of_current_group();
-    throw Errors::expected_token($span, 'lowercase identifier');
+    throw Errors::expected_token($this->peek_span(), 'lowercase identifier');
   }
 
   /**
@@ -443,8 +450,8 @@ abstract class AbstractParser {
       return (new nodes\UpperName($token->lexeme))
         ->set('span', $token->span);
     }
-    $span = ($peek = $this->peek_token()) ? $peek->span : $this->end_of_current_group();
-    throw Errors::expected_token($span, 'uppercase identifier');
+
+    throw Errors::expected_token($this->peek_span(), 'uppercase identifier');
   }
 
   /**
@@ -457,8 +464,8 @@ abstract class AbstractParser {
       return (new nodes\SuperName())
         ->set('span', $token->span);
     }
-    $span = ($peek = $this->peek_token()) ? $peek->span : $this->end_of_current_group();
-    throw Errors::expected_token($span, 'super keyword');
+
+    throw Errors::expected_token($this->peek_span(), 'super keyword');
   }
 
   /**
@@ -473,9 +480,9 @@ abstract class AbstractParser {
       } else {
         throw Errors::expected_token($token, "keyword '$keyword'");
       }
-    } else {
-      throw Errors::expected_token($this->end_of_current_group(), "keyword '$keyword'");
     }
+
+    throw Errors::expected_token($this->peek_span(), "keyword '$keyword'");
   }
 
   /**
@@ -542,8 +549,7 @@ abstract class AbstractParser {
     } else if ($this->ahead_is_group('[]')) {
       $prefix = $this->list_note();
     } else {
-      $span = $this->peek_token() ?? $this->peek_group() ?? $this->end_of_current_group();
-      throw Errors::expected_note($span->from()->span());
+      throw Errors::expected_note($this->peek_span());
     }
 
     while ($this->ahead_is_punct('->')) {

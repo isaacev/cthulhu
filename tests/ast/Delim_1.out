@@ -1,0 +1,7 @@
+
+  EXPECTED TOKEN  ------------------------------------------------------------
+
+    : Delim_1
+  3 | pub type {
+    |          ^ expected uppercase identifier here
+

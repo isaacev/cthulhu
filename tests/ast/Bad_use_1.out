@@ -3,5 +3,5 @@
 
     : Bad_use_1
   1 | use ::Foo::Bar('a);
-    |               ^^^^ expected ; here
+    |               ^ expected ; here
 

@@ -888,8 +888,7 @@ class DeepParser extends AbstractParser {
         if ($oper = $this->peek_prefix_operator()) {
           return $this->unary_prefix_expr();
         } else {
-          $span = $this->peek_token() ?? $this->end_of_current_group();
-          throw Errors::expected_expression($span);
+          throw Errors::expected_expression($this->peek_span());
         }
     }
   }

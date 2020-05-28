@@ -1,0 +1,10 @@
+use ::Io;
+
+pub type {
+  alias Token =
+    { kind: Token::Kind
+    , lexeme: Str
+    }
+}
+
+blah blah blah
