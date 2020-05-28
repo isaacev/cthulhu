@@ -14,10 +14,7 @@ class StreamFormatter extends Formatter {
    * @throws Exception
    */
   public function __construct($resource, ?bool $use_color = null) {
-    if (is_resource($resource) === false) {
-      throw new Exception('StreamFormatter requires a resource object');
-    }
-
+    assert(is_resource($resource));
     $this->resource  = $resource;
     $this->use_color = $use_color === null
       ? stream_isatty($resource)
