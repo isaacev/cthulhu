@@ -31,21 +31,24 @@ class Trie {
   /**
    * @param mixed $value
    */
-  public function write($value): void {
+  protected function insert($value): void {
     $this->value = $value;
   }
 
   /**
-   * @param string $full
+   * If a key exists in the trie, update its value.
+   * If no such key exists, insert the value with the key.
+   *
+   * @param string $key
    * @param mixed  $value
    */
-  public function write_or_create(string $full, $value): void {
-    if (strlen($full) === 0) {
-      $this->write($value);
+  public function upsert(string $key, $value): void {
+    if (strlen($key) === 0) {
+      $this->insert($value);
     } else {
-      $head = $full[0];
-      $tail = substr($full, 1);
-      $this->next_or_create($head)->write_or_create($tail, $value);
+      $head = $key[0];
+      $tail = substr($key, 1);
+      $this->next_or_create($head)->upsert($tail, $value);
     }
   }
 }

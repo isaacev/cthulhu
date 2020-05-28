@@ -36,6 +36,7 @@
       <w>syms</w>
       <w>typelike</w>
       <w>unstash</w>
+      <w>upsert</w>
     </words>
   </dictionary>
 </component>

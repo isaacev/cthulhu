@@ -685,10 +685,10 @@ class DeepParser extends AbstractParser {
       if ($binding instanceof OperatorBinding) {
         switch ($binding->operator->min_arity) {
           case 2:
-            $infix_trie->write_or_create($binding->name, $binding->operator);
+            $infix_trie->upsert($binding->name, $binding->operator);
             break;
           case 1:
-            $prefix_trie->write_or_create($binding->name, $binding->operator);
+            $prefix_trie->upsert($binding->name, $binding->operator);
             break;
         }
       }
