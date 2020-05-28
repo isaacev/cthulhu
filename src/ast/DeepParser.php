@@ -648,37 +648,12 @@ class DeepParser extends AbstractParser {
     }
   }
 
-  private function push_precedence_tries(): void {
-    $mod_scope   = $this->current_module_scope();
-    $infix_trie  = new Trie();
-    $prefix_trie = new Trie();
-    foreach ($mod_scope->all_public_and_private_term_bindings() as $binding) {
-      if ($binding instanceof OperatorBinding) {
-        switch ($binding->operator->min_arity) {
-          case 2:
-            $infix_trie->write_or_create($binding->name, $binding->operator);
-            break;
-          case 1:
-            $prefix_trie->write_or_create($binding->name, $binding->operator);
-            break;
-        }
-      }
-    }
-    array_push($this->infix_precedence, $infix_trie);
-    array_push($this->prefix_precedence, $prefix_trie);
-  }
-
   private function current_infix_precedence_trie(): Trie {
     return end($this->infix_precedence);
   }
 
   private function current_prefix_precedence_trie(): Trie {
     return end($this->prefix_precedence);
-  }
-
-  private function pop_precedence_tries(): void {
-    array_pop($this->infix_precedence);
-    array_pop($this->prefix_precedence);
   }
 
   /**
@@ -700,12 +675,41 @@ class DeepParser extends AbstractParser {
    * @throws Error
    */
   private function fn_body(nodes\ShallowBlock $block): nodes\BlockNode {
-    $this->begin_parsing($block->group);
-    $this->push_precedence_tries();
+    // Create tries to store what operators are available inside the function
+    // body. The tries map operator symbol -> precedence value and are found
+    // based on what operators have been imported into the current module scope.
+    $mod_scope   = $this->current_module_scope();
+    $infix_trie  = new Trie();
+    $prefix_trie = new Trie();
+    foreach ($mod_scope->all_public_and_private_term_bindings() as $binding) {
+      if ($binding instanceof OperatorBinding) {
+        switch ($binding->operator->min_arity) {
+          case 2:
+            $infix_trie->write_or_create($binding->name, $binding->operator);
+            break;
+          case 1:
+            $prefix_trie->write_or_create($binding->name, $binding->operator);
+            break;
+        }
+      }
+    }
+
+    // Push the precedence tries onto the precedence stacks.
+    array_push($this->infix_precedence, $infix_trie);
+    array_push($this->prefix_precedence, $prefix_trie);
+
+    // Create a scope to track and names in the function body.
     $this->push_block_scope(new NestedScope($this->current_func_scope()));
+
+    // Parse the tokens in the function body into a list of statements.
+    $this->begin_parsing($block->group);
     $stmts = $this->stmts();
+
+    // Teardown the function body state including the
+    // function body scope and precedence tries.
     $this->pop_block_scope();
-    $this->pop_precedence_tries();
+    array_pop($this->infix_precedence);
+    array_pop($this->prefix_precedence);
 
     return (new nodes\BlockNode($stmts))
       ->set('span', $block->get('span'));
