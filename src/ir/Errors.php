@@ -2,8 +2,10 @@
 
 namespace Cthulhu\ir;
 
+use Cthulhu\ast\nodes\FormPattern;
 use Cthulhu\ast\nodes\Operator;
 use Cthulhu\err\Error;
+use Cthulhu\ir\types\Atomic;
 use Cthulhu\ir\types\Type;
 use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\loc\Spanlike;
@@ -169,6 +171,13 @@ class Errors {
       ->paragraph("But the pattern only matches values with the type:")
       ->example("$pattern_type")
       ->snippet($spanlike);
+  }
+
+  public static function wrong_fields_for_form(Spanlike $spanlike, FormPattern $found, Type $expected): Error {
+    return (new Error('pattern incompatible with type'))
+      ->snippet($spanlike)
+      ->paragraph("The branch needs a pattern that matches:")
+      ->example($found->path->tail . (Atomic::is_unit($expected) ? "" : "$expected"));
   }
 
   public static function wrong_arm_type(Spanlike $spanlike, Type $prior_type, Type $wrong_type): Error {

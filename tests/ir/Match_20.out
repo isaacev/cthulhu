@@ -1,0 +1,9 @@
+
+  UNKNOWN FORM FIELD  --------------------------------------------------------
+
+  The form doesn't have a field named `foo`:
+
+     : Match_20
+  12 |     Unit { foo: _ }    => Io::println("is unit"),
+     |            ^^^
+

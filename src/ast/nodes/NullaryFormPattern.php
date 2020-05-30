@@ -7,7 +7,7 @@ class NullaryFormPattern extends FormPattern {
     return [];
   }
 
-  public function __toString(): string {
-    return $this->path->tail->get('symbol')->__toString();
+  public function fields_to_string(): string {
+    return '';
   }
 }

@@ -1075,14 +1075,14 @@ class DeepParser extends AbstractParser {
   }
 
   /**
-   * @param Scope $namespace
+   * @param Scope|null $namespace
    * @return nodes\NamePatternPair
    * @throws Error
    */
-  private function name_pattern_pair(Scope $namespace): nodes\NamePatternPair {
+  private function name_pattern_pair(?Scope $namespace): nodes\NamePatternPair {
     $name = $this->next_lower_name();
 
-    if ($binding = $namespace->get_public_or_private_term_binding($name->value)) {
+    if ($namespace && $binding = $namespace->get_public_or_private_term_binding($name->value)) {
       $name->set('symbol', $binding->symbol);
     } else {
       throw Errors::unknown_form_field($name->get('span'), $name->value);

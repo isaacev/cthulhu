@@ -1,0 +1,11 @@
+
+  PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
+
+     : Match_19
+  14 |     Square(_) => Io::println("is square"),
+     |     ^^^^^^^^^
+
+  The branch needs a pattern that matches:
+
+    Square{ size: Float }
+

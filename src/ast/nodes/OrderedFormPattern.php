@@ -18,8 +18,7 @@ class OrderedFormPattern extends FormPattern {
     return array_merge([ $this->path ], $this->order);
   }
 
-  public function __toString(): string {
-    $path = $this->path->tail->get('symbol')->__toString();
-    return "$path(" . implode(", ", $this->order) . ")";
+  public function fields_to_string(): string {
+    return "(" . implode(", ", $this->order) . ")";
   }
 }

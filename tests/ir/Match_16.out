@@ -1,0 +1,11 @@
+
+  PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
+
+     : Match_16
+  13 |     Circle             => Io::println("is circle"),
+     |     ^^^^^^
+
+  The branch needs a pattern that matches:
+
+    Circle(Float)
+

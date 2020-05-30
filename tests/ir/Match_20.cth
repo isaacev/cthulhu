@@ -1,0 +1,16 @@
+use ::Io;
+
+type Shapes =
+  | Unit
+  | Circle(Float)
+  | Square { size: Float };
+
+#[entry]
+fn main() -> () {
+  let shape = Unit;
+  match shape {
+    Unit { foo: _ }    => Io::println("is unit"),
+    Circle(_)          => Io::println("is circle"),
+    Square { size: _ } => Io::println("is square"),
+  };
+}

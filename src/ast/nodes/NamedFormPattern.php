@@ -18,8 +18,7 @@ class NamedFormPattern extends FormPattern {
     return array_merge([ $this->path ], $this->pairs);
   }
 
-  public function __toString(): string {
-    $path = $this->path->tail->get('symbol')->__toString();
-    return "$path(" . implode(", ", $this->pairs) . ")";
+  public function fields_to_string(): string {
+    return "(" . implode(", ", $this->pairs) . ")";
   }
 }

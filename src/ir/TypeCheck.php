@@ -664,7 +664,7 @@ class TypeCheck {
   /**
    * @param ast\Pattern $pat
    * @return types\Type
-   * @throws types\UnificationFailure
+   * @throws types\UnificationFailure|Error
    */
   private static function pattern_to_type(ast\Pattern $pat): types\Type {
     if ($pat instanceof ast\ConstPattern) {
@@ -718,6 +718,10 @@ class TypeCheck {
       $form_type = $enum_type->forms[$form_name];
 
       if ($pat instanceof ast\NamedFormPattern) {
+        if (!($form_type instanceof types\Record)) {
+          throw Errors::wrong_fields_for_form($pat->get('span'), $pat, $form_type);
+        }
+
         assert($form_type instanceof types\Record);
         foreach ($form_type->fields as $field_name => $field_type) {
           $field_pattern = $pat->pairs[$field_name]->pattern;
@@ -725,11 +729,19 @@ class TypeCheck {
           self::unify($field_type, $member_type);
         }
       } else if ($pat instanceof ast\OrderedFormPattern) {
+        if (!($form_type instanceof types\Tuple)) {
+          throw Errors::wrong_fields_for_form($pat->get('span'), $pat, $form_type);
+        }
+
         assert($form_type instanceof types\Tuple);
         foreach ($form_type->members as $index => $member_type) {
           $member_pattern = $pat->order[$index];
           $pattern_type   = self::pattern_to_type($member_pattern);
           self::unify($member_type, $pattern_type);
+        }
+      } else if ($pat instanceof ast\NullaryFormPattern) {
+        if (!types\Atomic::is_unit($form_type)) {
+          throw Errors::wrong_fields_for_form($pat->get('span'), $pat, $form_type);
         }
       }
 
