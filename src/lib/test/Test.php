@@ -9,23 +9,26 @@ use Cthulhu\workspace\LoadPhase;
 use Exception;
 
 class Test {
-  public string $dir;
   public string $group;
-  public string $name;
-  public string $input;
+  public File $input;
   public TestOutput $expected;
 
-  public function __construct(string $dir, string $group, string $name, string $input, TestOutput $expected) {
-    $this->dir      = $dir;
+  public function __construct(string $group, File $input, TestOutput $expected) {
     $this->group    = $group;
-    $this->name     = $name;
     $this->input    = $input;
     $this->expected = $expected;
   }
 
+  public function name(): string {
+    return $this->input->basename();
+  }
+
+  public function group_and_name(): string {
+    return $this->group . '/' . $this->name();
+  }
+
   public function name_matches(string $filter): bool {
-    $full_path = "$this->group/$this->name";
-    return strpos($full_path, $filter) === 0;
+    return strpos($this->group_and_name(), $filter) === 0;
   }
 
   public function run(bool $do_php_eval): TestResult {
@@ -42,8 +45,10 @@ class Test {
   }
 
   public function bless(TestOutput $blessed_output): void {
-    $this->bless_extension("$this->dir/$this->name.php", $blessed_output->php);
-    $this->bless_extension("$this->dir/$this->name.out", $blessed_output->out);
+    $dir  = $this->input->filepath->directory;
+    $base = $this->input->basename();
+    $this->bless_extension("$dir/$base.php", $blessed_output->php);
+    $this->bless_extension("$dir/$base.out", $blessed_output->out);
   }
 
   protected function bless_extension(string $filepath, string $contents): void {
@@ -64,8 +69,7 @@ class Test {
 
   protected function eval(bool $do_php_eval): TestOutput {
     try {
-      $file = new File($this->name, $this->input);
-      $tree = LoadPhase::from_memory($file)
+      $tree = LoadPhase::from_file($this->input)
         ->check()
         ->optimize()
         ->codegen()

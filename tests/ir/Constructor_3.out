@@ -9,7 +9,7 @@
 
     x
 
-    : Constructor_3
+    : /Users/isaac/code/php/cthulhu/tests/ir/Constructor_3.cth
   6 |   Bar { x: 123 };
     |         ^
 

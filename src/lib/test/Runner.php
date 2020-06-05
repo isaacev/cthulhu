@@ -2,6 +2,10 @@
 
 namespace Cthulhu\lib\test;
 
+use Cthulhu\loc\Directory;
+use Cthulhu\loc\File;
+use Cthulhu\loc\Filepath;
+
 class Runner {
   public const DEFAULT_DIR           = './tests';
   public const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'out' ];
@@ -83,7 +87,9 @@ class Runner {
         }
 
         $expected = new TestOutput($php, $out);
-        $tests[]  = new Test($test_dir, $test_group, $test_name, $cth, $expected);
+        $filepath = new Filepath(new Directory($test_dir, false), $test_name, 'cth');
+        $file     = new File($filepath, $cth);
+        $tests[]  = new Test($test_group, $file, $expected);
       }
     }
     return $tests;

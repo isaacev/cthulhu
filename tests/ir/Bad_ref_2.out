@@ -3,7 +3,7 @@
 
   The `Io` module does not have a field called `doesNotExist`:
 
-    : Bad_ref_2
+    : /Users/isaac/code/php/cthulhu/tests/ir/Bad_ref_2.cth
   4 |   Io::doesNotExist();
     |       ^^^^^^^^^^^^
 

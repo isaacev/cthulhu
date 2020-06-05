@@ -6,7 +6,7 @@
 
     Str
 
-    : If_branches_1
+    : /Users/isaac/code/php/cthulhu/tests/ir/If_branches_1.cth
   5 |     "is a string"
     |     ^^^^^^^^^^^^^
 
@@ -14,7 +14,7 @@
 
     Int
 
-    : If_branches_1
+    : /Users/isaac/code/php/cthulhu/tests/ir/If_branches_1.cth
   7 |     123
     |     ^^^
 

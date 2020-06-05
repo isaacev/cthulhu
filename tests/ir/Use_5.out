@@ -3,7 +3,7 @@
 
   The `Bar` module does not have a field called `hello`:
 
-     : Use_5
+     : /Users/isaac/code/php/cthulhu/tests/ir/Use_5.cth
   17 |   Bar::hello();
      |        ^^^^^
 

@@ -8,23 +8,10 @@ use Cthulhu\lib\trees\Visitor;
 use Cthulhu\loc;
 
 class Loader {
-  private array $options = [];
-  private array $path = [];
+  private loc\Directory $stdlib;
 
-  public function __construct(array $options = []) {
-    $this->options = $options;
-    $this->path    = @$options['path'] ?? []; // TODO: The path should be determined per-source file.
-  }
-
-  /**
-   * @param string $name
-   * @return nodes\ShallowProgram
-   * @throws Error
-   */
-  public function from_string(string $name): nodes\ShallowProgram {
-    $name = new nodes\UpperName($name);
-    $file = $this->parse(null, $name);
-    return $this->load_from_first($file);
+  public function __construct(loc\Directory $stdlib) {
+    $this->stdlib = $stdlib;
   }
 
   /**
@@ -154,29 +141,26 @@ class Loader {
   /**
    * @param loc\File|null   $self
    * @param nodes\UpperName $name
-   * @param string[]        $alternates
-   * @return false|string
+   * @param array           $directories
+   * @param loc\Filepath[]  $alternates
+   * @return false|loc\Filepath
    */
-  private function resolve_name(?loc\File $self, nodes\UpperName $name, array &$alternates) {
-    $looking_for = "$name->value.cth";
+  private function resolve_name(?loc\File $self, nodes\UpperName $name, array &$directories, array &$alternates) {
+    if ($self) {
+      $directories[] = $self->filepath->directory;
+    }
+    $directories[] = $this->stdlib;
 
-    foreach ($this->path as $dir) {
-      $filenames = scandir($dir);
-      foreach ($filenames as $filename) {
-        if ($filename === '.' || $filename === '..') {
-          continue;
-        }
-
-        if ($filename === $looking_for) {
-          return realpath("$dir/$filename");
-        } else if ($self === null || $self->filepath !== "$dir/$filename") {
-          $path_info = pathinfo("$dir/$filename");
-          if ($path_info["extension"] === "cth") {
-            $alternates[] = $path_info["filename"];
-          }
+    foreach ($directories as $directory) {
+      foreach ($directory->scan() as $filepath) {
+        if ($filepath->matches($name->value)) {
+          return $filepath;
+        } else if ($filepath->matches_extension()) {
+          $alternates[] = $filepath->filename;
         }
       }
     }
+
     return false;
   }
 
@@ -187,19 +171,14 @@ class Loader {
    * @throws Error
    */
   private function parse(?loc\File $self, nodes\UpperName $name): nodes\ShallowFile {
-    $alternates    = [];
-    $absolute_path = self::resolve_name($self, $name, $alternates);
-    if ($absolute_path === false) {
-      throw Errors::unknown_library($name, $this->path, $alternates);
+    $alternates  = [];
+    $directories = [];
+    $filepath    = self::resolve_name($self, $name, $directories, $alternates);
+    if ($filepath === false) {
+      throw Errors::unknown_library($name, $directories, $alternates);
     }
 
-    $contents = @file_get_contents($absolute_path);
-    if ($contents === false) {
-      throw Errors::unable_to_read_file($absolute_path);
-    }
-
-    $file = new loc\File($absolute_path, $contents);
-    return $this->parse_file($file);
+    return $this->parse_file($filepath->to_file());
   }
 
   /**

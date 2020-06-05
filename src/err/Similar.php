@@ -39,9 +39,9 @@ class Similar implements Reportable {
   }
 
   /**
-   * @param string $incorrect
-   * @param array  $fixes
-   * @param int    $take
+   * @param string   $incorrect
+   * @param string[] $fixes
+   * @param int      $take
    * @return string[]
    */
   public static function find_candidates(string $incorrect, array $fixes, int $take = 3): array {

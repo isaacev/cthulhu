@@ -27,7 +27,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     }
 
     $stats['total']++;
-    $f->printf('%s/%s', $test->group, $test->name)
+    $f->print($test->group_and_name())
       ->space()
       ->apply_styles(fmt\Foreground::WHITE)
       ->tab('.')
@@ -65,7 +65,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
 
   foreach ($failed_results as $index => $result) {
     $f->newline()
-      ->printf('%d) %s', $index + 1, $result->test->name)
+      ->printf('%d) %s', $index + 1, $result->test->group_and_name())
       ->newline();
 
     mismatch_diff($f, 'PHP',

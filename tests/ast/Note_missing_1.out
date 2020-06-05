@@ -1,7 +1,7 @@
 
   EXPECTED TYPE ANNOTATION  --------------------------------------------------
 
-    : Note_missing_1
+    : /Users/isaac/code/php/cthulhu/tests/ast/Note_missing_1.cth
   1 | fn x() -> {
     |           ^
 

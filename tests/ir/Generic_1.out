@@ -3,13 +3,13 @@
 
   The function is defined as returning the type `'a`:
 
-    : Generic_1
+    : /Users/isaac/code/php/cthulhu/tests/ir/Generic_1.cth
   1 | fn id(a: 'a) -> 'a {
     |                 ^^
 
   But the function body returns the type `Int` instead:
 
-    : Generic_1
+    : /Users/isaac/code/php/cthulhu/tests/ir/Generic_1.cth
   2 |   123
     |   ^^^
 

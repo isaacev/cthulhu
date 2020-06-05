@@ -1,7 +1,7 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-    : Bad_float_1
+    : /Users/isaac/code/php/cthulhu/tests/ast/Bad_float_1.cth
   3 |   .123;
     |   ^
 

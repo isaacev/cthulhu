@@ -3,7 +3,7 @@
 
   The form doesn't have a field named `radius`:
 
-     : Match_21
+     : /Users/isaac/code/php/cthulhu/tests/ir/Match_21.cth
   13 |     Circle { radius: _ } => Io::println("is circle"),
      |              ^^^^^^
 

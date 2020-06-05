@@ -3,7 +3,7 @@
 
   The match expression does not handle all possible patterns.
 
-    : Match_1
+    : /Users/isaac/code/php/cthulhu/tests/ir/Match_1.cth
   4 |   let m = match x {
     |           ^^^^^^^^^
   5 |     0 => "zero",

@@ -1,7 +1,7 @@
 
   PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
 
-     : Match_18
+     : /Users/isaac/code/php/cthulhu/tests/ir/Match_18.cth
   12 |     Unit(_)            => Io::println("is unit"),
      |     ^^^^^^^
 

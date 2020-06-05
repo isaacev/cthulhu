@@ -5,6 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\ast\tokens\DelimToken;
 use Cthulhu\ast\tokens\Token;
 use Cthulhu\err\Error;
+use Cthulhu\loc\Directory;
 use Cthulhu\loc\Span;
 use Cthulhu\loc\Spanlike;
 
@@ -17,15 +18,15 @@ class Errors {
 
   /**
    * @param nodes\UpperName $name
-   * @param string[]        $path
+   * @param Directory[]     $directories
    * @param string[]        $fixes
    * @return Error
    */
-  public static function unknown_library(nodes\UpperName $name, array $path, array $fixes): Error {
+  public static function unknown_library(nodes\UpperName $name, array $directories, array $fixes): Error {
     return (new Error('unknown library'))
       ->maybe_snippet($name->get('span'))
       ->paragraph("The program referenced a library that could not be found in the following places:")
-      ->order($path)
+      ->order($directories)
       ->similar("These were the libraries that look the most similar:", $name, $fixes);
   }
 

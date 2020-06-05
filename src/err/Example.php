@@ -3,7 +3,9 @@
 namespace Cthulhu\err;
 
 use Cthulhu\lib\fmt\Formatter;
+use Cthulhu\loc\Directory;
 use Cthulhu\loc\File;
+use Cthulhu\loc\Filepath;
 
 class Example implements Reportable {
   public string $example;
@@ -13,7 +15,7 @@ class Example implements Reportable {
   }
 
   public function print(Formatter $f): Formatter {
-    $file       = new File('<example>', $this->example);
+    $file       = new File(new Filepath(new Directory('', false), '<example>', 'cth'), $this->example);
     $all_tokens = Snippet::all_tokens($file);
 
     $f->increment_tab_stop(2)

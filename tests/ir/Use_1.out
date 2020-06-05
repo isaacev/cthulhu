@@ -3,7 +3,7 @@
 
   The `Foo` module does not have a field called `Bar`:
 
-     : Use_1
+     : /Users/isaac/code/php/cthulhu/tests/ir/Use_1.cth
   15 |   Foo::Bar::hello();
      |        ^^^
 

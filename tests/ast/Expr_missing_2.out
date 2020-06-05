@@ -1,7 +1,7 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-    : Expr_missing_2
+    : /Users/isaac/code/php/cthulhu/tests/ast/Expr_missing_2.cth
   2 |   let x =}
     |          ^
 

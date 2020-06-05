@@ -5,7 +5,7 @@
 
     [ "a" ]
 
-    : Match_12
+    : /Users/isaac/code/php/cthulhu/tests/ir/Match_12.cth
   7 |     ["a"] => "a",
     |     ^^^^^
 

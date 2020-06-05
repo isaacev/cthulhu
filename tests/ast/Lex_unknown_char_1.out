@@ -1,7 +1,7 @@
 
   EXPECTED EXPRESSION  -------------------------------------------------------
 
-    : Lex_unknown_char_1
+    : /Users/isaac/code/php/cthulhu/tests/ast/Lex_unknown_char_1.cth
   4 |   let x = %123;
     |           ^
 

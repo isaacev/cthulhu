@@ -9,7 +9,7 @@
 
     Int
 
-    : Match_2
+    : /Users/isaac/code/php/cthulhu/tests/ir/Match_2.cth
   6 |     n => 123,
     |          ^^^
 

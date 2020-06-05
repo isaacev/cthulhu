@@ -3,13 +3,13 @@
 
   A value of type `Int` was called as a function:
 
-    : Call_3
+    : /Users/isaac/code/php/cthulhu/tests/ir/Call_3.cth
   7 |   add(1, 2, 3);
     |   ^^^^^^^^
 
   An argument with the type `Int` was passed:
 
-    : Call_3
+    : /Users/isaac/code/php/cthulhu/tests/ir/Call_3.cth
   7 |   add(1, 2, 3);
     |             ^
 

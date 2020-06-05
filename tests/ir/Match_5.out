@@ -3,7 +3,7 @@
 
   The field named 'x' was already bound to a pattern
 
-    : Match_5
+    : /Users/isaac/code/php/cthulhu/tests/ir/Match_5.cth
   9 |     Coordinate { x: x, x: y } => ::Io::println("hello"),
     |                        ^^^^
 

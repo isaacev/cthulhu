@@ -4,7 +4,7 @@
   The previous list elements had the type `Int` but element 2 has the type
   `Str`:
 
-    : Bad_list_3
+    : /Users/isaac/code/php/cthulhu/tests/ir/Bad_list_3.cth
   3 |   [1, "abc"];
     |       ^^^^^
 

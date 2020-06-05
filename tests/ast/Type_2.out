@@ -3,7 +3,7 @@
 
   Type parameters should look like `'a`.
 
-    : Type_2
+    : /Users/isaac/code/php/cthulhu/tests/ast/Type_2.cth
   1 | fn id(a: 'a) -> 'A {
     |                 ^
 

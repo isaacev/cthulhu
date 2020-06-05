@@ -1,7 +1,7 @@
 
   EXPECTED ITEM  -------------------------------------------------------------
 
-    : Item_missing_1
+    : /Users/isaac/code/php/cthulhu/tests/ast/Item_missing_1.cth
   1 | xyz = 123;
     | ^^^
 

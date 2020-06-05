@@ -9,7 +9,7 @@
 
     y
 
-    : Constructor_1
+    : /Users/isaac/code/php/cthulhu/tests/ir/Constructor_1.cth
   6 |   Bar { y: 123 };
     |         ^
 
