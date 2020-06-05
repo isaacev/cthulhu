@@ -532,7 +532,7 @@ class Compiler {
          * 1. A native function call. This solution is clean and efficient but
          *    can only be used when the compiler is certain that such a call will
          *    produce correct PHP. This solution can only be used when the callee
-         *   has a known arity.
+         *    has a known arity.
          *
          * 2. An inline closure that wraps available parameters and exposes a
          *    function interface for providing the rest of the parameters. This
