@@ -6,7 +6,7 @@
 
     ()
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/If_branches_3.cth
+    : TEST_DIR/ir/If_branches_3.cth
   3 |     "abc";
     |          ^
 
@@ -14,7 +14,7 @@
 
     Str
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/If_branches_3.cth
+    : TEST_DIR/ir/If_branches_3.cth
   5 |     "def"
     |     ^^^^^
 

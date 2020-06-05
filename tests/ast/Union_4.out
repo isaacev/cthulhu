@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/ast/Union_4.cth
+    : TEST_DIR/ast/Union_4.cth
   2 |   | Bar { Thing: Int };
     |           ^^^^^ expected lowercase identifier here
 

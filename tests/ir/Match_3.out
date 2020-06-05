@@ -9,7 +9,7 @@
 
     Int
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Match_3.cth
+    : TEST_DIR/ir/Match_3.cth
   5 |     0 => "def",
     |     ^
 

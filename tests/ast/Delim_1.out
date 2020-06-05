@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/ast/Delim_1.cth
+    : TEST_DIR/ast/Delim_1.cth
   3 | pub type {
     |          ^ expected uppercase identifier here
 

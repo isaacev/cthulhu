@@ -4,7 +4,7 @@
   The function expected an argument of the type `Int`. But the function call
   provided an argument of the type `()`:
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Call_2.cth
+    : TEST_DIR/ir/Call_2.cth
   7 |   plus_one();
     |           ^^
 

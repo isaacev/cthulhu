@@ -8,6 +8,7 @@ use Cthulhu\loc\Filepath;
 
 class Runner {
   public const DEFAULT_DIR           = './tests';
+  public const STDLIB_DIR            = './src/stdlib';
   public const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'out' ];
 
   /**

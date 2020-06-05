@@ -9,7 +9,7 @@
 
     List(Int)
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Match_10.cth
+    : TEST_DIR/ir/Match_10.cth
   7 |     [ a, b, ...c ] => a + b + c,
     |                               ^
 

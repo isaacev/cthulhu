@@ -1,15 +1,15 @@
 
   UNKNOWN LIBRARY  -----------------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/ast/Bad_use_3.cth
+    : TEST_DIR/ast/Bad_use_3.cth
   1 | use ::Foobar;
     |       ^^^^^^
 
   The program referenced a library that could not be found in the following
   places:
 
-    /Users/isaac/code/php/cthulhu/tests/ast
-    /Users/isaac/code/php/cthulhu/src/stdlib
+    TEST_DIR/ast
+    STDLIB_DIR
 
   These were the libraries that look the most similar:
 

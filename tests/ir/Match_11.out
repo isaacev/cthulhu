@@ -5,7 +5,7 @@
 
     [ ... ]
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Match_11.cth
+    : TEST_DIR/ir/Match_11.cth
   6 |     [...rest]    => 1,
     |     ^^^^^^^^^
 

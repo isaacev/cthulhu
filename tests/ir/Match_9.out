@@ -3,7 +3,7 @@
 
   The match expression does not handle all possible patterns.
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Match_9.cth
+    : TEST_DIR/ir/Match_9.cth
   3 |   match ["abc"] {
     |   ^^^^^^^^^^^^^^^
   4 |     []  => 0,

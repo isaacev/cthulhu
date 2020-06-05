@@ -9,7 +9,7 @@
 
     Float
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Bad_nums_3.cth
+    : TEST_DIR/ir/Bad_nums_3.cth
   3 |   0.1 * 1;
     |   ^^^
 

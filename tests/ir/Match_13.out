@@ -9,7 +9,7 @@
 
     List(Bool)
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Match_13.cth
+    : TEST_DIR/ir/Match_13.cth
   5 |     [true] => "a",
     |     ^^^^^^
 

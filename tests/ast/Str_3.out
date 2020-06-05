@@ -1,7 +1,7 @@
 
   UNKNOWN ESCAPE CHARACTER  --------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/ast/Str_3.cth
+    : TEST_DIR/ast/Str_3.cth
   3 |   "abc\\\'";
     |          ^
 

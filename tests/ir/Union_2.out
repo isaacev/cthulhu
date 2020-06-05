@@ -9,7 +9,7 @@
 
     ::Union_2::Result(Bool, 'b)
 
-     : /Users/isaac/code/php/cthulhu/tests/ir/Union_2.cth
+     : TEST_DIR/ir/Union_2.cth
   18 |     Left(true) => Io::println("was true"),
      |     ^^^^^^^^^^
 

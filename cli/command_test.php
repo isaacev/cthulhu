@@ -18,6 +18,11 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     'skipped' => 0,
   ];
 
+  $replacements = [
+    realpath(test\Runner::DEFAULT_DIR) => 'TEST_DIR',
+    realpath(test\Runner::STDLIB_DIR) => 'STDLIB_DIR',
+  ];
+
   $f = new fmt\StreamFormatter(STDOUT);
   $f->push_tab_stop(32);
   foreach (test\Runner::find_tests() as $test) {
@@ -34,7 +39,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
       ->reset_styles()
       ->space();
 
-    $result = $test->run($do_php_eval);
+    $result = $test->run($do_php_eval, $replacements);
 
     if ($is_blessed && $result instanceof test\TestFailed) {
       $test->bless($result->found);

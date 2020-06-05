@@ -3,7 +3,7 @@
 
   The `Fmt` module does not have a field called `Bool`:
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Bad_ref_4.cth
+    : TEST_DIR/ir/Bad_ref_4.cth
   5 |   Fmt::Bool(true);
     |        ^^^^
 

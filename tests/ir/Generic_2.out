@@ -5,7 +5,7 @@
 
     Int
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Generic_2.cth
+    : TEST_DIR/ir/Generic_2.cth
   7 |   let x: Int = id("abc");
     |          ^^^
 
@@ -13,7 +13,7 @@
 
     Str
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Generic_2.cth
+    : TEST_DIR/ir/Generic_2.cth
   7 |   let x: Int = id("abc");
     |                ^^^^^^^^^
 

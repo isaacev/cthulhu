@@ -31,9 +31,14 @@ class Test {
     return strpos($this->group_and_name(), $filter) === 0;
   }
 
-  public function run(bool $do_php_eval): TestResult {
+  /**
+   * @param bool     $do_php_eval
+   * @param string[] $replacements
+   * @return TestResult
+   */
+  public function run(bool $do_php_eval, array $replacements = []): TestResult {
     $time_before   = microtime(true);
-    $found         = $this->eval($do_php_eval);
+    $found         = $this->eval($do_php_eval, $replacements);
     $time_after    = microtime(true);
     $runtime_in_ms = ($time_after - $time_before) * 1000;
 
@@ -67,7 +72,12 @@ class Test {
     }
   }
 
-  protected function eval(bool $do_php_eval): TestOutput {
+  /**
+   * @param bool     $do_php_eval
+   * @param string[] $replacements
+   * @return TestOutput
+   */
+  protected function eval(bool $do_php_eval, array $replacements): TestOutput {
     try {
       $tree = LoadPhase::from_file($this->input)
         ->check()
@@ -81,9 +91,22 @@ class Test {
     } catch (Error $err) {
       $out = new fmt\StringFormatter();
       $err->format($out);
-      return new TestOutput('', $out);
+      return new TestOutput('', self::do_replacements($out, $replacements));
     } catch (Exception $ex) {
       return new TestOutput('', "$ex");
     }
+  }
+
+  /**
+   * @param string $original
+   * @param array  $replacements
+   * @return string
+   */
+  private function do_replacements(string $original, array $replacements): string {
+    $replaced = $original;
+    foreach ($replacements as $target => $replacement) {
+      $replaced = str_replace($target, $replacement, $replaced);
+    }
+    return $replaced;
   }
 }

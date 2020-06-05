@@ -9,7 +9,7 @@
 
     Int
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Bad_nums_4.cth
+    : TEST_DIR/ir/Bad_nums_4.cth
   3 |   0.1 < 1;
     |         ^
 

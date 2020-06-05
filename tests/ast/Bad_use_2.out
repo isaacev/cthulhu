@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/ast/Bad_use_2.cth
+    : TEST_DIR/ast/Bad_use_2.cth
   1 | use ::Foo::Bar*;
     |               ^ expected ; here
 

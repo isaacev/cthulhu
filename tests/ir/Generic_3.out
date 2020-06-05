@@ -4,7 +4,7 @@
   The type parameter `'b` could not be derived from the inputs to the current
   function.
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Generic_3.cth
+    : TEST_DIR/ir/Generic_3.cth
   1 | fn id(a: 'a) -> 'b {
     |                 ^^
 

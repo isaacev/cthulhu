@@ -3,7 +3,7 @@
 
   The form doesn't have a field named `foo`:
 
-     : /Users/isaac/code/php/cthulhu/tests/ir/Match_20.cth
+     : TEST_DIR/ir/Match_20.cth
   12 |     Unit { foo: _ }    => Io::println("is unit"),
      |            ^^^
 

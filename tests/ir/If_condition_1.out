@@ -6,7 +6,7 @@
 
     Str
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/If_condition_1.cth
+    : TEST_DIR/ir/If_condition_1.cth
   4 |   if "abc" {
     |      ^^^^^
 

@@ -1,7 +1,7 @@
 
   USE OF RESERVED WORD  ------------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/ast/Ident_2.cth
+    : TEST_DIR/ast/Ident_2.cth
   1 | fn match(a: Int) -> Int {
     |    ^^^^^ reserved words cannot be used as identifiers
 

@@ -3,7 +3,7 @@
 
   The `Io` module does not have a field called `Fmt`:
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Bad_ref_3.cth
+    : TEST_DIR/ir/Bad_ref_3.cth
   4 |   Io::Fmt::println();
     |       ^^^
 

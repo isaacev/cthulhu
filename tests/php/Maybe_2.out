@@ -1,7 +1,7 @@
 
   EXPECTED TOKEN  ------------------------------------------------------------
 
-    : /Users/isaac/code/php/cthulhu/tests/php/Maybe_2.cth
+    : TEST_DIR/php/Maybe_2.cth
   6 |     Some(a) => println(a),
     |     ^^^^ expected lowercase identifier here
 

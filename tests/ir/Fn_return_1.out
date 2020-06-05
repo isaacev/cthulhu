@@ -3,13 +3,13 @@
 
   The function is defined as returning the type `Int`:
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Fn_return_1.cth
+    : TEST_DIR/ir/Fn_return_1.cth
   1 | fn main() -> Int {
     |              ^^^
 
   But the function body returns the type `()` instead:
 
-    : /Users/isaac/code/php/cthulhu/tests/ir/Fn_return_1.cth
+    : TEST_DIR/ir/Fn_return_1.cth
   3 |   x;
     |    ^
 

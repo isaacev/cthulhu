@@ -1,7 +1,7 @@
 
   PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
 
-     : /Users/isaac/code/php/cthulhu/tests/ir/Match_19.cth
+     : TEST_DIR/ir/Match_19.cth
   14 |     Square(_) => Io::println("is square"),
      |     ^^^^^^^^^
 
