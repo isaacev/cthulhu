@@ -5,6 +5,7 @@ namespace Cthulhu\val;
 const ESCAPE_KEYS = [
   'n' => "\n",
   't' => "\t",
+  'r' => "\r",
   '"' => '"',
   '\\' => '\\',
 ];
