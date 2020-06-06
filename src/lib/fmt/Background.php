@@ -18,6 +18,6 @@ class Background {
   public const BRIGHT_YELLOW  = 103;
   public const BRIGHT_BLUE    = 104;
   public const BRIGHT_MAGENTA = 105;
-  public const BRIGHT_CYAN = 106;
-  public const BRIGHT_WHITE = 107;
+  public const BRIGHT_CYAN    = 106;
+  public const BRIGHT_WHITE   = 107;
 }

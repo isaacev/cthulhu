@@ -18,6 +18,6 @@ class Foreground {
   public const BRIGHT_YELLOW  = 93;
   public const BRIGHT_BLUE    = 94;
   public const BRIGHT_MAGENTA = 95;
-  public const BRIGHT_CYAN = 96;
-  public const BRIGHT_WHITE = 97;
+  public const BRIGHT_CYAN    = 96;
+  public const BRIGHT_WHITE   = 97;
 }
