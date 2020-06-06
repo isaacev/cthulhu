@@ -57,8 +57,10 @@ class Filepath {
   }
 
   public static function from_directory(Directory $dir, string $filename): self {
-    $parts = pathinfo($filename);
-    return new self($dir, $parts["filename"], $parts["extension"]);
+    $parts     = pathinfo($filename);
+    $filename  = array_key_exists('filename', $parts) ? $parts['filename'] : '';
+    $extension = array_key_exists('extension', $parts) ? $parts['extension'] : '';
+    return new self($dir, $filename, $extension);
   }
 
   public static function from_memory(string $name): self {
