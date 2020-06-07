@@ -1,0 +1,21 @@
+use ::Io;
+use ::Fmt;
+
+pub fn inclusive(callback: Int -> (), lo: Int, hi: Int) -> () {
+  if lo <= hi {
+    callback(lo);
+    inclusive(callback, lo + 1, hi)
+  }
+}
+
+#[entry]
+fn main() -> () {
+  let msg = "\r";
+  let cb = { | i |
+    Io::print(i |> Fmt::int);
+    Io::print(msg);
+  };
+  inclusive(cb, 0, 1000000);
+  Io::println("");
+  Io::println("all done");
+}
