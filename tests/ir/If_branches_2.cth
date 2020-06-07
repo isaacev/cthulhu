@@ -1,0 +1,9 @@
+use ::Io;
+
+fn main () -> () {
+  let x = if true {
+    -- empty branch
+  } else {
+    "abc"
+  };
+}

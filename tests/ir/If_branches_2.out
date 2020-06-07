@@ -1,0 +1,23 @@
+
+  BRANCH DISAGREEMENT  -------------------------------------------------------
+
+  Both branches of an if-expression must return the same type. The first branch
+  returned the type:
+
+    ()
+
+    : TEST_DIR/ir/If_branches_2.cth
+  4 |      let x = if true {
+    |  .-------------------^
+  5 |  |     -- empty branch
+  6 |  |   } else {
+    |  '---^
+
+  But the second branch returned the type:
+
+    Str
+
+    : TEST_DIR/ir/If_branches_2.cth
+  7 |     "abc"
+    |     ^^^^^
+
