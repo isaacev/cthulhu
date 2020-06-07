@@ -4,12 +4,11 @@
   The match expression does not handle all possible patterns.
 
     : TEST_DIR/ir/Match_7.cth
-  3 |   match [] {
-    |   ^^^^^^^^^^
-  4 |     [a, b, ...c] => a + b,
-    |     ^^^^^^^^^^^^^^^^^^^^^^
-  5 |   };
-    |   ^
+  3 |      match [] {
+    |  .---^
+  4 |  |     [a, b, ...c] => a + b,
+  5 |  |   };
+    |  '---^
 
   The following 2 patterns were not handled:
 

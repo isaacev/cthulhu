@@ -10,6 +10,7 @@ use Cthulhu\lib\fmt\Background;
 use Cthulhu\lib\fmt\Foreground;
 use Cthulhu\lib\fmt\Formatter;
 use Cthulhu\loc\File;
+use Cthulhu\loc\Span;
 use Cthulhu\loc\Spanlike;
 
 class Snippet implements Reportable {
@@ -18,13 +19,13 @@ class Snippet implements Reportable {
   public const UNDERLINE_CHAR = '^';
 
   public File $file;
-  public Spanlike $location;
+  public Span $location;
   public ?string $message;
   public array $options;
 
   public function __construct(File $file, Spanlike $location, ?string $message = null, array $options = []) {
     $this->file     = $file;
-    $this->location = $location;
+    $this->location = $location->span();
     $this->message  = $message;
     $this->options  = $options;
   }
@@ -38,13 +39,13 @@ class Snippet implements Reportable {
   }
 
   public function print(Formatter $f): Formatter {
-    $focus_from         = $this->location->from();
-    $focus_to           = $this->location->to();
+    $focus_from         = $this->location->from;
+    $focus_to           = $this->location->to;
     $focus_color        = $this->get_option('color', Foreground::RED);
     $first_focused_line = $focus_from->line;
     $last_focused_line  = $focus_to->line;
 
-    $all_tokens = self::all_tokens($this->location->from()->file);
+    $all_tokens = self::all_tokens($this->location->from->file);
 
     if (empty($all_tokens)) {
       return $f
@@ -52,6 +53,8 @@ class Snippet implements Reportable {
         ->tab()
         ->print('empty program');
     }
+
+    $is_multiline = $this->location->from->line !== $this->location->to->line;
 
     $first_visible_line_num = max(
       $first_focused_line - $this->get_option('lines_above', self::LINES_ABOVE),
@@ -133,6 +136,19 @@ class Snippet implements Reportable {
         ->printf($gutter_format, $line_num)
         ->reset_styles_if($line_contains_focused_region);
 
+      if ($is_multiline) {
+        // Print spaces to accommodate multiline bridge
+        if ($line_contains_focused_region && $line_num > $first_focused_line) {
+          $f->space()
+            ->apply_styles($focus_color)
+            ->print('|')
+            ->reset_styles()
+            ->space();
+        } else {
+          $f->spaces(3);
+        }
+      }
+
       // For each token in the line, check if that token has corresponding syntax
       // highlighting that can be applied to if. If so, apply those styles when
       // printing the token.
@@ -147,44 +163,75 @@ class Snippet implements Reportable {
         $col = $token->span->to->column;
       }
 
-      // If the line contains some part of the focused region and has at least one
-      // token, print an underline beneath the focused region.
-      $line_has_tokens = !empty($tokens_in_line);
-      if ($line_contains_focused_region && $line_has_tokens) {
-        $f->newline_if_not_already()
-          ->tab()
-          ->apply_styles($focus_color)
-          ->printf($gutter_underline_format, ' ');
+      if ($is_multiline) {
+        if ($line_num === $first_focused_line || $line_num === $last_focused_line) {
+          if ($line_num === $first_focused_line) {
+            $slash  = '.';
+            $to_col = $focus_from->column;
+          } else {
+            $slash  = "'";
+            $to_col = max(0, $focus_to->column - 1);
+          }
 
-        $first_token_on_line = $tokens_in_line[0];
-        $last_token_on_line  = end($tokens_in_line);
-
-        // Compute the number of spaces between the gutter and the start of the
-        // underline characters.
-        $total_spaces = ($line_num === $first_focused_line)
-          ? $focus_from->column - 1
-          : $first_token_on_line->span->from->column - 1;
-
-        // Compute the number of underline characters depending on there the focus
-        // region falls within the line.
-        $total_underline = ($line_num < $last_focused_line)
-          ? $last_token_on_line->span->to->column - ($total_spaces + 1)
-          : $focus_to->column - ($total_spaces + 1);
-
-        $f->spaces($total_spaces)
-          ->repeat($this->get_option('underline', self::UNDERLINE_CHAR), $total_underline);
-
-        // If this line contains the end of the focused region and if the note
-        // includes a message, print that message after the underline.
-        if ($line_num === $last_focused_line && $this->message) {
-          $f->space()
-            ->print($this->message);
+          $f->newline_if_not_already()
+            ->tab()
+            ->apply_styles($focus_color)
+            ->printf($gutter_underline_format, ' ')
+            ->spaces(1)
+            ->print($slash)
+            ->repeat('-', $to_col)
+            ->print('^')
+            ->reset_styles();
         }
+      } else {
+        // If the line contains some part of the focused region and has at least one
+        // token, print an underline beneath the focused region.
+        $line_has_tokens = !empty($tokens_in_line);
+        if ($line_contains_focused_region && $line_has_tokens) {
+          $f->newline_if_not_already()
+            ->tab()
+            ->apply_styles($focus_color)
+            ->printf($gutter_underline_format, ' ');
 
-        $f->reset_styles();
+          $first_token_on_line = $tokens_in_line[0];
+          $last_token_on_line  = end($tokens_in_line);
+
+          // Compute the number of spaces between the gutter and the start of the
+          // underline characters.
+          $total_spaces = ($line_num === $first_focused_line)
+            ? $focus_from->column - 1
+            : $first_token_on_line->span->from->column - 1;
+
+          // Compute the number of underline characters depending on there the focus
+          // region falls within the line.
+          $total_underline = ($line_num < $last_focused_line)
+            ? $last_token_on_line->span->to->column - ($total_spaces + 1)
+            : $focus_to->column - ($total_spaces + 1);
+
+          $f->spaces($total_spaces)
+            ->repeat($this->get_option('underline', self::UNDERLINE_CHAR), $total_underline);
+
+          // If this line contains the end of the focused region and if the note
+          // includes a message, print that message after the underline.
+          if ($line_num === $last_focused_line && $this->message) {
+            $f->space()
+              ->print($this->message);
+          }
+
+          $f->reset_styles();
+        }
       }
     }
 
+    return $f;
+  }
+
+  /**
+   * @param Formatter      $f
+   * @param tokens\Token[] $visible_region_lines
+   * @return Formatter
+   */
+  private static function print_multiline(Formatter $f, array $visible_region_lines): Formatter {
     return $f;
   }
 

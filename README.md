@@ -50,7 +50,7 @@ These capitalization rules are enforced by the language.
 - [x] Constant folding optimization
 - [x] Type name resolution
 - [x] Generic functions
-- [ ] Pretty multi-line error snippets
+- [x] Pretty multi-line error snippets
 - [x] Module dependency linearized and cycle detection
 - [x] The Maybe type
 - [x] The List type
