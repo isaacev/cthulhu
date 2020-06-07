@@ -1,6 +1,0 @@
-fn id(thing: 'a) -> 'a { thing }
-
-#[entry]
-fn main() -> () {
-  ::Io::println(id("hello world"));
-}
