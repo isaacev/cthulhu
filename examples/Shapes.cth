@@ -10,21 +10,21 @@ type Shape =
 
 fn name(sh: Shape) -> Str {
   match sh {
-    Shape::UnitCircle => "unit circle",
-    Shape::Circle(1.0) => "unit circle",
-    Shape::Circle(_) => "circle",
-    Shape::Square(_) => "square",
-    Shape::Rect { width: _, height: _ } => "rectangle",
+    UnitCircle => "unit circle",
+    Circle(1.0) => "unit circle",
+    Circle(_) => "circle",
+    Square(_) => "square",
+    Rect { width: _, height: _ } => "rectangle",
   }
 }
 
 fn area(sh: Shape) -> Float {
   match sh {
-    Shape::UnitCircle => 3.14,
-    Shape::Circle(1.0) => 3.14,
-    Shape::Circle(r) => 3.14 *. r *. r,
-    Shape::Square(s) => s *. s,
-    Shape::Rect { width: w, height: h } => w *. h,
+    UnitCircle => 3.14,
+    Circle(1.0) => 3.14,
+    Circle(r) => 3.14 *. r *. r,
+    Square(s) => s *. s,
+    Rect { width: w, height: h } => w *. h,
   }
 }
 
@@ -34,11 +34,11 @@ fn desc(sh: Shape) -> () {
 
 #[entry]
 fn main() -> () {
-  let u = Shape::UnitCircle;
-  let v = Shape::Circle(1.0);
-  let c = Shape::Circle(5.0);
-  let s = Shape::Square(3.0);
-  let r = Shape::Rect { width: 4.0, height: 3.0 };
+  let u = UnitCircle;
+  let v = Circle(1.0);
+  let c = Circle(5.0);
+  let s = Square(3.0);
+  let r = Rect { width: 4.0, height: 3.0 };
 
   [ u, v, c, s, r] |> List::iter(desc);
 }
