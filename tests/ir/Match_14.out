@@ -5,7 +5,7 @@
 
     : TEST_DIR/ir/Match_14.cth
   3 |   match [true, false] {
-    | .-^
+    | ,-^
   4 | |   []    => false,
   5 | |   [true] => true,
   6 | |   [false] => true,

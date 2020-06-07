@@ -5,7 +5,7 @@
 
     : TEST_DIR/ir/Match_1.cth
   4 |   let m = match x {
-    | .---------^
+    | ,---------^
   5 | |   0 => "zero",
   6 | |   1 => "one",
   7 | | };

@@ -5,7 +5,7 @@
 
     : TEST_DIR/ir/Match_6.cth
   3 |   match [] {
-    | .-^
+    | ,-^
   4 | |   [a, b] => a + b,
   5 | | };
     | '-^

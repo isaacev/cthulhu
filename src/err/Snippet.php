@@ -195,7 +195,7 @@ class Snippet implements Reportable {
       if ($is_multiline) {
         if ($line_num === $first_focused_line || $line_num === $last_focused_line) {
           if ($line_num === $first_focused_line) {
-            $slash  = '.';
+            $slash  = ',';
             $to_col = $focus_from->column;
           } else {
             $slash  = "'";

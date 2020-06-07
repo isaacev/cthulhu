@@ -8,7 +8,7 @@
 
     : TEST_DIR/ir/If_branches_2.cth
   4 |   let x = if true {
-    | .-----------------^
+    | ,-----------------^
   5 | |   -- empty branch
   6 | | } else {
     | '-^
