@@ -11,7 +11,7 @@
   20 | | };
      | '-^
 
-  The following pattern were not handled:
+  The following pattern was not handled:
 
     Left(_)
 

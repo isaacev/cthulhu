@@ -148,7 +148,7 @@ class Errors {
     $err = (new Error('uncovered patterns'))
       ->paragraph('The match expression does not handle all possible patterns.')
       ->snippet($spanlike)
-      ->paragraph("The following " . ($n === 1 ? "pattern" : "$n patterns") . " were not handled:");
+      ->paragraph("The following " . ($n === 1 ? "pattern was" : "$n patterns were") . " not handled:");
 
     foreach ($patterns as $pattern) {
       $err->example("$pattern");
