@@ -23,7 +23,20 @@ class ListPattern extends Pattern {
     if (empty($this->elements)) {
       return $this->has_glob ? "[ ... ]" : "[]";
     } else {
-      return "[ " . implode(" ", $this->elements) . ($this->has_glob ? " ..." : "") . " ]";
+      $str = "";
+      if (!empty($this->elements)) {
+        foreach ($this->elements as $index => $element) {
+          $str .= ($index === 0) ? '' : ', ';
+          $str .= "$element";
+        }
+      }
+
+      if ($this->has_glob) {
+        $str .= empty($str) ? '' : ', ';
+        $str .= '...';
+      }
+
+      return "[ $str ]";
     }
   }
 }

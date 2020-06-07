@@ -13,5 +13,5 @@
 
   The following pattern was not handled:
 
-    [ _ ... ]
+    [ _, ... ]
 
