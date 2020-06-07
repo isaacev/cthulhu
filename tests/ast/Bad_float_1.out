@@ -2,8 +2,8 @@
   EXPECTED EXPRESSION  -------------------------------------------------------
 
     : TEST_DIR/ast/Bad_float_1.cth
-  3 |   .123;
-    |   ^
+  3 | .123;
+    | ^
 
   An expression can be like one of the following:
 

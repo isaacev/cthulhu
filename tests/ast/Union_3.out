@@ -2,6 +2,6 @@
   EXPECTED TOKEN  ------------------------------------------------------------
 
     : TEST_DIR/ast/Union_3.cth
-  2 |   | Bar{};
-    |         ^ expected lowercase identifier here
+  2 | | Bar{};
+    |       ^ expected lowercase identifier here
 

@@ -7,14 +7,14 @@
     ()
 
     : TEST_DIR/ir/If_branches_3.cth
-  3 |     "abc";
-    |          ^
+  3 | "abc";
+    |      ^
 
   But the second branch returned the type:
 
     Str
 
     : TEST_DIR/ir/If_branches_3.cth
-  5 |     "def"
-    |     ^^^^^
+  5 | "def"
+    | ^^^^^
 

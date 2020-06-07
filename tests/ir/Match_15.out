@@ -6,6 +6,6 @@
     [ _ ]
 
     : TEST_DIR/ir/Match_15.cth
-  7 |     [ _ ]       => false,
-    |     ^^^^^
+  7 | [ _ ]       => false,
+    | ^^^^^
 

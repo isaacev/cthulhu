@@ -10,6 +10,6 @@
     ::Union_2::Result(Bool, 'b)
 
      : TEST_DIR/ir/Union_2.cth
-  18 |     Left(true) => Io::println("was true"),
-     |     ^^^^^^^^^^
+  18 | Left(true) => Io::println("was true"),
+     | ^^^^^^^^^^
 

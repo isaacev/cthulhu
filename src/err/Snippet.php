@@ -64,7 +64,11 @@ class Snippet implements Reportable {
       $last_focused_line + $this->get_option('lines_below', self::LINES_BELOW),
       end($all_tokens)->span->to->line);
 
-    // Group tokens by line for each line in the visible region
+    /**
+     * GROUP TOKENS BY LINE
+     */
+
+    /* @var tokens\Token[][] $visible_region_lines */
     $visible_region_lines = [];
     $prev_line            = null;
     foreach ($all_tokens as $token) {
@@ -117,6 +121,23 @@ class Snippet implements Reportable {
       ->printf(' : %s', $this->file->filepath)
       ->reset_styles();
 
+    // Determine if there is whitespace that can be cropped from the start of
+    // each line to keep the snippet visually consistent.
+    $min_starting_col = null;
+    foreach ($visible_region_lines as $line_num => $tokens_in_line) {
+      if (!empty($tokens_in_line)) {
+        $first_token_col = $tokens_in_line[0]->span->from->column;
+        if ($min_starting_col === null || $first_token_col < $min_starting_col) {
+          $min_starting_col = $first_token_col;
+        }
+      }
+    }
+    $spaces_to_crop = max(($min_starting_col ?? 1) - 1, 0);
+
+    /**
+     * PRINT LINES
+     */
+
     // Now that the tokens have been filtered and grouped by line, iterate over
     // each line of tokens and print those tokens. If the line intersects with the
     // focused region, print an underline beneath the focused region.
@@ -132,36 +153,44 @@ class Snippet implements Reportable {
       // Indent the line and print the gutter
       $f->newline_if_not_already()
         ->tab()
-        ->apply_styles_if($line_contains_focused_region, $focus_color)
+        ->apply_styles(Foreground::WHITE)
         ->printf($gutter_format, $line_num)
-        ->reset_styles_if($line_contains_focused_region);
+        ->reset_styles();
 
       if ($is_multiline) {
         // Print spaces to accommodate multiline bridge
         if ($line_contains_focused_region && $line_num > $first_focused_line) {
-          $f->space()
-            ->apply_styles($focus_color)
+          $f->apply_styles($focus_color)
             ->print('|')
             ->reset_styles()
             ->space();
         } else {
-          $f->spaces(3);
+          $f->spaces(2);
         }
       }
+
+      /**
+       * PRINT TOKENS ON LINE
+       */
 
       // For each token in the line, check if that token has corresponding syntax
       // highlighting that can be applied to if. If so, apply those styles when
       // printing the token.
       $col = 1;
-      foreach ($tokens_in_line as $token) {
+      foreach ($tokens_in_line as $index => $token) {
         $styles     = self::token_styles($token);
         $has_styles = !empty($styles);
-        $f->spaces($token->span->from->column - $col)
+        $spaces     = $token->span->from->column - $col - ($index === 0 ? $spaces_to_crop : 0);
+        $f->spaces($spaces)
           ->apply_styles_if($has_styles, ...$styles)
           ->print($token->lexeme)
           ->reset_styles_if($has_styles);
         $col = $token->span->to->column;
       }
+
+      /**
+       * PRINT ANY NECESSARY UNDERLINES FOR THE LINE
+       */
 
       if ($is_multiline) {
         if ($line_num === $first_focused_line || $line_num === $last_focused_line) {
@@ -175,11 +204,11 @@ class Snippet implements Reportable {
 
           $f->newline_if_not_already()
             ->tab()
-            ->apply_styles($focus_color)
+            ->apply_styles(Foreground::WHITE)
             ->printf($gutter_underline_format, ' ')
-            ->spaces(1)
+            ->apply_styles($focus_color)
             ->print($slash)
-            ->repeat('-', $to_col)
+            ->repeat('-', $to_col - $spaces_to_crop)
             ->print($this->get_option('underline', self::UNDERLINE_CHAR))
             ->reset_styles();
         }
@@ -190,7 +219,7 @@ class Snippet implements Reportable {
         if ($line_contains_focused_region && $line_has_tokens) {
           $f->newline_if_not_already()
             ->tab()
-            ->apply_styles($focus_color)
+            ->apply_styles(Foreground::WHITE)
             ->printf($gutter_underline_format, ' ');
 
           $first_token_on_line = $tokens_in_line[0];
@@ -198,17 +227,20 @@ class Snippet implements Reportable {
 
           // Compute the number of spaces between the gutter and the start of the
           // underline characters.
-          $total_spaces = ($line_num === $first_focused_line)
-            ? $focus_from->column - 1
-            : $first_token_on_line->span->from->column - 1;
+          $total_spaces = -$spaces_to_crop + (
+            ($line_num === $first_focused_line)
+              ? $focus_from->column - 1
+              : $first_token_on_line->span->from->column - 1);
 
           // Compute the number of underline characters depending on there the focus
           // region falls within the line.
-          $total_underline = ($line_num < $last_focused_line)
-            ? $last_token_on_line->span->to->column - ($total_spaces + 1)
-            : $focus_to->column - ($total_spaces + 1);
+          $total_underline = -$spaces_to_crop + (
+            ($line_num < $last_focused_line)
+              ? $last_token_on_line->span->to->column - ($total_spaces + 1)
+              : $focus_to->column - ($total_spaces + 1));
 
           $f->spaces($total_spaces)
+            ->apply_styles($focus_color)
             ->repeat($this->get_option('underline', self::UNDERLINE_CHAR), $total_underline);
 
           // If this line contains the end of the focused region and if the note

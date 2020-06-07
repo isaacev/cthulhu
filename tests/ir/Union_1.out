@@ -10,6 +10,6 @@
     Int
 
      : TEST_DIR/ir/Union_1.cth
-  12 |     Some(s) => "just: " ++ s,
-     |                            ^
+  12 | Some(s) => "just: " ++ s,
+     |                        ^
 

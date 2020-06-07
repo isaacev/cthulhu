@@ -5,6 +5,6 @@
   provided an argument of the type `Str`:
 
     : TEST_DIR/ir/Call_1.cth
-  7 |   plus_one("1");
-    |            ^^^
+  7 | plus_one("1");
+    |          ^^^
 

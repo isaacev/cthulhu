@@ -10,6 +10,6 @@
     y
 
     : TEST_DIR/ir/Constructor_1.cth
-  6 |   Bar { y: 123 };
-    |         ^
+  6 | Bar { y: 123 };
+    |       ^
 

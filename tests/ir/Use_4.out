@@ -4,8 +4,8 @@
   The current module does not have a field called `Bar`:
 
      : TEST_DIR/ir/Use_4.cth
-  17 |   Bar::hello();
-     |   ^^^
+  17 | Bar::hello();
+     | ^^^
 
   Here are some fields that are similar:
 

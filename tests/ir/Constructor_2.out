@@ -10,6 +10,6 @@
     { x: Int }
 
     : TEST_DIR/ir/Constructor_2.cth
-  6 |   Bar { x: 123 };
-    |   ^^^^^^^^^^^^^^
+  6 | Bar { x: 123 };
+    | ^^^^^^^^^^^^^^
 

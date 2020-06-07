@@ -4,12 +4,12 @@
   The match expression does not handle all possible patterns.
 
      : TEST_DIR/ir/Union_3.cth
-  17 |      match attempt(true, true) {
-     |  .---^
-  18 |  |     Left(true) => Io::println("was true"),
-  19 |  |     Right(msg) => Io::println(msg),
-  20 |  |   };
-     |  '---^
+  17 |   match attempt(true, true) {
+     | .-^
+  18 | |   Left(true) => Io::println("was true"),
+  19 | |   Right(msg) => Io::println(msg),
+  20 | | };
+     | '-^
 
   The following pattern were not handled:
 

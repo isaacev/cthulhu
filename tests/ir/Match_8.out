@@ -4,11 +4,11 @@
   The match expression does not handle all possible patterns.
 
     : TEST_DIR/ir/Match_8.cth
-  5 |      match [] {
-    |  .---^
-  6 |  |     [a, ...c] => a + List::length(c),
-  7 |  |   };
-    |  '---^
+  5 |   match [] {
+    | .-^
+  6 | |   [a, ...c] => a + List::length(c),
+  7 | | };
+    | '-^
 
   The following pattern were not handled:
 

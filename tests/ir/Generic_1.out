@@ -10,6 +10,6 @@
   But the function body returns the type `Int` instead:
 
     : TEST_DIR/ir/Generic_1.cth
-  2 |   123
-    |   ^^^
+  2 | 123
+    | ^^^
 

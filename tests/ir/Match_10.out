@@ -10,6 +10,6 @@
     List(Int)
 
     : TEST_DIR/ir/Match_10.cth
-  7 |     [ a, b, ...c ] => a + b + c,
-    |                               ^
+  7 | [ a, b, ...c ] => a + b + c,
+    |                           ^
 

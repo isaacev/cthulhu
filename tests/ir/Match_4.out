@@ -10,6 +10,6 @@
     Str
 
     : TEST_DIR/ir/Match_4.cth
-  5 |     x => 123 + x,
-    |                ^
+  5 | x => 123 + x,
+    |            ^
 

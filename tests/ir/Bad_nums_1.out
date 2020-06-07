@@ -10,6 +10,6 @@
     Float
 
     : TEST_DIR/ir/Bad_nums_1.cth
-  3 |   2 + 1.2;
-    |       ^^^
+  3 | 2 + 1.2;
+    |     ^^^
 

@@ -2,8 +2,8 @@
   EXPECTED EXPRESSION  -------------------------------------------------------
 
     : TEST_DIR/ast/Expr_missing_2.cth
-  2 |   let x =}
-    |          ^
+  2 | let x =}
+    |        ^
 
   An expression can be like one of the following:
 

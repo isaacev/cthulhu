@@ -4,8 +4,8 @@
   The `Fmt` module does not have a field called `Bool`:
 
     : TEST_DIR/ir/Bad_ref_4.cth
-  5 |   Fmt::Bool(true);
-    |        ^^^^
+  5 | Fmt::Bool(true);
+    |      ^^^^
 
   Here are some fields that are similar:
 

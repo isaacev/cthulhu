@@ -7,14 +7,14 @@
     Str
 
     : TEST_DIR/ir/If_branches_1.cth
-  5 |     "is a string"
-    |     ^^^^^^^^^^^^^
+  5 | "is a string"
+    | ^^^^^^^^^^^^^
 
   But the second branch returned the type:
 
     Int
 
     : TEST_DIR/ir/If_branches_1.cth
-  7 |     123
-    |     ^^^
+  7 | 123
+    | ^^^
 

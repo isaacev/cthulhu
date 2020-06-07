@@ -7,17 +7,17 @@
     ()
 
     : TEST_DIR/ir/If_branches_2.cth
-  4 |      let x = if true {
-    |  .-------------------^
-  5 |  |     -- empty branch
-  6 |  |   } else {
-    |  '---^
+  4 |   let x = if true {
+    | .-----------------^
+  5 | |   -- empty branch
+  6 | | } else {
+    | '-^
 
   But the second branch returned the type:
 
     Str
 
     : TEST_DIR/ir/If_branches_2.cth
-  7 |     "abc"
-    |     ^^^^^
+  7 | "abc"
+    | ^^^^^
 

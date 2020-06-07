@@ -4,8 +4,8 @@
   The `Io` module does not have a field called `doesNotExist`:
 
     : TEST_DIR/ir/Bad_ref_2.cth
-  4 |   Io::doesNotExist();
-    |       ^^^^^^^^^^^^
+  4 | Io::doesNotExist();
+    |     ^^^^^^^^^^^^
 
   Here are some fields that are similar:
 

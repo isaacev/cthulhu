@@ -5,6 +5,6 @@
   `Str`:
 
     : TEST_DIR/ir/Bad_list_4.cth
-  3 |   [1, "abc"]
-    |       ^^^^^
+  3 | [1, "abc"]
+    |     ^^^^^
 

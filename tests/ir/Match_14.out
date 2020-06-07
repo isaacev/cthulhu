@@ -4,13 +4,13 @@
   The match expression does not handle all possible patterns.
 
     : TEST_DIR/ir/Match_14.cth
-  3 |      match [true, false] {
-    |  .---^
-  4 |  |     []    => false,
-  5 |  |     [true] => true,
-  6 |  |     [false] => true,
-  7 |  |   };
-    |  '---^
+  3 |   match [true, false] {
+    | .-^
+  4 | |   []    => false,
+  5 | |   [true] => true,
+  6 | |   [false] => true,
+  7 | | };
+    | '-^
 
   The following pattern were not handled:
 

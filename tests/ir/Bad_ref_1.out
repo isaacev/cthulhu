@@ -4,8 +4,8 @@
   There was a reference to a name that is not in the current scope.
 
     : TEST_DIR/ir/Bad_ref_1.cth
-  2 |   foo();
-    |   ^^^
+  2 | foo();
+    | ^^^
 
   Here are some variables that are similar:
 

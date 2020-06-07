@@ -4,6 +4,6 @@
   The form doesn't have a field named `foo`:
 
      : TEST_DIR/ir/Match_20.cth
-  12 |     Unit { foo: _ }    => Io::println("is unit"),
-     |            ^^^
+  12 | Unit { foo: _ }    => Io::println("is unit"),
+     |        ^^^
 

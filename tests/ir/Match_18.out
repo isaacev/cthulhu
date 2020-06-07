@@ -2,8 +2,8 @@
   PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
 
      : TEST_DIR/ir/Match_18.cth
-  12 |     Unit(_)            => Io::println("is unit"),
-     |     ^^^^^^^
+  12 | Unit(_)            => Io::println("is unit"),
+     | ^^^^^^^
 
   The branch needs a pattern that matches:
 

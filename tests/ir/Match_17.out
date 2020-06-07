@@ -2,8 +2,8 @@
   PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
 
      : TEST_DIR/ir/Match_17.cth
-  14 |     Square    => Io::println("is square"),
-     |     ^^^^^^
+  14 | Square    => Io::println("is square"),
+     | ^^^^^^
 
   The branch needs a pattern that matches:
 

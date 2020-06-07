@@ -2,6 +2,6 @@
   USE OF RESERVED WORD  ------------------------------------------------------
 
     : TEST_DIR/ast/Ident_1.cth
-  3 |   let fn = "abcdef";
-    |       ^^ reserved words cannot be used as identifiers
+  3 | let fn = "abcdef";
+    |     ^^ reserved words cannot be used as identifiers
 

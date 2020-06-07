@@ -4,6 +4,6 @@
   String extends to the end of a line without a closing double quote.
 
     : TEST_DIR/ast/Str_unclosed_1.cth
-  4 |   let y = "abc def
-    |                   ^
+  4 | let y = "abc def
+    |                 ^
 

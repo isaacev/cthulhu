@@ -2,8 +2,8 @@
   EXPECTED EXPRESSION  -------------------------------------------------------
 
     : TEST_DIR/ast/Lex_unknown_char_1.cth
-  4 |   let x = %123;
-    |           ^
+  4 | let x = %123;
+    |         ^
 
   An expression can be like one of the following:
 

@@ -4,6 +4,6 @@
   The `Foo` module does not have a field called `Bar`:
 
      : TEST_DIR/ir/Use_1.cth
-  15 |   Foo::Bar::hello();
-     |        ^^^
+  15 | Foo::Bar::hello();
+     |      ^^^
 

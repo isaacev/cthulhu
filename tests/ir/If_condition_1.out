@@ -7,6 +7,6 @@
     Str
 
     : TEST_DIR/ir/If_condition_1.cth
-  4 |   if "abc" {
-    |      ^^^^^
+  4 | if "abc" {
+    |    ^^^^^
 

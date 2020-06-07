@@ -2,8 +2,8 @@
   PATTERN INCOMPATIBLE WITH TYPE  --------------------------------------------
 
      : TEST_DIR/ir/Match_16.cth
-  13 |     Circle             => Io::println("is circle"),
-     |     ^^^^^^
+  13 | Circle             => Io::println("is circle"),
+     | ^^^^^^
 
   The branch needs a pattern that matches:
 

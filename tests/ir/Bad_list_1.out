@@ -10,6 +10,6 @@
   But the function body returns the type `List(Int)` instead:
 
     : TEST_DIR/ir/Bad_list_1.cth
-  3 |   [1, 2, 3]
-    |   ^^^^^^^^^
+  3 | [1, 2, 3]
+    | ^^^^^^^^^
 

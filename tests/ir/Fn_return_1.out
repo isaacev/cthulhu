@@ -10,6 +10,6 @@
   But the function body returns the type `()` instead:
 
     : TEST_DIR/ir/Fn_return_1.cth
-  3 |   x;
-    |    ^
+  3 | x;
+    |  ^
 

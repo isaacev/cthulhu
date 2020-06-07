@@ -10,6 +10,6 @@
     Int
 
     : TEST_DIR/ir/Match_3.cth
-  5 |     0 => "def",
-    |     ^
+  5 | 0 => "def",
+    | ^
 

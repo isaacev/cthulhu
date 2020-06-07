@@ -10,6 +10,6 @@
     List(Bool)
 
     : TEST_DIR/ir/Match_13.cth
-  5 |     [true] => "a",
-    |     ^^^^^^
+  5 | [true] => "a",
+    | ^^^^^^
 

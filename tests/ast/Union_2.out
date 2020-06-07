@@ -2,8 +2,8 @@
   EXPECTED TYPE ANNOTATION  --------------------------------------------------
 
     : TEST_DIR/ast/Union_2.cth
-  2 |   | Bar();
-    |         ^
+  2 | | Bar();
+    |       ^
 
   A type annotation can be like one of the following:
 
