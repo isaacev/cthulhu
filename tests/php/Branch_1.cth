@@ -1,0 +1,16 @@
+use ::Io;
+use ::Fmt;
+
+fn add3() -> Int -> Int -> Int {
+  { | b, c | b + c }
+}
+
+#[entry]
+fn main() -> () {
+  let a = if true {
+    { | a, b | a + b }
+  } else {
+    { | c, d | c + d }
+  };
+  a(2, 3) |> Fmt::int |> Io::println;
+}

@@ -28,9 +28,14 @@ class Arity {
         $expr->set('arity', $arity);
       },
       'exit(IfExpr)' => function (nodes\IfExpr $expr) {
-        $arity = self::type_to_arity($expr->type);
-        assert($arity instanceof arity\Arity);
-        $expr->set('arity', $arity);
+        $consequent_stmt = $expr->consequent->first ? $expr->consequent->first->last_stmt() : null;
+        $alternate_stmt  = $expr->consequent->first ? $expr->consequent->first->last_stmt() : null;
+
+        $fallback_arity   = self::type_to_arity($expr->type);
+        $consequent_arity = ($consequent_stmt ? $consequent_stmt->get('arity') : null) ?? $fallback_arity;
+        $alternate_arity  = ($alternate_stmt ? $alternate_stmt->get('arity') : null) ?? $fallback_arity;
+        $expr_arity       = $consequent_arity->combine($alternate_arity);
+        $expr->set('arity', $expr_arity);
       },
       'exit(Apply)' => function (nodes\Apply $expr) {
         $callee_arity = $expr->callee->get('arity');
