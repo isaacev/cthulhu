@@ -351,8 +351,12 @@ abstract class AbstractParser {
     return $tokens;
   }
 
+  protected function is_reserved(IdentToken $token): bool {
+    return in_array($token->lexeme, self::RESERVED_WORDS);
+  }
+
   protected function not_reserved(IdentToken $token): bool {
-    return in_array($token->lexeme, self::RESERVED_WORDS) === false;
+    return !$this->is_reserved($token);
   }
 
   protected function ahead_is_lower_ident(): bool {
@@ -385,7 +389,7 @@ abstract class AbstractParser {
     return (
       ($token = $this->peek_token()) &&
       $token instanceof IdentToken &&
-      $this->not_reserved($token) === false
+      $this->is_reserved($token)
     );
   }
 
@@ -394,7 +398,7 @@ abstract class AbstractParser {
       ($token = $this->peek_token()) &&
       $token instanceof IdentToken &&
       $token->is_lowercase() &&
-      in_array($keyword, self::RESERVED_WORDS) &&
+      $this->is_reserved($token) &&
       $keyword === $token->lexeme
     );
   }

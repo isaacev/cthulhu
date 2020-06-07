@@ -126,7 +126,7 @@ class ShallowParser extends AbstractParser {
         : null;
 
       $peek = $this->peek_token();
-      if ($peek instanceof IdentToken) {
+      if ($peek instanceof IdentToken && $this->is_reserved($peek)) {
         switch ($peek->lexeme) {
           case 'type':
             $item = $this->type_item($maybe_pub);
