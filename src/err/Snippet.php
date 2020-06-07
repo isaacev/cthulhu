@@ -180,7 +180,7 @@ class Snippet implements Reportable {
             ->spaces(1)
             ->print($slash)
             ->repeat('-', $to_col)
-            ->print('^')
+            ->print($this->get_option('underline', self::UNDERLINE_CHAR))
             ->reset_styles();
         }
       } else {
