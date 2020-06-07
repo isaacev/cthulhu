@@ -5,8 +5,11 @@ namespace Cthulhu\ir\patterns;
 use Cthulhu\ir\types;
 
 class OrderedFormNode extends FormNode {
-  protected types\Tuple $type;
+  public const PERMUTATION_CUTOFF = 12;
+
+  /* @var Node[] */
   protected array $child_nodes = [];
+  protected types\Tuple $type;
 
   public function __construct(string $name, types\Tuple $type) {
     parent::__construct($name);
@@ -54,16 +57,68 @@ class OrderedFormNode extends FormNode {
     }
   }
 
+  /**
+   * @return FormPattern[]
+   */
   public function uncovered_patterns(): array {
     if ($this->is_covered()) {
       return [];
     }
 
-    $order = [];
-    foreach ($this->type->members as $index => $type) {
-      $order[$index] = new WildcardPattern();
+    $uncovered_child_patterns = [];
+    $total_permutations       = 0;
+    foreach ($this->child_nodes as $index => $child_pattern) {
+      $uncovered_child_patterns[$index] = $subset = $child_pattern->uncovered_patterns();
+      if (empty($subset)) {
+        continue;
+      } else {
+        $total_permutations = ($total_permutations === 0)
+          ? count($subset)
+          : $total_permutations * count($subset);
+      }
     }
-    $fields = new OrderedFormFields($order);
-    return [ new FormPattern($this->name, $fields) ];
+
+    if ($total_permutations < self::PERMUTATION_CUTOFF) {
+      $iterator = [];
+      $cutoff   = [];
+      foreach ($uncovered_child_patterns as $index => $subset) {
+        $iterator[$index] = 0;
+        $cutoff[$index]   = count($subset) - 1;
+      }
+
+      $permutations = [];
+      while (true) {
+        $order = [];
+        foreach ($iterator as $i => $j) {
+          $order[$i] = $uncovered_child_patterns[$i][$j];
+        }
+        $permutations[] = new FormPattern($this->name, new OrderedFormFields($order));
+        $overflow_flag  = true;
+        for ($i = count($iterator) - 1; $i >= 0; $i--) {
+          if ($overflow_flag) {
+            $iterator[$i]++;
+            $overflow_flag = false;
+          }
+
+          if ($iterator[$i] > $cutoff[$i] || $overflow_flag) {
+            $iterator[$i]  = 0;
+            $overflow_flag = true;
+          }
+        }
+
+        if ($overflow_flag) {
+          break;
+        }
+      }
+
+      return $permutations;
+    } else {
+      $order = [];
+      foreach ($this->type->members as $index => $type) {
+        $order[$index] = new WildcardPattern();
+      }
+      $fields = new OrderedFormFields($order);
+      return [ new FormPattern($this->name, $fields) ];
+    }
   }
 }
