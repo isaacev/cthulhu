@@ -22,12 +22,14 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     realpath(test\Runner::STDLIB_DIR) => 'STDLIB_DIR',
   ];
 
-  $per_line = 48;
+  $per_line = 50;
   $on_line  = 0;
   $so_far   = 0;
   $f        = new fmt\StreamFormatter(STDOUT);
   $tests    = test\Runner::find_tests();
   $total    = count($tests);
+  $width    = strlen("$total");
+  $format   = "%${width}d/%d";
 
   $f->newline_if_not_already()
     ->printf("running %d tests", $total)
@@ -65,7 +67,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     if ($on_line >= $per_line || $index === $total - 1) {
       $on_line = 0;
       $f->tab_to($per_line + 1)
-        ->printf("%d/%d", $so_far, $total)
+        ->printf($format, $so_far, $total)
         ->newline();
     }
   }
