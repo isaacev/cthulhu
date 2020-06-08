@@ -44,7 +44,7 @@ class Arity {
         assert($arity instanceof arity\Arity);
         $expr->set('arity', $arity);
       },
-      'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block|Pop' => function (nodes\Node $node) {
+      'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block|Pop|Unreachable' => function (nodes\Node $node) {
         $arity = new arity\ZeroArity();
         $node->set('arity', $arity);
       },

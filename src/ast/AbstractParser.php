@@ -29,6 +29,7 @@ abstract class AbstractParser {
     'super',
     'true',
     'type',
+    'unreachable',
     'use',
   ];
 

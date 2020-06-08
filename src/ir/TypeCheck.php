@@ -217,6 +217,11 @@ class TypeCheck {
         self::set_type($expr, $consequent_type);
       },
 
+      'exit(UnreachableExpr)' => function (ast\UnreachableExpr $expr) {
+        $type = new types\FreeTypeVar('_', null);
+        self::set_type($expr, $type);
+      },
+
       'enter(MatchArm)' => function (ast\MatchArm $arm, Path $path) {
         $match_expr = $path->parent->node;
         assert($match_expr instanceof ast\MatchExpr);

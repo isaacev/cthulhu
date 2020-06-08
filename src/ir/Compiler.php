@@ -319,6 +319,8 @@ class Compiler {
         return self::match_expr($ctx, $expr);
       case $expr instanceof ast\IfExpr:
         return self::if_expr($ctx, $expr);
+      case $expr instanceof ast\UnreachableExpr:
+        return self::unreachable_expr($expr);
       case $expr instanceof ast\CallExpr:
         return self::call_expr($ctx, $expr);
       case $expr instanceof ast\BinaryExpr:
@@ -512,6 +514,11 @@ class Compiler {
     $consequent = new ir\Consequent(self::stmts($ctx, $expr->consequent->stmts));
     $alternate  = new ir\Alternate(self::stmts($ctx, $expr->alternate ? $expr->alternate->stmts : []));
     return new ir\IfExpr($type, $condition, $consequent, $alternate);
+  }
+
+  private static function unreachable_expr(ast\UnreachableExpr $expr): ir\Unreachable {
+    $type = $expr->get(TypeCheck::TYPE_KEY);
+    return new ir\Unreachable($type);
   }
 
   private static function call_expr(self $ctx, ast\CallExpr $expr): ir\Apply {

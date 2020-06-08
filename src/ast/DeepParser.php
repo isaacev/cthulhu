@@ -877,6 +877,8 @@ class DeepParser extends AbstractParser {
         return $this->match_expr();
       case $this->ahead_is_keyword('if'):
         return $this->if_expr();
+      case $this->ahead_is_keyword('unreachable'):
+        return $this->unreachable_expr();
       case $this->ahead_is_group('{}'):
         return $this->brace_expr();
       case $this->ahead_is_group('[]'):
@@ -1179,6 +1181,17 @@ class DeepParser extends AbstractParser {
 
     $span = Span::join($if, ($alternate ?? $consequent)->get('span'));
     return (new nodes\IfExpr($condition, $consequent, $alternate))
+      ->set('span', $span);
+  }
+
+  /**
+   * @return nodes\UnreachableExpr
+   * @throws Error
+   */
+  private function unreachable_expr(): nodes\UnreachableExpr {
+    $unreachable = $this->next_keyword('unreachable');
+    $span        = $unreachable->span;
+    return (new nodes\UnreachableExpr())
       ->set('span', $span);
   }
 

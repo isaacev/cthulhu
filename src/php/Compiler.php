@@ -585,6 +585,11 @@ class Compiler {
         $ctx->expressions->push($expr);
       },
 
+      'Unreachable' => function () use ($ctx) {
+        $exit_msg = new php\StrLiteral(StringValue::from_safe_scalar("unreachable code was reached\\n"));
+        $die_call = new php\BuiltinCallExpr('die', [ $exit_msg ]);
+        $ctx->expressions->push($die_call);
+      },
       'NameExpr' => function (ir\NameExpr $expr, Path $path) use ($ctx) {
         $ir_symbol = $expr->name->symbol;
         if ($ir_symbol instanceof VarSymbol) {
