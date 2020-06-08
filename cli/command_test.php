@@ -12,7 +12,6 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
   $filter         = $args->get('filter');
   $failed_results = [];
   $stats          = [
-    'total' => 0,
     'passed' => 0,
     'failed' => 0,
     'skipped' => 0,
@@ -23,49 +22,52 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     realpath(test\Runner::STDLIB_DIR) => 'STDLIB_DIR',
   ];
 
-  $f = new fmt\StreamFormatter(STDOUT);
-  $f->push_tab_stop(32);
-  foreach (test\Runner::find_tests() as $test) {
-    if ($filter !== null && $test->name_matches($filter) === false) {
+  $per_line = 48;
+  $on_line  = 0;
+  $so_far   = 0;
+  $f        = new fmt\StreamFormatter(STDOUT);
+  $tests    = test\Runner::find_tests();
+  $total    = count($tests);
+
+  $f->newline_if_not_already()
+    ->printf("running %d tests", $total)
+    ->newline();
+
+  foreach ($tests as $index => $test) {
+    $on_line++;
+    $so_far++;
+
+    if ($filter !== null && !$test->name_matches($filter)) {
       $stats['skipped']++;
-      continue;
-    }
-
-    $stats['total']++;
-    $f->print($test->group_and_name())
-      ->space()
-      ->apply_styles(fmt\Foreground::WHITE)
-      ->tab('.')
-      ->reset_styles()
-      ->space();
-
-    $result = $test->run($do_php_eval, $replacements);
-
-    if ($is_blessed && $result instanceof test\TestFailed) {
-      $test->bless($result->found);
-    }
-
-    if ($result instanceof test\TestPassed || $is_blessed) {
-      $stats['passed']++;
-      $f->apply_styles(fmt\Foreground::GREEN)
-        ->print('✓')
+      $f->apply_styles(fmt\Foreground::YELLOW)
+        ->print('i')
         ->reset_styles();
     } else {
-      $stats['failed']++;
-      $failed_results[] = $result;
-      $f->apply_styles(fmt\Foreground::RED)
-        ->print('✗')
-        ->reset_styles();
+      $result = $test->run($do_php_eval, $replacements);
+      if ($is_blessed && $result instanceof test\TestFailed) {
+        $test->bless($result->found);
+      }
+
+      if ($result instanceof test\TestPassed || $is_blessed) {
+        $stats['passed']++;
+        $f->apply_styles(fmt\Foreground::GREEN)
+          ->print('.')
+          ->reset_styles();
+      } else {
+        $stats['failed']++;
+        $failed_results[] = $result;
+        $f->apply_styles(fmt\Foreground::RED)
+          ->print('x')
+          ->reset_styles();
+      }
     }
 
-    if ($show_time) {
-      $f->space()
-        ->apply_styles(fmt\Foreground::WHITE)
-        ->printf('%5.1f ms', $result->runtime_in_ms)
-        ->reset_styles();
+    if ($on_line >= $per_line || $index === $total - 1) {
+      $on_line = 0;
+      $f->tab_to($per_line + 1)
+        ->printf("%d/%d", $so_far, $total)
+        ->newline();
     }
-
-    $f->newline();
   }
 
   foreach ($failed_results as $index => $result) {
@@ -83,7 +85,6 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
   }
 
   $f->newline()
-    ->printf('total   %d', $stats['total'])->newline()
     ->printf('passed  %d', $stats['passed'])->newline()
     ->printf('failed  %d', $stats['failed'])->newline()
     ->printf('skipped %d', $stats['skipped'])->newline();
