@@ -258,15 +258,6 @@ class Snippet implements Reportable {
     return $f;
   }
 
-  /**
-   * @param Formatter      $f
-   * @param tokens\Token[] $visible_region_lines
-   * @return Formatter
-   */
-  private static function print_multiline(Formatter $f, array $visible_region_lines): Formatter {
-    return $f;
-  }
-
   public static function token_styles(tokens\Token $token): array {
     switch (true) {
       case $token instanceof tokens\ErrorToken:
