@@ -19,6 +19,11 @@ class Cycle implements Reportable {
       $f->newline_if_not_already()
         ->tab();
 
+      if ($i >= $total) {
+        $f->printf('\'-<-\'');
+        break;
+      }
+
       $member = $this->members[$i];
       if ($i < $this->index) {
         $f->printf('    %s', $member);
@@ -26,8 +31,6 @@ class Cycle implements Reportable {
         $f->printf('.-> %s', $member);
       } else if ($i < $total) {
         $f->printf('|   %s', $member);
-      } else {
-        $f->printf('\'-<-\'');
       }
     }
 
