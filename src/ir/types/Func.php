@@ -18,19 +18,6 @@ class Func extends ConcreteType {
       $this->output->fresh($ctx));
   }
 
-  public function advance(int $total_arguments): ?Type {
-    assert($total_arguments >= 0);
-    if ($total_arguments === 0) {
-      return $this;
-    } else if ($total_arguments === 1) {
-      return $this->output;
-    } else if ($this->output instanceof Func) {
-      return $this->output->advance($total_arguments - 1);
-    } else {
-      return null;
-    }
-  }
-
   public function __toString(): string {
     if ($this->input->prune() instanceof Func) {
       return "($this->input) -> $this->output";

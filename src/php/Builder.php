@@ -54,10 +54,6 @@ class Builder extends fmt\Builder {
     return $this->push_str('\\');
   }
 
-  public function dot(): self {
-    return $this->push_str('.');
-  }
-
   public function fat_arrow(): self {
     return $this->push_str('=>');
   }
@@ -103,10 +99,6 @@ class Builder extends fmt\Builder {
   public function comment(string $message): self {
     // FIXME: comment message could multiple lines
     return $this->push_str("// $message");
-  }
-
-  public function block_comment(string $message): self {
-    return $this->push_str('/* ' . $message . ' */');
   }
 
   /**

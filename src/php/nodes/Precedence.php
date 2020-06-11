@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 namespace Cthulhu\php\nodes;
 
@@ -18,19 +18,19 @@ class Precedence {
   public const BITWISE_XOR         = 120;
   public const BITWISE_AND         = 130;
   public const EQUALITY_COMPARISON = 140;
-  public const ORDERED_COMPARISON = 150;
-  public const BITWISE_SHIFT = 160;
-  public const SUM = 170;
-  public const STRING_CONCAT = 170;
-  public const PRODUCT = 180;
-  public const UNARY_NOT = 190;
-  public const INSTANCE_OF = 200;
-  public const CAST = 210;
-  public const BITWISE_NOT = 220;
-  public const ERROR_SUPPRESSION = 230;
+  public const ORDERED_COMPARISON  = 150;
+  public const BITWISE_SHIFT       = 160;
+  public const SUM                 = 170;
+  public const STRING_CONCAT       = 170;
+  public const PRODUCT             = 180;
+  public const UNARY_NOT           = 190;
+  public const INSTANCE_OF         = 200;
+  public const CAST                = 210;
+  public const BITWISE_NOT         = 220;
+  public const ERROR_SUPPRESSION   = 230;
   public const INCREMENT_DECREMENT = 240;
-  public const EXPONENT = 250;
-  public const CLONE_AND_NEW = 260;
-  public const ARGUMENT_UNPACK = 270;
-  public const HIGHEST = PHP_INT_MAX;
+  public const EXPONENT            = 250;
+  public const CLONE_AND_NEW       = 260;
+  public const ARGUMENT_UNPACK     = 270;
+  public const HIGHEST             = PHP_INT_MAX;
 }

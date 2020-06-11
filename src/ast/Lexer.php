@@ -18,19 +18,6 @@ class Lexer {
   }
 
   /**
-   * @param int $n
-   * @return tokens\Token[]
-   * @throws Error
-   */
-  public function peek_multiple(int $n): array {
-    for ($i = count($this->buffer); $i < $n; $i++) {
-      $this->buffer[] = $this->read();
-    }
-
-    return array_slice($this->buffer, 0, $n);
-  }
-
-  /**
    * @return tokens\Token
    * @throws Error
    */

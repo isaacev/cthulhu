@@ -44,14 +44,6 @@ abstract class Builder implements Buildable {
     }
   }
 
-  public function choose(bool $test, Buildable $if_true, Buildable $if_false): self {
-    if ($test) {
-      return $this->then($if_true);
-    } else {
-      return $this->then($if_false);
-    }
-  }
-
   public function each(array $buildables, ?Buildable $glue = null): self {
     foreach ($buildables as $i => $buildable) {
       if ($glue !== null && $i > 0) {

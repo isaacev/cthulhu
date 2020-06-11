@@ -7,10 +7,6 @@ use Cthulhu\lib\trees\DefaultUniqueId;
 class Symbol {
   use DefaultUniqueId;
 
-  public function equals(Symbol $other): bool {
-    return $this->get_id() === $other->get_id();
-  }
-
   public function __toString(): string {
     return (string)$this->get_id();
   }

@@ -19,11 +19,6 @@ class PatternContext {
     array_push($this->conditions, $next);
   }
 
-  public function peek_condition(): nodes\Expr {
-    assert(!empty($this->conditions));
-    return end($this->conditions);
-  }
-
   /**
    * @return nodes\Expr[]
    */

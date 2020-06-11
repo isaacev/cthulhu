@@ -35,10 +35,6 @@ class Filepath {
     return $this->extension === $extension;
   }
 
-  public function is_internal(): bool {
-    return $this->directory->is_internal;
-  }
-
   /**
    * @return File
    * @throws Error
@@ -61,9 +57,5 @@ class Filepath {
     $filename  = array_key_exists('filename', $parts) ? $parts['filename'] : '';
     $extension = array_key_exists('extension', $parts) ? $parts['extension'] : '';
     return new self($dir, $filename, $extension);
-  }
-
-  public static function from_memory(string $name): self {
-    return new self(new Directory('', false), $name, 'cth');
   }
 }

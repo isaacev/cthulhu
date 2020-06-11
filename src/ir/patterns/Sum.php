@@ -18,26 +18,6 @@ class Sum {
     return count($this->members);
   }
 
-  public function covers(ListPattern $pattern): bool {
-    $same_cardinality  = $pattern->cardinality() === $this->cardinality();
-    $smaller_with_glob = (
-      $pattern->cardinality() > $this->cardinality() &&
-      $this->has_glob
-    );
-
-    if ($same_cardinality || $smaller_with_glob) {
-      $all_covered = false;
-      for ($i = 0; $i < $this->cardinality(); $i++) {
-        $sub            = $pattern->elements[$i];
-        $is_sub_covered = $this->members[$i]->is_redundant($sub);
-        $all_covered    = $is_sub_covered || $all_covered;
-      }
-      return $all_covered;
-    }
-
-    return false;
-  }
-
   public function apply(Pattern $pattern): void {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
