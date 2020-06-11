@@ -32,7 +32,7 @@ abstract class GuardedNode extends Node {
     $this->completions = $completions;
   }
 
-  public abstract function matches(string $token): bool;
+  abstract public function matches(string $token): bool;
 
   public function completions(): array {
     return $this->completions;

@@ -61,7 +61,7 @@ This simplifies the generation of PHP function calls.
 
 ## Arity analysis
 
-While Cthulhu supports function currying, PHP does not. A naiive way to
+While Cthulhu supports function currying, PHP does not. A naive way to
 implement this feature in PHP is to use the PHP reflection API at every
 call-site to determine the arity of the callee. This would incur a runtime
 penalty for every function call.

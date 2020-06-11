@@ -36,7 +36,6 @@ class TailCall implements Pass {
       },
     ]);
 
-    /* @var bool[] $is_tail_stmt */
     $is_tail_stmt = [ false ];
 
     /* @var nodes\Variable[][] $recursive_vars */

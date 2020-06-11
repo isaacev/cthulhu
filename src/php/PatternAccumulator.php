@@ -18,6 +18,6 @@ class PatternAccumulator {
 
   public function pop_pattern_context(): void {
     assert(!empty($this->contexts));
-    $ctx = array_pop($this->contexts);
+    array_pop($this->contexts);
   }
 }

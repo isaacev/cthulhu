@@ -2,11 +2,12 @@
 
 namespace Cthulhu\ast;
 
+use Countable;
 use Cthulhu\loc\Point;
 use Cthulhu\loc\Span;
 use Cthulhu\loc\Spanlike;
 
-class TokenGroup extends TokenTree implements \Countable, Spanlike {
+class TokenGroup extends TokenTree implements Countable, Spanlike {
   public string $delim;
   public Span $left;
   public array $members;

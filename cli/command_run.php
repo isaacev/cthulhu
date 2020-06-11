@@ -18,7 +18,7 @@ function command_run(cli\Lookup $flags, cli\Lookup $args) {
     $f = new StreamFormatter(STDERR);
     $err->format($f);
     exit(1);
-  } catch (\Exception $ex) {
+  } catch (Exception $ex) {
     fwrite(STDERR, "$ex");
     exit(1);
   }

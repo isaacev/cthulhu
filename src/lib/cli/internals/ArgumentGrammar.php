@@ -11,9 +11,9 @@ abstract class ArgumentGrammar implements Describeable {
     $this->description = $description;
   }
 
-  public abstract function parse(Scanner $scanner): ArgumentResult;
+  abstract public function parse(Scanner $scanner): ArgumentResult;
 
-  public abstract function full_name(): string;
+  abstract public function full_name(): string;
 
   public function description(): string {
     return $this->description;

@@ -48,7 +48,7 @@ class Helpers {
           new nodes\PropertyAccessExpr(
             new nodes\NewExpr(
               new nodes\ReferenceExpr($reflect_func, false),
-              [ $fn ]),
+              [ new nodes\VariableExpr($fn) ]),
             $get_num_params),
           []),
         // $argc = count($argv);
@@ -56,7 +56,7 @@ class Helpers {
           $argc,
           new nodes\CallExpr(
             new nodes\ReferenceExpr($count, false),
-            [ $argv ]),
+            [ new nodes\VariableExpr($argv) ]),
 
           // $argc < $arity
           new nodes\IfStmt(

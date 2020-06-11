@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="isaac">
     <words>
+      <w>abspath</w>
       <w>buildables</w>
       <w>cthulhu</w>
       <w>cword</w>
@@ -14,6 +15,7 @@
       <w>incase</w>
       <w>infixr</w>
       <w>inlined</w>
+      <w>mapi</w>
       <w>maxlen</w>
       <w>milner</w>
       <w>nodelike</w>
@@ -28,11 +30,14 @@
       <w>punct</w>
       <w>recursed</w>
       <w>recursing</w>
+      <w>relpath</w>
+      <w>renamer</w>
       <w>spanlike</w>
       <w>sprintf</w>
       <w>strval</w>
       <w>subcommand</w>
       <w>subcommands</w>
+      <w>succ</w>
       <w>syms</w>
       <w>typelike</w>
       <w>unstash</w>

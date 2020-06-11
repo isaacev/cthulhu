@@ -5,7 +5,7 @@ namespace Cthulhu\lib\fmt;
 abstract class Formatter {
   public const MAX_LINE_LENGTH = 80;
 
-  private $col = null;
+  private ?int $col = null;
   private array $tab = [ 0 ];
   private array $applied_styles = [];
   private array $stashed_styles = [];

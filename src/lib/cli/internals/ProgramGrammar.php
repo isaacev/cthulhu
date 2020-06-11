@@ -10,7 +10,8 @@ class ProgramGrammar {
   public string $version;
   public FlagsGrammar $flags_grammar;
   public array $subcommand_grammars;
-  public array $callback;
+  /* @var callable $callback */
+  public $callback;
 
   public function __construct(string $name, string $version) {
     $this->name                = $name;

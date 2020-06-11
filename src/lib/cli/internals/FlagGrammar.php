@@ -17,11 +17,11 @@ abstract class FlagGrammar implements Describeable {
     return $this->short !== null;
   }
 
-  public abstract function completions(): array;
+  abstract public function completions(): array;
 
-  public abstract function matches(string $token): bool;
+  abstract public function matches(string $token): bool;
 
-  public abstract function parse(string $token, Scanner $scanner): FlagResult;
+  abstract public function parse(string $token, Scanner $scanner): FlagResult;
 
   public function full_name(): string {
     if ($this->has_short_form()) {

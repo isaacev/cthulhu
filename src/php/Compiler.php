@@ -580,6 +580,7 @@ class Compiler {
       },
 
       'exit(Record)' => function (ir\Record $record) use ($ctx) {
+        /* @var php\FieldNode[] $fields */
         $fields = $ctx->expressions->pop_multiple(count($record->fields));
         $expr   = new php\AssociativeArrayExpr($fields);
         $ctx->expressions->push($expr);
