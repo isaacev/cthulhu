@@ -45,8 +45,10 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
         $test->bless($result->found);
       }
 
-      if ($result instanceof test\TestPassed || $is_blessed) {
+      if ($result instanceof test\TestPassed) {
         $reporter->on_pass($result);
+      } else if ($is_blessed) {
+        $reporter->on_pass(new test\TestPassed($test, $result->runtime_in_ms));
       } else {
         $reporter->on_fail($result);
       }
