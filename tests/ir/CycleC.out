@@ -1,0 +1,11 @@
+
+  IMPORT CYCLE  --------------------------------------------------------------
+
+  A library is indirectly importing itself. The import cycle contains these
+  libraries:
+
+  .-> TEST_DIR/ir/CycleC.cth
+  |   TEST_DIR/ir/CycleA.cth
+  |   TEST_DIR/ir/CycleB.cth
+  '-<-'
+
