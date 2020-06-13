@@ -25,8 +25,8 @@ class SimpleTestReporter extends TestReporter {
   public function on_skip(Test $test): void {
     parent::on_skip($test);
     $this->formatter
-      ->apply_styles(fmt\Foreground::YELLOW)
-      ->print('i')
+      ->apply_styles(fmt\Foreground::WHITE)
+      ->print('.')
       ->reset_styles();
     $this->is_line_finished();
   }
@@ -35,7 +35,7 @@ class SimpleTestReporter extends TestReporter {
     parent::on_pass($result);
     $this->formatter
       ->apply_styles(fmt\Foreground::GREEN)
-      ->print('.')
+      ->print('+')
       ->reset_styles();
     $this->is_line_finished();
   }
