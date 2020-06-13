@@ -11,7 +11,7 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
   $do_php_eval = $flags->get('eval', false);
   $filter      = $args->get('filter');
   $tests       = test\Runner::find_tests();
-  $stdout      = new fmt\StreamFormatter(STDOUT);
+  $stdout      = fmt\StreamFormatter::stdout();
 
   if ($list_only === true) {
     foreach ($tests as $index => $test) {

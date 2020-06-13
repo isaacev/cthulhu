@@ -36,7 +36,7 @@ class ProgramGrammar {
   }
 
   public function print_help(): void {
-    $f = new StreamFormatter(STDOUT);
+    $f = StreamFormatter::stdout();
     Helper::usage($f, $this->name, '[FLAGS]', '[SUBCOMMAND]');
     $f->newline();
     Helper::section($f, 'flags', ...$this->flags_grammar->flags);

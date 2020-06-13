@@ -17,14 +17,13 @@ function command_check(cli\Lookup $flags, cli\Lookup $args) {
         ->optimize()
         ->ir()
         ->build()
-        ->write(new StreamFormatter(STDOUT))
+        ->write(StreamFormatter::stdout())
         ->newline();
     } else {
       echo "no errors in $abspath\n";
     }
   } catch (Error $err) {
-    $f = new StreamFormatter(STDERR);
-    $err->format($f);
+    $err->format(StreamFormatter::stderr());
     exit(1);
   }
 }

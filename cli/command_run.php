@@ -15,8 +15,7 @@ function command_run(cli\Lookup $flags, cli\Lookup $args) {
       ->optimize()
       ->run($args->get('args'));
   } catch (Error $err) {
-    $f = new StreamFormatter(STDERR);
-    $err->format($f);
+    $err->format(StreamFormatter::stderr());
     exit(1);
   } catch (Exception $ex) {
     fwrite(STDERR, "$ex");

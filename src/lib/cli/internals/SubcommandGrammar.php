@@ -33,7 +33,7 @@ class SubcommandGrammar implements Describeable {
   }
 
   public function print_help(): void {
-    $f = new StreamFormatter(STDOUT);
+    $f = StreamFormatter::stdout();
     Helper::usage($f, $this->program_name, $this->id, '[FLAGS]', ...$this->argument_grammars);
     $f->newline();
     Helper::section($f, 'flags', ...$this->flags_grammar->flags);

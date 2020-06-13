@@ -28,4 +28,12 @@ class StreamFormatter extends Formatter {
   protected function use_color(): bool {
     return $this->use_color;
   }
+
+  public static function stdout(): self {
+    return new self(STDOUT);
+  }
+
+  public static function stderr(): self {
+    return new self(STDERR);
+  }
 }
