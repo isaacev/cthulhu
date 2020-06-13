@@ -20,6 +20,7 @@ $root->subcommand('compile', 'Convert source code to PHP')
 
 require_once __DIR__ . '/command_test.php';
 $root->subcommand('test', 'Run all of the available tests')
+  ->bool_flag('--list', 'List all available tests without running any tests')
   ->bool_flag('--bless', 'Update any stdout/stderr files for failing tests')
   ->bool_flag('--verbose', 'Show each test by name including timing info')
   ->bool_flag('--eval', 'Evaluate PHP code and check that the output is expected')

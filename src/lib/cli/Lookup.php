@@ -9,6 +9,11 @@ class Lookup {
     $this->table = $table;
   }
 
+  /**
+   * @param string $id
+   * @param null   $fallback
+   * @return mixed|null
+   */
   public function get(string $id, $fallback = null) {
     if (array_key_exists($id, $this->table) && !empty($this->table[$id])) {
       return end($this->table[$id]);

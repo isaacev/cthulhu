@@ -5,21 +5,35 @@ use Cthulhu\lib\fmt;
 use Cthulhu\lib\test;
 
 function command_test(cli\Lookup $flags, cli\Lookup $args) {
-  $is_blessed  = $flags->get('bless');
-  $is_verbose  = $flags->get('verbose');
+  $is_blessed  = $flags->get('bless', false);
+  $is_verbose  = $flags->get('verbose', false);
+  $list_only   = $flags->get('list', false);
   $do_php_eval = $flags->get('eval', false);
   $filter      = $args->get('filter');
+  $tests       = test\Runner::find_tests();
+  $stdout      = new fmt\StreamFormatter(STDOUT);
+
+  if ($list_only === true) {
+    foreach ($tests as $index => $test) {
+      if ($filter !== null && !$test->name_matches($filter)) {
+        continue;
+      }
+
+      $stdout
+        ->print($test->group_and_name())
+        ->newline();
+    }
+    exit(0);
+  }
 
   $replacements = [
     realpath(test\Runner::DEFAULT_DIR) => 'TEST_DIR',
     realpath(test\Runner::STDLIB_DIR) => 'STDLIB_DIR',
   ];
 
-  $f        = new fmt\StreamFormatter(STDOUT);
-  $tests    = test\Runner::find_tests();
   $reporter = $is_verbose
-    ? new test\VerboseTestReporter(count($tests), $f)
-    : new test\SimpleTestReporter(count($tests), $f);
+    ? new test\VerboseTestReporter(count($tests), $stdout)
+    : new test\SimpleTestReporter(count($tests), $stdout);
 
   $reporter->on_start();
   foreach ($tests as $index => $test) {
