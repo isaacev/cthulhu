@@ -10,6 +10,7 @@ $root = (new cli\Program('cthulhu', '0.1.0'));
 
 require_once __DIR__ . '/command_check.php';
 $root->subcommand('check', 'Check that a source file is free of errors')
+  ->bool_flag('--ir', 'Print intermediate representation')
   ->single_argument('file', 'Path to the source file')
   ->callback('command_check');
 

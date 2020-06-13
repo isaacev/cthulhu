@@ -14,6 +14,10 @@ class CodegenPhase {
     $this->tree = $tree;
   }
 
+  public function ir(): Root {
+    return $this->tree;
+  }
+
   public function codegen(): LateOptimizationPhase {
     Arity::inspect($this->tree);
     Renamer::rename($this->tree);
