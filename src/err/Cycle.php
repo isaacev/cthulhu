@@ -20,7 +20,7 @@ class Cycle implements Reportable {
         ->tab();
 
       if ($i >= $total) {
-        $f->printf('\'-<-\'');
+        $f->printf("'-<-'");
         break;
       }
 
