@@ -1,8 +1,6 @@
 <?php
 
-/**
- * @noinspection PhpUnusedLocalVariableInspection
- */
+/** @noinspection PhpUnusedLocalVariableInspection */
 
 namespace Cthulhu\ast;
 
