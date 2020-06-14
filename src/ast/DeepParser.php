@@ -21,6 +21,7 @@ use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\names\TermBinding;
 use Cthulhu\ir\names\TypeSymbol;
 use Cthulhu\ir\names\VarSymbol;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\lib\trees\Visitor;
 use Cthulhu\loc\Point;
 use Cthulhu\loc\Span;
@@ -232,7 +233,7 @@ class DeepParser extends AbstractParser {
       case $item instanceof nodes\ShallowFnItem:
         return $this->fn_item($item);
       default:
-        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 
@@ -415,7 +416,7 @@ class DeepParser extends AbstractParser {
         break;
       default:
         echo get_class($note) . PHP_EOL;
-        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 
@@ -1442,7 +1443,7 @@ class DeepParser extends AbstractParser {
         ->set('span', $span);
     }
 
-    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    Panic::if_reached(__LINE__, __FILE__);
   }
 
   /**

@@ -2,6 +2,8 @@
 
 namespace Cthulhu\php;
 
+use Cthulhu\lib\panic\Panic;
+
 class ExpressionStack {
   /* @var nodes\Expr[] $stack */
   private array $stack = [];
@@ -14,7 +16,7 @@ class ExpressionStack {
 
   public function pop(): nodes\Expr {
     if (empty($this->stack)) {
-      die("tried to pop an expression from an empty stack\n");
+      Panic::with_reason(__LINE__, __FILE__, "tried to pop an expression from an empty stack");
     }
     return array_pop($this->stack);
   }
@@ -28,7 +30,7 @@ class ExpressionStack {
     if ($n === 0) {
       return [];
     } else if (count($this->stack) < $n) {
-      die("tried to pop too many expressions from the stack\n");
+      Panic::with_reason(__LINE__, __FILE__, "tried to pop too many expressions from the stack");
     } else {
       return array_splice($this->stack, -$n);
     }

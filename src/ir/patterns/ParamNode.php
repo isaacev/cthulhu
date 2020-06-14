@@ -2,6 +2,8 @@
 
 namespace Cthulhu\ir\patterns;
 
+use Cthulhu\lib\panic\Panic;
+
 class ParamNode extends Node {
   protected bool $has_wildcard = false;
 
@@ -17,7 +19,7 @@ class ParamNode extends Node {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else {
-      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

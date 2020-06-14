@@ -2,6 +2,7 @@
 
 namespace Cthulhu\php\nodes;
 
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\php\Builder;
 
 class UnaryExpr extends Expr {
@@ -31,7 +32,7 @@ class UnaryExpr extends Expr {
       case '!':
         return Precedence::UNARY_NOT;
       default:
-        die("unknown precedence for `$this->operator` operator");
+        Panic::with_reason(__LINE__, __FILE__, "unknown precedence for `$this->operator` operator");
     }
   }
 

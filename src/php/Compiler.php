@@ -8,6 +8,7 @@ use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
 use Cthulhu\ir\types\Record;
 use Cthulhu\ir\types\Tuple;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 use Cthulhu\php\names\Symbol;
@@ -205,12 +206,12 @@ class Compiler {
         $expr_name         = end($expr_name_parts);
         $pushed_exprs      = $found_stack_depth - $prior_stack_depth;
         if ($pushed_exprs > 1) {
-          die("$expr_name pushed $pushed_exprs expressions to the stack\n");
+          Panic::with_reason(__LINE__, __FILE__, "$expr_name pushed $pushed_exprs expressions to the stack");
         } else if ($pushed_exprs === 0) {
-          die("$expr_name pushed no expressions to the stack\n");
+          Panic::with_reason(__LINE__, __FILE__, "$expr_name pushed no expressions to the stack");
         } else if ($pushed_exprs < 0) {
           $abs_pushed_exprs = abs($pushed_exprs);
-          die("$expr_name removed $abs_pushed_exprs expressions from the stack\n");
+          Panic::with_reason(__LINE__, __FILE__, "$expr_name removed $abs_pushed_exprs expressions from the stack");
         }
       },
 

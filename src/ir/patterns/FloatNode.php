@@ -2,6 +2,8 @@
 
 namespace Cthulhu\ir\patterns;
 
+use Cthulhu\lib\panic\Panic;
+
 class FloatNode extends Node {
   protected bool $has_wildcard = false;
   protected array $has_values = [];
@@ -27,7 +29,7 @@ class FloatNode extends Node {
     } else if ($pattern instanceof FloatPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

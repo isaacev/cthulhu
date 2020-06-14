@@ -3,6 +3,7 @@
 namespace Cthulhu\ast;
 
 use Cthulhu\err\Error;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\loc\Span;
 
 class Lexer {
@@ -124,7 +125,7 @@ class Lexer {
       }
     }
 
-    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    Panic::if_reached(__LINE__, __FILE__);
   }
 
   private function next_ident(Char $next): tokens\Token {

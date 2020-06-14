@@ -2,6 +2,7 @@
 
 namespace Cthulhu\php;
 
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\php\names\Symbol;
 use Cthulhu\val\IntegerValue;
 use Cthulhu\val\StringValue;
@@ -77,7 +78,7 @@ class Intrinsics {
       case 'file_to_abspath':
         return self::file_to_abspath(...$args);
       default:
-        die("unknown intrinsic named '$name'\n");
+        Panic::with_reason(__LINE__, __FILE__, "unknown intrinsic named '$name'");
     }
   }
 

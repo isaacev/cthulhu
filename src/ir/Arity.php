@@ -5,6 +5,7 @@ namespace Cthulhu\ir;
 use Cthulhu\ir\types\ConcreteType;
 use Cthulhu\ir\types\Func;
 use Cthulhu\ir\types\Type;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 
@@ -16,7 +17,7 @@ class Arity {
           if ($node instanceof nodes\NameExpr) {
             echo $node->name->text . PHP_EOL;
           }
-          die("missing arity for $path->kind node\n");
+          Panic::with_reason(__LINE__, __FILE__, "missing arity for $path->kind node");
         }
       },
       'Intrinsic' => function (nodes\Intrinsic $intrinsic) {

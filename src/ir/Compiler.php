@@ -7,6 +7,7 @@ use Cthulhu\err\Error;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\nodes as ir;
+use Cthulhu\lib\panic\Panic;
 
 class Compiler {
   private ?ir\Module $module = null;
@@ -264,7 +265,7 @@ class Compiler {
         self::expr_stmt($ctx, $stmt);
         break;
       default:
-        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 
@@ -336,7 +337,7 @@ class Compiler {
         return self::unit_literal();
       default:
         echo get_class($expr) . PHP_EOL;
-        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 
@@ -427,7 +428,7 @@ class Compiler {
           case $pat->literal instanceof ast\BoolLiteral:
             return new ir\BoolConstPattern($pat->literal->bool_value);
           default:
-            die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+            Panic::if_reached(__LINE__, __FILE__);
         }
       }
       case $pat instanceof ast\NamedFormPattern:
@@ -495,7 +496,7 @@ class Compiler {
         return new ir\WildcardPattern($type);
       default:
         echo get_class($pat) . PHP_EOL;
-        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

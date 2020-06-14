@@ -5,6 +5,7 @@ namespace Cthulhu\ast;
 use Cthulhu\ast\tokens\DelimToken;
 use Cthulhu\ast\tokens\TerminalToken;
 use Cthulhu\err\Error;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\loc\Point;
 
 class Nester {
@@ -59,6 +60,6 @@ class Nester {
         array_push($member_stack[count($member_stack) - 1], $new_leaf);
       }
     }
-    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    Panic::if_reached(__LINE__, __FILE__);
   }
 }

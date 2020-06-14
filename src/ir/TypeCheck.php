@@ -7,6 +7,7 @@ use Cthulhu\err\Error;
 use Cthulhu\ir\names\Binding;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\types\ParameterContext;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\lib\trees\Path;
 use Cthulhu\lib\trees\Visitor;
 use Cthulhu\loc\Span;
@@ -435,13 +436,13 @@ class TypeCheck {
 
       'exit(Expr)' => function (ast\Expr $expr, Path $path) {
         if (!self::get_maybe_type($expr)) {
-          die("$path->kind missing a type\n");
+          Panic::with_reason(__LINE__, __FILE__, "$path->kind missing a type");
         }
       },
 
       'exit(Stmt)' => function (ast\Stmt $stmt, Path $path) {
         if (!self::get_maybe_type($stmt)) {
-          die("$path->kind missing a type\n");
+          Panic::with_reason(__LINE__, __FILE__, "$path->kind missing a type");
         }
       },
     ]);
@@ -488,7 +489,7 @@ class TypeCheck {
     if ($t1 instanceof types\FreeTypeVar) {
       if ($t1 !== $t2) {
         if ($t1->contains($t2)) {
-          die("recursive unification between $t1 and $t2\n");
+          Panic::with_reason(__LINE__, __FILE__, "recursive unification between $t1 and $t2");
         } else if ($t1->has_instance()) {
           throw new types\UnificationFailure();
         } else {
@@ -558,7 +559,7 @@ class TypeCheck {
           throw new types\UnificationFailure();
         }
       } else {
-        die("unknown type: " . get_class($t1) . PHP_EOL);
+        Panic::with_reason(__LINE__, __FILE__, "unknown type: " . get_class($t1));
       }
     }
   }
@@ -584,7 +585,7 @@ class TypeCheck {
         $type = self::fresh($type);
         return $type;
       } else {
-        die("unknown type: " . $note->path->tail . PHP_EOL);
+        Panic::with_reason(__LINE__, __FILE__, "unknown type: " . $note->path->tail);
       }
     }
 
@@ -648,7 +649,7 @@ class TypeCheck {
       }
     }
 
-    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    Panic::if_reached(__LINE__, __FILE__);
   }
 
   /**
@@ -670,7 +671,7 @@ class TypeCheck {
         case $pat->literal->value instanceof val\UnitValue:
           return types\Atomic::unit();
         default:
-          die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+          Panic::if_reached(__LINE__, __FILE__);
       }
     }
 
@@ -738,7 +739,7 @@ class TypeCheck {
       return $enum_type;
     }
 
-    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    Panic::if_reached(__LINE__, __FILE__);
   }
 
   private static function block_ret_span(ast\BlockNode $block): Spanlike {

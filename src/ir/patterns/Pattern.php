@@ -4,6 +4,7 @@ namespace Cthulhu\ir\patterns;
 
 use Cthulhu\ast\nodes as ast;
 use Cthulhu\ir\types;
+use Cthulhu\lib\panic\Panic;
 
 abstract class Pattern {
   abstract public function __toString(): string;
@@ -59,7 +60,7 @@ abstract class Pattern {
       } else if ($pattern->literal instanceof ast\BoolLiteral) {
         return new BoolPattern($pattern->literal->bool_value);
       } else {
-        die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+        Panic::if_reached(__LINE__, __FILE__);
       }
     } else {
       return new WildcardPattern();

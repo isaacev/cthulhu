@@ -2,6 +2,7 @@
 
 namespace Cthulhu\php;
 
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\val\IntegerValue;
 
 class Helpers {
@@ -15,7 +16,7 @@ class Helpers {
       case 'curry':
         return self::get_curry_helper($runtime_namespace);
       default:
-        die("no helper named '$helper_name'\n");
+        Panic::with_reason(__LINE__, __FILE__, "no helper named '$helper_name'");
     }
   }
 

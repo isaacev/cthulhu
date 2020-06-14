@@ -3,6 +3,7 @@
 namespace Cthulhu\ir\patterns;
 
 use Cthulhu\ir\types;
+use Cthulhu\lib\panic\Panic;
 
 abstract class Node {
   abstract public function is_covered(): bool;
@@ -42,10 +43,10 @@ abstract class Node {
         case 'Bool':
           return new BoolNode();
         default:
-          die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+          Panic::if_reached(__LINE__, __FILE__);
       }
     }
 
-    die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+    Panic::if_reached(__LINE__, __FILE__);
   }
 }

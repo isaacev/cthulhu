@@ -6,6 +6,7 @@ use Cthulhu\ir\types\Atomic;
 use Cthulhu\ir\types\Enum;
 use Cthulhu\ir\types\Record;
 use Cthulhu\ir\types\Tuple;
+use Cthulhu\lib\panic\Panic;
 
 class EnumNode extends Node {
   protected Enum $type;
@@ -27,7 +28,7 @@ class EnumNode extends Node {
           $this->variants[$name] = new NamedFormNode($name, $form);
           break;
         default:
-          die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+          Panic::if_reached(__LINE__, __FILE__);
       }
     }
   }
@@ -52,7 +53,7 @@ class EnumNode extends Node {
     } else if ($pattern instanceof FormPattern) {
       return $this->variants[$pattern->name]->is_redundant($pattern);
     } else {
-      die('unreachable at ' . __LINE__ . ' in ' . __FILE__ . PHP_EOL);
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

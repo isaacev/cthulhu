@@ -5,6 +5,7 @@ namespace Cthulhu\php;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
 use Cthulhu\ir\nodes as ir;
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\php\names\ClosureScope;
 use Cthulhu\php\names\Scope;
 
@@ -67,7 +68,7 @@ class Names {
     $out   = '';
     foreach ($chars as $char) {
       if (array_key_exists($char, self::PUNCT_TO_SAFE_CHAR) === false) {
-        die("cannot use '$char' in operator\n");
+        Panic::with_reason(__LINE__, __FILE__, "cannot use '$char' in operator");
       } else if (empty($out)) {
         $out .= self::PUNCT_TO_SAFE_CHAR[$char];
       } else {

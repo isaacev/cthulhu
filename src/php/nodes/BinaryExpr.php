@@ -2,6 +2,7 @@
 
 namespace Cthulhu\php\nodes;
 
+use Cthulhu\lib\panic\Panic;
 use Cthulhu\php\Builder;
 
 class BinaryExpr extends Expr {
@@ -55,7 +56,7 @@ class BinaryExpr extends Expr {
       case '**':
         return Precedence::EXPONENT;
       default:
-        die("unknown precedence for `$this->operator` operator\n");
+        Panic::with_reason(__LINE__, __FILE__, "unknown precedence for `$this->operator` operator");
     }
   }
 
