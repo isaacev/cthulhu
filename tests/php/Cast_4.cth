@@ -1,0 +1,7 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  Io::println(Fmt::str("hello world"));
+}
