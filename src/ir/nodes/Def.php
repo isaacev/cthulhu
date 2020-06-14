@@ -44,6 +44,10 @@ class Def extends Stmt {
       ->space()
       ->then($this->name)
       ->space()
+      ->paren_left()
+      ->each($this->params->names, (new Builder)->space())
+      ->paren_right()
+      ->space()
       ->stmts($this->body)
       ->paren_right()
       ->then($this->next ?? (new Builder));
