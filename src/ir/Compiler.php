@@ -6,7 +6,6 @@ use Cthulhu\ast\nodes as ast;
 use Cthulhu\err\Error;
 use Cthulhu\ir\names\RefSymbol;
 use Cthulhu\ir\names\Symbol;
-use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
 
 class Compiler {
@@ -94,9 +93,6 @@ class Compiler {
       case $item instanceof ast\EnumItem:
         self::enum_item($ctx, $item);
         break;
-      case $item instanceof ast\IntrinsicItem:
-        self::intrinsic_item($ctx, $item);
-        break;
       case $item instanceof ast\FnItem:
         self::fn_item($ctx, $item);
         break;
@@ -159,40 +155,6 @@ class Compiler {
     $ctx->push_stmt($enum_stmt);
   }
 
-  private static function intrinsic_item(self $ctx, ast\IntrinsicItem $item): void {
-    foreach ($item->signatures as $sig) {
-      $symbol = $sig->name->get('symbol');
-      $text   = self::symbol_to_text($symbol);
-      $type   = $sig->name->get('symbol')->get(TypeCheck::TYPE_KEY);
-      assert($type instanceof types\Func);
-      $name  = new ir\Name($type, $text, $symbol);
-      $ident = $sig->name->value;
-
-      $names      = [];
-      $exprs      = [];
-      $input_type = $type;
-      while ($input_type instanceof types\Func) {
-        $name_type   = $input_type->input;
-        $name_text   = chr(ord('a') + count($names));
-        $name_symbol = (new VarSymbol())->set('text', $name_text);
-        $names[]     = $param_name = new ir\Name($name_type, $name_text, $name_symbol);
-        $exprs[]     = new ir\NameExpr($param_name);
-        $input_type  = $input_type->output;
-      }
-      $params = new ir\Names($names);
-      $args   = new ir\Exprs($exprs);
-
-      if (types\Atomic::is_unit($type->input) && count($params) === 1) {
-        $params = new ir\Names([]);
-        $args   = new ir\Exprs([]);
-      }
-
-      $int = new ir\Intrinsic($type, $ident, $args);
-      $def = new ir\Def($name, $params, new ir\Ret($int, null), null);
-      $ctx->push_stmt($def);
-    }
-  }
-
   private static function fn_item(self $ctx, ast\FnItem $item): void {
     if ($item->name instanceof ast\Operator) {
       $symbol = $item->name->get('symbol');
@@ -207,8 +169,16 @@ class Compiler {
 
     $name   = new ir\Name($type, $text, $symbol);
     $params = self::params($item->params);
-    $body   = self::stmts($ctx, $item->body->stmts);
-    $def    = new ir\Def($name, $params, $body, null);
+
+    if ($intrinsic_name = self::is_intrinsic($item)) {
+      $args = new ir\Exprs(array_map(fn($n) => new ir\NameExpr($n), $params->names));
+      $int  = new ir\Intrinsic($type, $intrinsic_name, $args);
+      $body = new ir\Ret($int, null);
+    } else {
+      $body = self::stmts($ctx, $item->body->stmts);
+    }
+
+    $def = new ir\Def($name, $params, $body, null);
 
     if (self::is_entry_point($item)) {
       $def->set('entry', true);
@@ -218,6 +188,27 @@ class Compiler {
     }
 
     $ctx->push_stmt($def);
+  }
+
+  /**
+   * @param ast\FnItem $item
+   * @return string|false
+   */
+  private static function is_intrinsic(ast\FnItem $item) {
+    /* @var ast\Attribute[]|null $attrs */
+    $attrs = $item->get('attrs');
+    if ($attrs) {
+      foreach ($attrs as $attr) {
+        if ($attr->name->value === 'intrinsic') {
+          if (isset($attr->args[0])) {
+            return $attr->args[0]->value;
+          } else {
+            die("function $item->name was marked as an intrinsic without a name\n");
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static function is_entry_point(ast\FnItem $item): bool {

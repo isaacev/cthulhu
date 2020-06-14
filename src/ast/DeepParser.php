@@ -225,8 +225,6 @@ class DeepParser extends AbstractParser {
     switch (true) {
       case $item instanceof nodes\ShallowEnumItem:
         return $this->enum_item($item);
-      case $item instanceof nodes\ShallowIntrinsicItem:
-        return $this->intrinsic_item($item);
       case $item instanceof nodes\ShallowUseItem:
         return $this->use_item($item);
       case $item instanceof nodes\ShallowModItem:
@@ -287,26 +285,6 @@ class DeepParser extends AbstractParser {
     $this->pop_param_scope();
 
     return (new nodes\EnumItem($item->name, $item->params, $item->forms))
-      ->set('pub', $item->get('pub'))
-      ->set('span', $item->get('span'))
-      ->set('attrs', $item->get('attrs'));
-  }
-
-  /**
-   * @param nodes\ShallowIntrinsicItem $item
-   * @return nodes\IntrinsicItem
-   * @throws Error
-   */
-  private function intrinsic_item(nodes\ShallowIntrinsicItem $item): nodes\IntrinsicItem {
-    foreach ($item->signatures as $signature) {
-      $this->push_param_scope(new Scope());
-      $this->bind_type_params($signature->params);
-      $this->resolve_note($signature->params);
-      $this->resolve_note($signature->returns);
-      $this->pop_param_scope();
-    }
-
-    return (new nodes\IntrinsicItem($item->signatures))
       ->set('pub', $item->get('pub'))
       ->set('span', $item->get('span'))
       ->set('attrs', $item->get('attrs'));

@@ -1,6 +1,5 @@
-intrinsic {
-  fn mt_rand(Int, Int) -> Int;
-}
+#[intrinsic(mt_rand)]
+fn mt_rand(lo: Int, hi: Int) -> Int { unreachable }
 
 pub fn bool() -> Bool {
   mt_rand(0, 1) == 1

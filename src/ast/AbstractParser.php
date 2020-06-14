@@ -20,7 +20,6 @@ abstract class AbstractParser {
     'false',
     'fn',
     'if',
-    'intrinsic',
     'let',
     'match',
     'mod',

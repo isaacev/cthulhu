@@ -48,21 +48,6 @@ class TypeCheck {
     }
 
     Visitor::walk($tree, [
-      'enter(IntrinsicSignature)' => function (ast\IntrinsicSignature $sig) {
-        $free_inputs = [];
-        if ($sig->params instanceof ast\TupleNote) {
-          foreach ($sig->params->members as $note) {
-            $free_inputs[] = self::note_to_type($note, true);
-          }
-        } else {
-          $free_inputs[] = self::note_to_type($sig->params, true);
-        }
-
-        $free_output = self::note_to_type($sig->returns, true);
-        $free_type   = types\Func::from_input_array($free_inputs, $free_output);
-        self::set_type($sig->name->get('symbol'), $free_type);
-      },
-
       'EnumItem' => function (ast\EnumItem $enum) {
         $free_params = [];
         foreach ($enum->params as $note) {

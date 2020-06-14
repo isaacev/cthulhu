@@ -131,9 +131,6 @@ class ShallowParser extends AbstractParser {
           case 'type':
             $item = $this->type_item($maybe_pub);
             break;
-          case 'intrinsic':
-            $item = $this->intrinsic_item($maybe_pub);
-            break;
           case 'mod':
             $item = $this->mod_item($maybe_pub);
             break;
@@ -235,50 +232,6 @@ class ShallowParser extends AbstractParser {
 
     $span = Span::join($pipe, $name->get('span'));
     return (new nodes\NullaryFormDecl($name))
-      ->set('span', $span);
-  }
-
-  /**
-   * @param IdentToken|null $maybe_pub
-   * @return nodes\ShallowIntrinsicItem
-   * @throws Error
-   */
-  private function intrinsic_item(?IdentToken $maybe_pub): nodes\ShallowIntrinsicItem {
-    $keyword     = $this->next_keyword('intrinsic');
-    $enter_block = $this->next_group_matches('{}');
-    $signatures  = $this->intrinsic_signatures();
-    $exit_block  = $this->exit_group_matches('{}');
-    $span        = Span::join($maybe_pub ?? $keyword, $exit_block);
-    return (new nodes\ShallowIntrinsicItem($signatures))
-      ->set('pub', $maybe_pub !== null)
-      ->set('span', $span);
-  }
-
-  /**
-   * @return nodes\IntrinsicSignature[]
-   * @throws Error
-   */
-  private function intrinsic_signatures(): array {
-    $signatures = [];
-    while ($this->peek_token()) {
-      $signatures[] = $this->intrinsic_signature();
-      $semi         = $this->next_punct(';');
-    }
-    return $signatures;
-  }
-
-  /**
-   * @return nodes\IntrinsicSignature
-   * @throws Error
-   */
-  private function intrinsic_signature(): nodes\IntrinsicSignature {
-    $keyword = $this->next_keyword('fn');
-    $name    = $this->next_lower_name();
-    $params  = $this->grouped_note();
-    $arrow   = $this->next_punct('->');
-    $returns = $this->note();
-    $span    = Span::join($keyword, $returns->get('span'));
-    return (new nodes\IntrinsicSignature($name, $params, $returns))
       ->set('span', $span);
   }
 

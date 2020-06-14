@@ -143,9 +143,6 @@ class ShallowResolver {
       'ShallowEnumItem' => function (nodes\ShallowEnumItem $item) use ($ctx) {
         self::enum_item($ctx, $item);
       },
-      'ShallowIntrinsicItem' => function (nodes\ShallowIntrinsicItem $item) use ($ctx) {
-        self::intrinsic_item($ctx, $item);
-      },
       'ShallowUseItem' => function (nodes\ShallowUseItem $item) use ($ctx) {
         self::use_item($ctx, $item);
       },
@@ -223,16 +220,6 @@ class ShallowResolver {
       // Give the form symbol a reference to the enum symbol. This will
       // make it easier to lookup the enum type during typechecking.
       $form_symbol->set('enum', $enum_symbol);
-    }
-  }
-
-  private static function intrinsic_item(self $ctx, nodes\ShallowIntrinsicItem $item): void {
-    $is_public = $item->get('pub') ?? false;
-    foreach ($item->signatures as $signature) {
-      $sig_name    = $signature->name;
-      $sig_symbol  = $ctx->make_ref_symbol_for_name($sig_name, $ctx->current_ref_symbol());
-      $sig_binding = new TermBinding($sig_name, $sig_symbol, $is_public);
-      $ctx->current_module_scope()->add_term_binding($sig_binding);
     }
   }
 

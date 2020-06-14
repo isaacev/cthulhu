@@ -1,9 +1,14 @@
-intrinsic {
-  fn array_key_exists(Int, ['a]) -> Bool;
-  fn subscript(['a], Int) -> 'a;
-  fn count(['a]) -> Int;
-  fn prepend('a, ['a]) -> ['a];
-}
+#[intrinsic(array_key_exists)]
+fn array_key_exists(index: Int, arr: ['a]) -> Bool { unreachable }
+
+#[intrinsic(subscript)]
+fn subscript(arr: ['a], index: Int) -> 'a { unreachable }
+
+#[intrinsic(count)]
+fn count(arr: ['a]) -> Int { unreachable }
+
+#[intrinsic(prepend)]
+fn prepend(add: 'a, to: ['a]) -> ['a] { unreachable }
 
 pub fn nth(ls: ['a], n: Int) -> Maybe('a) {
   if array_key_exists(n, ls) {

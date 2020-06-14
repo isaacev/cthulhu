@@ -1,14 +1,15 @@
-intrinsic {
-  fn php_print(Str) -> ();
-  fn read_argv() -> [Str];
-}
-
+#[intrinsic(php_print)]
 pub fn print(str: Str) -> () {
-  php_print(str)
+  unreachable
 }
 
 pub fn println(str: Str) -> () {
-  php_print(str ++ "\n")
+  print(str ++ "\n")
+}
+
+#[intrinsic(read_argv)]
+fn read_argv() -> [Str] {
+  unreachable
 }
 
 pub fn argv() -> [Str] {
@@ -19,10 +20,19 @@ pub mod Fs {
   pub type Error =
     | FileDoesNotExist;
 
-  intrinsic {
-    fn file_does_exist(Str) -> Bool;
-    fn file_get_contents(Str) -> Str;
-    fn file_to_abspath(Str) -> Str;
+  #[intrinsic(file_does_not_exist)]
+  fn file_does_exist(path: Str) -> Bool {
+    unreachable
+  }
+
+  #[intrinsic(file_get_contents)]
+  fn file_get_contents(path: Str) -> Str {
+    unreachable
+  }
+
+  #[intrinsic(file_to_abspath)]
+  fn file_to_abspath(path: Str) -> Str {
+    unreachable
   }
 
   pub fn abspath_if_exists(relpath: Str) -> Str {

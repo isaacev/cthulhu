@@ -1,14 +1,19 @@
-intrinsic {
-  fn cast_int_to_string(Int) -> Str;
-  fn cast_float_to_string(Float) -> Str;
-}
-
 pub fn str(s: Str) -> Str {
   s
 }
 
+#[intrinsic(cast_int_to_string)]
+fn cast_int_to_string(i: Int) -> Str {
+  unreachable
+}
+
 pub fn int(i: Int) -> Str {
   cast_int_to_string(i)
+}
+
+#[intrinsic(cast_float_to_string)]
+fn cast_float_to_string(f: Float) -> Str {
+  unreachable
 }
 
 pub fn float(f: Float) -> Str {

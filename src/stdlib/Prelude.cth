@@ -4,128 +4,110 @@
 
 pub use ::Kernel::Bool;
 
-intrinsic {
-  fn bool_and(Bool, Bool) -> Bool;
-  fn bool_or(Bool, Bool) -> Bool;
-}
-
+#[intrinsic(bool_and)]
 #[infixr(rel)]
 pub fn (&&) (a: Bool, b: Bool) -> Bool {
-  bool_and(a, b)
+  unreachable
 }
 
+#[intrinsic(bool_or)]
 #[infixr(rel)]
 pub fn (||) (a: Bool, b: Bool) -> Bool {
-  bool_or(a, b)
+  unreachable
 }
 
 pub use ::Kernel::Int;
 
-intrinsic {
-  fn int_add(Int, Int) -> Int;
-  fn int_sub(Int, Int) -> Int;
-  fn int_mul(Int, Int) -> Int;
-}
-
+#[intrinsic(int_add)]
 #[infix(sum)]
 pub fn (+) (a: Int, b: Int) -> Int {
-  int_add(a, b)
+  unreachable
 }
 
+#[intrinsic(int_sub)]
 #[infix(sum)]
 pub fn (-) (a: Int, b: Int) -> Int {
-  int_sub(a, b)
+  unreachable
 }
 
+#[intrinsic(int_mul)]
 #[infix(prod)]
 pub fn (*) (a: Int, b: Int) -> Int {
-  int_mul(a, b)
+  unreachable
 }
 
 pub use ::Kernel::Float;
 
-intrinsic {
-  fn float_add(Float, Float) -> Float;
-  fn float_sub(Float, Float) -> Float;
-  fn float_mul(Float, Float) -> Float;
-  fn float_div(Float, Float) -> Float;
-}
-
+#[intrinsic(float_add)]
 #[infix(sum)]
 pub fn (+.) (a: Float, b: Float) -> Float {
-  float_add(a, b)
+  unreachable
 }
 
+#[intrinsic(float_sub)]
 #[infix(sum)]
 pub fn (-.) (a: Float, b: Float) -> Float {
-  float_sub(a, b)
+  unreachable
 }
 
+#[intrinsic(float_mul)]
 #[infix(prod)]
 pub fn (*.) (a: Float, b: Float) -> Float {
-  float_mul(a, b)
+  unreachable
 }
 
+#[intrinsic(float_div)]
 #[infix(prod)]
 pub fn (/) (a: Float, b: Float) -> Float {
-  float_div(a, b)
+  unreachable
 }
 
 pub use ::Kernel::Str;
 
-intrinsic {
-  fn str_concat(Str, Str) -> Str;
-}
-
+#[intrinsic(str_concat)]
 #[infix(sum)]
 pub fn (++) (a: Str, b: Str) -> Str {
-  str_concat(a, b)
+  unreachable
 }
 
-intrinsic {
-  fn any_pow('a, 'a) -> 'a;
-}
-
+#[intrinsic(any_pow)]
 #[infixr(exp)]
 pub fn (^) (a: 'a, b: 'a) -> 'a {
-  any_pow(a, b)
+  unreachable
 }
 
 --
 -- Define other useful binary operators
 --
 
-intrinsic {
-  fn any_eq('a, 'a) -> Bool;
-  fn any_lt('a, 'a) -> Bool;
-  fn any_gt('a, 'a) -> Bool;
-  fn any_lte('a, 'a) -> Bool;
-  fn any_gte('a, 'a) -> Bool;
-}
-
+#[intrinsic(any_eq)]
 #[infix(rel)]
 pub fn (==) (a: 'a, b: 'a) -> Bool {
-  any_eq(a, b)
+  unreachable
 }
 
+#[intrinsic(any_lt)]
 #[infix(rel)]
 pub fn (<) (a: 'a, b: 'a) -> Bool {
-  any_lt(a, b)
+  unreachable
 }
 
+#[intrinsic(any_gt)]
 #[infix(rel)]
 pub fn (>) (a: 'a, b: 'a) -> Bool {
-  any_gt(a, b)
+  unreachable
 }
 
+#[intrinsic(any_lte)]
 #[infix(rel)]
 pub fn (<=) (a: 'a, b: 'a) -> Bool {
-  any_lte(a, b)
+  unreachable
 }
 
+#[intrinsic(any_gte)]
 #[infix(rel)]
 pub fn (>=) (a: 'a, b: 'a) -> Bool {
-  any_gte(a, b)
+  unreachable
 }
 
 #[infix(pipe)]
@@ -137,13 +119,10 @@ pub fn (|>) (lhs: 'a, rhs: 'a -> 'b) -> 'b {
 -- Define some prefix operators
 --
 
-intrinsic {
-  fn negate('a) -> 'a;
-}
-
+#[intrinsic(negate)]
 #[prefix]
 pub fn (~) (a: 'a) -> 'a {
-  negate(a)
+  unreachable
 }
 
 --
