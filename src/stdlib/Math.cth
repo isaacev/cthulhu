@@ -1,9 +1,2 @@
-#[intrinsic(sqrt)]
-pub fn square_root(a: Float) -> Float {
-  unreachable
-}
-
-#[intrinsic(float_floor)]
-pub fn floor(a: Float) -> Int {
-  unreachable
-}
+#[intrinsic] pub fn square_root(a: Float) -> Float { unreachable }
+#[intrinsic] pub fn floor(a: Float) -> Int { unreachable }

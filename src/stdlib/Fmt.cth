@@ -2,23 +2,8 @@ pub fn str(s: Str) -> Str {
   s
 }
 
-#[intrinsic(cast_int_to_string)]
-fn cast_int_to_string(i: Int) -> Str {
-  unreachable
-}
-
-pub fn int(i: Int) -> Str {
-  cast_int_to_string(i)
-}
-
-#[intrinsic(cast_float_to_string)]
-fn cast_float_to_string(f: Float) -> Str {
-  unreachable
-}
-
-pub fn float(f: Float) -> Str {
-  cast_float_to_string(f)
-}
+#[intrinsic(cast_int_to_string)]   pub fn int(i: Int) -> Str { unreachable }
+#[intrinsic(cast_float_to_string)] pub fn float(f: Float) -> Str { unreachable }
 
 pub fn bool(b: Bool) -> Str {
   match b {

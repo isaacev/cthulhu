@@ -4,111 +4,36 @@
 
 pub use ::Kernel::Bool;
 
-#[intrinsic(bool_and)]
-#[infixr(rel)]
-pub fn (&&) (a: Bool, b: Bool) -> Bool {
-  unreachable
-}
-
-#[intrinsic(bool_or)]
-#[infixr(rel)]
-pub fn (||) (a: Bool, b: Bool) -> Bool {
-  unreachable
-}
+#[intrinsic(bool_and)] #[infixr(rel)] pub fn (&&) (a: Bool, b: Bool) -> Bool { unreachable }
+#[intrinsic(bool_or)]  #[infixr(rel)] pub fn (||) (a: Bool, b: Bool) -> Bool { unreachable }
 
 pub use ::Kernel::Int;
 
-#[intrinsic(int_add)]
-#[infix(sum)]
-pub fn (+) (a: Int, b: Int) -> Int {
-  unreachable
-}
-
-#[intrinsic(int_sub)]
-#[infix(sum)]
-pub fn (-) (a: Int, b: Int) -> Int {
-  unreachable
-}
-
-#[intrinsic(int_mul)]
-#[infix(prod)]
-pub fn (*) (a: Int, b: Int) -> Int {
-  unreachable
-}
+#[intrinsic(int_add)] #[infix(sum)]  pub fn (+) (a: Int, b: Int) -> Int { unreachable }
+#[intrinsic(int_sub)] #[infix(sum)]  pub fn (-) (a: Int, b: Int) -> Int { unreachable }
+#[intrinsic(int_mul)] #[infix(prod)] pub fn (*) (a: Int, b: Int) -> Int { unreachable }
 
 pub use ::Kernel::Float;
 
-#[intrinsic(float_add)]
-#[infix(sum)]
-pub fn (+.) (a: Float, b: Float) -> Float {
-  unreachable
-}
-
-#[intrinsic(float_sub)]
-#[infix(sum)]
-pub fn (-.) (a: Float, b: Float) -> Float {
-  unreachable
-}
-
-#[intrinsic(float_mul)]
-#[infix(prod)]
-pub fn (*.) (a: Float, b: Float) -> Float {
-  unreachable
-}
-
-#[intrinsic(float_div)]
-#[infix(prod)]
-pub fn (/) (a: Float, b: Float) -> Float {
-  unreachable
-}
+#[intrinsic(float_add)] #[infix(sum)]  pub fn (+.) (a: Float, b: Float) -> Float { unreachable }
+#[intrinsic(float_sub)] #[infix(sum)]  pub fn (-.) (a: Float, b: Float) -> Float { unreachable }
+#[intrinsic(float_mul)] #[infix(prod)] pub fn (*.) (a: Float, b: Float) -> Float { unreachable }
+#[intrinsic(float_div)] #[infix(prod)] pub fn (/)  (a: Float, b: Float) -> Float { unreachable }
 
 pub use ::Kernel::Str;
 
-#[intrinsic(str_concat)]
-#[infix(sum)]
-pub fn (++) (a: Str, b: Str) -> Str {
-  unreachable
-}
-
-#[intrinsic(any_pow)]
-#[infixr(exp)]
-pub fn (^) (a: 'a, b: 'a) -> 'a {
-  unreachable
-}
+#[intrinsic(str_concat)] #[infix(sum)] pub fn (++) (a: Str, b: Str) -> Str { unreachable }
 
 --
 -- Define other useful binary operators
 --
 
-#[intrinsic(any_eq)]
-#[infix(rel)]
-pub fn (==) (a: 'a, b: 'a) -> Bool {
-  unreachable
-}
-
-#[intrinsic(any_lt)]
-#[infix(rel)]
-pub fn (<) (a: 'a, b: 'a) -> Bool {
-  unreachable
-}
-
-#[intrinsic(any_gt)]
-#[infix(rel)]
-pub fn (>) (a: 'a, b: 'a) -> Bool {
-  unreachable
-}
-
-#[intrinsic(any_lte)]
-#[infix(rel)]
-pub fn (<=) (a: 'a, b: 'a) -> Bool {
-  unreachable
-}
-
-#[intrinsic(any_gte)]
-#[infix(rel)]
-pub fn (>=) (a: 'a, b: 'a) -> Bool {
-  unreachable
-}
+#[intrinsic(any_pow)] #[infixr(exp)] pub fn (^)  (a: 'a, b: 'a) -> 'a   { unreachable }
+#[intrinsic(any_eq)]  #[infix(rel)]  pub fn (==) (a: 'a, b: 'a) -> Bool { unreachable }
+#[intrinsic(any_lt)]  #[infix(rel)]  pub fn (<)  (a: 'a, b: 'a) -> Bool { unreachable }
+#[intrinsic(any_gt)]  #[infix(rel)]  pub fn (>)  (a: 'a, b: 'a) -> Bool { unreachable }
+#[intrinsic(any_lte)] #[infix(rel)]  pub fn (<=) (a: 'a, b: 'a) -> Bool { unreachable }
+#[intrinsic(any_gte)] #[infix(rel)]  pub fn (>=) (a: 'a, b: 'a) -> Bool { unreachable }
 
 #[infix(pipe)]
 pub fn (|>) (lhs: 'a, rhs: 'a -> 'b) -> 'b {
@@ -119,11 +44,7 @@ pub fn (|>) (lhs: 'a, rhs: 'a -> 'b) -> 'b {
 -- Define some prefix operators
 --
 
-#[intrinsic(negate)]
-#[prefix]
-pub fn (~) (a: 'a) -> 'a {
-  unreachable
-}
+#[intrinsic(negate)] #[prefix] pub fn (~) (a: 'a) -> 'a { unreachable }
 
 --
 -- Define commonly used composite types

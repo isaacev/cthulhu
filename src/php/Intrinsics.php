@@ -14,9 +14,9 @@ class Intrinsics {
    */
   public static function build_intrinsic_expr(string $name, array $args): nodes\Expr {
     switch ($name) {
-      case 'sqrt':
+      case 'square_root':
         return self::sqrt(...$args);
-      case 'float_floor':
+      case 'floor':
         return self::float_floor(...$args);
       case 'read_argv':
         return self::read_argv();
@@ -30,7 +30,7 @@ class Intrinsics {
         return self::subscript(...$args);
       case 'mt_rand':
         return self::mt_rand(...$args);
-      case 'php_print':
+      case 'print':
         return self::php_print(...$args);
       case 'str_concat':
         return self::str_concat(...$args);
