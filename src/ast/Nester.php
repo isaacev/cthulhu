@@ -18,6 +18,7 @@ class Nester {
   /**
    * @return TokenGroup
    * @throws Error
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   public function nest(): TokenGroup {
     /* @var DelimToken[] $left_stack */

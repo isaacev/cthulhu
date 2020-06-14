@@ -24,6 +24,7 @@ class ExpressionStack {
   /**
    * @param int $n
    * @return nodes\Expr[]
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   public function pop_multiple(int $n): array {
     assert($n >= 0);

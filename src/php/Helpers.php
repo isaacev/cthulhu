@@ -10,6 +10,7 @@ class Helpers {
    * @param string          $helper_name
    * @param nodes\Reference $runtime_namespace
    * @return nodes\FuncStmt
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   public static function get(string $helper_name, nodes\Reference $runtime_namespace): nodes\FuncStmt {
     switch ($helper_name) {

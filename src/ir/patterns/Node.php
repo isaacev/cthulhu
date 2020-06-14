@@ -17,6 +17,7 @@ abstract class Node {
    */
   abstract public function uncovered_patterns(): array;
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   public static function from_type(types\Type $type): self {
     $type = $type->flatten();
 

@@ -221,6 +221,7 @@ class DeepParser extends AbstractParser {
    * @param nodes\ShallowItem $item
    * @return nodes\Item
    * @throws Error
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private function item(nodes\ShallowItem $item): nodes\Item {
     switch (true) {
@@ -1413,6 +1414,7 @@ class DeepParser extends AbstractParser {
   /**
    * @return nodes\Literal
    * @throws Error
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private function literal_expr(): nodes\Literal {
     $token = $this->next_literal();

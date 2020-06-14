@@ -9,6 +9,7 @@ use Cthulhu\lib\panic\Panic;
 abstract class Pattern {
   abstract public function __toString(): string;
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   public static function from(ast\Pattern $pattern, types\Type $type): self {
     $type = $type->flatten();
 

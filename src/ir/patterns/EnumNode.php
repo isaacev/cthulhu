@@ -47,6 +47,7 @@ class EnumNode extends Node {
     return true;
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   public function is_redundant(Pattern $pattern): bool {
     if ($pattern instanceof WildcardPattern) {
       return $this->is_covered();

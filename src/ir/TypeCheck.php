@@ -569,6 +569,7 @@ class TypeCheck {
    * @param bool     $is_free
    * @return types\Type
    * @throws Error
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private static function note_to_type(ast\Note $note, bool $is_free): types\Type {
     if ($note instanceof ast\UnitNote) {
@@ -656,6 +657,7 @@ class TypeCheck {
    * @param ast\Pattern $pat
    * @return types\Type
    * @throws types\UnificationFailure|Error
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private static function pattern_to_type(ast\Pattern $pat): types\Type {
     if ($pat instanceof ast\ConstPattern) {

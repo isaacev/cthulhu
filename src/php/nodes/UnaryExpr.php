@@ -23,6 +23,7 @@ class UnaryExpr extends Expr {
     return new self($this->operator, $nodes[0]);
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   public function precedence(): int {
     switch ($this->operator) {
       case '-':

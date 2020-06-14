@@ -92,6 +92,7 @@ class Lexer {
    * @param Char $next
    * @return tokens\StringToken
    * @throws Error
+   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private function next_str_literal(Char $next): tokens\Token {
     $lexeme = $next->raw_char;

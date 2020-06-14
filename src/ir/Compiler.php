@@ -301,6 +301,7 @@ class Compiler {
     return new ir\Exprs($new_exprs);
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   private static function expr(self $ctx, ast\Expr $expr): ir\Expr {
     switch (true) {
       case $expr instanceof ast\ClosureExpr:
@@ -412,6 +413,7 @@ class Compiler {
     return new ir\Match($out_type, $disc, $arms);
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   private static function pattern(types\Type $type, ast\Pattern $pat): ir\Pattern {
     $type = $type->flatten();
 
