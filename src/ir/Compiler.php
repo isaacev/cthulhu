@@ -192,7 +192,7 @@ class Compiler {
 
   /**
    * @param ast\FnItem $item
-   * @return string|false
+   * @return string|null
    */
   private static function is_intrinsic(ast\FnItem $item) {
     /* @var ast\Attribute[]|null $attrs */
@@ -203,12 +203,12 @@ class Compiler {
           if (isset($attr->args[0])) {
             return $attr->args[0]->value;
           } else {
-            die("function $item->name was marked as an intrinsic without a name\n");
+            return "$item->name";
           }
         }
       }
     }
-    return false;
+    return null;
   }
 
   private static function is_entry_point(ast\FnItem $item): bool {
