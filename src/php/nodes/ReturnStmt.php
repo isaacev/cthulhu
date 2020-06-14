@@ -27,6 +27,6 @@ class ReturnStmt extends Stmt {
       ->keyword('return')
       ->then($expr)
       ->semicolon()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

@@ -32,8 +32,12 @@ abstract class Builder implements Buildable {
     return $this;
   }
 
-  public function then(Buildable $buildable): self {
-    return $this->push_builder($buildable->build());
+  public function then(?Buildable $buildable): self {
+    if ($buildable) {
+      return $this->push_builder($buildable->build());
+    } else {
+      return $this;
+    }
   }
 
   public function maybe(bool $test, Buildable $if_true): self {
@@ -46,7 +50,7 @@ abstract class Builder implements Buildable {
 
   public function each(array $buildables, ?Buildable $glue = null): self {
     foreach ($buildables as $i => $buildable) {
-      if ($glue !== null && $i > 0) {
+      if ($i > 0) {
         $this->then($glue);
       }
       $this->then($buildable);

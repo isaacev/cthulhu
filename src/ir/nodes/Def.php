@@ -50,6 +50,6 @@ class Def extends Stmt {
       ->space()
       ->stmts($this->body)
       ->paren_right()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

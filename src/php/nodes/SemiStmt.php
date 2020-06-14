@@ -19,6 +19,6 @@ class SemiStmt extends Stmt {
       ->newline_then_indent()
       ->expr($this->expr)
       ->semicolon()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

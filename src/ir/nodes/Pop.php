@@ -36,6 +36,6 @@ class Pop extends Stmt {
       ->space()
       ->then($this->expr)
       ->paren_right()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

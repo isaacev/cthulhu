@@ -74,6 +74,6 @@ class ClassStmt extends Stmt {
       ->brace_left()
       ->then($body)
       ->brace_right()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

@@ -77,9 +77,9 @@ class Module extends Node implements RemovalHandler, ReplacementHandler, Editabl
       ->space()
       ->then($this->name ?? (new Builder)->paren_left()->paren_right())
       ->increase_indentation()
-      ->then($this->stmt ?? (new Builder))
+      ->then($this->stmt)
       ->decrease_indentation()
       ->paren_right()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

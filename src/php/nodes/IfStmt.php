@@ -72,6 +72,6 @@ class IfStmt extends Stmt {
     return (new Builder)
       ->newline_then_indent()
       ->then($this->build_without_preceding_newline())
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

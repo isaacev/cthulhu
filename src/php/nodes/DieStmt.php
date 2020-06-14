@@ -29,6 +29,6 @@ class DieStmt extends Stmt {
       ->value($this->message)
       ->paren_right()
       ->semicolon()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

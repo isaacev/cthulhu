@@ -18,6 +18,6 @@ class ContinueStmt extends Stmt {
       ->newline_then_indent()
       ->keyword('continue')
       ->semicolon()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

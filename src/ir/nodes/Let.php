@@ -43,6 +43,6 @@ class Let extends Stmt {
       ->then($this->expr)
       ->decrease_indentation()
       ->paren_right()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

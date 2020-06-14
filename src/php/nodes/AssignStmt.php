@@ -40,6 +40,6 @@ class AssignStmt extends Stmt {
       ->space()
       ->expr($this->expr)
       ->semicolon()
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

@@ -38,6 +38,6 @@ class WhileStmt extends Stmt {
       ->paren_right()
       ->space()
       ->then($this->consequent)
-      ->then($this->next ?? (new Builder));
+      ->then($this->next);
   }
 }

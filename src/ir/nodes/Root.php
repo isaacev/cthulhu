@@ -25,7 +25,7 @@ class Root extends Node {
       ->keyword('root')
       ->space()
       ->increase_indentation()
-      ->then($this->module ?? (new Builder))
+      ->then($this->module)
       ->decrease_indentation()
       ->paren_right();
   }
