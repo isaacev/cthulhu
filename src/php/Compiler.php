@@ -560,7 +560,7 @@ class Compiler {
 
       'exit(Lookup)' => function (ir\Lookup $lookup) use ($ctx) {
         $root  = $ctx->expressions->pop();
-        $field = new php\StrLiteral(StringValue::from_safe_scalar($lookup->field->text));
+        $field = php\StrLiteral::from_val($lookup->field->text);
         $ctx->expressions->push(new php\SubscriptExpr($root, $field));
       },
 

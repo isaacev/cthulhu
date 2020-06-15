@@ -19,4 +19,8 @@ class StrLiteral extends Literal {
     return (new Builder)
       ->value($this->value);
   }
+
+  public static function from_val(string $value): self {
+    return new self(StringValue::from_safe_scalar($value));
+  }
 }
