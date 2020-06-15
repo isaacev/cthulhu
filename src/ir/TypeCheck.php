@@ -34,7 +34,7 @@ use Cthulhu\val;
  * @link http://dysphoria.net/2009/06/28/hindley-milner-type-inference-in-scala
  */
 class TypeCheck {
-  public const TYPE_KEY = 'type2';
+  public const TYPE_KEY = 'type';
 
   /**
    * @param Binding[]   $bindings
