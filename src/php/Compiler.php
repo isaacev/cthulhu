@@ -557,6 +557,13 @@ class Compiler {
           $ctx->expressions->push(self::curry_app($ctx, $callee, $args));
         }
       },
+
+      'exit(Lookup)' => function (ir\Lookup $lookup) use ($ctx) {
+        $root  = $ctx->expressions->pop();
+        $field = new php\StrLiteral(StringValue::from_safe_scalar($lookup->field->text));
+        $ctx->expressions->push(new php\SubscriptExpr($root, $field));
+      },
+
       'exit(Intrinsic)' => function (ir\Intrinsic $intrinsic) use ($ctx) {
         $args = $ctx->expressions->pop_multiple(count($intrinsic->args));
         $name = $intrinsic->ident;
@@ -574,9 +581,9 @@ class Compiler {
       },
 
       'exit(Field)' => function (ir\Field $field) use ($ctx) {
-        $name  = $ctx->names->name_to_name($field->name);
+        $key   = StringValue::from_safe_scalar($field->name->text);
         $expr  = $ctx->expressions->pop();
-        $field = new php\FieldNode($name, $expr);
+        $field = new php\FieldNode($key, $expr);
         $ctx->expressions->push($field);
       },
 

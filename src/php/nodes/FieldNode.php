@@ -6,29 +6,26 @@ use Cthulhu\php\Builder;
 use Cthulhu\val\StringValue;
 
 class FieldNode extends Expr {
-  public Name $name;
+  public StringValue $key;
   public Expr $expr;
 
-  public function __construct(Name $name, Expr $expr) {
+  public function __construct(StringValue $key, Expr $expr) {
     parent::__construct();
-    $this->name = $name;
+    $this->key  = $key;
     $this->expr = $expr;
   }
 
   public function children(): array {
-    return [
-      $this->name,
-      $this->expr,
-    ];
+    return [ $this->expr ];
   }
 
   public function from_children(array $nodes): Node {
-    return new self($nodes[0], $nodes[1]);
+    return new self($this->key, $nodes[1]);
   }
 
   public function build(): Builder {
     return (new Builder)
-      ->value(StringValue::from_safe_scalar($this->name->value))
+      ->value($this->key)
       ->space()
       ->fat_arrow()
       ->space()

@@ -1,0 +1,11 @@
+use ::Io;
+
+fn get_name(thing: { name: Str }) -> Str {
+  "name: " ++ thing.name
+}
+
+#[entry]
+fn main() -> () {
+  let x = { names: "foo" };
+  Io::println(get_name(x));
+}

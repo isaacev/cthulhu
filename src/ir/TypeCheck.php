@@ -134,6 +134,16 @@ class TypeCheck {
         self::set_type($expr, $type);
       },
 
+      'exit(RecordExpr)' => function (ast\RecordExpr $expr) {
+        $fields = [];
+        foreach ($expr->fields as $field) {
+          $name          = $field->name->value;
+          $type          = self::get_type($field->expr);
+          $fields[$name] = $type;
+        }
+        self::set_type($expr, new types\Record($fields));
+      },
+
       'exit(LetStmt)' => function (ast\LetStmt $stmt) {
         $expr_type = self::get_type($stmt->expr);
 
@@ -335,6 +345,24 @@ class TypeCheck {
           $arg_span  = $expr->args->get('span');
           $arg_type  = types\Atomic::unit();
           throw Errors::call_non_func($call_span, $arg_span, $call_type, $arg_type);
+        }
+      },
+
+      'exit(FieldAccessExpr)' => function (ast\FieldAccessExpr $expr) {
+        $root_type = self::get_type($expr->root);
+
+        if ($root_type instanceof types\Record) {
+          $field_name = $expr->field->value;
+          if (array_key_exists($field_name, $root_type->fields)) {
+            $field_type = self::fresh($root_type->fields[$field_name]);
+            self::set_type($expr, $field_type);
+          } else {
+            throw Errors::access_unknown_field($expr->field, $root_type);
+          }
+        } else {
+          $access_span = $expr->get('span');
+          $root_span   = $expr->root->get('span');
+          throw Errors::access_non_record($access_span, $root_span, $root_type);
         }
       },
 
@@ -614,6 +642,14 @@ class TypeCheck {
     if ($note instanceof ast\ListNote) {
       $elements = self::note_to_type($note->elements, $is_free);
       return new types\ListType($elements);
+    }
+
+    if ($note instanceof ast\RecordNote) {
+      $fields = [];
+      foreach ($note->fields as $field) {
+        $fields[$field->name->value] = self::note_to_type($field->note, $is_free);
+      }
+      return new types\Record($fields);
     }
 
     if ($note instanceof ast\FuncNote) {

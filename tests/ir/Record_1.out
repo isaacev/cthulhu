@@ -1,0 +1,10 @@
+
+  INCORRECT ARGUMENT TYPE  ---------------------------------------------------
+
+  The function expected an argument of the type `{ name: Str }`. But the
+  function call provided an argument of the type `{ names: Str }`:
+
+     : TEST_DIR/ir/Record_1.cth
+  10 | Io::println(get_name(x));
+     |                      ^
+

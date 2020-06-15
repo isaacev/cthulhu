@@ -306,6 +306,8 @@ class Compiler {
     switch (true) {
       case $expr instanceof ast\ClosureExpr:
         return self::closure_expr($ctx, $expr);
+      case $expr instanceof ast\RecordExpr:
+        return self::record_expr($ctx, $expr);
       case $expr instanceof ast\BlockNode:
         return self::block_expr($ctx, $expr);
       case $expr instanceof ast\MatchExpr:
@@ -316,6 +318,8 @@ class Compiler {
         return self::unreachable_expr($expr);
       case $expr instanceof ast\CallExpr:
         return self::call_expr($ctx, $expr);
+      case $expr instanceof ast\FieldAccessExpr:
+        return self::field_access_expr($ctx, $expr);
       case $expr instanceof ast\BinaryExpr:
         return self::binary_expr($ctx, $expr);
       case $expr instanceof ast\UnaryExpr:
@@ -367,6 +371,18 @@ class Compiler {
 
     $stmt = self::stmts($ctx, $expr->body->stmts);
     return new ir\Closure($func_type, $names, $closed, $stmt);
+  }
+
+  private static function record_expr(self $ctx, ast\RecordExpr $expr): ir\Record {
+    $type   = $expr->get(TypeCheck::TYPE_KEY);
+    $fields = [];
+    foreach ($expr->fields as $field) {
+      $text          = $field->name->value;
+      $expr          = self::expr($ctx, $field->expr);
+      $name          = new ir\Name($expr->type, $text, $field->name->get('symbol'));
+      $fields[$text] = new ir\Field($name, $expr);
+    }
+    return new ir\Record($type, $fields);
   }
 
   private static function block_expr(self $ctx, ast\BlockNode $expr): ir\Block {
@@ -522,6 +538,13 @@ class Compiler {
     return new ir\Apply($type, $callee, $args);
   }
 
+  private static function field_access_expr(self $ctx, ast\FieldAccessExpr $expr): ir\Lookup {
+    $root  = self::expr($ctx, $expr->root);
+    $type  = $expr->get(TypeCheck::TYPE_KEY);
+    $field = new ir\Name($type, $expr->field->value, $expr->field->get('symbol'));
+    return new ir\Lookup($type, $root, $field);
+  }
+
   private static function binary_expr(self $ctx, ast\BinaryExpr $expr): ir\Apply {
     $symbol = $expr->operator->oper->get('symbol');
     $type   = $symbol->get(TypeCheck::TYPE_KEY);
@@ -559,10 +582,11 @@ class Compiler {
   private static function ctor_args(self $ctx, types\Type $type, ?ast\VariantConstructorFields $fields): ir\Expr {
     if ($fields instanceof ast\NamedVariantConstructorFields) {
       $record_fields = [];
-      foreach ($fields->pairs as $pair_name => $pair) {
-        $field_expr                = self::expr($ctx, $pair->expr);
-        $field_name                = new ir\Name($field_expr->type, $pair_name, $pair->name->get('symbol'));
-        $record_fields[$pair_name] = new ir\Field($field_name, $field_expr);
+      foreach ($fields->pairs as $pair) {
+        $field_text                 = $pair->name->value;
+        $field_expr                 = self::expr($ctx, $pair->expr);
+        $field_name                 = new ir\Name($field_expr->type, $field_text, $pair->name->get('symbol'));
+        $record_fields[$field_text] = new ir\Field($field_name, $field_expr);
       }
       return new ir\Record($type, $record_fields);
     } else if ($fields instanceof ast\OrderedVariantConstructorFields) {

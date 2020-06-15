@@ -3,6 +3,7 @@
 namespace Cthulhu\ir;
 
 use Cthulhu\ast\nodes\FormPattern;
+use Cthulhu\ast\nodes\LowerName;
 use Cthulhu\ast\nodes\Operator;
 use Cthulhu\err\Error;
 use Cthulhu\ir\types\Atomic;
@@ -17,6 +18,23 @@ class Errors {
       ->snippet($sig_span, null, [ 'color' => Foreground::BLUE ])
       ->paragraph("But the function body returns the type `$ret_type` instead:")
       ->snippet($ret_span);
+  }
+
+  public static function access_non_record(Spanlike $access_span, Spanlike $root_span, Type $root_type): Error {
+    return (new Error('access field of non-record'))
+      ->paragraph("Fields do not exist for non-record values:")
+      ->snippet($access_span)
+      ->paragraph("Instead of a record, the value had the type:")
+      ->example("$root_type")
+      ->snippet($root_span, null, [ 'color' => Foreground::BLUE ]);
+  }
+
+  public static function access_unknown_field(LowerName $field, Type $root_type): Error {
+    return (new Error('unknown field'))
+      ->paragraph("Record does not have a field named '$field':")
+      ->snippet($field->get('span'))
+      ->paragraph("The record has this type:")
+      ->example("$root_type");
   }
 
   public static function call_non_func(Spanlike $call_span, Spanlike $arg_span, Type $call_type, Type $arg_type): Error {

@@ -293,43 +293,6 @@ class ShallowParser extends AbstractParser {
   }
 
   /**
-   * @return nodes\ParamNode[]
-   * @throws Error
-   */
-  private function zero_or_more_name_type_pairs(): array {
-    if ($this->peek_token() === null) {
-      return [];
-    }
-    return $this->one_or_more_name_type_pairs();
-  }
-
-  /**
-   * @return nodes\ParamNode[]
-   * @throws Error
-   */
-  private function one_or_more_name_type_pairs(): array {
-    $params = [ $this->name_type_pair() ];
-    while ($this->ahead_is_punct(',')) {
-      $comma    = $this->next_punct(',');
-      $params[] = $this->name_type_pair();
-    }
-    return $params;
-  }
-
-  /**
-   * @return nodes\ParamNode
-   * @throws Error
-   */
-  private function name_type_pair(): nodes\ParamNode {
-    $name  = $this->next_lower_name();
-    $colon = $this->next_punct(':');
-    $note  = $this->note();
-    $span  = Span::join($name->get('span'), $note->get('span'));
-    return (new nodes\ParamNode($name, $note))
-      ->set('span', $span);
-  }
-
-  /**
    * @param IdentToken|null   $maybe_pub
    * @param nodes\Attribute[] $attrs
    * @return nodes\ShallowFnItem

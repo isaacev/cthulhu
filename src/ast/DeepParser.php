@@ -407,6 +407,9 @@ class DeepParser extends AbstractParser {
       case $note instanceof nodes\ListNote:
         $this->resolve_list_note($note);
         break;
+      case $note instanceof nodes\RecordNote:
+        $this->resolve_record_note($note);
+        break;
       case $note instanceof nodes\TypeParamNote:
         $this->resolve_param_note($note);
         break;
@@ -471,6 +474,16 @@ class DeepParser extends AbstractParser {
    */
   private function resolve_list_note(nodes\ListNote $note): void {
     $this->resolve_note($note->elements);
+  }
+
+  /**
+   * @param nodes\RecordNote $note
+   * @throws Error
+   */
+  private function resolve_record_note(nodes\RecordNote $note): void {
+    foreach ($note->fields as $field) {
+      $this->resolve_note($field->note);
+    }
   }
 
   /**
@@ -782,7 +795,7 @@ class DeepParser extends AbstractParser {
   }
 
   private function next_infix_precedence(): int {
-    if ($this->ahead_is_group('()')) {
+    if ($this->ahead_is_group('()') || $this->ahead_is_punct('.')) {
       return Precedence::ACCESS;
     }
 
@@ -1180,8 +1193,10 @@ class DeepParser extends AbstractParser {
   private function brace_expr(): nodes\Expr {
     $enter_brace = $this->next_group_matches('{}');
     switch (true) {
-      default:
+      case $this->ahead_is_punct('|'):
         return $this->closure_expr($enter_brace);
+      default:
+        return $this->record_expr($enter_brace);
     }
   }
 
@@ -1242,6 +1257,24 @@ class DeepParser extends AbstractParser {
     $pipe = $this->next_punct_span('|');
     $span = Span::join($from, $pipe);
     return (new nodes\ClosureParams($params))
+      ->set('span', $span);
+  }
+
+  /**
+   * @param TokenGroup $enter_brace
+   * @return nodes\RecordExpr
+   * @throws Error
+   */
+  private function record_expr(TokenGroup $enter_brace): nodes\RecordExpr {
+    $fields     = $this->one_or_more_named_exprs();
+    $exit_brace = $this->exit_group_matches('{}');
+    $span       = Span::join($enter_brace, $exit_brace);
+
+    foreach ($fields as $field) {
+      $this->make_var_symbol($field->name);
+    }
+
+    return (new nodes\RecordExpr($fields))
       ->set('span', $span);
   }
 
@@ -1465,6 +1498,8 @@ class DeepParser extends AbstractParser {
   private function postfix_expr(nodes\Expr $prefix): nodes\Expr {
     if ($this->ahead_is_group('()')) {
       return $this->call_expr($prefix);
+    } else if ($this->ahead_is_punct('.')) {
+      return $this->field_access_expr($prefix);
     } else {
       $operator = $this->next_infix_operator();
       return $this->binary_infix_expr($prefix, $operator);
@@ -1483,6 +1518,20 @@ class DeepParser extends AbstractParser {
     $args         = (new nodes\Exprs($args))->set('span', Span::join($enter_parens, $exit_parens));
     $span         = Span::join($prefix->get('span'), $args->get('span'));
     return (new nodes\CallExpr($prefix, $args))
+      ->set('span', $span);
+  }
+
+  /**
+   * @param nodes\Expr $root
+   * @return nodes\FieldAccessExpr
+   * @throws Error
+   */
+  private function field_access_expr(nodes\Expr $root): nodes\FieldAccessExpr {
+    $dot   = $this->next_punct('.');
+    $field = $this->next_lower_name();
+    $span  = Span::join($root->get('span'), $field->get('span'));
+    $this->make_var_symbol($field);
+    return (new nodes\FieldAccessExpr($root, $field))
       ->set('span', $span);
   }
 

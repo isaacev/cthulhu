@@ -1,0 +1,10 @@
+use ::Io;
+
+#[entry]
+fn main() -> () {
+  let x = { name: "foo", kind: "bar" };
+  Io::println(x.name);
+
+  let y = { name: "foo", kind: "bar" };
+  Io::println(y.name);
+}

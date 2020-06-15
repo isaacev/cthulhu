@@ -550,6 +550,8 @@ abstract class AbstractParser {
       $prefix = $this->grouped_note();
     } else if ($this->ahead_is_group('[]')) {
       $prefix = $this->list_note();
+    } else if ($this->ahead_is_group('{}')) {
+      $prefix = $this->record_note();
     } else {
       throw Errors::expected_note($this->peek_span());
     }
@@ -630,6 +632,56 @@ abstract class AbstractParser {
     $exit_note  = $this->exit_group_matches('[]');
     $span       = Span::join($enter_note, $exit_note);
     return (new nodes\ListNote($note))
+      ->set('span', $span);
+  }
+
+  /**
+   * @return nodes\ParamNode
+   * @throws Error
+   */
+  protected function name_type_pair(): nodes\ParamNode {
+    $name  = $this->next_lower_name();
+    $colon = $this->next_punct(':');
+    $note  = $this->note();
+    $span  = Span::join($name->get('span'), $note->get('span'));
+    return (new nodes\ParamNode($name, $note))
+      ->set('span', $span);
+  }
+
+  /**
+   * @return nodes\ParamNode[]
+   * @throws Error
+   */
+  protected function one_or_more_name_type_pairs(): array {
+    $params = [ $this->name_type_pair() ];
+    while ($this->ahead_is_punct(',')) {
+      $comma    = $this->next_punct(',');
+      $params[] = $this->name_type_pair();
+    }
+    return $params;
+  }
+
+  /**
+   * @return nodes\ParamNode[]
+   * @throws Error
+   */
+  protected function zero_or_more_name_type_pairs(): array {
+    if ($this->peek_token() === null) {
+      return [];
+    }
+    return $this->one_or_more_name_type_pairs();
+  }
+
+  /**
+   * @return nodes\RecordNote
+   * @throws Error
+   */
+  protected function record_note(): nodes\RecordNote {
+    $enter_note = $this->next_group_matches('{}');
+    $fields     = $this->one_or_more_name_type_pairs();
+    $exit_note  = $this->exit_group_matches('{}');
+    $span       = Span::join($enter_note, $exit_note);
+    return (new nodes\RecordNote($fields))
       ->set('span', $span);
   }
 

@@ -2,7 +2,7 @@
   EXPECTED TYPE ANNOTATION  --------------------------------------------------
 
     : TEST_DIR/ast/Note_missing_1.cth
-  1 | fn x() -> {
+  1 | fn x() -> & {
     |           ^
 
   A type annotation can be like one of the following:

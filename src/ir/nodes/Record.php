@@ -32,7 +32,7 @@ class Record extends Expr {
       ->increase_indentation()
       ->newline()
       ->indent()
-      ->each($fields, (new Builder)
+      ->each($this->fields, (new Builder)
         ->newline()
         ->indent())
       ->decrease_indentation()

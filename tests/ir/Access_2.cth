@@ -1,0 +1,5 @@
+#[entry]
+fn main() -> () {
+  let x = { foo: "bar" };
+  let y = x.bar;
+}

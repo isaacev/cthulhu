@@ -1,0 +1,5 @@
+#[entry]
+fn main() -> () {
+  let x = [ "abc" ];
+  let y = x.length;
+}

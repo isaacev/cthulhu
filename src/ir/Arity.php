@@ -28,6 +28,9 @@ class Arity {
         assert($arity instanceof arity\Arity);
         $expr->set('arity', $arity);
       },
+      'exit(Lookup)' => function (nodes\Lookup $expr) {
+        $expr->set('arity', self::type_to_arity($expr->type));
+      },
       'exit(IfExpr)' => function (nodes\IfExpr $expr) {
         $consequent_stmt = $expr->consequent->first ? $expr->consequent->first->last_stmt() : null;
         $alternate_stmt  = $expr->consequent->first ? $expr->consequent->first->last_stmt() : null;

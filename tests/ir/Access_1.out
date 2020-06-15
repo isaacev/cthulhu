@@ -1,0 +1,17 @@
+
+  ACCESS FIELD OF NON-RECORD  ------------------------------------------------
+
+  Fields do not exist for non-record values:
+
+    : TEST_DIR/ir/Access_1.cth
+  4 | let y = x.length;
+    |         ^^^^^^^^
+
+  Instead of a record, the value had the type:
+
+    List(Str)
+
+    : TEST_DIR/ir/Access_1.cth
+  4 | let y = x.length;
+    |         ^
+

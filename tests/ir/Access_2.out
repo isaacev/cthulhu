@@ -1,0 +1,13 @@
+
+  UNKNOWN FIELD  -------------------------------------------------------------
+
+  Record does not have a field named 'bar':
+
+    : TEST_DIR/ir/Access_2.cth
+  4 | let y = x.bar;
+    |           ^^^
+
+  The record has this type:
+
+    { foo: Str }
+
