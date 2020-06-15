@@ -9,6 +9,7 @@ class Program {
     $this->grammar = new internals\ProgramGrammar($name, $version);
   }
 
+  /** @noinspection PhpUnused */
   public function bool_flag(string $name, string $description): self {
     [ $id, $short ] = self::parse_flag_name($name);
     $flag_grammar = new internals\BoolFlagGrammar($id, $short, $description);
@@ -16,6 +17,7 @@ class Program {
     return $this;
   }
 
+  /** @noinspection PhpUnused */
   public function short_circuit_flag(string $name, string $description, callable $callback): self {
     [ $id, $short ] = self::parse_flag_name($name);
     $flag_grammar = new internals\ShortCircuitFlagGrammar($id, $short, $description, $callback);
@@ -23,17 +25,20 @@ class Program {
     return $this;
   }
 
+  /** @noinspection PhpUnused */
   public function subcommand(string $id, string $description): Subcommand {
     $subcommand = new Subcommand($this->grammar->name, $id, $description);
     $this->grammar->add_subcommand($subcommand->grammar);
     return $subcommand;
   }
 
+  /** @noinspection PhpUnused */
   public function callback(callable $callback): self {
     $this->grammar->add_callback($callback);
     return $this;
   }
 
+  /** @noinspection PhpUnused */
   public function parse(array $raw): void {
     $scanner = new internals\Scanner(array_slice($raw, 1));
     $result  = $this->grammar->parse($scanner);
@@ -46,6 +51,7 @@ class Program {
     }
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   protected static function parse_flag_name(string $name): array {
     if (preg_match('/^-([a-zA-Z0-9]) --(\S+)$/', $name, $match)) {
       return [ $match[2], $match[1] ];
@@ -54,7 +60,6 @@ class Program {
     } else {
       $fmt = 'cannot parse flag named `%s`';
       internals\Scanner::fatal_error($fmt, $name);
-      die(1);
     }
   }
 }

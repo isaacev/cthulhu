@@ -26,6 +26,7 @@ class FlagsGrammar {
     return $comps;
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   public function parse_single_flag(Scanner $scanner): FlagResult {
     $next = $scanner->advance();
     if (preg_match('/^(--(\S+))|(-([a-zA-Z0-9]))$/', $next, $matches)) {
@@ -35,7 +36,6 @@ class FlagsGrammar {
       }
     }
     Scanner::fatal_error('unknown flag: `%s`', $next);
-    die(1);
   }
 
   public function parse(Scanner $scanner): FlagsResult {

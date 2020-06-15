@@ -11,9 +11,7 @@ class SubcommandGrammar implements Describeable {
   public string $description;
   public FlagsGrammar $flags_grammar;
   public array $argument_grammars;
-  /**
-   * @var callable
-   */
+  /* @var callable */
   public $callback;
 
   public function __construct(string $program_name, string $id, string $description) {
@@ -32,6 +30,7 @@ class SubcommandGrammar implements Describeable {
     ));
   }
 
+  /** @noinspection PhpUnused */
   public function print_help(): void {
     $f = StreamFormatter::stdout();
     Helper::usage($f, $this->program_name, $this->id, '[FLAGS]', ...$this->argument_grammars);
@@ -39,10 +38,6 @@ class SubcommandGrammar implements Describeable {
     Helper::section($f, 'flags', ...$this->flags_grammar->flags);
     $f->newline();
     Helper::section($f, 'arguments', ...$this->argument_grammars);
-  }
-
-  public function completions(): array {
-    return $this->flags_grammar->completions();
   }
 
   public function full_name(): string {

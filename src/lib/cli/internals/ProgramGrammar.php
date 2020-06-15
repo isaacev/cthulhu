@@ -35,6 +35,7 @@ class ProgramGrammar {
     ));
   }
 
+  /** @noinspection PhpUnused */
   public function print_help(): void {
     $f = StreamFormatter::stdout();
     Helper::usage($f, $this->name, '[FLAGS]', '[SUBCOMMAND]');
@@ -44,27 +45,13 @@ class ProgramGrammar {
     Helper::section($f, 'subcommands', ...$this->subcommand_grammars);
   }
 
+  /** @noinspection PhpUnused */
   public function print_version(): void {
     echo "$this->name $this->version\n";
   }
 
   public function print_completion_script(): void {
     echo file_get_contents(realpath(__DIR__ . '/completion.sh'));
-  }
-
-  public function subcommand_completions(): array {
-    $comps = [];
-    foreach ($this->subcommand_grammars as $subcommand_grammar) {
-      $comps[] = $subcommand_grammar->id;
-    }
-    return $comps;
-  }
-
-  public function completions(): array {
-    return array_merge(
-      $this->flags_grammar->completions(),
-      $this->subcommand_completions()
-    );
   }
 
   public function add_flag(FlagGrammar $flag): void {
@@ -152,6 +139,7 @@ class ProgramGrammar {
     $this->callback = $callback;
   }
 
+  /** @noinspection PhpInconsistentReturnPointsInspection */
   public function parse_subcommand(Scanner $scanner) {
     if ($scanner->is_empty()) {
       return null;
@@ -163,7 +151,6 @@ class ProgramGrammar {
     }
 
     Scanner::fatal_error('unknown subcommand: `%s`', $token);
-    die(1);
   }
 
   public function parse(Scanner $scanner): ProgramResult {
