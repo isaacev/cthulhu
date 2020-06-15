@@ -84,22 +84,22 @@ class ProgramGrammar {
 
   public function complete_callback(Lookup $flags, Lookup $args) {
     if (
-      !isset($_ENV['COMP_CWORD']) ||
-      !isset($_ENV['COMP_LINE']) ||
-      !isset($_ENV['COMP_POINT'])
+      !getenv('COMP_CWORD') ||
+      !getenv('COMP_LINE') ||
+      !getenv('COMP_POINT')
     ) {
       $this->print_completion_script();
       exit(0);
     }
 
     // command line input (with prompt and cursor on zsh): "> cthulhu foo b|ar"
-    $w             = (int)$_ENV['COMP_CWORD'];   // 2
-    $words         = $args->get('parts', []);    // [ "cthulhu", "foo", "bar" ]
-    $word          = $words[$w];                 // "bar"
-    $line          = $_ENV['COMP_LINE'];         // "cthulhu foo bar"
-    $point         = (int)$_ENV['COMP_POINT'];   // 17 (pretty sure this is a zsh 5.3 bug)
-    $partial_line  = substr($line, 0, $point);   // "cthulhu foo bar"
-    $partial_words = array_slice($words, 0, $w); // [ "cthulhu", "foo" ]
+    $w             = (int)getenv('COMP_CWORD');   // 2
+    $words         = $args->get('parts', []);     // [ "cthulhu", "foo", "bar" ]
+    $word          = $words[$w];                  // "bar"
+    $line          = getenv('COMP_LINE');         // "cthulhu foo bar"
+    $point         = (int)getenv('COMP_POINT');   // 17 (pretty sure this is a zsh 5.3 bug)
+    $partial_line  = substr($line, 0, $point);    // "cthulhu foo bar"
+    $partial_words = array_slice($words, 0, $w);  // [ "cthulhu", "foo" ]
 
     fprintf(STDERR, "w:             %d\n", $w);
     fprintf(STDERR, "words:         [ %s ]\n", implode(', ', $words));

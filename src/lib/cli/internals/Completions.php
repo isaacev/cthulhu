@@ -127,6 +127,8 @@ class Completions {
   private static function trace_argument(ArgumentGrammar $arg, Node $after) {
     if ($arg instanceof SingleArgumentGrammar) {
       return new PatternNode($after, '/\S/');
+    } else if ($arg instanceof OptionalSingleArgumentGrammar) {
+      return new Node([ $after, new PatternNode($after, '/\S/') ]);
     } else if ($arg instanceof VariadicArgumentGrammar) {
       $start             = new Node([ $after ]);
       $start->to_nodes[] = new PatternNode($start, '/\S/');
