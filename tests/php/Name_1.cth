@@ -1,0 +1,14 @@
+use ::Io;
+
+type Thing =
+  | Blah { foo: Str };
+
+#[entry]
+fn main() -> () {
+  let foo = "bar";
+  let bar = Blah { foo: "def" };
+  Io::println(foo);
+  match bar {
+    Blah { foo: x } => Io::println(x),
+  }
+}
