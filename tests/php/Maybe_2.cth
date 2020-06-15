@@ -1,9 +1,0 @@
-use ::Io::println;
-
-#[entry]
-fn main() -> () {
-  match None {
-    Some(a) => println(a),
-    None    => println("none"),
-  }
-}

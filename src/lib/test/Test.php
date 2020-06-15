@@ -53,7 +53,8 @@ class Test {
     $dir  = $this->input->filepath->directory;
     $base = $this->input->basename();
     $this->bless_extension("$dir/$base.php", $blessed_output->php);
-    $this->bless_extension("$dir/$base.out", $blessed_output->out);
+    $this->bless_extension("$dir/$base.stdout", $blessed_output->stdout);
+    $this->bless_extension("$dir/$base.stderr", $blessed_output->stderr);
   }
 
   protected function bless_extension(string $filepath, string $contents): void {
@@ -85,15 +86,24 @@ class Test {
         ->codegen()
         ->optimize();
 
-      $php = $tree->write();
-      $out = $do_php_eval ? $tree->run() : $this->expected->out;
-      return new TestOutput($php, $out);
+      $php = self::do_replacements($tree->write(), $replacements);
+
+      if ($do_php_eval) {
+        $output = $tree->run();
+        $stdout = self::do_replacements($output['stdout'], $replacements);
+        $stderr = self::do_replacements($output['stderr'], $replacements);
+      } else {
+        $stdout = $this->expected->stdout;
+        $stderr = $this->expected->stderr;
+      }
+
+      return new TestOutput($php, $stdout, $stderr);
     } catch (Error $err) {
-      $out = new fmt\StringFormatter();
-      $err->format($out);
-      return new TestOutput('', self::do_replacements($out, $replacements));
+      $stderr = new fmt\StringFormatter();
+      $err->format($stderr);
+      return new TestOutput('', '', self::do_replacements($stderr, $replacements));
     } catch (Exception $ex) {
-      return new TestOutput('', "$ex");
+      return new TestOutput('', '', "$ex");
     }
   }
 

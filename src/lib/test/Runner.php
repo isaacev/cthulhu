@@ -9,7 +9,7 @@ use Cthulhu\loc\Filepath;
 class Runner {
   public const DEFAULT_DIR           = './tests';
   public const STDLIB_DIR            = './src/stdlib';
-  public const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'out' ];
+  public const VALID_TEST_EXTENSIONS = [ 'cth', 'php', 'stdout', 'stderr' ];
 
   /**
    * @param string $starting_dir
@@ -75,19 +75,21 @@ class Runner {
     foreach ($test_mapping as $test_dir => $tests_in_dir) {
       $test_group = str_replace($root_path . '/', '', $test_dir);
       foreach ($tests_in_dir as $test_name => $test_files) {
-        $has_cth = array_key_exists('cth', $test_files);
-        $has_php = array_key_exists('php', $test_files);
-        $has_out = array_key_exists('out', $test_files);
+        $has_cth    = array_key_exists('cth', $test_files);
+        $has_php    = array_key_exists('php', $test_files);
+        $has_stdout = array_key_exists('stdout', $test_files);
+        $has_stderr = array_key_exists('stderr', $test_files);
 
-        $cth = @file_get_contents($test_files['cth']);
-        $php = $has_php ? file_get_contents($test_files['php']) : '';
-        $out = $has_out ? file_get_contents($test_files['out']) : '';
+        $cth    = @file_get_contents($test_files['cth']);
+        $php    = $has_php ? file_get_contents($test_files['php']) : '';
+        $stdout = $has_stdout ? file_get_contents($test_files['stdout']) : '';
+        $stderr = $has_stderr ? file_get_contents($test_files['stderr']) : '';
 
-        if ($cth === false || $php === false || $out === false) {
+        if ($cth === false || $php === false || $stdout === false || $stderr === false) {
           continue;
         }
 
-        $expected = new TestOutput($php, $out);
+        $expected = new TestOutput($php, $stdout, $stderr);
         $filepath = new Filepath(new Directory($test_dir, false), $test_name, 'cth');
         $file     = new File($filepath, $cth);
         $tests[]  = new Test($test_group, $file, $expected);

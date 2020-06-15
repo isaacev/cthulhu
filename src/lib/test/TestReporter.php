@@ -50,9 +50,13 @@ abstract class TestReporter {
         $result->test->expected->php,
         $result->found->php);
 
-      self::mismatch_diff($this->formatter, 'OUT',
-        $result->test->expected->out,
-        $result->found->out);
+      self::mismatch_diff($this->formatter, 'STDOUT',
+        $result->test->expected->stdout,
+        $result->found->stdout);
+
+      self::mismatch_diff($this->formatter, 'STDERR',
+        $result->test->expected->stderr,
+        $result->found->stderr);
     }
   }
 

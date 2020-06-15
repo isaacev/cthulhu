@@ -16,10 +16,10 @@ class WritePhase {
 
   /**
    * @param array $args
-   * @return string
+   * @return string[]
    * @throws Exception
    */
-  public function run(array $args = []): string {
+  public function run(array $args = []): array {
     $descriptors = [
       0 => [ 'pipe', 'r' ], // STDIN
       1 => [ 'pipe', 'w' ], // STDOUT
@@ -39,17 +39,12 @@ class WritePhase {
       $stderr = stream_get_contents($pipes[2]);
       fclose($pipes[2]);
 
-      $exit_code = proc_close($proc);
+      $exit_code = proc_close($proc); // TODO: check exit code
 
-      if (!empty($stderr)) {
-        throw new Exception($stderr);
-      } else if ($exit_code !== 0) {
-        throw new Exception("finished with non-zero exit code: $exit_code");
-      }
-
-      return $stdout;
+      return [ 'stdout' => $stdout, 'stderr' => $stderr ];
     } else {
-      throw new Exception("unable to spawn a child process");
+      fprintf(STDERR, "unable to spawn a child process");
+      exit(1);
     }
   }
 
