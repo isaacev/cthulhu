@@ -11,15 +11,20 @@ class VerboseTestReporter extends TestReporter {
       ->push_tab_stop(32);
   }
 
-  public function on_pass(TestPassed $result): void {
-    parent::on_pass($result);
+  public function on_pre_run(Test $test): void {
+    parent::on_pre_run($test);
     $this->formatter
-      ->print($result->test->group_and_name())
+      ->print($test->group_and_name())
       ->space()
       ->apply_styles(fmt\Foreground::WHITE)
       ->tab('.')
       ->reset_styles()
-      ->space()
+      ->space();
+  }
+
+  public function on_pass(TestPassed $result): void {
+    parent::on_pass($result);
+    $this->formatter
       ->apply_styles(fmt\Foreground::GREEN)
       ->print('✓')
       ->space()
@@ -32,12 +37,6 @@ class VerboseTestReporter extends TestReporter {
   public function on_fail(TestFailed $result): void {
     parent::on_fail($result);
     $this->formatter
-      ->print($result->test->group_and_name())
-      ->space()
-      ->apply_styles(fmt\Foreground::WHITE)
-      ->tab('.')
-      ->reset_styles()
-      ->space()
       ->apply_styles(fmt\Foreground::RED)
       ->print('✗')
       ->space()

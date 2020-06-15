@@ -40,6 +40,8 @@ function command_test(cli\Lookup $flags, cli\Lookup $args) {
     if ($filter !== null && !$test->name_matches($filter)) {
       $reporter->on_skip($test);
     } else {
+      $reporter->on_pre_run($test);
+
       $result = $test->run($do_php_eval, $replacements);
       if ($is_blessed && $result instanceof test\TestFailed) {
         $test->bless($result->found);

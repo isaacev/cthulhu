@@ -30,6 +30,10 @@ abstract class TestReporter {
     $this->skipped++;
   }
 
+  public function on_pre_run(Test $test): void {
+    // do nothing
+  }
+
   public function on_pass(TestPassed $result): void {
     $this->passed++;
   }
