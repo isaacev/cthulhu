@@ -2,7 +2,10 @@
 
 namespace runtime {
   function unreachable($line, $file) {
-    printf("unreachable on line %d in %s\n", $line, $file);
+    if (!(defined("STDERR"))) {
+      define("STDERR", fopen("php://stderr", "w"));
+    }
+    fprintf(STDERR, "unreachable on line %d in %s\n", $line, $file);
     exit(1);
   }
 }

@@ -158,15 +158,32 @@ class Helpers {
     );
 
     $body = new nodes\BlockNode(
-      new nodes\SemiStmt(
-        new nodes\BuiltinCallExpr('printf', [
-          new nodes\StrLiteral(StringValue::from_safe_scalar('unreachable on line %d in %s\n')),
-          new nodes\VariableExpr($line),
-          new nodes\VariableExpr($file),
-        ]),
-        new nodes\ExitStmt(
-          IntegerValue::from_scalar(1),
-          null)));
+      new nodes\IfStmt(
+        new nodes\UnaryExpr('!',
+          new nodes\BuiltinCallExpr('defined', [
+            nodes\StrLiteral::from_val('STDERR'),
+          ])),
+        new nodes\BlockNode(
+          new nodes\SemiStmt(
+            new nodes\BuiltinCallExpr('define', [
+              nodes\StrLiteral::from_val('STDERR'),
+              new nodes\BuiltinCallExpr('fopen', [
+                nodes\StrLiteral::from_val('php://stderr'),
+                nodes\StrLiteral::from_val('w'),
+              ]),
+            ]),
+            null)),
+        null,
+        new nodes\SemiStmt(
+          new nodes\BuiltinCallExpr('fprintf', [
+            new nodes\ConstantExpr('STDERR'),
+            new nodes\StrLiteral(StringValue::from_safe_scalar('unreachable on line %d in %s\n')),
+            new nodes\VariableExpr($line),
+            new nodes\VariableExpr($file),
+          ]),
+          new nodes\ExitStmt(
+            IntegerValue::from_scalar(1),
+            null))));
 
     return new nodes\FuncStmt($head, $body, [], null);
   }
