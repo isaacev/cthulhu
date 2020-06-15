@@ -2,60 +2,6 @@
 
 namespace Cthulhu\lib\cli\internals;
 
-class Node {
-  public array $to_nodes = [];
-
-  public function __construct(array $to_nodes) {
-    $this->to_nodes = $to_nodes;
-  }
-
-  public function find_guarded(): array {
-    $guarded = [];
-    foreach ($this->to_nodes as $node) {
-      if ($node instanceof GuardedNode) {
-        $guarded[] = $node;
-      } else {
-        $guarded = array_merge($guarded, $node->find_guarded());
-      }
-    }
-    return $guarded;
-  }
-}
-
-abstract class GuardedNode extends Node {
-  public array $completions = [];
-
-  public function __construct(Node $to_node, array $completions) {
-    parent::__construct([ $to_node ]);
-    $this->completions = $completions;
-  }
-
-  abstract public function matches(string $token): bool;
-
-  public function completions(): array {
-    return $this->completions;
-  }
-}
-
-class LiteralNode extends GuardedNode {
-  public function matches(string $token): bool {
-    return in_array($token, $this->completions);
-  }
-}
-
-class PatternNode extends GuardedNode {
-  public string $pattern = '';
-
-  public function __construct(Node $to_node, string $pattern) {
-    parent::__construct($to_node, []);
-    $this->pattern = $pattern;
-  }
-
-  public function matches(string $token): bool {
-    return preg_match($this->pattern, $token);
-  }
-}
-
 class Completions {
   public static function find(Scanner $scanner, ProgramGrammar $grammar): array {
     $start    = self::trace($grammar);
