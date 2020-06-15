@@ -1,6 +1,13 @@
 ---
-title: Language Specification
+title: The Cthulhu Programming Language
 layout: default
 ---
 
-## [Specification Chapters]({% link spec.md %})
+```
+use ::Io;
+
+#[entry]
+fn main() -> () {
+  Io::println("hello world");
+}
+```

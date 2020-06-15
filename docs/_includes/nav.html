@@ -1,0 +1,10 @@
+<header>
+  <nav>
+    <a class="logo" href="{{ site.url }}">Cthulhu</a>
+    <div class="links">
+      {% for link in site.data.menu.links %}
+      <a href="{{ link.url }}">{{ link.title }}</a>
+      {% endfor %}
+    </div>
+  </nav>
+</header>
