@@ -1,0 +1,8 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  let x = { square: { | a, b | a * b } };
+  x.square(2, 3) |> Fmt::int |> Io::println;
+}
