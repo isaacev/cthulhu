@@ -4,6 +4,7 @@ namespace Cthulhu\php;
 
 use Cthulhu\lib\panic\Panic;
 use Cthulhu\val\IntegerValue;
+use Cthulhu\val\StringValue;
 
 class Helpers {
   /**
@@ -16,6 +17,8 @@ class Helpers {
     switch ($helper_name) {
       case 'curry':
         return self::get_curry_helper($runtime_namespace);
+      case 'unreachable':
+        return self::get_unreachable_helper();
       default:
         Panic::with_reason(__LINE__, __FILE__, "no helper named '$helper_name'");
     }
@@ -141,6 +144,29 @@ class Helpers {
         ))
 
     );
+
+    return new nodes\FuncStmt($head, $body, [], null);
+  }
+
+  public static function get_unreachable_helper(): nodes\FuncStmt {
+    $line = new nodes\Variable('line', new names\Symbol());
+    $file = new nodes\Variable('file', new names\Symbol());
+
+    $head = new nodes\FuncHead(
+      new nodes\Name('unreachable', ($unreachable_symbol = new names\Symbol())),
+      [ $line, $file ]
+    );
+
+    $body = new nodes\BlockNode(
+      new nodes\SemiStmt(
+        new nodes\BuiltinCallExpr('printf', [
+          new nodes\StrLiteral(StringValue::from_safe_scalar('unreachable on line %d in %s\n')),
+          new nodes\VariableExpr($line),
+          new nodes\VariableExpr($file),
+        ]),
+        new nodes\ExitStmt(
+          IntegerValue::from_scalar(1),
+          null)));
 
     return new nodes\FuncStmt($head, $body, [], null);
   }

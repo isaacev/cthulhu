@@ -80,7 +80,12 @@ class NamespaceAccumulator {
       $segments = $this->helpers->name->segments . '\\' . $stmt->head->name->value;
       $ref      = new nodes\Reference($segments, $symbol);
 
-      $this->helpers->block->stmt = $stmt;
+      if ($this->helpers->block->stmt) {
+        $this->helpers->block->stmt->mutable_append($stmt);
+      } else {
+        $this->helpers->block->stmt = $stmt;
+      }
+
       return $this->helper_refs[$name] = $ref;
     }
   }

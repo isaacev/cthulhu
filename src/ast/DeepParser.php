@@ -1182,7 +1182,9 @@ class DeepParser extends AbstractParser {
   private function unreachable_expr(): nodes\UnreachableExpr {
     $unreachable = $this->next_keyword('unreachable');
     $span        = $unreachable->span;
-    return (new nodes\UnreachableExpr())
+    $line        = $span->from()->line;
+    $file        = $span->from()->file->filepath->__toString();
+    return (new nodes\UnreachableExpr($line, $file))
       ->set('span', $span);
   }
 

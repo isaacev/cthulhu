@@ -528,7 +528,7 @@ class Compiler {
 
   private static function unreachable_expr(ast\UnreachableExpr $expr): ir\Unreachable {
     $type = $expr->get(TypeCheck::TYPE_KEY);
-    return new ir\Unreachable($type);
+    return new ir\Unreachable($type, $expr->line, $expr->file);
   }
 
   private static function call_expr(self $ctx, ast\CallExpr $expr): ir\Apply {
