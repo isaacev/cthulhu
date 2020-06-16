@@ -724,7 +724,7 @@ class TypeCheck {
         self::unify($unified_type, $elem_type);
       }
 
-      if ($pat->glob) {
+      if ($pat->glob && $pat->glob->binding) {
         $glob_type = self::pattern_to_type($pat->glob->binding);
         self::unify(new types\ListType($unified_type), $glob_type);
       }

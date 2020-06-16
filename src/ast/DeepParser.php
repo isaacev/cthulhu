@@ -1008,8 +1008,15 @@ class DeepParser extends AbstractParser {
    */
   private function glob(): nodes\Glob {
     $ellipsis = $this->next_punct_span("...");
-    $binding  = $this->variable_pattern();
-    $span     = Span::join($ellipsis, $binding->get('span'));
+
+    if ($this->ahead_is_end_of_current_group()) {
+      $binding = null;
+      $span    = $ellipsis;
+    } else {
+      $binding = $this->variable_pattern();
+      $span    = Span::join($ellipsis, $binding->get('span'));
+    }
+
     return (new nodes\Glob($binding))
       ->set('span', $span);
   }

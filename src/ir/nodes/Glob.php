@@ -4,9 +4,9 @@ namespace Cthulhu\ir\nodes;
 
 class Glob extends Node {
   public int $offset;
-  public VariablePattern $binding;
+  public ?VariablePattern $binding;
 
-  public function __construct(int $offset, VariablePattern $binding) {
+  public function __construct(int $offset, ?VariablePattern $binding) {
     parent::__construct();
     $this->offset  = $offset;
     $this->binding = $binding;
@@ -25,6 +25,10 @@ class Glob extends Node {
   }
 
   public function __toString() {
-    return "...$this->binding";
+    if ($this->binding) {
+      return "...$this->binding";
+    } else {
+      return '...';
+    }
   }
 }

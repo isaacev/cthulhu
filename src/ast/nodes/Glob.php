@@ -3,9 +3,9 @@
 namespace Cthulhu\ast\nodes;
 
 class Glob extends Pattern {
-  public VariablePattern $binding;
+  public ?VariablePattern $binding;
 
-  public function __construct(VariablePattern $binding) {
+  public function __construct(?VariablePattern $binding) {
     parent::__construct();
     $this->binding = $binding;
   }
@@ -15,6 +15,10 @@ class Glob extends Pattern {
   }
 
   public function __toString(): string {
-    return "..." . $this->binding;
+    if ($this->binding) {
+      return "...$this->binding";
+    } else {
+      return '...';
+    }
   }
 }

@@ -500,10 +500,14 @@ class Compiler {
 
         $glob = null;
         if ($pat->glob) {
-          $glob_type    = new types\ListType($type->elements);
-          $glob_binding = self::pattern($glob_type, $pat->glob->binding);
-          assert($glob_binding instanceof ir\VariablePattern);
-          $glob = new ir\Glob(count($sub_patterns), $glob_binding);
+          if ($pat->glob->binding) {
+            $glob_type    = new types\ListType($type->elements);
+            $glob_binding = self::pattern($glob_type, $pat->glob->binding);
+            assert($glob_binding instanceof ir\VariablePattern);
+            $glob = new ir\Glob(count($sub_patterns), $glob_binding);
+          } else {
+            $glob = new ir\Glob(count($sub_patterns), null);
+          }
         }
 
         return new ir\ListPattern($type, $sub_patterns, $glob);
