@@ -19,7 +19,7 @@ class WritePhase {
    * @return string[]
    * @throws Exception
    */
-  public function run(array $args = []): array {
+  public function run_and_capture(array $args = []): array {
     $descriptors = [
       0 => [ 'pipe', 'r' ], // STDIN
       1 => [ 'pipe', 'w' ], // STDOUT
@@ -44,6 +44,49 @@ class WritePhase {
       return [ 'stdout' => $stdout, 'stderr' => $stderr ];
     } else {
       fprintf(STDERR, "unable to spawn a child process");
+      exit(1);
+    }
+  }
+
+  /**
+   * @param array         $args
+   * @param resource|null $stdout
+   * @param resource|null $stderr
+   */
+  public function run_and_emit(array $args = [], $stdout = null, $stderr = null): void {
+    $stdout = $stdout ?? STDOUT;
+    $stderr = $stderr ?? STDERR;
+
+    if (!is_resource($stdout)) {
+      echo "cannot connect to STDOUT\n";
+      die(1);
+    } else if (!is_resource($stderr)) {
+      echo "cannot connect to STDERR\n";
+      die(1);
+    }
+
+    $descriptors = [
+      0 => [ 'pipe', 'r' ], // STDIN
+      1 => [ 'pipe', 'w' ], // STDOUT
+      2 => [ 'pipe', 'w' ], // STDERR
+    ];
+
+    $cmd  = PHP_BINARY . " -- " . implode(" ", $args);
+    $proc = proc_open($cmd, $descriptors, $pipes, '', []);
+
+    if (is_resource($proc)) {
+      fwrite($pipes[0], $this->write());
+      fclose($pipes[0]);
+
+      stream_copy_to_stream($pipes[1], $stdout);
+      stream_copy_to_stream($pipes[2], $stderr);
+
+      fclose($pipes[1]);
+      fclose($pipes[2]);
+
+      exit(proc_close($proc));
+    } else {
+      fprintf($stderr, "unable to spawn a child process");
       exit(1);
     }
   }

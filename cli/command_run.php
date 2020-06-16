@@ -9,12 +9,12 @@ use Cthulhu\workspace\LoadPhase;
 function command_run(cli\Lookup $flags, cli\Lookup $args) {
   try {
     $filepath = $args->get('file');
-    echo LoadPhase::from_filepath($filepath)
+    LoadPhase::from_filepath($filepath)
       ->check()
       ->optimize()
       ->codegen()
       ->optimize()
-      ->run($args->get('args'));
+      ->run_and_emit($args->get('args'));
   } catch (Error $err) {
     $err->format(StreamFormatter::stderr());
     exit(1);

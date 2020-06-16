@@ -89,7 +89,7 @@ class Test {
       $php = self::do_replacements($tree->write(), $replacements);
 
       if ($do_php_eval) {
-        $output = $tree->run();
+        $output = $tree->run_and_capture();
         $stdout = self::do_replacements($output['stdout'], $replacements);
         $stderr = self::do_replacements($output['stderr'], $replacements);
       } else {
