@@ -1,0 +1,8 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  let s = "abc" ++ Fmt::float(3.14);
+  Io::println(s);
+}

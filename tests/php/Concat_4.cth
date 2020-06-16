@@ -1,0 +1,9 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  let x = "def";
+  let s = "abc" ++ x;
+  Io::println(s);
+}

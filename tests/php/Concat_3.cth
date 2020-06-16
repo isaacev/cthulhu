@@ -1,0 +1,8 @@
+use ::Io;
+use ::Fmt;
+
+#[entry]
+fn main() -> () {
+  let s = "abc" ++ Fmt::int(123);
+  Io::println(s);
+}
