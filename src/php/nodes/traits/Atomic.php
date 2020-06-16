@@ -10,6 +10,7 @@ trait Atomic {
   }
 
   /** @noinspection PhpIncompatibleReturnTypeInspection */
+  /** @noinspection PhpUnusedParameterInspection */
   public function from_children(array $nodes): nodes\Node {
     return $this;
   }

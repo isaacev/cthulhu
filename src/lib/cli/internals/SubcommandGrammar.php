@@ -83,6 +83,7 @@ class SubcommandGrammar implements Describeable {
     return $args;
   }
 
+  /** @noinspection PhpUnusedParameterInspection */
   public function parse(ProgramGrammar $program, Scanner $scanner): SubcommandResult {
     $flags = $this->flags_grammar->parse($scanner);
     $args  = $this->parse_args($scanner);

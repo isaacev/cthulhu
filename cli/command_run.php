@@ -5,6 +5,7 @@ use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\workspace\LoadPhase;
 
+/** @noinspection PhpUnusedParameterInspection */
 function command_run(cli\Lookup $flags, cli\Lookup $args) {
   try {
     $filepath = $args->get('file');

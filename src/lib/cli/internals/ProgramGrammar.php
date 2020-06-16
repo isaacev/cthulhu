@@ -69,6 +69,7 @@ class ProgramGrammar {
     $this->subcommand_grammars[] = $new_grammar;
   }
 
+  /** @noinspection PhpUnusedParameterInspection */
   public function complete_callback(Lookup $flags, Lookup $args) {
     if (
       !getenv('COMP_CWORD') ||

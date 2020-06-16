@@ -26,6 +26,7 @@ abstract class TestReporter {
 
   abstract public function on_start(): void;
 
+  /** @noinspection PhpUnusedParameterInspection */
   public function on_skip(Test $test): void {
     $this->skipped++;
   }
@@ -34,6 +35,7 @@ abstract class TestReporter {
     // do nothing
   }
 
+  /** @noinspection PhpUnusedParameterInspection */
   public function on_pass(TestPassed $result): void {
     $this->passed++;
   }
