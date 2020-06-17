@@ -8,34 +8,6 @@ use Cthulhu\lib\fmt;
 use Cthulhu\val\Value;
 
 class Builder extends fmt\Builder {
-  public function increase_indentation(int $n = 2): self {
-    return $this->push_frame(function (fmt\Formatter $f) use ($n) {
-      $f->increment_tab_stop($n);
-    });
-  }
-
-  public function decrease_indentation(): self {
-    return $this->push_frame(function (fmt\Formatter $f) {
-      $f->pop_tab_stop();
-    });
-  }
-
-  public function indent(): self {
-    return $this->push_frame(function (fmt\Formatter $f) {
-      $f->tab();
-    });
-  }
-
-  public function apply_styles(int ...$styles): self {
-    return $this->push_frame(function (fmt\Formatter $f) use (&$styles) {
-      $f->apply_styles(...$styles);
-    });
-  }
-
-  public function clear_styles(): self {
-    return $this->apply_styles(fmt\Reset::ALL);
-  }
-
   public function paren_left(): self {
     return $this->push_str('(');
   }

@@ -112,28 +112,10 @@ class Builder extends fmt\Builder {
     return $this->push_str("\n");
   }
 
-  public function indent(): self {
-    return $this->push_frame(function (fmt\Formatter $f) {
-      $f->tab();
-    });
-  }
-
   public function newline_then_indent(): self {
     return $this
       ->newline()
       ->indent();
-  }
-
-  public function increase_indentation(): self {
-    return $this->push_frame(function (fmt\Formatter $f) {
-      $f->increment_tab_stop(2);
-    });
-  }
-
-  public function decrease_indentation(): self {
-    return $this->push_frame(function (fmt\Formatter $f) {
-      $f->pop_tab_stop();
-    });
   }
 
   public function expr(nodes\Expr $expr, int $parent_precedence = Precedence::LOWEST): self {
