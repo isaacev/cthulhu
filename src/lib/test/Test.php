@@ -37,16 +37,15 @@ class Test {
    * @return TestResult
    */
   public function run(bool $do_php_eval, array $replacements = []): TestResult {
-    $time_before   = microtime(true);
-    $found         = $this->eval($do_php_eval, $replacements);
-    $time_after    = microtime(true);
-    $runtime_in_ms = ($time_after - $time_before) * 1000;
+    $buildtime = 0;
+    $runtime   = 0;
+    $found     = $this->eval($do_php_eval, $replacements, $buildtime, $runtime);
 
     if ($this->expected->equals($found)) {
-      return new TestPassed($this, $runtime_in_ms);
+      return new TestPassed($this, $buildtime, $runtime);
     }
 
-    return new TestFailed($this, $found, $runtime_in_ms);
+    return new TestFailed($this, $found, $buildtime, $runtime);
   }
 
   public function bless(TestOutput $blessed_output): void {
@@ -76,9 +75,15 @@ class Test {
   /**
    * @param bool     $do_php_eval
    * @param string[] $replacements
+   * @param float    $buildtime
+   * @param float    $runtime
    * @return TestOutput
    */
-  protected function eval(bool $do_php_eval, array $replacements): TestOutput {
+  protected function eval(bool $do_php_eval, array $replacements, float &$buildtime, float &$runtime): TestOutput {
+    $buildtime = 0;
+    $runtime   = 0;
+    $start     = microtime(true);
+
     try {
       $tree = LoadPhase::from_file($this->input)
         ->check()
@@ -86,19 +91,27 @@ class Test {
         ->codegen()
         ->optimize();
 
-      $php = self::do_replacements($tree->write(), $replacements);
+      $php       = self::do_replacements($tree->write(), $replacements);
+      $buildtime = (microtime(true) - $start) * 1000;
 
       if ($do_php_eval) {
-        $output = $tree->run_and_capture();
-        $stdout = self::do_replacements($output['stdout'], $replacements);
-        $stderr = self::do_replacements($output['stderr'], $replacements);
+        $start   = microtime(true);
+        $output  = $tree->run_and_capture();
+        $stdout  = self::do_replacements($output['stdout'], $replacements);
+        $stderr  = self::do_replacements($output['stderr'], $replacements);
+        $runtime = (microtime(true) - $start) * 1000;
       } else {
-        $stdout = $this->expected->stdout;
-        $stderr = $this->expected->stderr;
+        $stdout  = $this->expected->stdout;
+        $stderr  = $this->expected->stderr;
+        $runtime = 0;
       }
 
       return new TestOutput($php, $stdout, $stderr);
     } catch (Error $err) {
+      if ($buildtime === 0) {
+        $buildtime = (microtime(true) - $start) * 1000;
+      }
+
       $stderr = new fmt\StringFormatter();
       $err->format($stderr);
       return new TestOutput('', '', self::do_replacements($stderr, $replacements));

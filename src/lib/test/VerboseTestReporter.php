@@ -29,7 +29,7 @@ class VerboseTestReporter extends TestReporter {
       ->print('✓')
       ->space()
       ->apply_styles(fmt\Foreground::WHITE)
-      ->printf('%5.1f ms', $result->runtime_in_ms)
+      ->printf('%5.1f ms', $result->buildtime)
       ->reset_styles()
       ->newline();
   }
@@ -41,7 +41,7 @@ class VerboseTestReporter extends TestReporter {
       ->print('✗')
       ->space()
       ->apply_styles(fmt\Foreground::WHITE)
-      ->printf('%5.1f ms', $result->runtime_in_ms)
+      ->printf('%5.1f ms', $result->runtime)
       ->reset_styles()
       ->newline();
   }
