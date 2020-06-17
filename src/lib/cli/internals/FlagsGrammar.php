@@ -19,14 +19,6 @@ class FlagsGrammar {
     return null;
   }
 
-  public function completions(): array {
-    $comps = [];
-    foreach ($this->flags as $flag) {
-      $comps = array_merge($comps, $flag->completions());
-    }
-    return $comps;
-  }
-
   /** @noinspection PhpInconsistentReturnPointsInspection */
   public function parse_single_flag(Scanner $scanner): FlagResult {
     $next = $scanner->advance();
