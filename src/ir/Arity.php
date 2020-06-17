@@ -14,9 +14,6 @@ class Arity {
     Visitor::walk($root, [
       'exit(Stmt|Expr)' => function (nodes\Node $node, Path $path) {
         if (($node->get('arity') instanceof arity\Arity) === false) {
-          if ($node instanceof nodes\NameExpr) {
-            echo $node->name->text . PHP_EOL;
-          }
           Panic::with_reason(__LINE__, __FILE__, "missing arity for $path->kind node");
         }
       },

@@ -10,12 +10,12 @@ function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $arg
   $use_color = $options->get('color');
   try {
     $filepath = $args->get('file');
-    echo LoadPhase::from_filepath($filepath)
+    LoadPhase::from_filepath($filepath)
       ->check()
       ->optimize()
       ->codegen()
       ->optimize()
-      ->write();
+      ->write(StreamFormatter::stdout($use_color));
   } catch (Error $err) {
     $err->format(StreamFormatter::stderr($use_color));
     exit(1);

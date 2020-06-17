@@ -417,8 +417,7 @@ class DeepParser extends AbstractParser {
         $this->resolve_unit_note($note);
         break;
       default:
-        echo get_class($note) . PHP_EOL;
-        Panic::if_reached(__LINE__, __FILE__);
+        Panic::if_reached(__LINE__, __FILE__, $note);
     }
   }
 

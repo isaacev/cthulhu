@@ -17,8 +17,13 @@ class Panic {
   /**
    * @param int    $line
    * @param string $file
+   * @param mixed  $thing
    */
-  public static function if_reached(int $line, string $file) {
-    self::with_reason($line, $file, 'unreachable');
+  public static function if_reached(int $line, string $file, $thing = null) {
+    if ($thing === null) {
+      self::with_reason($line, $file, 'unreachable');
+    } else {
+      self::with_reason($line, $file, 'unsupported kind: ' . get_class($thing));
+    }
   }
 }

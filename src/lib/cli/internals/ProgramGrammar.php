@@ -116,7 +116,7 @@ class ProgramGrammar {
     $scanner     = new Scanner($parts);
     $completions = Completions::find($scanner, $this);
     fprintf(STDERR, "completions: %s\n", implode(', ', $completions));
-    echo implode(PHP_EOL, $completions);
+    fprintf(STDOUT, implode(PHP_EOL, $completions));
   }
 
   public function get_subcommand(string $token): ?SubcommandGrammar {

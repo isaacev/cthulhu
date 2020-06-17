@@ -2,13 +2,13 @@
 
 namespace Cthulhu\workspace;
 
-use Cthulhu\lib\fmt\StringFormatter;
+use Cthulhu\lib\fmt\Formatter;
+use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\php\nodes\Program;
 use Exception;
 
 class WritePhase {
   private Program $php_tree;
-  private ?string $written = null;
 
   public function __construct(Program $php_tree) {
     $this->php_tree = $php_tree;
@@ -30,7 +30,7 @@ class WritePhase {
     $proc = proc_open($cmd, $descriptors, $pipes, '', []);
 
     if (is_resource($proc)) {
-      fwrite($pipes[0], $this->write());
+      $this->write(new StreamFormatter($pipes[0]));
       fclose($pipes[0]);
 
       $stdout = stream_get_contents($pipes[1]);
@@ -75,7 +75,7 @@ class WritePhase {
     $proc = proc_open($cmd, $descriptors, $pipes, '', []);
 
     if (is_resource($proc)) {
-      fwrite($pipes[0], $this->write());
+      $this->write(new StreamFormatter($pipes[0]));
       fclose($pipes[0]);
 
       stream_copy_to_stream($pipes[1], $stdout);
@@ -91,11 +91,7 @@ class WritePhase {
     }
   }
 
-  public function write(): string {
-    if ($this->written !== null) {
-      return $this->written;
-    }
-
-    return $this->written = $this->php_tree->build()->write(new StringFormatter());
+  public function write(Formatter $f): Formatter {
+    return $this->php_tree->build()->write($f);
   }
 }

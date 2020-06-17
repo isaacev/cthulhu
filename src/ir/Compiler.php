@@ -341,8 +341,7 @@ class Compiler {
       case $expr instanceof ast\UnitLiteral:
         return self::unit_literal();
       default:
-        echo get_class($expr) . PHP_EOL;
-        Panic::if_reached(__LINE__, __FILE__);
+        Panic::if_reached(__LINE__, __FILE__, $expr);
     }
   }
 
@@ -517,8 +516,7 @@ class Compiler {
       case $pat instanceof ast\WildcardPattern:
         return new ir\WildcardPattern($type);
       default:
-        echo get_class($pat) . PHP_EOL;
-        Panic::if_reached(__LINE__, __FILE__);
+        Panic::if_reached(__LINE__, __FILE__, $pat);
     }
   }
 

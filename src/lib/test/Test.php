@@ -91,7 +91,8 @@ class Test {
         ->codegen()
         ->optimize();
 
-      $php       = self::do_replacements($tree->write(), $replacements);
+      $php       = $tree->write(new fmt\StringFormatter());
+      $php       = self::do_replacements($php, $replacements);
       $buildtime = (microtime(true) - $start) * 1000;
 
       if ($do_php_eval) {

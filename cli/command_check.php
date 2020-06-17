@@ -21,7 +21,9 @@ function command_check(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args)
         ->write(StreamFormatter::stdout($use_color))
         ->newline();
     } else {
-      echo "no errors in $abspath\n";
+      StreamFormatter::stdout($use_color)
+        ->printf("no errors in %s", $abspath)
+        ->newline();
     }
   } catch (Error $err) {
     $err->format(StreamFormatter::stderr($use_color));
