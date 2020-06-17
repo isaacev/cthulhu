@@ -9,7 +9,10 @@ class ProgramGrammar {
   public string $name;
   public string $version;
   public FlagsGrammar $flags_grammar;
+
+  /* @var SubcommandGrammar[] $subcommand_grammars */
   public array $subcommand_grammars;
+
   /* @var callable $callback */
   public $callback;
 

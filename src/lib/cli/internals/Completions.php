@@ -14,9 +14,15 @@ class Completions {
     return $completions;
   }
 
+  /**
+   * @param Scanner $scanner
+   * @param Node    $start
+   * @return GuardedNode[]
+   */
   private static function frontier(Scanner $scanner, Node $start): array {
     $frontier = $start->find_guarded();
     while ($token = $scanner->advance()) {
+      /* @var GuardedNode[] $new_frontier */
       $new_frontier = [];
       foreach ($frontier as $f) {
         if ($f->matches($token)) {

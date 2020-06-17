@@ -10,7 +10,10 @@ class SubcommandGrammar implements Describeable {
   public string $id;
   public string $description;
   public FlagsGrammar $flags_grammar;
+
+  /* @var ArgumentGrammar[] $argument_grammars */
   public array $argument_grammars;
+
   /* @var callable */
   public $callback;
 
@@ -75,6 +78,10 @@ class SubcommandGrammar implements Describeable {
     $this->callback = $callback;
   }
 
+  /**
+   * @param Scanner $scanner
+   * @return ArgumentResult[]
+   */
   public function parse_args(Scanner $scanner): array {
     $args = [];
     foreach ($this->argument_grammars as $grammar) {

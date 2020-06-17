@@ -3,6 +3,9 @@
 namespace Cthulhu\lib\cli\internals;
 
 class BoolFlagGrammar extends FlagGrammar {
+  /**
+   * @return string[]
+   */
   public function completions(): array {
     if ($this->has_short_form()) {
       return [

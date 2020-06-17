@@ -53,7 +53,10 @@ class Program {
     return $this;
   }
 
-  /** @noinspection PhpUnused */
+  /**
+   * @param string[] $raw
+   * @noinspection PhpUnused
+   */
   public function parse(array $raw): void {
     $scanner = new internals\Scanner(array_slice($raw, 1));
     $result  = $this->grammar->parse($scanner);
@@ -66,7 +69,11 @@ class Program {
     }
   }
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
+  /**
+   * @param string $name
+   * @return string[]
+   * @noinspection PhpInconsistentReturnPointsInspection
+   */
   protected static function parse_flag_name(string $name): array {
     if (preg_match('/^-([a-zA-Z0-9]) --(\S+)$/', $name, $match)) {
       return [ $match[2], $match[1] ];

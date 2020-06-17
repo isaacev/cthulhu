@@ -6,12 +6,22 @@ class StrFlagGrammar extends FlagGrammar {
   public string $arg_name;
   public ?array $pattern;
 
+  /**
+   * @param string        $id
+   * @param string|null   $short
+   * @param string        $description
+   * @param string        $arg_name
+   * @param string[]|null $pattern
+   */
   public function __construct(string $id, ?string $short, string $description, string $arg_name, ?array $pattern) {
     parent::__construct($id, $short, $description);
     $this->arg_name = $arg_name;
     $this->pattern  = $pattern;
   }
 
+  /**
+   * @return string[]
+   */
   public function completions(): array {
     if ($this->has_short_form()) {
       return [

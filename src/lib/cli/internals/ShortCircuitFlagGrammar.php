@@ -21,6 +21,9 @@ class ShortCircuitFlagGrammar extends FlagGrammar {
     $this->callback = $callback;
   }
 
+  /**
+   * @return string[]
+   */
   public function completions(): array {
     if ($this->has_short_form()) {
       return [

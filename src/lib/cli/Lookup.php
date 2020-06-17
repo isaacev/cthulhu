@@ -2,6 +2,9 @@
 
 namespace Cthulhu\lib\cli;
 
+use Cthulhu\lib\cli\internals\ArgumentResult;
+use Cthulhu\lib\cli\internals\FlagResult;
+
 class Lookup {
   protected array $table;
 
@@ -30,6 +33,10 @@ class Lookup {
     }
   }
 
+  /**
+   * @param FlagResult[]|ArgumentResult[] $list
+   * @return self
+   */
   public static function from_flat_array(array $list): self {
     $table = [];
     foreach ($list as $flag) {

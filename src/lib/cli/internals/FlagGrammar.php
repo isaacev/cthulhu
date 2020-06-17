@@ -17,6 +17,9 @@ abstract class FlagGrammar implements Describeable {
     return $this->short !== null;
   }
 
+  /**
+   * @return string[]
+   */
   abstract public function completions(): array;
 
   abstract public function matches(string $token): bool;

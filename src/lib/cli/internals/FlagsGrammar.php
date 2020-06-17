@@ -3,6 +3,7 @@
 namespace Cthulhu\lib\cli\internals;
 
 class FlagsGrammar {
+  /* @var FlagGrammar[] $flags */
   public array $flags = [];
 
   public function add(FlagGrammar $flag) {
@@ -39,6 +40,7 @@ class FlagsGrammar {
   }
 
   public function parse(Scanner $scanner): FlagsResult {
+    /* @var FlagResult[] $flag_results */
     $flag_results = [];
     while ($scanner->not_empty()) {
       if ($scanner->next_is('/^--$/')) {

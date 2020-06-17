@@ -10,6 +10,9 @@ class IntFlagGrammar extends FlagGrammar {
     $this->arg_name = $arg_name;
   }
 
+  /**
+   * @return string[]
+   */
   public function completions(): array {
     if ($this->has_short_form()) {
       return [
