@@ -99,10 +99,11 @@ class SubcommandGrammar implements Describeable {
   }
 
   public function dispatch(ProgramResult $program_result) {
-    $flags = Lookup::from_flat_array($program_result->subcommand->flags->flags);
-    $args  = Lookup::from_flat_array($program_result->subcommand->arguments);
+    $options = Lookup::from_flat_array($program_result->flags->flags);
+    $flags   = Lookup::from_flat_array($program_result->subcommand->flags->flags);
+    $args    = Lookup::from_flat_array($program_result->subcommand->arguments);
     if ($this->callback) {
-      call_user_func($this->callback, $flags, $args);
+      call_user_func($this->callback, $options, $flags, $args);
     }
   }
 }

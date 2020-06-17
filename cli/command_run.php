@@ -6,7 +6,7 @@ use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\workspace\LoadPhase;
 
 /** @noinspection PhpUnusedParameterInspection */
-function command_run(cli\Lookup $flags, cli\Lookup $args) {
+function command_run(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
   try {
     $filepath = $args->get('file');
     LoadPhase::from_filepath($filepath)

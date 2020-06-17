@@ -70,7 +70,7 @@ class ProgramGrammar {
   }
 
   /** @noinspection PhpUnusedParameterInspection */
-  public function complete_callback(Lookup $flags, Lookup $args) {
+  public function complete_callback(Lookup $options, Lookup $flags, Lookup $args) {
     if (
       !getenv('COMP_CWORD') ||
       !getenv('COMP_LINE') ||

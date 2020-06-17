@@ -5,7 +5,7 @@ use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\workspace\LoadPhase;
 
-function command_check(cli\Lookup $flags, cli\Lookup $args) {
+function command_check(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
   try {
     $relpath = $args->get('file');
     $abspath = realpath($relpath);

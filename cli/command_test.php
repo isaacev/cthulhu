@@ -4,7 +4,7 @@ use Cthulhu\lib\cli;
 use Cthulhu\lib\fmt;
 use Cthulhu\lib\test;
 
-function command_test(cli\Lookup $flags, cli\Lookup $args) {
+function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
   $is_blessed  = $flags->get('bless', false);
   $is_verbose  = $flags->get('verbose', false);
   $list_only   = $flags->get('list', false);
