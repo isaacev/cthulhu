@@ -5,13 +5,14 @@ use Cthulhu\lib\fmt;
 use Cthulhu\lib\test;
 
 function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
+  $use_color   = $options->get('color');
   $is_blessed  = $flags->get('bless', false);
   $is_verbose  = $flags->get('verbose', false);
   $list_only   = $flags->get('list', false);
   $do_php_eval = $flags->get('eval', false);
   $filter      = $args->get('filter');
   $tests       = test\Runner::find_tests();
-  $stdout      = fmt\StreamFormatter::stdout();
+  $stdout      = fmt\StreamFormatter::stdout($use_color);
 
   if ($list_only === true) {
     foreach ($tests as $index => $test) {

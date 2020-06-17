@@ -7,6 +7,7 @@ use Cthulhu\workspace\LoadPhase;
 
 /** @noinspection PhpUnusedParameterInspection */
 function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
+  $use_color = $options->get('color');
   try {
     $filepath = $args->get('file');
     echo LoadPhase::from_filepath($filepath)
@@ -16,7 +17,7 @@ function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $arg
       ->optimize()
       ->write();
   } catch (Error $err) {
-    $err->format(StreamFormatter::stderr());
+    $err->format(StreamFormatter::stderr($use_color));
     exit(1);
   }
 }

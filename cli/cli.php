@@ -6,7 +6,8 @@ assert_options(ASSERT_BAIL, 1);
 
 use Cthulhu\lib\cli;
 
-$root = (new cli\Program('cthulhu', '0.1.0'));
+$root = (new cli\Program('cthulhu', '0.1.0'))
+  ->inverse_bool_flag('--no-color', 'Suppress use of ANSI colors in output');
 
 require_once __DIR__ . '/command_check.php';
 $root->subcommand('check', 'Check that a source file is free of errors')

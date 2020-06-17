@@ -18,6 +18,21 @@ class Program {
   }
 
   /** @noinspection PhpUnused */
+  public function inverse_bool_flag(string $name, string $description): self {
+    [ $long, $short ] = self::parse_flag_name($name);
+
+    if (preg_match("/^no-(\S+)$/", $long, $match)) {
+      $id = $match[1];
+    } else {
+      $id = $long;
+    }
+
+    $flag_grammar = new internals\InverseBoolFlagGrammar($id, $short, $description);
+    $this->grammar->add_flag($flag_grammar);
+    return $this;
+  }
+
+  /** @noinspection PhpUnused */
   public function short_circuit_flag(string $name, string $description, callable $callback): self {
     [ $id, $short ] = self::parse_flag_name($name);
     $flag_grammar = new internals\ShortCircuitFlagGrammar($id, $short, $description, $callback);
