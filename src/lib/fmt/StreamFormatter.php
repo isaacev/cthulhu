@@ -2,8 +2,6 @@
 
 namespace Cthulhu\lib\fmt;
 
-use Exception;
-
 class StreamFormatter extends Formatter {
   protected $resource;
   protected $use_color;
@@ -11,7 +9,6 @@ class StreamFormatter extends Formatter {
   /**
    * @param resource  $resource
    * @param bool|null $use_color
-   * @throws Exception
    */
   public function __construct($resource, ?bool $use_color = null) {
     assert(is_resource($resource));
@@ -29,11 +26,11 @@ class StreamFormatter extends Formatter {
     return $this->use_color;
   }
 
-  public static function stdout(): self {
-    return new self(STDOUT);
+  public static function stdout(?bool $use_color = null): self {
+    return new self(STDOUT, $use_color);
   }
 
-  public static function stderr(): self {
-    return new self(STDERR);
+  public static function stderr(?bool $use_color = null): self {
+    return new self(STDERR, $use_color);
   }
 }
