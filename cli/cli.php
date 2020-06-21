@@ -26,7 +26,7 @@ $root->subcommand('test', 'Run all of the available tests')
   ->bool_flag('--bless', 'Update any stdout/stderr files for failing tests')
   ->bool_flag('--verbose', 'Show each test by name including timing info')
   ->bool_flag('--eval', 'Evaluate PHP code and check that the output is expected')
-  ->optional_single_argument('filter', 'Only run tests that match the filter')
+  ->variadic_argument('filters', 'Only run tests that match one of the filters')
   ->callback('command_test');
 
 require_once __DIR__ . '/command_run.php';

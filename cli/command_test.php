@@ -10,13 +10,13 @@ function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) 
   $is_verbose  = $flags->get('verbose', false);
   $list_only   = $flags->get('list', false);
   $do_php_eval = $flags->get('eval', false);
-  $filter      = $args->get('filter');
+  $filters     = $args->get('filters', []);
   $tests       = test\Runner::find_tests();
   $stdout      = fmt\StreamFormatter::stdout($use_color);
 
   if ($list_only === true) {
     foreach ($tests as $index => $test) {
-      if ($filter !== null && !$test->name_matches($filter)) {
+      if (!empty($filters) && !$test->name_matches_one_of($filters)) {
         continue;
       }
 
@@ -38,7 +38,7 @@ function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) 
 
   $reporter->on_start();
   foreach ($tests as $index => $test) {
-    if ($filter !== null && !$test->name_matches($filter)) {
+    if (!empty($filters) && !$test->name_matches_one_of($filters)) {
       $reporter->on_skip($test);
     } else {
       $reporter->on_pre_run($test);

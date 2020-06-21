@@ -32,6 +32,19 @@ class Test {
   }
 
   /**
+   * @param string[] $filters
+   * @return bool
+   */
+  public function name_matches_one_of(array $filters): bool {
+    foreach ($filters as $filter) {
+      if ($this->name_matches($filter)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * @param bool     $do_php_eval
    * @param string[] $replacements
    * @return TestResult
