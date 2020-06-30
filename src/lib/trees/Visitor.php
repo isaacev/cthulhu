@@ -156,6 +156,7 @@ class Visitor {
     // child node because it is evaluated _after_ the parent's postorder callbacks
     // are evaluated.
     if ($curr_path->get_node() instanceof EditableSuccessor) {
+      /** @noinspection PhpPossiblePolymorphicInvocationInspection */
       $succ_node = $curr_path->get_node()->successor();
       if ($succ_node === null) {
         goto done;
@@ -172,6 +173,7 @@ class Visitor {
       if ($succ_has_changed) {
         /* @var EditableSuccessor|null $succ_node */
         $succ_node = $succ_path->get_node();
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         $curr_node = $curr_path->get_node()->from_successor($succ_node);
         $curr_path->set_node($curr_node);
       }
