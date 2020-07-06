@@ -8,22 +8,26 @@ class Panic {
    * @param string $file
    * @param string $reason
    * @param int    $code
+   * @return int
+   * @noinspection PhpUnreachableStatementInspection
    */
   public static function with_reason(int $line, string $file, string $reason, int $code = 1) {
     fprintf(STDERR, "(internal error at line $line in $file) $reason\n");
     die($code);
+    return $code;
   }
 
   /**
    * @param int    $line
    * @param string $file
    * @param mixed  $thing
+   * @return int
    */
-  public static function if_reached(int $line, string $file, $thing = null) {
+  public static function if_reached(int $line, string $file, $thing = null): int {
     if ($thing === null) {
-      self::with_reason($line, $file, 'unreachable');
+      return self::with_reason($line, $file, 'unreachable');
     } else {
-      self::with_reason($line, $file, 'unsupported kind: ' . get_class($thing));
+      return self::with_reason($line, $file, 'unsupported kind: ' . get_class($thing));
     }
   }
 }

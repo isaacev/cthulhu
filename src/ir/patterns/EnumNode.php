@@ -28,7 +28,7 @@ class EnumNode extends Node {
           $this->variants[$name] = new NamedFormNode($name, $form);
           break;
         default:
-          Panic::if_reached(__LINE__, __FILE__);
+          die(Panic::if_reached(__LINE__, __FILE__));
       }
     }
   }
@@ -47,14 +47,13 @@ class EnumNode extends Node {
     return true;
   }
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
   public function is_redundant(Pattern $pattern): bool {
     if ($pattern instanceof WildcardPattern) {
       return $this->is_covered();
     } else if ($pattern instanceof FormPattern) {
       return $this->variants[$pattern->name]->is_redundant($pattern);
     } else {
-      Panic::if_reached(__LINE__, __FILE__);
+      die(Panic::if_reached(__LINE__, __FILE__));
     }
   }
 

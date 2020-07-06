@@ -29,7 +29,7 @@ class StrNode extends Node {
     } else if ($pattern instanceof StrPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      Panic::if_reached(__LINE__, __FILE__);
+      die(Panic::if_reached(__LINE__, __FILE__));
     }
   }
 

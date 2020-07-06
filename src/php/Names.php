@@ -68,7 +68,7 @@ class Names {
     $out   = '';
     foreach ($chars as $char) {
       if (array_key_exists($char, self::PUNCT_TO_SAFE_CHAR) === false) {
-        Panic::with_reason(__LINE__, __FILE__, "cannot use '$char' in operator");
+        die(Panic::with_reason(__LINE__, __FILE__, "cannot use '$char' in operator"));
       } else if (empty($out)) {
         $out .= self::PUNCT_TO_SAFE_CHAR[$char];
       } else {

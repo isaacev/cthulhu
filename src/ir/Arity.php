@@ -14,7 +14,7 @@ class Arity {
     Visitor::walk($root, [
       'exit(Stmt|Expr)' => function (nodes\Node $node, Path $path) {
         if (($node->get('arity') instanceof arity\Arity) === false) {
-          Panic::with_reason(__LINE__, __FILE__, "missing arity for $path->kind node");
+          die(Panic::with_reason(__LINE__, __FILE__, "missing arity for $path->kind node"));
         }
       },
       'Intrinsic' => function (nodes\Intrinsic $intrinsic) {

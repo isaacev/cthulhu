@@ -18,7 +18,6 @@ class Nester {
   /**
    * @return TokenGroup
    * @throws Error
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   public function nest(): TokenGroup {
     /* @var DelimToken[] $left_stack */
@@ -61,6 +60,6 @@ class Nester {
         array_push($member_stack[count($member_stack) - 1], $new_leaf);
       }
     }
-    Panic::if_reached(__LINE__, __FILE__);
+    die(Panic::if_reached(__LINE__, __FILE__));
   }
 }

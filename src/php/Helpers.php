@@ -11,7 +11,6 @@ class Helpers {
    * @param string          $helper_name
    * @param nodes\Reference $runtime_namespace
    * @return nodes\FuncStmt
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   public static function get(string $helper_name, nodes\Reference $runtime_namespace): nodes\FuncStmt {
     switch ($helper_name) {
@@ -20,7 +19,7 @@ class Helpers {
       case 'unreachable':
         return self::get_unreachable_helper();
       default:
-        Panic::with_reason(__LINE__, __FILE__, "no helper named '$helper_name'");
+        die(Panic::with_reason(__LINE__, __FILE__, "no helper named '$helper_name'"));
     }
   }
 

@@ -92,7 +92,6 @@ class Lexer {
    * @param Char $next
    * @return tokens\StringToken
    * @throws Error
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private function next_str_literal(Char $next): tokens\Token {
     $lexeme = $next->raw_char;
@@ -126,7 +125,7 @@ class Lexer {
       }
     }
 
-    Panic::if_reached(__LINE__, __FILE__);
+    die(Panic::if_reached(__LINE__, __FILE__));
   }
 
   private function next_ident(Char $next): tokens\Token {

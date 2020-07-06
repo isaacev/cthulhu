@@ -12,7 +12,6 @@ class Intrinsics {
    * @param string       $name
    * @param nodes\Expr[] $args
    * @return nodes\Expr
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   public static function build_intrinsic_expr(string $name, array $args): nodes\Expr {
     switch ($name) {
@@ -79,7 +78,7 @@ class Intrinsics {
       case 'file_to_abspath':
         return self::file_to_abspath(...$args);
       default:
-        Panic::with_reason(__LINE__, __FILE__, "unknown intrinsic named '$name'");
+        die(Panic::with_reason(__LINE__, __FILE__, "unknown intrinsic named '$name'"));
     }
   }
 

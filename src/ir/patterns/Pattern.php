@@ -9,7 +9,6 @@ use Cthulhu\lib\panic\Panic;
 abstract class Pattern {
   abstract public function __toString(): string;
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
   public static function from(ast\Pattern $pattern, types\Type $type): self {
     $type = $type->flatten();
 
@@ -61,7 +60,7 @@ abstract class Pattern {
       } else if ($pattern->literal instanceof ast\BoolLiteral) {
         return new BoolPattern($pattern->literal->bool_value);
       } else {
-        Panic::if_reached(__LINE__, __FILE__);
+        die(Panic::if_reached(__LINE__, __FILE__));
       }
     } else {
       return new WildcardPattern();

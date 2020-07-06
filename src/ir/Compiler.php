@@ -265,7 +265,7 @@ class Compiler {
         self::expr_stmt($ctx, $stmt);
         break;
       default:
-        Panic::if_reached(__LINE__, __FILE__);
+        die(Panic::if_reached(__LINE__, __FILE__));
     }
   }
 
@@ -301,7 +301,6 @@ class Compiler {
     return new ir\Exprs($new_exprs);
   }
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
   private static function expr(self $ctx, ast\Expr $expr): ir\Expr {
     switch (true) {
       case $expr instanceof ast\ClosureExpr:
@@ -341,7 +340,7 @@ class Compiler {
       case $expr instanceof ast\UnitLiteral:
         return self::unit_literal();
       default:
-        Panic::if_reached(__LINE__, __FILE__, $expr);
+        die(Panic::if_reached(__LINE__, __FILE__, $expr));
     }
   }
 
@@ -428,7 +427,6 @@ class Compiler {
     return new ir\Match($out_type, $disc, $arms);
   }
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
   private static function pattern(types\Type $type, ast\Pattern $pat): ir\Pattern {
     $type = $type->flatten();
 
@@ -445,7 +443,7 @@ class Compiler {
           case $pat->literal instanceof ast\BoolLiteral:
             return new ir\BoolConstPattern($pat->literal->bool_value);
           default:
-            Panic::if_reached(__LINE__, __FILE__);
+            die(Panic::if_reached(__LINE__, __FILE__));
         }
       }
       case $pat instanceof ast\NamedFormPattern:
@@ -516,7 +514,7 @@ class Compiler {
       case $pat instanceof ast\WildcardPattern:
         return new ir\WildcardPattern($type);
       default:
-        Panic::if_reached(__LINE__, __FILE__, $pat);
+        die(Panic::if_reached(__LINE__, __FILE__, $pat));
     }
   }
 

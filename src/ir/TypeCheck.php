@@ -464,13 +464,13 @@ class TypeCheck {
 
       'exit(Expr)' => function (ast\Expr $expr, Path $path) {
         if (!self::get_maybe_type($expr)) {
-          Panic::with_reason(__LINE__, __FILE__, "$path->kind missing a type");
+          die(Panic::with_reason(__LINE__, __FILE__, "$path->kind missing a type"));
         }
       },
 
       'exit(Stmt)' => function (ast\Stmt $stmt, Path $path) {
         if (!self::get_maybe_type($stmt)) {
-          Panic::with_reason(__LINE__, __FILE__, "$path->kind missing a type");
+          die(Panic::with_reason(__LINE__, __FILE__, "$path->kind missing a type"));
         }
       },
     ]);
@@ -517,7 +517,7 @@ class TypeCheck {
     if ($t1 instanceof types\FreeTypeVar) {
       if ($t1 !== $t2) {
         if ($t1->contains($t2)) {
-          Panic::with_reason(__LINE__, __FILE__, "recursive unification between $t1 and $t2");
+          die(Panic::with_reason(__LINE__, __FILE__, "recursive unification between $t1 and $t2"));
         } else if ($t1->has_instance()) {
           throw new types\UnificationFailure();
         } else {
@@ -587,7 +587,7 @@ class TypeCheck {
           throw new types\UnificationFailure();
         }
       } else {
-        Panic::with_reason(__LINE__, __FILE__, "unknown type: " . get_class($t1));
+        die(Panic::with_reason(__LINE__, __FILE__, "unknown type: " . get_class($t1)));
       }
     }
   }
@@ -597,7 +597,6 @@ class TypeCheck {
    * @param bool     $is_free
    * @return types\Type
    * @throws Error
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private static function note_to_type(ast\Note $note, bool $is_free): types\Type {
     if ($note instanceof ast\UnitNote) {
@@ -614,7 +613,7 @@ class TypeCheck {
         $type = self::fresh($type);
         return $type;
       } else {
-        Panic::with_reason(__LINE__, __FILE__, "unknown type: " . $note->path->tail);
+        die(Panic::with_reason(__LINE__, __FILE__, "unknown type: " . $note->path->tail));
       }
     }
 
@@ -686,14 +685,13 @@ class TypeCheck {
       }
     }
 
-    Panic::if_reached(__LINE__, __FILE__);
+    die(Panic::if_reached(__LINE__, __FILE__));
   }
 
   /**
    * @param ast\Pattern $pat
    * @return types\Type
    * @throws types\UnificationFailure|Error
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private static function pattern_to_type(ast\Pattern $pat): types\Type {
     if ($pat instanceof ast\ConstPattern) {
@@ -709,7 +707,7 @@ class TypeCheck {
         case $pat->literal->value instanceof val\UnitValue:
           return types\Atomic::unit();
         default:
-          Panic::if_reached(__LINE__, __FILE__);
+          die(Panic::if_reached(__LINE__, __FILE__));
       }
     }
 
@@ -777,7 +775,7 @@ class TypeCheck {
       return $enum_type;
     }
 
-    Panic::if_reached(__LINE__, __FILE__);
+    die(Panic::if_reached(__LINE__, __FILE__));
   }
 
   private static function block_ret_span(ast\BlockNode $block): Spanlike {

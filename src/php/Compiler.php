@@ -206,12 +206,12 @@ class Compiler {
         $expr_name         = end($expr_name_parts);
         $pushed_exprs      = $found_stack_depth - $prior_stack_depth;
         if ($pushed_exprs > 1) {
-          Panic::with_reason(__LINE__, __FILE__, "$expr_name pushed $pushed_exprs expressions to the stack");
+          die(Panic::with_reason(__LINE__, __FILE__, "$expr_name pushed $pushed_exprs expressions to the stack"));
         } else if ($pushed_exprs === 0) {
-          Panic::with_reason(__LINE__, __FILE__, "$expr_name pushed no expressions to the stack");
+          die(Panic::with_reason(__LINE__, __FILE__, "$expr_name pushed no expressions to the stack"));
         } else if ($pushed_exprs < 0) {
           $abs_pushed_exprs = abs($pushed_exprs);
-          Panic::with_reason(__LINE__, __FILE__, "$expr_name removed $abs_pushed_exprs expressions from the stack");
+          die(Panic::with_reason(__LINE__, __FILE__, "$expr_name removed $abs_pushed_exprs expressions from the stack"));
         }
       },
 

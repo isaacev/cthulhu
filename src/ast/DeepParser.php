@@ -219,7 +219,6 @@ class DeepParser extends AbstractParser {
    * @param nodes\ShallowItem $item
    * @return nodes\Item
    * @throws Error
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private function item(nodes\ShallowItem $item): nodes\Item {
     switch (true) {
@@ -232,7 +231,7 @@ class DeepParser extends AbstractParser {
       case $item instanceof nodes\ShallowFnItem:
         return $this->fn_item($item);
       default:
-        Panic::if_reached(__LINE__, __FILE__);
+        die(Panic::if_reached(__LINE__, __FILE__));
     }
   }
 
@@ -417,7 +416,7 @@ class DeepParser extends AbstractParser {
         $this->resolve_unit_note($note);
         break;
       default:
-        Panic::if_reached(__LINE__, __FILE__, $note);
+        die(Panic::if_reached(__LINE__, __FILE__, $note));
     }
   }
 
@@ -1453,7 +1452,6 @@ class DeepParser extends AbstractParser {
   /**
    * @return nodes\Literal
    * @throws Error
-   * @noinspection PhpInconsistentReturnPointsInspection
    */
   private function literal_expr(): nodes\Literal {
     $token = $this->next_literal();
@@ -1484,7 +1482,7 @@ class DeepParser extends AbstractParser {
         ->set('span', $span);
     }
 
-    Panic::if_reached(__LINE__, __FILE__);
+    die(Panic::if_reached(__LINE__, __FILE__));
   }
 
   /**

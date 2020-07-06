@@ -23,7 +23,6 @@ class UnaryExpr extends Expr {
     return new self($this->operator, $nodes[0]);
   }
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
   public function precedence(): int {
     switch ($this->operator) {
       case '-':
@@ -33,7 +32,7 @@ class UnaryExpr extends Expr {
       case '!':
         return Precedence::UNARY_NOT;
       default:
-        Panic::with_reason(__LINE__, __FILE__, "unknown precedence for `$this->operator` operator");
+        die(Panic::with_reason(__LINE__, __FILE__, "unknown precedence for `$this->operator` operator"));
     }
   }
 

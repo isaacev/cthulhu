@@ -17,7 +17,6 @@ abstract class Node {
    */
   abstract public function uncovered_patterns(): array;
 
-  /** @noinspection PhpInconsistentReturnPointsInspection */
   public static function from_type(types\Type $type): self {
     $type = $type->flatten();
 
@@ -44,10 +43,10 @@ abstract class Node {
         case 'Bool':
           return new BoolNode();
         default:
-          Panic::if_reached(__LINE__, __FILE__);
+          die(Panic::if_reached(__LINE__, __FILE__));
       }
     }
 
-    Panic::if_reached(__LINE__, __FILE__);
+    die(Panic::if_reached(__LINE__, __FILE__));
   }
 }
