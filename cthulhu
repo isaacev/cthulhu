@@ -1,11 +1,5 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
-
-try {
-  require __DIR__ . '/cli/cli.php';
-} catch (Exception $ex) {
-  fwrite(STDERR, $ex . PHP_EOL);
-  exit(1);
-}
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/cli/cli.php';
