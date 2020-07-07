@@ -95,7 +95,7 @@ class Visitor {
         $callbacks->preorder($curr_path->get_node(), $curr_path);
 
         if ($curr_path->is_recursion_aborted()) {
-          return $curr_path->get_node();
+          goto done;
         }
       } while ($original_node !== $curr_path->get_node());
 

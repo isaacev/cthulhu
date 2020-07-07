@@ -71,7 +71,7 @@ class Inline implements Pass {
   }
 
   private static function is_inline_candidate(Def $def): bool {
-    return $def->body === null || count($def->body) === 1;
+    return $def->body !== null && count($def->body) === 1;
   }
 
   private static function expand(Def $def, Exprs $args): Expr {
