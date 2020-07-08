@@ -59,4 +59,5 @@ These capitalization rules are enforced by the language.
 - [x] Recursion
 - [x] Tail call optimization
 - [x] Closures
-- [ ] Mutation semantics
+- [ ] Extensible records
+- [ ] Inference of record constraints
