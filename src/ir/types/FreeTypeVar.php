@@ -2,6 +2,8 @@
 
 namespace Cthulhu\ir\types;
 
+use Cthulhu\lib\debug\Debug;
+
 class FreeTypeVar extends Type {
   private static int $next_id = 0;
 
@@ -60,6 +62,14 @@ class FreeTypeVar extends Type {
   }
 
   public function __toString(): string {
+    if (Debug::is_true()) {
+      if ($this->instance) {
+        return "<free '$this->name $this->instance>";
+      } else {
+        return "<free '$this->name>";
+      }
+    }
+
     if ($this->instance) {
       return "$this->instance";
     } else {

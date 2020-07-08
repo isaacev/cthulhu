@@ -6,6 +6,7 @@ assert_options(ASSERT_BAIL, 1);
 
 use Cthulhu\err\Error;
 use Cthulhu\lib\cli;
+use Cthulhu\lib\debug\Debug;
 use Cthulhu\lib\fmt\StreamFormatter;
 use Cthulhu\lib\test;
 use Cthulhu\workspace\LoadPhase;
@@ -20,6 +21,7 @@ use Cthulhu\workspace\LoadPhase;
  */
 
 $root = (new cli\Program('cthulhu', '0.1.0'))
+  ->bool_flag('--debug', 'Output extra diagnostics about compiler internals')
   ->inverse_bool_flag('--no-color', 'Suppress use of ANSI colors in output');
 
 $root->subcommand('check', 'Check that a source file is free of errors')
@@ -47,6 +49,8 @@ $root->subcommand('run', 'Compile and evaluate a script')
 $root->parse($argv);
 
 function command_check(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
+  Debug::setup($options);
+
   $use_color = $options->get('color');
   try {
     $relpath = $args->get('file');
@@ -74,6 +78,8 @@ function command_check(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args)
 
 /** @noinspection PhpUnusedParameterInspection */
 function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
+  Debug::setup($options);
+
   $use_color = $options->get('color');
   try {
     $filepath = $args->get('file');
@@ -90,6 +96,8 @@ function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $arg
 }
 
 function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
+  Debug::setup($options);
+
   $use_color   = $options->get('color');
   $is_blessed  = $flags->get('bless', false);
   $is_verbose  = $flags->get('verbose', false);
@@ -152,6 +160,8 @@ function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) 
 
 /** @noinspection PhpUnusedParameterInspection */
 function command_run(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
+  Debug::setup($options);
+
   $use_color = $options->get('color');
   try {
     $filepath = $args->get('file');
