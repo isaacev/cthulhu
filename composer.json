@@ -1,6 +1,12 @@
 {
     "name": "cthulhu",
     "description": "a strongly typed language that compiles to sane PHP",
+    "scripts": {
+        "build": [
+            "mkdir -p bin",
+            "php -d phar.readonly=off ./lib/phar-composer-1.1.0.phar build . bin/cthulhu.phar"
+        ]
+    },
     "bin": [
         "cli/cli.php"
     ],
