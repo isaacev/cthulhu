@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
 ini_set('display_errors', 'stderr');
 ini_set('assert.exception', true);
 assert_options(ASSERT_BAIL, 1);

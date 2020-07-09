@@ -8,3 +8,6 @@
 /.idea/tasks.xml
 /.idea/uiDesigner.xml
 /.idea/workspace.xml
+
+# Outputs
+/bin

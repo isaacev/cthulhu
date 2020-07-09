@@ -1,6 +1,9 @@
 {
     "name": "cthulhu",
     "description": "a strongly typed language that compiles to sane PHP",
+    "bin": [
+        "cli/cli.php"
+    ],
     "autoload": {
         "psr-4": {
             "Cthulhu\\": "src"
