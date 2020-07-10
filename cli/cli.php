@@ -4,6 +4,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 ini_set('display_errors', 'stderr');
 ini_set('assert.exception', true);
+ini_set('log_errors', 1);
+ini_set('display_errors', 0);
 assert_options(ASSERT_BAIL, 1);
 
 use Cthulhu\err\Error;
