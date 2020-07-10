@@ -26,7 +26,7 @@ class Directory {
   public function scan(): array {
     $found = [];
 
-    foreach (scandir($this->path) as $filename) {
+    foreach (@scandir($this->path) as $filename) {
       if ($filename === '.' || $filename === '..') {
         continue;
       }
