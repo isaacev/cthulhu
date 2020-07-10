@@ -2,6 +2,20 @@
 
 > A strongly-typed language that compiles into PHP
 
+## Installation
+
+### Using a pre-built phar
+
+1. Download the `cthulhu.phar` executable from the [latest release](https://github.com/isaacev/cthulhu/releases/latest)
+1. `chmod 755 cthulhu.phar`
+1. `mv cthulhu.phar /usr/local/bin/cthulhu`
+
+### Building from source
+
+1. Clone this repository
+1. In the repository root folder, run `composer dump-autoloader`
+1. Access the CLI by running `php cli/cli.php`. Or make the program available system-wide by something like ``ln -s `pwd`/bin/cthulhu.php /usr/local/bin/cthulhu``
+
 ## Example
 
 A simple program looks like this:
