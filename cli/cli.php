@@ -24,7 +24,7 @@ use Cthulhu\workspace\LoadPhase;
  * CLI in a shell.
  */
 
-$root = (new cli\Program('cthulhu', '0.1.0'))
+$root = (new cli\Program('cthulhu', '0.2.0'))
   ->bool_flag('--debug', 'Output extra diagnostics about compiler internals')
   ->inverse_bool_flag('--no-color', 'Suppress use of ANSI colors in output');
 

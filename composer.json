@@ -1,5 +1,6 @@
 {
     "name": "cthulhu",
+    "version": "0.2.0",
     "description": "a strongly typed language that compiles to sane PHP",
     "scripts": {
         "build": [
