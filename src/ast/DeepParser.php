@@ -30,30 +30,30 @@ use Cthulhu\val\StringValue;
 use Cthulhu\val\UnknownEscapeChar;
 
 class DeepParser extends AbstractParser {
-  public nodes\ShallowProgram $prog;
+  private nodes\ShallowProgram $prog;
 
   /* @var Scope[] $namespaces */
-  public array $namespaces = [];
+  private array $namespaces = [];
 
-  public Scope $root_scope;
+  private Scope $root_scope;
 
   /* @var Scope[] $modules */
-  public array $module_scopes = [];
+  private array $module_scopes = [];
 
   /* @var Scope[] $functions */
-  public array $func_scopes = [];
+  private array $func_scopes = [];
 
   /* @var Scope[] $param_scopes */
-  public array $param_scopes = [];
+  private array $param_scopes = [];
 
   /* @var NestedScope[] $block_scopes */
-  public array $block_scopes = [];
+  private array $block_scopes = [];
 
   /* @var Trie[] $infix_precedence */
-  public array $infix_precedence = [];
+  private array $infix_precedence = [];
 
   /* @var Trie[] $prefix_precedence */
-  public array $prefix_precedence = [];
+  private array $prefix_precedence = [];
 
   public function __construct(nodes\ShallowProgram $prog) {
     $this->prog       = $prog;
