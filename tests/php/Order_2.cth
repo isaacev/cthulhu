@@ -1,0 +1,20 @@
+use ::Io;
+
+fn ab() -> Str {
+  Foo::a() ++ Foo::b()
+}
+
+mod Foo {
+  pub fn a() -> Str {
+    "a"
+  }
+
+  pub fn b() -> Str {
+    "b"
+  }
+}
+
+#[entry]
+fn main() -> () {
+  Io::println(ab())
+}

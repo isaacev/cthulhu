@@ -41,13 +41,23 @@ class TypeCheck {
    * @param ast\Program $tree
    */
   public static function syntax_tree(array $bindings, ast\Program $tree): void {
-    /* @var types\Type[] $return_stack */
-    $return_stack = [];
-
     foreach ($bindings as $binding) {
       self::set_type($binding->symbol, new types\Atomic($binding->name));
     }
 
+    self::shallow($tree);
+    self::deep($tree);
+  }
+
+  /**
+   * In order to support calling functions that are defined later in the file,
+   * the first step of the type checker needs to be determining the type
+   * signature for all functions and enum types. This method walks the syntax
+   * tree ONLY type-checking EnumItem and FnItem nodes.
+   *
+   * @param ast\Program $tree
+   */
+  private static function shallow(ast\Program $tree): void {
     Visitor::walk($tree, [
       'EnumItem' => function (ast\EnumItem $enum) {
         $free_params = [];
@@ -82,23 +92,44 @@ class TypeCheck {
         self::set_type($enum->name->get('symbol'), $enum_type);
       },
 
-      'enter(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
+      'enter(FnItem)' => function (ast\FnItem $item) {
         $free_inputs = [];
         foreach ($item->params->params as $param) {
           $free_inputs[] = self::note_to_type($param->note, true);
-          $fixed_type    = self::note_to_type($param->note, false);
+        }
+
+        $free_output = self::note_to_type($item->returns, true);
+        $free_type   = types\Func::from_input_array($free_inputs, $free_output);
+        self::set_type($item->name->get('symbol'), $free_type);
+      },
+
+      'enter(Item)' => function (ast\Item $item, Path $path) {
+        if (($item instanceof ast\ModItem) === false) {
+          $path->abort_recursion();
+        }
+      },
+
+      'Expr' => function (ast\Expr $expr) {
+        Panic::if_reached(__LINE__, __FILE__, $expr);
+      },
+    ]);
+  }
+
+  private static function deep(ast\Program $tree): void {
+    /* @var types\Type[] $return_stack */
+    $return_stack = [];
+
+    Visitor::walk($tree, [
+      'enter(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
+        foreach ($item->params->params as $param) {
+          $fixed_type = self::note_to_type($param->note, false);
           self::set_type($param->name->get('symbol'), $fixed_type);
         }
 
-        $free_output  = self::note_to_type($item->returns, true);
         $fixed_output = self::note_to_type($item->returns, false);
         array_push($return_stack, $fixed_output);
-
-        $free_type = types\Func::from_input_array($free_inputs, $free_output);
-        self::set_type($item->name->get('symbol'), $free_type);
       },
       'exit(FnItem)' => function (ast\FnItem $item) use (&$return_stack) {
-
         $sig_type = array_pop($return_stack);
         $ret_type = self::get_type($item->body);
 

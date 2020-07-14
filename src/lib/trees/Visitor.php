@@ -11,9 +11,11 @@ class Visitor {
 
   private static function _walk(Path $path, CallbackTable $callbacks): void {
     $callbacks->preorder($path->node, $path);
-    foreach ($path->node->children() as $child) {
-      if ($child !== null) {
-        self::_walk($path->extend($child), $callbacks);
+    if (!$path->is_recursion_aborted()) {
+      foreach ($path->node->children() as $child) {
+        if ($child !== null) {
+          self::_walk($path->extend($child), $callbacks);
+        }
       }
     }
     $callbacks->postorder($path->node, $path);

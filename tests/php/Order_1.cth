@@ -1,0 +1,18 @@
+use ::Io;
+
+fn ab() -> Str {
+  a() ++ b()
+}
+
+fn a() -> Str {
+  "a"
+}
+
+fn b() -> Str {
+  "b"
+}
+
+#[entry]
+fn main() -> () {
+  Io::println(ab())
+}

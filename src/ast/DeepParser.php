@@ -161,6 +161,9 @@ class DeepParser extends AbstractParser {
   private function get_namespace(Symbol $symbol): ?Scope {
     if (array_key_exists($symbol->get_id(), $this->namespaces)) {
       return $this->namespaces[$symbol->get_id()];
+    } else if (($scope = $symbol->get('scope')) && $scope instanceof Scope) {
+      $this->add_namespace($symbol, $scope);
+      return $scope;
     } else {
       return null;
     }
