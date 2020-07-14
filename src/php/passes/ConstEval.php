@@ -46,11 +46,31 @@ class ConstEval implements Pass {
     return $new_prog;
   }
 
-  private static function string_check(nodes\BinaryExpr $binary): ?nodes\StrLiteral {
-    if ($binary->left instanceof nodes\StrLiteral && $binary->right instanceof nodes\StrLiteral) {
-      if ($binary->operator === '.') {
-        return new nodes\StrLiteral($binary->left->value->append($binary->right->value));
+  private static function string_check(nodes\BinaryExpr $binary): ?nodes\Expr {
+    if ($binary->operator !== '.') {
+      return null;
+    }
+
+    $left  = $binary->left;
+    $right = $binary->right;
+    if ($left instanceof nodes\StrLiteral) {
+      if ($right instanceof nodes\StrLiteral) {
+        // matches concat(STR_1, STR_2) -> STR_12
+        return new nodes\StrLiteral($left->value->append($right->value));
+      } else if ($right instanceof nodes\BinaryExpr
+        && $right->operator === '.'
+        && $right->left instanceof nodes\StrLiteral) {
+        // matches concat(STR_1, concat(STR_2, EXPR)) -> concat(STR_12, EXPR)
+        $new_left = new nodes\StrLiteral($left->value->append($right->left->value));
+        return new nodes\BinaryExpr('.', $new_left, $right->right);
       }
+    } else if ($right instanceof nodes\StrLiteral
+      && $left instanceof nodes\BinaryExpr
+      && $left->operator === '.'
+      && $left->right instanceof nodes\StrLiteral) {
+      // matches concat(concat(EXPR, STR_1), STR_2) -> concat(EXPR, STR_12)
+      $new_right = new nodes\StrLiteral($left->right->value->append($right->value));
+      return new nodes\BinaryExpr('.', $left->left, $new_right);
     }
     return null;
   }
