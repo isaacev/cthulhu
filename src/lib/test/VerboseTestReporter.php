@@ -32,7 +32,7 @@ class VerboseTestReporter extends TestReporter {
       ->print('✓')
       ->space()
       ->apply_styles(fmt\Foreground::WHITE)
-      ->printf('%5s', $this->format_time($result->buildtime))
+      ->print($this->format_time($result->buildtime))
       ->reset_styles()
       ->newline();
   }
@@ -45,7 +45,7 @@ class VerboseTestReporter extends TestReporter {
       ->print('✗')
       ->space()
       ->apply_styles(fmt\Foreground::WHITE)
-      ->printf('%5s', $this->format_time($result->buildtime))
+      ->print($this->format_time($result->buildtime))
       ->reset_styles()
       ->newline();
   }
@@ -65,11 +65,11 @@ class VerboseTestReporter extends TestReporter {
 
   private function format_time(float $in_milliseconds): string {
     if ($in_milliseconds < 1000) {
-      return sprintf('%.1f ms', $in_milliseconds);
+      return sprintf('%5.1f ms', $in_milliseconds);
     } else if ($in_milliseconds < 60 * 1000) {
-      return sprintf("%.1f sec", $in_milliseconds / 1000);
+      return sprintf("%5.1f sec", $in_milliseconds / 1000);
     } else {
-      return sprintf("%.1f min", $in_milliseconds / 60 / 1000);
+      return sprintf("%5.1f min", $in_milliseconds / 60 / 1000);
     }
   }
 }
