@@ -13,7 +13,7 @@
 ### Building from source
 
 1. Clone this repository
-1. In the repository root folder, run `composer dump-autoloader`
+1. In the repository root folder, run `composer dump-autoload`
 1. Access the CLI by running `php cli/cli.php`. Or make the program available system-wide by something like ``ln -s `pwd`/bin/cthulhu.php /usr/local/bin/cthulhu``
 
 ## Example
