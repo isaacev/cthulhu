@@ -60,6 +60,6 @@ class Nester {
         array_push($member_stack[count($member_stack) - 1], $new_leaf);
       }
     }
-    die(Panic::if_reached(__LINE__, __FILE__));
+    Panic::if_reached(__LINE__, __FILE__);
   }
 }

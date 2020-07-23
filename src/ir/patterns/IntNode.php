@@ -29,7 +29,7 @@ class IntNode extends Node {
     } else if ($pattern instanceof IntPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      die(Panic::if_reached(__LINE__, __FILE__));
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

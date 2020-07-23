@@ -43,10 +43,10 @@ abstract class Node {
         case 'Bool':
           return new BoolNode();
         default:
-          die(Panic::if_reached(__LINE__, __FILE__));
+          Panic::if_reached(__LINE__, __FILE__);
       }
     }
 
-    die(Panic::if_reached(__LINE__, __FILE__));
+    Panic::if_reached(__LINE__, __FILE__);
   }
 }

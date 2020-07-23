@@ -29,7 +29,7 @@ class FloatNode extends Node {
     } else if ($pattern instanceof FloatPattern) {
       $this->has_values[] = $pattern->value;
     } else {
-      die(Panic::if_reached(__LINE__, __FILE__));
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

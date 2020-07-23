@@ -125,7 +125,7 @@ class Lexer {
       }
     }
 
-    die(Panic::if_reached(__LINE__, __FILE__));
+    Panic::if_reached(__LINE__, __FILE__);
   }
 
   private function next_ident(Char $next): tokens\Token {

@@ -28,7 +28,7 @@ class EnumNode extends Node {
           $this->variants[$name] = new NamedFormNode($name, $form);
           break;
         default:
-          die(Panic::if_reached(__LINE__, __FILE__));
+          Panic::if_reached(__LINE__, __FILE__);
       }
     }
   }
@@ -53,7 +53,7 @@ class EnumNode extends Node {
     } else if ($pattern instanceof FormPattern) {
       return $this->variants[$pattern->name]->is_redundant($pattern);
     } else {
-      die(Panic::if_reached(__LINE__, __FILE__));
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

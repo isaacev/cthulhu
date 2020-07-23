@@ -234,7 +234,7 @@ class DeepParser extends AbstractParser {
       case $item instanceof nodes\ShallowFnItem:
         return $this->fn_item($item);
       default:
-        die(Panic::if_reached(__LINE__, __FILE__));
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 
@@ -419,7 +419,7 @@ class DeepParser extends AbstractParser {
         $this->resolve_unit_note($note);
         break;
       default:
-        die(Panic::if_reached(__LINE__, __FILE__, $note));
+        Panic::if_reached(__LINE__, __FILE__, $note);
     }
   }
 
@@ -1485,7 +1485,7 @@ class DeepParser extends AbstractParser {
         ->set('span', $span);
     }
 
-    die(Panic::if_reached(__LINE__, __FILE__));
+    Panic::if_reached(__LINE__, __FILE__);
   }
 
   /**

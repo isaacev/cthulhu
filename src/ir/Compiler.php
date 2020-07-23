@@ -265,7 +265,7 @@ class Compiler {
         self::expr_stmt($ctx, $stmt);
         break;
       default:
-        die(Panic::if_reached(__LINE__, __FILE__));
+        Panic::if_reached(__LINE__, __FILE__);
     }
   }
 
@@ -340,7 +340,7 @@ class Compiler {
       case $expr instanceof ast\UnitLiteral:
         return self::unit_literal();
       default:
-        die(Panic::if_reached(__LINE__, __FILE__, $expr));
+        Panic::if_reached(__LINE__, __FILE__, $expr);
     }
   }
 
@@ -443,7 +443,7 @@ class Compiler {
           case $pat->literal instanceof ast\BoolLiteral:
             return new ir\BoolConstPattern($pat->literal->bool_value);
           default:
-            die(Panic::if_reached(__LINE__, __FILE__));
+            Panic::if_reached(__LINE__, __FILE__);
         }
       }
       case $pat instanceof ast\NamedFormPattern:
@@ -514,7 +514,7 @@ class Compiler {
       case $pat instanceof ast\WildcardPattern:
         return new ir\WildcardPattern($type);
       default:
-        die(Panic::if_reached(__LINE__, __FILE__, $pat));
+        Panic::if_reached(__LINE__, __FILE__, $pat);
     }
   }
 

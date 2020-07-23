@@ -60,7 +60,7 @@ abstract class Pattern {
       } else if ($pattern->literal instanceof ast\BoolLiteral) {
         return new BoolPattern($pattern->literal->bool_value);
       } else {
-        die(Panic::if_reached(__LINE__, __FILE__));
+        Panic::if_reached(__LINE__, __FILE__);
       }
     } else {
       return new WildcardPattern();

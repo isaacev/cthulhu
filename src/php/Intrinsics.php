@@ -78,7 +78,7 @@ class Intrinsics {
       case 'file_to_abspath':
         return self::file_to_abspath(...$args);
       default:
-        die(Panic::with_reason(__LINE__, __FILE__, "unknown intrinsic named '$name'"));
+        Panic::with_reason(__LINE__, __FILE__, "unknown intrinsic named '$name'");
     }
   }
 

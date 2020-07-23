@@ -39,7 +39,7 @@ class BoolNode extends Node {
         $this->has_false = true;
       }
     } else {
-      die(Panic::if_reached(__LINE__, __FILE__));
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

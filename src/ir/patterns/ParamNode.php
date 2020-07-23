@@ -19,7 +19,7 @@ class ParamNode extends Node {
     if ($pattern instanceof WildcardPattern) {
       $this->has_wildcard = true;
     } else {
-      die(Panic::if_reached(__LINE__, __FILE__));
+      Panic::if_reached(__LINE__, __FILE__);
     }
   }
 

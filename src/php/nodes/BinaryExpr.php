@@ -56,7 +56,7 @@ class BinaryExpr extends Expr {
       case '**':
         return Precedence::EXPONENT;
       default:
-        die(Panic::with_reason(__LINE__, __FILE__, "unknown precedence for `$this->operator` operator"));
+        Panic::with_reason(__LINE__, __FILE__, "unknown precedence for `$this->operator` operator");
     }
   }
 

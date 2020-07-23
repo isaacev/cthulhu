@@ -19,7 +19,7 @@ class Helpers {
       case 'unreachable':
         return self::get_unreachable_helper();
       default:
-        die(Panic::with_reason(__LINE__, __FILE__, "no helper named '$helper_name'"));
+        Panic::with_reason(__LINE__, __FILE__, "no helper named '$helper_name'");
     }
   }
 
