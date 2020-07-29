@@ -7,6 +7,8 @@ use Cthulhu\lib\trees\DefaultUniqueId;
 use Cthulhu\lib\trees\HasMetadata;
 
 abstract class Symbol implements HasMetadata {
+  public const KEY = 'symbol';
+
   use DefaultMetadata;
   use DefaultUniqueId;
 

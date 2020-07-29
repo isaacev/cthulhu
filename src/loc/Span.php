@@ -3,6 +3,8 @@
 namespace Cthulhu\loc;
 
 class Span implements Spanlike {
+  public const KEY = 'span';
+
   public Point $from;
   public Point $to;
 
