@@ -285,12 +285,12 @@ class Compiler {
         $ctx->expressions->push($expr);
       },
 
-      'enter(Match)' => function () use ($ctx) {
+      'enter(MatchExpr)' => function () use ($ctx) {
         $disc_var = $ctx->names->tmp_var();
         $ctx->patterns->push_pattern_context($disc_var);
         $ctx->patterns->peek_pattern_context()->push_accessor(new php\VariableExpr($disc_var));
       },
-      'exit(Match)' => function () use ($ctx) {
+      'exit(MatchExpr)' => function () use ($ctx) {
         /* @var php\IfStmt[] $if_stmts */
         $if_stmts        = [];
         $chained_if_stmt = $ctx->statements->pop_block()->stmt;

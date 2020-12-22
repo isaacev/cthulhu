@@ -4,7 +4,7 @@ namespace Cthulhu\ir\nodes;
 
 use Cthulhu\ir\types\Type;
 
-class Match extends BranchExpr {
+class MatchExpr extends BranchExpr {
   public Disc $disc;
   public Arms $arms;
 
@@ -18,8 +18,8 @@ class Match extends BranchExpr {
     return [ $this->disc, $this->arms ];
   }
 
-  public function from_children(array $children): Match {
-    return new Match($this->type, ...$children);
+  public function from_children(array $children): MatchExpr {
+    return new MatchExpr($this->type, ...$children);
   }
 
   public function build(): Builder {

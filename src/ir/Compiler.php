@@ -395,7 +395,7 @@ class Compiler {
     return new ir\Block($type, $stmt);
   }
 
-  private static function match_expr(self $ctx, ast\MatchExpr $expr): ir\Match {
+  private static function match_expr(self $ctx, ast\MatchExpr $expr): ir\MatchExpr {
     $disc      = new ir\Disc(self::expr($ctx, $expr->discriminant));
     $disc_type = $expr->discriminant->get(TypeCheck::TYPE_KEY);
     $out_type  = $expr->get(TypeCheck::TYPE_KEY);
@@ -424,7 +424,7 @@ class Compiler {
     }
     $arms = new ir\Arms($arms);
 
-    return new ir\Match($out_type, $disc, $arms);
+    return new ir\MatchExpr($out_type, $disc, $arms);
   }
 
   private static function pattern(types\Type $type, ast\Pattern $pat): ir\Pattern {

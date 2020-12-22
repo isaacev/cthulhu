@@ -115,7 +115,7 @@ class Arity {
         assert($arity instanceof arity\Arity);
         $ret->set('arity', $arity);
       },
-      'exit(Match)' => function (nodes\Match $match) {
+      'exit(MatchExpr)' => function (nodes\MatchExpr $match) {
         $arms = $match->arms->arms;
         /* @var arity\Arity $combined_arity */
         $combined_arity = $arms[0]->handler->stmt->get('arity');
