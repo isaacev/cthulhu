@@ -26,8 +26,9 @@ class Arm extends Node {
       ->keyword('case')
       ->space()
       ->then($this->pattern)
-      ->space()
+      ->increase_indentation(2)
       ->then($this->handler)
+      ->decrease_indentation()
       ->paren_right();
   }
 }
