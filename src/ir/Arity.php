@@ -12,6 +12,35 @@ use Cthulhu\lib\trees\Visitor;
 class Arity {
   public static function inspect(nodes\Root $root): void {
     Visitor::walk($root, [
+      // A shallow pass over all Def nodes is done first to accommodate
+      // out-of-order function application.
+      'enter(Def)' => function (nodes\Def $def, Path $path) {
+        foreach ($def->params->names as $param) {
+          $arity = self::type_to_arity($param->type);
+          assert($arity instanceof arity\Arity);
+          $param->symbol->set('arity', $arity);
+        }
+
+        // When first entering a function definition, produce a minimal arity
+        // for the definition, using only the number of parameters and basic
+        // information about the return type. By creating a minimal arity now,
+        // any recursive calls inside the function can be assigned an arity.
+        //
+        // If there were no recursive calls in the function body, a more
+        // refined arity will be assigned when exiting the function definition
+        // using information from the arity of the return expression.
+        $return_arity = self::type_to_arity($def->type->output);
+        $total_params = max(1, count($def->params));
+        $arity        = new arity\KnownMultiArity($total_params, $return_arity);
+
+        $def->set('arity', $arity);
+        $def->name->symbol->set('arity', $arity);
+
+        $path->abort_recursion();
+      },
+    ]);
+
+    Visitor::walk($root, [
       'exit(Stmt|Expr)' => function (nodes\Node $node, Path $path) {
         if (($node->get('arity') instanceof arity\Arity) === false) {
           Panic::with_reason(__LINE__, __FILE__, "missing arity for $path->kind node");
@@ -48,28 +77,6 @@ class Arity {
       'Lit|ListExpr|Ctor|Tuple|Record|Enum|Block|Pop|Unreachable' => function (nodes\Node $node) {
         $arity = new arity\ZeroArity();
         $node->set('arity', $arity);
-      },
-      'enter(Def)' => function (nodes\Def $def) {
-        foreach ($def->params->names as $param) {
-          $arity = self::type_to_arity($param->type);
-          assert($arity instanceof arity\Arity);
-          $param->symbol->set('arity', $arity);
-        }
-
-        // When first entering a function definition, produce a minimal arity
-        // for the definition, using only the number of parameters and basic
-        // information about the return type. By creating a minimal arity now,
-        // any recursive calls inside the function can be assigned an arity.
-        //
-        // If there were no recursive calls in the function body, a more
-        // refined arity will be assigned when exiting the function definition
-        // using information from the arity of the return expression.
-        $return_arity = self::type_to_arity($def->type->output);
-        $total_params = max(1, count($def->params));
-        $arity        = new arity\KnownMultiArity($total_params, $return_arity);
-
-        $def->set('arity', $arity);
-        $def->name->symbol->set('arity', $arity);
       },
       'exit(Def)' => function (nodes\Def $def) {
         $return_arity = ($def->body !== null)
