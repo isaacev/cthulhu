@@ -1,0 +1,12 @@
+-- SKIP: inline
+
+use ::Io;
+
+fn hello() -> () {
+  Io::println("hello");
+}
+
+#[entry]
+fn main() -> () {
+  hello();
+}

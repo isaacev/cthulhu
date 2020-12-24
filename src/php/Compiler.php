@@ -4,6 +4,7 @@ namespace Cthulhu\php;
 
 use Cthulhu\ir\arity\Arity;
 use Cthulhu\ir\arity\KnownMultiArity;
+use Cthulhu\ir\arity\ZeroArity;
 use Cthulhu\ir\names\VarSymbol;
 use Cthulhu\ir\nodes as ir;
 use Cthulhu\ir\types\Record;
@@ -551,6 +552,13 @@ class Compiler {
         $total_args = count($app->args);
         $args       = $ctx->expressions->pop_multiple($total_args);
         $callee     = $ctx->expressions->pop();
+
+        if ($total_args === 0) {
+          $args = [
+            (new php\NullLiteral())->set('arity', new ZeroArity()),
+          ];
+        }
+
         if ($callee_arity instanceof KnownMultiArity) {
           $ctx->expressions->push(self::over_app($ctx, $callee, $args, $callee_arity));
         } else {
