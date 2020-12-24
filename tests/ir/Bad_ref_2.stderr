@@ -7,9 +7,3 @@
   4 | Io::doesNotExist();
     |     ^^^^^^^^^^^^
 
-  Here are some fields that are similar:
-
-    print
-    println
-    argv
-

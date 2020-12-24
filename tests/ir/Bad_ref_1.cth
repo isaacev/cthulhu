@@ -1,3 +1,7 @@
+fn hello_world() -> () {
+  -- empty
+}
+
 fn main() -> () {
-  foo();
+  hello_wlord();
 }

@@ -11,9 +11,3 @@
     TEST_DIR/ast
     STDLIB_DIR
 
-  These were the libraries that look the most similar:
-
-    Fmt
-    Io
-    Union_4
-

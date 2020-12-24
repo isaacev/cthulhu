@@ -5,6 +5,8 @@ namespace Cthulhu\err;
 use Cthulhu\lib\fmt\Formatter;
 
 class Similar implements Reportable {
+  public const EDIT_THRESHOLD = 3;
+
   public string $sentence;
   public array $candidates;
 
@@ -41,16 +43,17 @@ class Similar implements Reportable {
   /**
    * @param string   $incorrect
    * @param string[] $fixes
-   * @param int      $take
    * @return string[]
    */
-  public static function find_candidates(string $incorrect, array $fixes, int $take = 3): array {
+  public static function find_candidates(string $incorrect, array $fixes): array {
     // Determine the edit distance between the `$incorrect` string and each of
     // the `$fixes`. Store these costs in a mapping from `fix -> cost`
     $costs = [];
     foreach ($fixes as $fix) {
-      $cost        = self::damerau_levenshtein_distance($incorrect, $fix);
-      $costs[$fix] = $cost;
+      $cost = self::damerau_levenshtein_distance($incorrect, $fix);
+      if ($cost <= self::EDIT_THRESHOLD) {
+        $costs[$fix] = $cost;
+      }
     }
 
     // Sort the key/value pairs from smallest edit distance -> largest
@@ -58,7 +61,7 @@ class Similar implements Reportable {
     $sorted_fixes = array_keys($costs);
 
     // Return the `$take` candidates with the smallest edit distances
-    return array_slice($sorted_fixes, 0, $take);
+    return array_slice($sorted_fixes, 0, 3);
   }
 
   /**
