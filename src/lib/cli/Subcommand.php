@@ -33,8 +33,7 @@ class Subcommand {
     return $this;
   }
 
-  /** @noinspection PhpUnused */
-  public function str_flag(string $name, string $description, string $arg_name, ?array $pattern = null) {
+  public function str_flag(string $name, string $description, string $arg_name, ?array $pattern = null): self {
     [ $id, $short ] = self::parse_flag_name($name);
     $flag_grammar = new internals\StrFlagGrammar($id, $short, $description, $arg_name, $pattern);
     $this->grammar->add_flag($flag_grammar);

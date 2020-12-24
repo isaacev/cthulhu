@@ -100,9 +100,9 @@ class Test {
     try {
       $tree = LoadPhase::from_file($this->input)
         ->check()
-        ->optimize()
+        ->optimize([])
         ->codegen()
-        ->optimize();
+        ->optimize([]);
 
       $php       = $tree->write(new fmt\StringFormatter());
       $php       = self::do_replacements($php, $replacements);

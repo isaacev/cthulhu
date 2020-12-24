@@ -12,7 +12,11 @@ use Cthulhu\lib\trees\EditablePath;
 use Cthulhu\lib\trees\Visitor;
 
 class ShakeTree implements Pass {
-  public static function apply(Root $root): Root {
+  public static function apply(Root $root, array $skip): Root {
+    if (in_array('tree-shake', $skip)) {
+      return $root;
+    }
+
     /* @var int[] $stack */
     $stack = [];
 

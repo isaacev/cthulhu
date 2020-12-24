@@ -11,7 +11,11 @@ use Cthulhu\php\nodes;
 use Cthulhu\val\BooleanValue;
 
 class TailCall implements Pass {
-  public static function apply(nodes\Program $prog): nodes\Program {
+  public static function apply(nodes\Program $prog, array $skip): nodes\Program {
+    if (in_array('tail-call', $skip)) {
+      return $prog;
+    }
+
     /* @var Symbol|null $current_func_symbol */
     $current_func_symbol = null;
 

@@ -8,7 +8,11 @@ use Cthulhu\lib\trees\EditablePath;
 use Cthulhu\lib\trees\Visitor;
 
 class CombineCalls implements Pass {
-  public static function apply(Root $root): Root {
+  public static function apply(Root $root, array $skip): Root {
+    if (in_array('combine-calls', $skip)) {
+      return $root;
+    }
+
     $new_root = Visitor::edit($root, [
       'Apply' => function (Apply $app, EditablePath $path) {
         if ($app->callee instanceof Apply) {

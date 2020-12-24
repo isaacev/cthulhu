@@ -30,10 +30,12 @@ $root = (new cli\Program('cthulhu', '0.2.0'))
 
 $root->subcommand('check', 'Check that a source file is free of errors')
   ->bool_flag('--ir', 'Print intermediate representation')
+  ->str_flag('--no-opt', 'Disable an optimization', 'name')
   ->single_argument('file', 'Path to the source file')
   ->callback('command_check');
 
 $root->subcommand('compile', 'Convert source code to PHP')
+  ->str_flag('--no-opt', 'Disable an optimization', 'name')
   ->single_argument('file', 'Path to the source file')
   ->callback('command_compile');
 
@@ -46,6 +48,7 @@ $root->subcommand('test', 'Run all of the available tests')
   ->callback('command_test');
 
 $root->subcommand('run', 'Compile and evaluate a script')
+  ->str_flag('--no-opt', 'Disable an optimization', 'name')
   ->single_argument('file', 'Path to the source file')
   ->variadic_argument('args', 'Arguments for the script')
   ->callback('command_run');
@@ -64,7 +67,7 @@ function command_check(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args)
 
     if ($flags->get('ir', false)) {
       $checked
-        ->optimize()
+        ->optimize($flags->get_all('no-opt', []))
         ->ir()
         ->build()
         ->write(StreamFormatter::stdout($use_color))
@@ -80,7 +83,6 @@ function command_check(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args)
   }
 }
 
-/** @noinspection PhpUnusedParameterInspection */
 function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
   Debug::setup($options);
 
@@ -89,9 +91,9 @@ function command_compile(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $arg
     $filepath = $args->get('file');
     LoadPhase::from_filepath($filepath)
       ->check()
-      ->optimize()
+      ->optimize($flags->get_all('no-opt', []))
       ->codegen()
-      ->optimize()
+      ->optimize($flags->get_all('no-opt', []))
       ->write(StreamFormatter::stdout($use_color));
   } catch (Error $err) {
     $err->format(StreamFormatter::stderr($use_color));
@@ -162,7 +164,6 @@ function command_test(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) 
   exit($reporter->count_failed() ? 1 : 0);
 }
 
-/** @noinspection PhpUnusedParameterInspection */
 function command_run(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
   Debug::setup($options);
 
@@ -171,9 +172,9 @@ function command_run(cli\Lookup $options, cli\Lookup $flags, cli\Lookup $args) {
     $filepath = $args->get('file');
     LoadPhase::from_filepath($filepath)
       ->check()
-      ->optimize()
+      ->optimize($flags->get_all('no-opt', []))
       ->codegen()
-      ->optimize()
+      ->optimize($flags->get_all('no-opt', []))
       ->run_and_emit($args->get('args'));
   } catch (Error $err) {
     $err->format(StreamFormatter::stderr($use_color));
