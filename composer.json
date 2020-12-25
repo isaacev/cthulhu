@@ -1,11 +1,11 @@
 {
-    "name": "cthulhu",
+    "name": "isaacev/cthulhu",
     "version": "0.2.0",
     "description": "a strongly typed language that compiles to sane PHP",
     "scripts": {
         "build": [
             "mkdir -p bin",
-            "php -d phar.readonly=off ./lib/phar-composer-1.1.0.phar build . bin/cthulhu.phar"
+            "php -d phar.readonly=off ./lib/phar-composer-1.2.0.phar build . bin/cthulhu.phar"
         ]
     },
     "bin": [
@@ -17,6 +17,6 @@
         }
     },
     "require": {
-        "php": ">=7.4"
+        "php": ">=8.0"
     }
 }
