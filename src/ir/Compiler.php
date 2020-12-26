@@ -188,6 +188,20 @@ class Compiler {
       $ctx->entry_calls[] = new ir\Apply($type->output, $callee, $args);
     }
 
+    if ($attrs = $item->get('attrs')) {
+      $raw_attr_values = [];
+
+      /* @var ast\Attribute[] $attrs */
+      foreach ($attrs as $attr) {
+        $raw_attr_values[] = [
+          'name' => $attr->name->value,
+          'args' => array_map(fn($name) => $name->value, $attr->args),
+        ];
+      }
+
+      $def->set('attrs', $raw_attr_values);
+    }
+
     $ctx->push_stmt($def);
   }
 

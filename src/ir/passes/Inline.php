@@ -12,11 +12,7 @@ use Cthulhu\lib\trees\EditablePath;
 use Cthulhu\lib\trees\Visitor;
 
 class Inline implements Pass {
-  public static function apply(Root $root, array $skip): Root {
-    if (in_array('inline', $skip)) {
-      return $root;
-    }
-
+  public static function apply(Root $root): Root {
     /* @var Def[] $inline_candidates */
     $inline_candidates = [];
     $current_def       = null;
@@ -75,7 +71,18 @@ class Inline implements Pass {
   }
 
   private static function is_inline_candidate(Def $def): bool {
-    return $def->body !== null && count($def->body) === 1;
+    if ($def->body === null || count($def->body) !== 1) {
+      return false;
+    }
+
+    $attrs = $def->get('attrs') ?? [];
+    foreach ($attrs as $attr) {
+      if ($attr['name'] === 'inline' && in_array('never', $attr['args'])) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private static function expand(Def $def, Exprs $args): Expr {

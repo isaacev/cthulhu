@@ -11,11 +11,7 @@ use Cthulhu\php\nodes\Variable;
 use Cthulhu\php\nodes\VariableExpr;
 
 class VarReduction implements Pass {
-  public static function apply(Program $prog, array $skip): Program {
-    if (in_array('var-reduction', $skip)) {
-      return $prog;
-    }
-
+  public static function apply(Program $prog): Program {
     $replacements = []; // symbol id -> expression
     $total_writes = []; // symbol id -> int
 

@@ -12,14 +12,10 @@ class EarlyOptimizationPhase {
     $this->tree = $tree;
   }
 
-  /**
-   * @param string[] $skip
-   * @return CodegenPhase
-   */
-  public function optimize(array $skip): CodegenPhase {
-    $this->tree = passes\Inline::apply($this->tree, $skip);
-    $this->tree = passes\ShakeTree::apply($this->tree, $skip);
-    $this->tree = passes\CombineCalls::apply($this->tree, $skip);
+  public function optimize(): CodegenPhase {
+    $this->tree = passes\Inline::apply($this->tree);
+    $this->tree = passes\ShakeTree::apply($this->tree);
+    $this->tree = passes\CombineCalls::apply($this->tree);
     return new CodegenPhase($this->tree);
   }
 }

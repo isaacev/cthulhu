@@ -8,11 +8,7 @@ use Cthulhu\php\nodes;
 use Cthulhu\val\StringValue;
 
 class ConstEval implements Pass {
-  public static function apply(nodes\Program $prog, array $skip): nodes\Program {
-    if (in_array('const-eval', $skip)) {
-      return $prog;
-    }
-
+  public static function apply(nodes\Program $prog): nodes\Program {
     $new_prog = Visitor::edit($prog, [
       'exit(BinaryExpr)' => function (nodes\BinaryExpr $binary, EditablePath $path) {
         $replacement = (

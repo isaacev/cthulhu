@@ -1,7 +1,6 @@
--- SKIP: inline
-
 use ::Io;
 
+#[inline(never)]
 fn hello() -> () {
   Io::println("hello");
 }

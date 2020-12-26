@@ -98,12 +98,11 @@ class Test {
     $start     = microtime(true);
 
     try {
-      $skip = $this->find_skipped_optimizations();
       $tree = LoadPhase::from_file($this->input)
         ->check()
-        ->optimize($skip)
+        ->optimize()
         ->codegen()
-        ->optimize($skip);
+        ->optimize();
 
       $php       = $tree->write(new fmt\StringFormatter());
       $php       = self::do_replacements($php, $replacements);
@@ -133,20 +132,6 @@ class Test {
     } catch (Exception $ex) {
       return new TestOutput('', '', "$ex");
     }
-  }
-
-  /**
-   * @return string[]
-   */
-  private function find_skipped_optimizations(): array {
-    $matches = null;
-    preg_match("/^-- SKIP: (.*)\n/", $this->input->contents, $matches);
-    if (empty($matches) || empty($matches[1])) {
-      return [];
-    }
-
-    $untrimmed = explode(",", $matches[1]);
-    return array_map(fn($skip) => trim($skip), $untrimmed);
   }
 
   /**

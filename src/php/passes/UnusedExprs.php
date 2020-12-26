@@ -11,11 +11,7 @@ use Cthulhu\php\nodes\SemiStmt;
 use Cthulhu\php\nodes\VariableExpr;
 
 class UnusedExprs implements Pass {
-  public static function apply(Program $prog, array $skip): Program {
-    if (in_array('unused-exprs', $skip)) {
-      return $prog;
-    }
-
+  public static function apply(Program $prog): Program {
     $new_prog = Visitor::edit($prog, [
       'Literal' => function (Literal $literal) {
         $literal->set('const', true);
