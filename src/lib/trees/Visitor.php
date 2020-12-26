@@ -9,7 +9,13 @@ class Visitor {
     self::_walk($path, $callbacks);
   }
 
-  private static function _walk(Path $path, CallbackTable $callbacks): void {
+  public static function walk2(Nodelike $start, mixed $instance): void {
+    $path  = new Path(null, $start);
+    $table = new AttrTable($instance);
+    self::_walk($path, $table);
+  }
+
+  private static function _walk(Path $path, LookupTable $callbacks): void {
     $callbacks->preorder($path->node, $path);
     if (!$path->is_recursion_aborted()) {
       foreach ($path->node->children() as $child) {
@@ -75,12 +81,12 @@ class Visitor {
   }
 
   /**
-   * @param EditablePath  $curr_path
-   * @param CallbackTable $callbacks
+   * @param EditablePath $curr_path
+   * @param LookupTable  $callbacks
    * @return EditableNodelike|null
    * @see Visitor::edit
    */
-  private static function _edit(EditablePath $curr_path, CallbackTable $callbacks): ?EditableNodelike {
+  private static function _edit(EditablePath $curr_path, LookupTable $callbacks): ?EditableNodelike {
     do {
       do {
         // If the current node was removed and no replacement was given, exit

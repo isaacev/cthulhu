@@ -2,7 +2,7 @@
 
 namespace Cthulhu\lib\trees;
 
-class CallbackTable {
+class CallbackTable implements LookupTable {
   private array $callbacks = [];
 
   public function __construct(array $callbacks) {
@@ -37,7 +37,7 @@ class CallbackTable {
    * @param Nodelike $node
    * @param mixed    ...$args
    */
-  public function preorder(Nodelike $node, ...$args) {
+  public function preorder(Nodelike $node, ...$args): void {
     foreach (array_reverse(self::get_node_kinds($node)) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('enter', $this->callbacks[$kind])) {
@@ -57,7 +57,7 @@ class CallbackTable {
    * @param Nodelike $node
    * @param mixed    ...$args
    */
-  public function postorder(Nodelike $node, ...$args) {
+  public function postorder(Nodelike $node, ...$args): void {
     foreach (self::get_node_kinds($node) as $kind) {
       if (array_key_exists($kind, $this->callbacks)) {
         if (array_key_exists('exit', $this->callbacks[$kind])) {
