@@ -21,6 +21,10 @@ class FuncExpr extends Expr {
     $this->body   = $body;
   }
 
+  public function precedence(): int {
+    return Precedence::LOWEST;
+  }
+
   public function children(): array {
     return array_merge($this->params, $this->used, [ $this->body ]);
   }

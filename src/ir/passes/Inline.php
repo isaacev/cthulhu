@@ -3,6 +3,7 @@
 namespace Cthulhu\ir\passes;
 
 use Cthulhu\ir\nodes\Apply;
+use Cthulhu\ir\nodes\Closure;
 use Cthulhu\ir\nodes\Def;
 use Cthulhu\ir\nodes\Expr;
 use Cthulhu\ir\nodes\Exprs;
@@ -27,6 +28,16 @@ class Inline implements Pass {
       },
       'exit(Def)' => function () use (&$current_def) {
         $current_def = null;
+      },
+
+      'Closure' => function (Closure $closure) use (&$inline_candidates, &$current_def) {
+        if (count($closure->closed) > 0) {
+          // If the function body contains a closure and that closure uses
+          // variables from its parent lexical scope, don't inline the parent
+          // function. By not inlining the parent function, we avoid having to
+          // also inline any closed-over variables.
+          unset($inline_candidates[$current_def]);
+        }
       },
 
       'Apply' => function (Apply $apply) use (&$inline_candidates, &$current_def) {

@@ -1,0 +1,13 @@
+use ::Io;
+
+fn hello() -> Str -> () {
+  { |name|
+    Io::println(name);
+    Io::println("world");
+  }
+}
+
+#[entry]
+fn main() -> () {
+  hello()("foo");
+}

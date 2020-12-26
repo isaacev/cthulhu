@@ -16,7 +16,13 @@ class Exprs extends Node implements Countable {
   }
 
   public function append(Exprs $rest): Exprs {
-    return new Exprs(array_merge($this->exprs, $rest->exprs));
+    if (count($rest) === 0) {
+      $exprs = [ new UnitLit() ];
+    } else {
+      $exprs = $rest->exprs;
+    }
+
+    return new Exprs(array_merge($this->exprs, $exprs));
   }
 
   public function count() {
