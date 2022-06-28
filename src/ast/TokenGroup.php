@@ -27,7 +27,7 @@ class TokenGroup extends TokenTree implements Countable, Spanlike {
     $this->right   = $right->span();
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->members);
   }
 

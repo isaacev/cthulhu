@@ -12,7 +12,7 @@ class Exprs extends Node implements Countable {
     $this->exprs = $exprs;
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->exprs);
   }
 

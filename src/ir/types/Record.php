@@ -15,7 +15,7 @@ class Record extends ConcreteType implements Countable {
     $this->fields = $fields;
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->fields);
   }
 

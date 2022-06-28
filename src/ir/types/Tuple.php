@@ -16,7 +16,7 @@ class Tuple extends ConcreteType implements Countable {
     $this->members = $members;
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->members);
   }
 

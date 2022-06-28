@@ -15,7 +15,7 @@ class FnParams extends Node implements Countable {
     $this->params = $params;
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->params);
   }
 

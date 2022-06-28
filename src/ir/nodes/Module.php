@@ -39,7 +39,7 @@ class Module extends Node implements RemovalHandler, ReplacementHandler, Editabl
       ->copy($this);
   }
 
-  public function count() {
+  public function count(): int {
     return 1 + ($this->next ? count($this->next) : 0);
   }
 

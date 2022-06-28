@@ -15,7 +15,7 @@ class Names extends Node implements Countable {
     $this->names = $names;
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->names);
   }
 

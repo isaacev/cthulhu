@@ -20,7 +20,7 @@ abstract class Stmt extends Node implements RemovalHandler, ReplacementHandler, 
     return $this->next;
   }
 
-  public function count() {
+  public function count(): int {
     return 1 + ($this->next ? count($this->next) : 0);
   }
 

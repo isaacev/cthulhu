@@ -25,7 +25,7 @@ class Exprs extends Node implements Countable {
     return new Exprs(array_merge($this->exprs, $exprs));
   }
 
-  public function count() {
+  public function count(): int {
     return count($this->exprs);
   }
 
